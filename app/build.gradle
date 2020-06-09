@@ -1,6 +1,18 @@
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+    dependencies {
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:4.3.0"
+    }
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.diffplug.gradle.spotless'
 
 android {
     compileSdkVersion 29
@@ -34,4 +46,11 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+}
+
+spotless {
+    kotlin {
+        ktlint('0.37.1').userData(['disabled_rules': 'import-ordering'])
+        target '**/*.kt'
+    }
 }
