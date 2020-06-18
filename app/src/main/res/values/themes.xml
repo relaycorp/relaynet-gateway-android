@@ -1,0 +1,61 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Base.Theme.Gateway" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
+    <style name="Theme.Gateway" parent="Base.Theme.Gateway">
+        <item name="colorPrimary">@color/relaynet_primary</item>
+        <item name="colorSecondary">@color/relaynet_secondary</item>
+
+        <item name="android:colorBackground">@color/white</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorError">@color/red</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorOnBackground">@color/black</item>
+        <item name="colorOnSurface">@color/relaynet_primary</item>
+        <item name="colorOnError">@color/white</item>
+
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:fontFamily">@font/inria_sans</item>
+        <item name="android:textAppearance">@style/TextAppearance.Gateway.Body</item>
+
+        <item name="iconTint">?colorOnSurface</item>
+        <item name="android:colorControlHighlight">@color/gray_light</item>
+        <item name="android:listDivider">@color/gray_dark</item>
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Gateway.Dialog</item>
+
+        <!-- Custom styles -->
+        <item name="appBarLayoutStyle">@style/Widget.Gateway.AppBar</item>
+        <item name="toolbarStyle">@style/Widget.Gateway.Toolbar</item>
+        <item name="android:toolbarStyle">@style/Widget.Gateway.Toolbar</item>
+        <item name="toolbarNavigationButtonStyle">@style/Widget.Gateway.ToolbarNavigationButton
+        </item>
+        <item name="android:textViewStyle">@style/Widget.Gateway.TextView</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Gateway.ToolbarTitle</item>
+        <item name="materialButtonStyle">@style/Widget.Gateway.Button</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.Gateway.Button.Outline</item>
+    </style>
+
+    <style name="Theme.Gateway.Splash">
+        <item name="android:windowBackground">@drawable/splash</item>
+    </style>
+
+    <style name="ThemeOverlay.Gateway.Dialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="colorPrimary">@color/relaynet_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/black</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/Widget.Gateway.DialogTitle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.Gateway.DialogButton.Positive</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.Gateway.DialogButton.Negative</item>
+    </style>
+</resources>
