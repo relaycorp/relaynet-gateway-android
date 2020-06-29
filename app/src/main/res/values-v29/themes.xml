@@ -1,0 +1,7 @@
+<resources>
+
+    <style name="Base.Theme.Gateway" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+</resources>

@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">Relaynet Gateway</string>
+
+    <!-- Common -->
+    <string name="app_name">Gateway</string>
+
+    <!-- Main -->
+    <string name="main_title">Relaynet Gateway</string>
 </resources>

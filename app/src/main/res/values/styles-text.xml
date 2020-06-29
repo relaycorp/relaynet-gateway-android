@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="TextAppearance.Gateway.ToolbarTitle" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textColor">?colorOnSurface</item>
+    </style>
+
+    <style name="TextAppearance.Gateway.Title" parent="TextAppearance.MaterialComponents.Headline6" tools:ignore="UnusedResources">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="TextAppearance.Gateway.Body" parent="">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">?android:textColor</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="TextAppearance.Gateway.Body2" parent="TextAppearance.MaterialComponents.Body2" tools:ignore="UnusedResources">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?android:textColorSecondary</item>
+    </style>
+
+</resources>
