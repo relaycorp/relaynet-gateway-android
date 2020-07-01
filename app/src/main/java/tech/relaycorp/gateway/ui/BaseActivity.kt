@@ -6,6 +6,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.common_app_bar.*
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.R
@@ -41,6 +42,7 @@ abstract class BaseActivity : AppCompatActivity() {
         super.setContentView(layoutResID)
         toolbarTitle?.text = title
         appBar?.addSystemWindowInsetToPadding(top = true)
+        innerContainer?.addSystemWindowInsetToPadding(bottom = true)
     }
 
     protected fun setupNavigation(

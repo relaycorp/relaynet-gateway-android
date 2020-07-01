@@ -2,7 +2,30 @@
 
     <!-- Common -->
     <string name="app_name">Gateway</string>
+    <string name="close">Close</string>
+    <string name="stop">Stop</string>
+    <string name="continue_">Continue</string>
 
     <!-- Main -->
     <string name="main_title">Relaynet Gateway</string>
+
+    <!-- Sync -->
+    <string name="sync_courier">Sync with Courier</string>
+
+    <!-- Courier Connection -->
+    <string name="courier_connected">Connected</string>
+    <string name="courier_disconnected">Not connected</string>
+    <string name="courier_sync_start">Start Sync</string>
+
+    <!-- Courier Sync -->
+    <string name="sync_delivering_cargo">Delivering data…</string>
+    <string name="sync_waiting">Waiting for the incoming data to become available…</string>
+    <string name="sync_collecting_cargo">Collecting data…</string>
+    <string name="sync_finished">Done!</string>
+    <string name="sync_error">An error has occurred. You may try again.</string>
+    <string name="sync_stop_confirm_title">
+        Are you sure you want to interrupt the synchronization?
+    </string>
+    <string name="sync_internet_stop_confirm_message">The sync hasn’t finished yet.</string>
+
 </resources>

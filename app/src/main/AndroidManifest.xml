@@ -3,17 +3,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="tech.relaycorp.gateway">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
     <application
         android:name=".App"
         android:allowBackup="false"
+        android:extractNativeLibs="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Gateway"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning,UnusedAttribute">
         <activity
             android:name=".ui.main.MainActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Gateway.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,6 +27,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.sync.CourierConnectionActivity"
+            android:label="@string/sync_courier"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.sync.CourierSyncActivity"
+            android:label="@string/sync_courier"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

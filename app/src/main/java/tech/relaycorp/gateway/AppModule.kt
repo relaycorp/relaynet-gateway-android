@@ -2,6 +2,8 @@ package tech.relaycorp.gateway
 
 import android.content.Context
 import android.content.res.Resources
+import android.net.ConnectivityManager
+import android.net.wifi.WifiManager
 import dagger.Module
 import dagger.Provides
 
@@ -21,4 +23,12 @@ class AppModule(
 
     @Provides
     fun resources(): Resources = app.resources
+
+    @Provides
+    fun connectivityManager() =
+        app.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+    @Provides
+    fun wifiManager() =
+        app.getSystemService(Context.WIFI_SERVICE) as WifiManager
 }
