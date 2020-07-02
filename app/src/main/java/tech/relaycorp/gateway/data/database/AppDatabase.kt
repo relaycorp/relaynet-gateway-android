@@ -10,13 +10,7 @@ import tech.relaycorp.gateway.data.repos.ParcelRepository
     entities = [StoredParcel::class],
     version = 1
 )
-@TypeConverters(
-    value = [
-        DateConverter::class,
-        MessageConverter::class,
-        StorageSizeConverter::class
-    ]
-)
-abstract class AppDatabase : RoomDatabase(){
+@TypeConverters(Converters::class)
+abstract class AppDatabase : RoomDatabase() {
     abstract fun parcelRepository(): ParcelRepository
 }

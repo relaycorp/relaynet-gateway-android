@@ -6,13 +6,15 @@ import java.util.Date
 
 @Entity(
     tableName = "Parcel",
-    primaryKeys = ["senderAddress", "messageId"]
+    primaryKeys = ["recipientAddress", "senderAddress", "messageId"]
 )
 data class StoredParcel(
-    @ColumnInfo(index = true)
     val recipientAddress: MessageAddress,
     val senderAddress: MessageAddress,
     val messageId: MessageId,
+    @ColumnInfo(index = true)
+    val recipientLocation: RecipientLocation,
+    @ColumnInfo(index = true)
     val creationTimeUtc: Date, // in UTC
     @ColumnInfo(index = true)
     val expirationTimeUtc: Date, // in UTC

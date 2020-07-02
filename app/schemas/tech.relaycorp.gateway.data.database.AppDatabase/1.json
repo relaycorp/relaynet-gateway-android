@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "9ddb31ac692f375edbe5f934ce68bf51",
+    "identityHash": "1eb6cc04dc6143149575f7545f798e49",
     "entities": [
       {
         "tableName": "Parcel",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recipientAddress` TEXT NOT NULL, `senderAddress` TEXT NOT NULL, `messageId` TEXT NOT NULL, `creationTimeUtc` INTEGER NOT NULL, `expirationTimeUtc` INTEGER NOT NULL, `storagePath` TEXT NOT NULL, `size` INTEGER NOT NULL, PRIMARY KEY(`senderAddress`, `messageId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recipientAddress` TEXT NOT NULL, `senderAddress` TEXT NOT NULL, `messageId` TEXT NOT NULL, `recipientLocation` TEXT NOT NULL, `creationTimeUtc` INTEGER NOT NULL, `expirationTimeUtc` INTEGER NOT NULL, `storagePath` TEXT NOT NULL, `size` INTEGER NOT NULL, PRIMARY KEY(`recipientAddress`, `senderAddress`, `messageId`))",
         "fields": [
           {
             "fieldPath": "recipientAddress",
@@ -23,6 +23,12 @@
           {
             "fieldPath": "messageId",
             "columnName": "messageId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recipientLocation",
+            "columnName": "recipientLocation",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -53,6 +59,7 @@
         ],
         "primaryKey": {
           "columnNames": [
+            "recipientAddress",
             "senderAddress",
             "messageId"
           ],
@@ -60,12 +67,20 @@
         },
         "indices": [
           {
-            "name": "index_Parcel_recipientAddress",
+            "name": "index_Parcel_recipientLocation",
             "unique": false,
             "columnNames": [
-              "recipientAddress"
+              "recipientLocation"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Parcel_recipientAddress` ON `${TABLE_NAME}` (`recipientAddress`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Parcel_recipientLocation` ON `${TABLE_NAME}` (`recipientLocation`)"
+          },
+          {
+            "name": "index_Parcel_creationTimeUtc",
+            "unique": false,
+            "columnNames": [
+              "creationTimeUtc"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Parcel_creationTimeUtc` ON `${TABLE_NAME}` (`creationTimeUtc`)"
           },
           {
             "name": "index_Parcel_expirationTimeUtc",
@@ -82,7 +97,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9ddb31ac692f375edbe5f934ce68bf51')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1eb6cc04dc6143149575f7545f798e49')"
     ]
   }
 }

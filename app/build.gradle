@@ -19,7 +19,8 @@ apply from: 'jacoco.gradle'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "29.0.3"
+    buildToolsVersion '29.0.3'
+    ndkVersion '21.3.6528147'
 
     defaultConfig {
         applicationId "tech.relaycorp.gateway"
