@@ -1,7 +1,12 @@
 package tech.relaycorp.gateway.data.database
 
 import androidx.room.TypeConverter
-import tech.relaycorp.gateway.data.model.*
+import tech.relaycorp.gateway.data.model.MessageAddress
+import tech.relaycorp.gateway.data.model.MessageId
+import tech.relaycorp.gateway.data.model.PrivateMessageAddress
+import tech.relaycorp.gateway.data.model.PublicMessageAddress
+import tech.relaycorp.gateway.data.model.RecipientLocation
+import tech.relaycorp.gateway.data.model.StorageSize
 import java.util.Date
 
 class Converters {

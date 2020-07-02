@@ -5,10 +5,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import tech.relaycorp.gateway.background.CourierConnectionObserver
 import tech.relaycorp.gateway.background.CourierConnectionState
-import tech.relaycorp.gateway.domain.courier.GenerateCargo
 import tech.relaycorp.relaynet.CargoDeliveryRequest
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
-import java.util.*
+import java.util.UUID
 import javax.inject.Inject
 
 class CargoDelivery

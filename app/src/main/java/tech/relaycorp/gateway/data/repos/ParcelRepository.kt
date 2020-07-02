@@ -1,10 +1,13 @@
 package tech.relaycorp.gateway.data.repos
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import tech.relaycorp.gateway.data.model.MessageId
 import tech.relaycorp.gateway.data.model.PrivateMessageAddress
-import tech.relaycorp.gateway.data.model.StorageSize
 import tech.relaycorp.gateway.data.model.StoredParcel
 
 @Dao
