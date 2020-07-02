@@ -1,6 +1,5 @@
 package tech.relaycorp.gateway.domain.courier
 
-import tech.relaycorp.relaynet.messages.Cargo
 import java.io.InputStream
 import javax.inject.Inject
 
@@ -9,5 +8,4 @@ class GenerateCargo
 
     // TODO: implementation
     suspend fun generate(): Iterable<InputStream> = emptyList()
-
 }

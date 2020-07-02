@@ -7,5 +7,4 @@ class ProcessCargo
 
     // TODO: implement
     suspend fun process() {}
-
 }

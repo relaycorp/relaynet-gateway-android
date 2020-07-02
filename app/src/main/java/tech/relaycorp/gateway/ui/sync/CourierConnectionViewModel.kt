@@ -1,10 +1,7 @@
 package tech.relaycorp.gateway.ui.sync
 
-import kotlinx.coroutines.channels.sendBlocking
 import tech.relaycorp.gateway.background.CourierConnectionObserver
 import tech.relaycorp.gateway.ui.BaseViewModel
-import tech.relaycorp.gateway.ui.common.Click
-import tech.relaycorp.gateway.ui.main.PublishFlow
 import javax.inject.Inject
 
 class CourierConnectionViewModel
@@ -17,6 +14,5 @@ class CourierConnectionViewModel
     val state get() = connectionObserver.observe()
 
     init {
-
     }
 }

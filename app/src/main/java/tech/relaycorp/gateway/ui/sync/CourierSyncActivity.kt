@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import tech.relaycorp.gateway.R
-import tech.relaycorp.gateway.background.CourierConnectionState
 import tech.relaycorp.gateway.domain.courier.CourierSync
 import tech.relaycorp.gateway.ui.BaseActivity
 import javax.inject.Inject

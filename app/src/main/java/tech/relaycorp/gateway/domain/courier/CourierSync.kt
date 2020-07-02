@@ -4,7 +4,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import tech.relaycorp.gateway.common.Logging.logger
-import tech.relaycorp.gateway.domain.courier.CargoDelivery
 import java.util.logging.Level
 import javax.inject.Inject
 import kotlin.time.seconds
