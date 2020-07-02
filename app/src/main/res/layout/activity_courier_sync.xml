@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:colorBackground"
     tools:context=".ui.sync.CourierConnectionActivity">
 
     <include layout="@layout/common_app_bar" />
@@ -20,9 +19,9 @@
         <TextView
             android:id="@+id/stateMessage"
             android:layout_width="match_parent"
-            android:textIsSelectable="true"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            android:textIsSelectable="true"
             tools:text="@string/courier_connected" />
 
         <com.google.android.material.button.MaterialButton
