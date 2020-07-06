@@ -3,9 +3,11 @@ package tech.relaycorp.gateway
 import android.app.Application
 import android.os.Build
 import android.os.StrictMode
+import org.conscrypt.Conscrypt
 import tech.relaycorp.gateway.common.Logging
 import tech.relaycorp.gateway.common.di.AppComponent
 import tech.relaycorp.gateway.common.di.DaggerAppComponent
+import java.security.Security
 import java.util.logging.Level
 import java.util.logging.LogManager
 
@@ -29,6 +31,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         component.inject(this)
+        setupTLSProvider()
         setupLogger()
         setupStrictMode()
     }
@@ -72,6 +75,10 @@ class App : Application() {
                     .build()
             )
         }
+    }
+
+    private fun setupTLSProvider() {
+        Security.insertProviderAt(Conscrypt.newProvider(), 1)
     }
 
     enum class Mode { Normal, Test }

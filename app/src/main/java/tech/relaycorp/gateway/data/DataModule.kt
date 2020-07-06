@@ -7,6 +7,7 @@ import dagger.Module
 import dagger.Provides
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.database.AppDatabase
+import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -24,6 +25,11 @@ class DataModule {
         }.build()
 
     @Provides
+    @Singleton
+    fun storedParcelDao(database: AppDatabase) =
+        database.parcelRepository()
+
+    @Provides
     @Named("preferences_name")
     fun preferencesName(appMode: App.Mode) =
         when (appMode) {
@@ -37,4 +43,7 @@ class DataModule {
         @Named("preferences_name") preferencesName: String
     ): SharedPreferences =
         context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
+
+    @Provides
+    fun cogRPCClientBuilder(): CogRPCClient.Builder = CogRPCClient.Builder
 }
