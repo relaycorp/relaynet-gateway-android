@@ -94,7 +94,7 @@ dependencies {
 
     // Dependency Injection
     api 'com.google.dagger:dagger:2.28.1'
-    kapt 'com.google.dagger:dagger-compiler:2.28'
+    kapt 'com.google.dagger:dagger-compiler:2.28.1'
 
     // Relaynet
     implementation 'tech.relaycorp:relaynet:1.15.6'
