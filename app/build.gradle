@@ -78,7 +78,7 @@ android {
 
 dependencies {
     // Java 8
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.5'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.9'
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
