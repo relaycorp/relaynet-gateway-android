@@ -3,10 +3,13 @@ package tech.relaycorp.gateway.ui.sync
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.stationhead.android.shared.viewmodel.ViewModelFactory
-import kotlinx.android.synthetic.main.activity_courier_connection.*
+import kotlinx.android.synthetic.main.activity_courier_connection.startSync
+import kotlinx.android.synthetic.main.activity_courier_connection.stateMessage
+import kotlinx.android.synthetic.main.activity_courier_connection.wifiSettings
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import tech.relaycorp.gateway.R
@@ -30,6 +33,7 @@ class CourierConnectionActivity : BaseActivity() {
         setContentView(R.layout.activity_courier_connection)
 
         startSync.setOnClickListener { openCourierSync() }
+        wifiSettings.setOnClickListener { openWifiSettings() }
 
         viewModel
             .state
@@ -38,11 +42,16 @@ class CourierConnectionActivity : BaseActivity() {
                 stateMessage.setText(
                     when (it) {
                         is CourierConnectionState.ConnectedWithCourier -> R.string.courier_connected
-                        else -> R.string.courier_disconnected
+                        is CourierConnectionState.ConnectedWithUnknown -> R.string.courier_connected_with_unknown
+                        is CourierConnectionState.Disconnected -> R.string.courier_disconnected
                     }
                 )
             }
             .launchIn(lifecycleScope)
+    }
+
+    private fun openWifiSettings() {
+        startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
     }
 
     private fun openCourierSync() {
