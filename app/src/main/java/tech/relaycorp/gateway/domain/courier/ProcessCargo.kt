@@ -19,7 +19,10 @@ class ProcessCargo
             val cargo = Cargo.deserialize(cargoStream().readBytesAndClose())
             readParcelsFromCargo
                 .read(cargo)
-                .forEach { storeParcel.store(it) }
+                .forEach {
+                    // TODO: handle other gateway messages
+                    storeParcel.store(it)
+                }
         }
         cargoStorage.deleteAll()
     }

@@ -31,10 +31,10 @@ class DiskOperations
                 ?: emptyList()
         }
 
-    @Throws(ParcelDataNotFoundException::class)
+    @Throws(MessageDataNotFoundException::class)
     suspend fun readMessage(folder: String, path: String): (() -> InputStream) {
         val file = File(getOrCreateDir(folder), path)
-        if (!file.exists()) throw ParcelDataNotFoundException("Parcel data not found on path '$path'")
+        if (!file.exists()) throw MessageDataNotFoundException("Message data not found on path '$path'")
         return file::inputStream
     }
 
@@ -67,8 +67,8 @@ class DiskOperations
 
     private suspend fun createUniqueFile(folder: String, prefix: String) =
         withContext(Dispatchers.IO) {
-            val parcelsDir = getOrCreateDir(folder)
+            val filesDir = getOrCreateDir(folder)
             // The file created isn't temporary, but it ensures a unique filename
-            File.createTempFile(prefix, "", parcelsDir)
+            File.createTempFile(prefix, "", filesDir)
         }
 }

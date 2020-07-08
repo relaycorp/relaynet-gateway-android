@@ -7,6 +7,7 @@ import tech.relaycorp.gateway.data.disk.DiskOperations
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StoredParcel
 import tech.relaycorp.gateway.domain.DeleteParcel
+import tech.relaycorp.gateway.domain.DeliverParcel
 import java.util.logging.Level
 import javax.inject.Inject
 

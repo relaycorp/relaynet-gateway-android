@@ -1,4 +1,4 @@
-package tech.relaycorp.gateway.domain.courier
+package tech.relaycorp.gateway.domain
 
 import tech.relaycorp.gateway.common.Operation
 import tech.relaycorp.gateway.data.model.MessageAddress

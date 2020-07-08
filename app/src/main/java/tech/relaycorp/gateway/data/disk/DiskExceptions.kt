@@ -1,6 +1,6 @@
 package tech.relaycorp.gateway.data.disk
 
-class ParcelDataNotFoundException(
+class MessageDataNotFoundException(
     message: String? = null,
     cause: Throwable? = null
 ) : Exception(message, cause)
