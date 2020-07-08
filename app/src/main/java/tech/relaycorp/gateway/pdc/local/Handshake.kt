@@ -13,7 +13,6 @@ import org.bouncycastle.util.Selector
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.io.IOException
 
-@Suppress("ArrayInDataClass")
 internal data class SignatureVerification(
     val signerCertificate: Certificate
 )
