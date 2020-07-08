@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.map
 import tech.relaycorp.gateway.background.CourierConnectionObserver
 import tech.relaycorp.gateway.background.CourierConnectionState
 import tech.relaycorp.gateway.common.Logging.logger
-import tech.relaycorp.gateway.data.repos.CargoRepository
+import tech.relaycorp.gateway.data.disk.CargoStorage
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
 import java.util.logging.Level
 import javax.inject.Inject
@@ -16,8 +16,9 @@ class CargoCollection
     private val clientBuilder: CogRPCClient.Builder,
     private val courierConnectionObserver: CourierConnectionObserver,
     private val generateCCA: GenerateCCA,
-    private val cargoRepository: CargoRepository,
-    private val processCargo: ProcessCargo
+    private val cargoStorage: CargoStorage,
+    private val processCargo: ProcessCargo,
+    private val processParcels: ProcessParcels
 ) {
 
     @Throws(Disconnected::class)
@@ -28,7 +29,7 @@ class CargoCollection
         try {
             client
                 .collectCargo { generateCCAInputStream() }
-                .collect { cargoRepository.store(it) }
+                .collect { cargoStorage.store(it) }
         } catch (e: CogRPCClient.CCARefusedException) {
             logger.log(Level.WARNING, "CCA refused")
             return
@@ -37,6 +38,7 @@ class CargoCollection
         }
 
         processCargo.process()
+        processParcels.process()
     }
 
     private fun generateCCAInputStream() = generateCCA.generateByteArray().inputStream()

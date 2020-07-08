@@ -25,6 +25,13 @@
             tools:text="@string/courier_connected" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/wifiSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:text="@string/courier_configure_wifi" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/startSync"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

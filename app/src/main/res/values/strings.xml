@@ -14,7 +14,9 @@
 
     <!-- Courier Connection -->
     <string name="courier_connected">Connected</string>
+    <string name="courier_connected_with_unknown">Connected with network without Courier.</string>
     <string name="courier_disconnected">Not connected</string>
+    <string name="courier_configure_wifi">Open Wi-Fi Settings</string>
     <string name="courier_sync_start">Start Sync</string>
 
     <!-- Courier Sync -->

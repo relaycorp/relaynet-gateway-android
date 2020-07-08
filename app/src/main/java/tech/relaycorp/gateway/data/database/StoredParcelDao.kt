@@ -1,4 +1,4 @@
-package tech.relaycorp.gateway.data.repos
+package tech.relaycorp.gateway.data.database
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -6,12 +6,11 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import tech.relaycorp.gateway.data.model.MessageId
-import tech.relaycorp.gateway.data.model.PrivateMessageAddress
+import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StoredParcel
 
 @Dao
-interface ParcelRepository {
+interface StoredParcelDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(message: StoredParcel)
@@ -22,6 +21,12 @@ interface ParcelRepository {
     @Query("SELECT * FROM Parcel")
     fun observeAll(): Flow<List<StoredParcel>>
 
-    @Query("SELECT * FROM Parcel WHERE senderAddress = :senderAddress AND messageId = :messageId LIMIT 1")
-    fun get(senderAddress: PrivateMessageAddress, messageId: MessageId): StoredParcel
+    @Query(
+        """
+        SELECT * FROM Parcel
+        WHERE recipientLocation = :recipientLocation 
+        ORDER BY creationTimeUtc ASC
+        """
+    )
+    suspend fun listForRecipientLocation(recipientLocation: RecipientLocation): List<StoredParcel>
 }
