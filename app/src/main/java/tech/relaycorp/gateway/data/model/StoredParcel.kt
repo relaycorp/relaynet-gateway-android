@@ -20,4 +20,9 @@ data class StoredParcel(
     val expirationTimeUtc: Date, // in UTC
     val storagePath: String,
     val size: StorageSize
-)
+) {
+    companion object {
+        const val STORAGE_FOLDER = "parcels"
+        const val STORAGE_PREFIX = "parcel_"
+    }
+}
