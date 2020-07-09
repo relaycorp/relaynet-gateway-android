@@ -27,6 +27,10 @@ internal object Handshake {
         return uuid.toString().toByteArray()
     }
 
+    /**
+     * Verify that the signature in `cmsSignedData` is valid and its plaintext corresponds to
+     * `nonce`.
+     */
     @Throws(InvalidHandshakeSignatureException::class)
     internal fun verifySignature(
         cmsSignedData: ByteArray,
