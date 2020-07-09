@@ -33,10 +33,8 @@ class HandshakeTest {
         fun `Nonce should be a UUID4`() {
             val nonce = Handshake.generateNonce()
 
-            val uuid4Regex =
-                """^[-0-9a-f]{36}$""".toRegex()
             val nonceString = nonce.toString(Charset.forName("UTF8"))
-            assertTrue(uuid4Regex.matches(nonceString))
+            assertTrue(TestUtils.UUID4_REGEX.matches(nonceString))
         }
     }
 
