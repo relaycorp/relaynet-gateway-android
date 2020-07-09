@@ -12,12 +12,21 @@ import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder
 import org.bouncycastle.util.Selector
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.io.IOException
+import java.util.UUID
 
 internal data class SignatureVerification(
     val signerCertificate: Certificate
 )
 
 internal object Handshake {
+    /**
+     * Generate handshake nonce.
+     */
+    internal fun generateNonce(): ByteArray {
+        val uuid = UUID.randomUUID()
+        return uuid.toString().toByteArray()
+    }
+
     @Throws(InvalidHandshakeSignatureException::class)
     internal fun verifySignature(
         cmsSignedData: ByteArray,

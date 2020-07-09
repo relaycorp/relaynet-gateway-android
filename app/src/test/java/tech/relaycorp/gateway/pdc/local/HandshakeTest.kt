@@ -14,6 +14,7 @@ import org.bouncycastle.operator.ContentSigner
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -21,10 +22,24 @@ import tech.relaycorp.relaynet.issueEndpointCertificate
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.io.IOException
+import java.nio.charset.Charset
 import java.security.PrivateKey
 import java.time.ZonedDateTime
 
 class HandshakeTest {
+    @Nested
+    inner class GenerateNonce {
+        @Test
+        fun `Nonce should be a UUID4`() {
+            val nonce = Handshake.generateNonce()
+
+            val uuid4Regex =
+                """^[-0-9a-f]{36}$""".toRegex()
+            val nonceString = nonce.toString(Charset.forName("UTF8"))
+            assertTrue(uuid4Regex.matches(nonceString))
+        }
+    }
+
     @Nested
     inner class VerifySignature {
         private val nonce = "The nonce".toByteArray()
