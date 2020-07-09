@@ -16,18 +16,18 @@ import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import tech.relaycorp.relaynet.issueGatewayCertificate
+import tech.relaycorp.relaynet.issueEndpointCertificate
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.io.IOException
 import java.security.PrivateKey
 import java.time.ZonedDateTime
 
-val stubPlaintext = "The plaintext".toByteArray()
-val stubKeyPair = generateRSAKeyPair()
-val stubCertificate = issueGatewayCertificate( // TODO: Replace with endpoint function
-    stubKeyPair.public,
-    stubKeyPair.private,
+val NONCE = "The nonce".toByteArray()
+val ENDPOINT_KEY_PAIR = generateRSAKeyPair()
+val ENDPOINT_CERT = issueEndpointCertificate(
+    ENDPOINT_KEY_PAIR.public,
+    ENDPOINT_KEY_PAIR.private,
     ZonedDateTime.now().plusDays(1)
 )
 
@@ -37,7 +37,7 @@ class VerifySignatureTest {
         val invalidCMSSignedData = "Not really DER-encoded".toByteArray()
 
         val exception = assertThrows<InvalidHandshakeSignatureException> {
-            Handshake.verifySignature(invalidCMSSignedData, stubPlaintext)
+            Handshake.verifySignature(invalidCMSSignedData, NONCE)
         }
 
         assertEquals("Value is not DER-encoded", exception.message)
@@ -48,7 +48,7 @@ class VerifySignatureTest {
         val invalidCMSSignedData = ASN1Integer(10).encoded
 
         val exception = assertThrows<InvalidHandshakeSignatureException> {
-            Handshake.verifySignature(invalidCMSSignedData, stubPlaintext)
+            Handshake.verifySignature(invalidCMSSignedData, NONCE)
         }
 
         assertEquals(
@@ -63,7 +63,7 @@ class VerifySignatureTest {
         val invalidCMSSignedData = ContentInfo(signedDataOid, ASN1Integer(10))
 
         val exception = assertThrows<InvalidHandshakeSignatureException> {
-            Handshake.verifySignature(invalidCMSSignedData.encoded, stubPlaintext)
+            Handshake.verifySignature(invalidCMSSignedData.encoded, NONCE)
         }
 
         assertEquals(
@@ -76,13 +76,13 @@ class VerifySignatureTest {
     fun `Well formed but invalid signatures should be rejected`() {
         // Swap the SignerInfo collection from two different CMS SignedData values
 
-        val cmsSignedDataSerialized1 = sign(stubPlaintext, stubKeyPair.private, stubCertificate)
+        val cmsSignedDataSerialized1 = sign(NONCE, ENDPOINT_KEY_PAIR.private, ENDPOINT_CERT)
         val cmsSignedData1 = parseCmsSignedData(cmsSignedDataSerialized1)
 
         val cmsSignedDataSerialized2 = sign(
-            byteArrayOf(0xde.toByte(), *stubPlaintext),
-            stubKeyPair.private,
-            stubCertificate
+            byteArrayOf(0xde.toByte(), *NONCE),
+            ENDPOINT_KEY_PAIR.private,
+            ENDPOINT_CERT
         )
         val cmsSignedData2 = parseCmsSignedData(cmsSignedDataSerialized2)
 
@@ -93,7 +93,7 @@ class VerifySignatureTest {
         val invalidCmsSignedDataSerialized = invalidCmsSignedData.toASN1Structure().encoded
 
         val exception = assertThrows<InvalidHandshakeSignatureException> {
-            Handshake.verifySignature(invalidCmsSignedDataSerialized, stubPlaintext)
+            Handshake.verifySignature(invalidCmsSignedDataSerialized, NONCE)
         }
 
         assertEquals("Invalid signature", exception.message)
@@ -102,11 +102,11 @@ class VerifySignatureTest {
     @Test
     fun `An empty SignerInfo collection should be refused`() {
         val signedDataGenerator = CMSSignedDataGenerator()
-        val plaintextCms: CMSTypedData = CMSProcessableByteArray(stubPlaintext)
+        val plaintextCms: CMSTypedData = CMSProcessableByteArray(NONCE)
         val cmsSignedData = signedDataGenerator.generate(plaintextCms, true)
 
         val exception = assertThrows<InvalidHandshakeSignatureException> {
-            Handshake.verifySignature(cmsSignedData.encoded, stubPlaintext)
+            Handshake.verifySignature(cmsSignedData.encoded, NONCE)
         }
 
         assertEquals("SignedData should contain exactly one SignerInfo (got 0)", exception.message)
@@ -117,11 +117,11 @@ class VerifySignatureTest {
         val signedDataGenerator = CMSSignedDataGenerator()
 
         val signerBuilder = JcaContentSignerBuilder("SHA256withRSA")
-        val contentSigner: ContentSigner = signerBuilder.build(stubKeyPair.private)
+        val contentSigner: ContentSigner = signerBuilder.build(ENDPOINT_KEY_PAIR.private)
         val signerInfoGenerator = JcaSignerInfoGeneratorBuilder(
             JcaDigestCalculatorProviderBuilder()
                 .build()
-        ).build(contentSigner, stubCertificate.certificateHolder)
+        ).build(contentSigner, ENDPOINT_CERT.certificateHolder)
         // Add the same SignerInfo twice
         signedDataGenerator.addSignerInfoGenerator(
             signerInfoGenerator
@@ -131,12 +131,12 @@ class VerifySignatureTest {
         )
 
         val cmsSignedData = signedDataGenerator.generate(
-            CMSProcessableByteArray(stubPlaintext),
+            CMSProcessableByteArray(NONCE),
             true
         )
 
         val exception = assertThrows<InvalidHandshakeSignatureException> {
-            Handshake.verifySignature(cmsSignedData.encoded, stubPlaintext)
+            Handshake.verifySignature(cmsSignedData.encoded, NONCE)
         }
 
         assertEquals("SignedData should contain exactly one SignerInfo (got 2)", exception.message)
@@ -147,35 +147,35 @@ class VerifySignatureTest {
         val signedDataGenerator = CMSSignedDataGenerator()
 
         val signerBuilder = JcaContentSignerBuilder("SHA256withRSA")
-        val contentSigner: ContentSigner = signerBuilder.build(stubKeyPair.private)
+        val contentSigner: ContentSigner = signerBuilder.build(ENDPOINT_KEY_PAIR.private)
         val signerInfoGenerator = JcaSignerInfoGeneratorBuilder(
             JcaDigestCalculatorProviderBuilder()
                 .build()
-        ).build(contentSigner, stubCertificate.certificateHolder)
+        ).build(contentSigner, ENDPOINT_CERT.certificateHolder)
         signedDataGenerator.addSignerInfoGenerator(
             signerInfoGenerator
         )
 
         val cmsSignedData = signedDataGenerator.generate(
-            CMSProcessableByteArray(stubPlaintext),
+            CMSProcessableByteArray(NONCE),
             true
         )
 
         val exception = assertThrows<InvalidHandshakeSignatureException> {
-            Handshake.verifySignature(cmsSignedData.encoded, stubPlaintext)
+            Handshake.verifySignature(cmsSignedData.encoded, NONCE)
         }
 
         assertEquals("Certificate of signer should be attached", exception.message)
     }
 
     @Test
-    fun `Verification should fail if signed plaintext does not match expected plaintext`() {
-        val cmsSignedDataSerialized = sign(stubPlaintext, stubKeyPair.private, stubCertificate)
+    fun `Verification should fail if signed nonce does not match expected plaintext`() {
+        val cmsSignedDataSerialized = sign(NONCE, ENDPOINT_KEY_PAIR.private, ENDPOINT_CERT)
 
         val exception = assertThrows<InvalidHandshakeSignatureException> {
             Handshake.verifySignature(
                 cmsSignedDataSerialized,
-                byteArrayOf(0xde.toByte(), *stubPlaintext)
+                byteArrayOf(0xde.toByte(), *NONCE)
             )
         }
 
@@ -183,25 +183,25 @@ class VerifySignatureTest {
     }
 
     @Test
-    fun `Verification should succeed if signed plaintext matches expected plaintext`() {
-        val cmsSignedDataSerialized = sign(stubPlaintext, stubKeyPair.private, stubCertificate)
+    fun `Verification should succeed if signed nonce matches expected plaintext`() {
+        val cmsSignedDataSerialized = sign(NONCE, ENDPOINT_KEY_PAIR.private, ENDPOINT_CERT)
 
         // No exceptions thrown
-        Handshake.verifySignature(cmsSignedDataSerialized, stubPlaintext)
+        Handshake.verifySignature(cmsSignedDataSerialized, NONCE)
     }
 
     @Test
     fun `Signer certificate should be output when verification passes`() {
         val cmsSignedDataSerialized = sign(
-            stubPlaintext,
-            stubKeyPair.private,
-            stubCertificate
+            NONCE,
+            ENDPOINT_KEY_PAIR.private,
+            ENDPOINT_CERT
         )
 
-        val verificationResult = Handshake.verifySignature(cmsSignedDataSerialized, stubPlaintext)
+        val verificationResult = Handshake.verifySignature(cmsSignedDataSerialized, NONCE)
 
         assertEquals(
-            stubCertificate.certificateHolder,
+            ENDPOINT_CERT.certificateHolder,
             verificationResult.signerCertificate.certificateHolder
         )
     }

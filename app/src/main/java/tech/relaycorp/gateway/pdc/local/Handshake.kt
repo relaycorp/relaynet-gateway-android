@@ -21,9 +21,9 @@ internal object Handshake {
     @Throws(InvalidHandshakeSignatureException::class)
     internal fun verifySignature(
         cmsSignedData: ByteArray,
-        expectedPlaintext: ByteArray
+        nonce: ByteArray
     ): SignatureVerification {
-        val signedData = parseCmsSignedData(cmsSignedData, expectedPlaintext)
+        val signedData = parseCmsSignedData(cmsSignedData, nonce)
 
         val signerInfo = getSignerInfoFromSignedData(signedData)
 
