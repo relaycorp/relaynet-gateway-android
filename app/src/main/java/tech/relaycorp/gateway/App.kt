@@ -33,8 +33,7 @@ class App : Application() {
         component.inject(this)
         setupTLSProvider()
         setupLogger()
-        // TODO: Restore
-//        setupStrictMode()
+        setupStrictMode()
     }
 
     private fun setupLogger() {
