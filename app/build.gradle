@@ -5,6 +5,9 @@ buildscript {
     dependencies {
         classpath 'com.diffplug.spotless:spotless-plugin-gradle:4.5.1'
     }
+    ext {
+        ktorVersion = "1.3.2"
+    }
 }
 
 apply plugin: 'com.android.application'
@@ -102,6 +105,16 @@ dependencies {
     // Android TLS support for Netty
     implementation "io.netty:netty-handler:4.1.50.Final"
     implementation 'org.conscrypt:conscrypt-android:2.4.0'
+
+    // Local and Internet-based Parcel Delivery Connections (PDCs)
+    implementation 'tech.relaycorp:poweb:1.0.1'
+    implementation "io.ktor:ktor-server-core:$ktorVersion"
+    implementation "io.ktor:ktor-server-netty:$ktorVersion"
+    implementation "io.ktor:ktor-websockets:$ktorVersion"
+    implementation "io.ktor:ktor-client-websockets:$ktorVersion"
+    implementation "io.ktor:ktor-client-cio:$ktorVersion"
+    implementation "org.bouncycastle:bcpkix-jdk15on:1.64"
+    testImplementation "io.ktor:ktor-server-test-host:$ktorVersion"
 
     // ORM
     def room_version = "2.2.5"
