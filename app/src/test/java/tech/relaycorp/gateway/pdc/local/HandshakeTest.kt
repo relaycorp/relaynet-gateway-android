@@ -20,10 +20,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.relaynet.issueEndpointCertificate
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
-import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.io.IOException
 import java.nio.charset.Charset
-import java.security.PrivateKey
 import java.time.ZonedDateTime
 
 class HandshakeTest {
@@ -34,7 +32,7 @@ class HandshakeTest {
             val nonce = Handshake.generateNonce()
 
             val nonceString = nonce.toString(Charset.forName("UTF8"))
-            assertTrue(TestUtils.UUID4_REGEX.matches(nonceString))
+            assertTrue(HandshakeTestUtils.UUID4_REGEX.matches(nonceString))
         }
     }
 
@@ -92,10 +90,11 @@ class HandshakeTest {
         fun `Well formed but invalid signatures should be rejected`() {
             // Swap the SignerInfo collection from two different CMS SignedData values
 
-            val cmsSignedDataSerialized1 = sign(nonce, endpointKeyPair.private, endpointCertificate)
+            val cmsSignedDataSerialized1 =
+                HandshakeTestUtils.sign(nonce, endpointKeyPair.private, endpointCertificate)
             val cmsSignedData1 = parseCmsSignedData(cmsSignedDataSerialized1)
 
-            val cmsSignedDataSerialized2 = sign(
+            val cmsSignedDataSerialized2 = HandshakeTestUtils.sign(
                 byteArrayOf(0xde.toByte(), *nonce),
                 endpointKeyPair.private,
                 endpointCertificate
@@ -192,7 +191,8 @@ class HandshakeTest {
 
         @Test
         fun `Verification should fail if signed nonce does not match expected plaintext`() {
-            val cmsSignedDataSerialized = sign(nonce, endpointKeyPair.private, endpointCertificate)
+            val cmsSignedDataSerialized =
+                HandshakeTestUtils.sign(nonce, endpointKeyPair.private, endpointCertificate)
 
             val exception = assertThrows<InvalidHandshakeSignatureException> {
                 Handshake.verifySignature(
@@ -206,7 +206,8 @@ class HandshakeTest {
 
         @Test
         fun `Verification should succeed if signed nonce matches expected plaintext`() {
-            val cmsSignedDataSerialized = sign(nonce, endpointKeyPair.private, endpointCertificate)
+            val cmsSignedDataSerialized =
+                HandshakeTestUtils.sign(nonce, endpointKeyPair.private, endpointCertificate)
 
             // No exceptions thrown
             Handshake.verifySignature(cmsSignedDataSerialized, nonce)
@@ -214,7 +215,7 @@ class HandshakeTest {
 
         @Test
         fun `Signer certificate should be output when verification passes`() {
-            val cmsSignedDataSerialized = sign(
+            val cmsSignedDataSerialized = HandshakeTestUtils.sign(
                 nonce,
                 endpointKeyPair.private,
                 endpointCertificate
@@ -226,31 +227,6 @@ class HandshakeTest {
                 endpointCertificate.certificateHolder,
                 verificationResult.signerCertificate.certificateHolder
             )
-        }
-
-        private fun sign(
-            plaintext: ByteArray,
-            signerPrivateKey: PrivateKey,
-            signerCertificate: Certificate,
-            encapsulatePlaintext: Boolean = false
-        ): ByteArray {
-            val signedDataGenerator = CMSSignedDataGenerator()
-
-            val signerBuilder = JcaContentSignerBuilder("SHA256withRSA")
-            val contentSigner: ContentSigner = signerBuilder.build(signerPrivateKey)
-            val signerInfoGenerator = JcaSignerInfoGeneratorBuilder(
-                JcaDigestCalculatorProviderBuilder()
-                    .build()
-            ).build(contentSigner, signerCertificate.certificateHolder)
-            signedDataGenerator.addSignerInfoGenerator(
-                signerInfoGenerator
-            )
-
-            signedDataGenerator.addCertificate(signerCertificate.certificateHolder)
-
-            val plaintextCms: CMSTypedData = CMSProcessableByteArray(plaintext)
-            val cmsSignedData = signedDataGenerator.generate(plaintextCms, encapsulatePlaintext)
-            return cmsSignedData.encoded
         }
 
         @Throws(IOException::class, IllegalArgumentException::class, CMSException::class)
