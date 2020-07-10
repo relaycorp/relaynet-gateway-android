@@ -75,4 +75,10 @@ private suspend fun DefaultWebSocketServerSession.handshake() {
             return
         }
     }
+
+    // TODO: Output private endpoint addresses in the second half of
+    // https://github.com/relaycorp/relaynet-gateway-android/issues/16. I didn't do it now because
+    // I'd have no way to test this properly and I didn't want to change the visibility of this
+    // method just for that. (The private addresses will be extracted from each certificate
+    // output by Handshake.verifySignature())
 }
