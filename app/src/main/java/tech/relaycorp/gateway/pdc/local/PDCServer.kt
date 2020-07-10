@@ -6,6 +6,7 @@ import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.close
 import io.ktor.http.cio.websocket.readBytes
+import io.ktor.request.header
 import io.ktor.routing.routing
 import io.ktor.websocket.DefaultWebSocketServerSession
 import io.ktor.websocket.WebSockets
@@ -19,6 +20,17 @@ fun Application.main() {
 
     routing {
         webSocket("/v1/parcel-collection") {
+            if (call.request.header("Origin") != null) {
+                // The client is most likely a (malicious) web page
+                close(
+                    CloseReason(
+                        CloseReason.Codes.VIOLATED_POLICY,
+                        "Web browser requests are disabled for security reasons"
+                    )
+                )
+                return@webSocket
+            }
+
             handshake()
 
             // The actual sending of parcels is part of

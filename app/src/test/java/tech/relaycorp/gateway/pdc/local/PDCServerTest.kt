@@ -8,7 +8,6 @@ import io.ktor.http.cio.websocket.readBytes
 import io.ktor.http.cio.websocket.readReason
 import io.ktor.server.testing.withTestApplication
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.relaycorp.poweb.handshake.Challenge
@@ -28,8 +27,26 @@ class ParcelCollectionWebSocketsTest {
     )
 
     @Test
-    @Disabled
     fun `Requests with Origin header should be refused`() {
+        withTestApplication(Application::main) {
+            handleWebSocketConversation(
+                "/v1/parcel-collection",
+                { addHeader("Origin", "http://example.com") }
+            ) { incoming, _ ->
+                val closingFrameRaw = incoming.receive()
+                assertEquals(FrameType.CLOSE, closingFrameRaw.frameType)
+
+                val closingFrame = closingFrameRaw as Frame.Close
+                assertEquals(
+                    CloseReason.Codes.VIOLATED_POLICY,
+                    closingFrame.readReason()!!.knownReason
+                )
+                assertEquals(
+                    "Web browser requests are disabled for security reasons",
+                    closingFrame.readReason()!!.message
+                )
+            }
+        }
     }
 
     @Nested
