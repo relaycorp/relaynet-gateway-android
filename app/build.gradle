@@ -100,7 +100,7 @@ dependencies {
 
     // Relaynet
     implementation 'tech.relaycorp:relaynet:1.16.1'
-    implementation 'tech.relaycorp:relaynet-cogrpc:1.1.0'
+    implementation 'tech.relaycorp:relaynet-cogrpc:1.1.1'
 
     // Android TLS support for Netty
     implementation "io.netty:netty-handler:4.1.50.Final"
