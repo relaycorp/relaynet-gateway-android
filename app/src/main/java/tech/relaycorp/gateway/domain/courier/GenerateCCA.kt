@@ -1,15 +1,24 @@
 package tech.relaycorp.gateway.domain.courier
 
+import kotlinx.coroutines.flow.first
+import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.messages.CargoCollectionAuthorization
 import javax.inject.Inject
 
 class GenerateCCA
-@Inject constructor() {
+@Inject constructor(
+    private val publicGatewayPreferences: PublicGatewayPreferences,
+    private val localConfig: LocalConfig
+) {
 
-    // TODO: implementation
-    fun generate() =
-        CargoCollectionAuthorization.deserialize(ByteArray(0))
+    suspend fun generate() =
+        CargoCollectionAuthorization(
+            recipientAddress = publicGatewayPreferences.getAddress().first(),
+            payload = "".toByteArray(),
+            senderCertificate = localConfig.getCertificate()
+        )
 
-    // TODO: implementation
-    fun generateByteArray() = ByteArray(0)
+    suspend fun generateByteArray() =
+        generate().serialize(localConfig.getKeyPair().private)
 }

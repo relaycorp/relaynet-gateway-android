@@ -3,6 +3,7 @@ package tech.relaycorp.gateway.domain.courier
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import tech.relaycorp.gateway.background.CourierConnectionObserver
 import tech.relaycorp.gateway.background.CourierConnectionState
 import tech.relaycorp.gateway.common.Logging.logger
@@ -41,7 +42,9 @@ class CargoCollection
         processParcels.process()
     }
 
-    private fun generateCCAInputStream() = generateCCA.generateByteArray().inputStream()
+    private fun generateCCAInputStream() = runBlocking {
+        generateCCA.generateByteArray().inputStream()
+    }
 
     private suspend fun getCourierAddress() =
         courierConnectionObserver

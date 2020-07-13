@@ -15,9 +15,9 @@ import java.nio.charset.Charset
 import kotlin.random.Random
 
 @RunWith(AndroidJUnit4::class)
-class DiskOperationsTest {
+class DiskMessageOperationsTest {
 
-    private lateinit var diskOperations: DiskOperations
+    private lateinit var diskMessageOperations: DiskMessageOperations
 
     private val folder by lazy {
         File(getApplicationContext<App>().filesDir, "test").also { it.mkdirs() }
@@ -25,7 +25,7 @@ class DiskOperationsTest {
 
     @Before
     fun setUp() {
-        diskOperations = DiskOperations(getApplicationContext<App>())
+        diskMessageOperations = DiskMessageOperations(getApplicationContext<App>())
     }
 
     @After
@@ -38,7 +38,7 @@ class DiskOperationsTest {
         runBlocking {
             val size = Random.nextLong(1, 10)
             val message = ByteArray(size.toInt())
-            diskOperations.writeMessage(folder.name, "file_", message)
+            diskMessageOperations.writeMessage(folder.name, "file_", message)
 
             val files = folder.listFiles()!!
             assertEquals(1, files.size)
@@ -49,9 +49,9 @@ class DiskOperationsTest {
     @Test
     fun listMessages() {
         runBlocking {
-            assertEquals(0, diskOperations.listMessages(folder.name).size)
-            diskOperations.writeMessage(folder.name, "file_", ByteArray(1))
-            assertEquals(1, diskOperations.listMessages(folder.name).size)
+            assertEquals(0, diskMessageOperations.listMessages(folder.name).size)
+            diskMessageOperations.writeMessage(folder.name, "file_", ByteArray(1))
+            assertEquals(1, diskMessageOperations.listMessages(folder.name).size)
         }
     }
 
@@ -59,8 +59,8 @@ class DiskOperationsTest {
     fun writeAndReadMessage() {
         runBlocking {
             val message = "123456"
-            val path = diskOperations.writeMessage(folder.name, "file_", message.toByteArray())
-            val result = diskOperations.readMessage(folder.name, path)()
+            val path = diskMessageOperations.writeMessage(folder.name, "file_", message.toByteArray())
+            val result = diskMessageOperations.readMessage(folder.name, path)()
                 .readBytes().toString(Charset.defaultCharset())
             assertEquals(message, result)
         }
@@ -69,8 +69,8 @@ class DiskOperationsTest {
     @Test
     fun deleteMessage() {
         runBlocking {
-            val path = diskOperations.writeMessage(folder.name, "file_", ByteArray(1))
-            diskOperations.deleteMessage(folder.name, path)
+            val path = diskMessageOperations.writeMessage(folder.name, "file_", ByteArray(1))
+            diskMessageOperations.deleteMessage(folder.name, path)
             assertFalse(File(folder, path).exists())
         }
     }
@@ -79,9 +79,9 @@ class DiskOperationsTest {
     fun deleteAllMessages() {
         runBlocking {
             repeat(3) {
-                diskOperations.writeMessage(folder.name, "file_", ByteArray(1))
+                diskMessageOperations.writeMessage(folder.name, "file_", ByteArray(1))
             }
-            diskOperations.deleteAllMessages(folder.name)
+            diskMessageOperations.deleteAllMessages(folder.name)
             assertEquals(0, folder.list()?.size ?: 0)
         }
     }

@@ -3,6 +3,7 @@ package tech.relaycorp.gateway.data
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.room.Room
+import com.tfcporciuncula.flow.FlowSharedPreferences
 import dagger.Module
 import dagger.Provides
 import tech.relaycorp.gateway.App
@@ -13,6 +14,8 @@ import javax.inject.Singleton
 
 @Module
 class DataModule {
+
+    // Database
 
     @Provides
     @Singleton
@@ -29,6 +32,8 @@ class DataModule {
     fun storedParcelDao(database: AppDatabase) =
         database.parcelRepository()
 
+    // Preferences
+
     @Provides
     @Named("preferences_name")
     fun preferencesName(appMode: App.Mode) =
@@ -43,6 +48,12 @@ class DataModule {
         @Named("preferences_name") preferencesName: String
     ): SharedPreferences =
         context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
+
+    @Provides
+    fun flowSharedPreferences(sharedPreferences: SharedPreferences) =
+        FlowSharedPreferences(sharedPreferences)
+
+    // CogRPC
 
     @Provides
     fun cogRPCClientBuilder(): CogRPCClient.Builder = CogRPCClient.Builder

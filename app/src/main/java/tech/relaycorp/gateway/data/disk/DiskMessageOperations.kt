@@ -10,7 +10,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DiskOperations
+class DiskMessageOperations
 @Inject constructor(
     private val context: Context
 ) {
