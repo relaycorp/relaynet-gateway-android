@@ -1,7 +1,7 @@
 package tech.relaycorp.gateway.ui.main
 
 import android.os.Bundle
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.syncCourier
 import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.ui.BaseActivity
 import tech.relaycorp.gateway.ui.sync.CourierConnectionActivity
