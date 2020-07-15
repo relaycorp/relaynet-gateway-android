@@ -2,10 +2,10 @@ package tech.relaycorp.gateway.domain
 
 import tech.relaycorp.gateway.data.disk.SensitiveStore
 import tech.relaycorp.relaynet.issueGatewayCertificate
+import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.security.KeyFactory
 import java.security.KeyPair
-import java.security.KeyPairGenerator
 import java.security.PrivateKey
 import java.security.interfaces.RSAPrivateCrtKey
 import java.security.spec.EncodedKeySpec
@@ -23,7 +23,7 @@ class LocalConfig
         sensitiveStore.read(PRIVATE_KEY_FILE_NAME)
             ?.toPrivateKey()
             ?.toKeyPair()
-            ?: generateKeyPair().also {
+            ?: generateRSAKeyPair().also {
                 sensitiveStore.store(PRIVATE_KEY_FILE_NAME, it.private.encoded)
             }
 
@@ -34,12 +34,6 @@ class LocalConfig
                 .also {
                     sensitiveStore.store(CERTIFICATE_FILE_NAME, it.serialize())
                 }
-
-    private fun generateKeyPair(): KeyPair {
-        val keyGen = KeyPairGenerator.getInstance(KEY_ALGORITHM)
-        keyGen.initialize(RSA_KEY_MODULUS)
-        return keyGen.generateKeyPair()
-    }
 
     private fun generateGatewayCertificate(keyPair: KeyPair) =
         issueGatewayCertificate(
