@@ -3,7 +3,7 @@ package tech.relaycorp.gateway.domain
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.common.Operation
 import tech.relaycorp.gateway.data.database.StoredParcelDao
-import tech.relaycorp.gateway.data.disk.DiskOperations
+import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.MessageId
 import tech.relaycorp.gateway.data.model.Parcel
@@ -20,7 +20,7 @@ import javax.inject.Inject
 class StoreParcel
 @Inject constructor(
     private val storedParcelRepository: StoredParcelDao,
-    private val diskOperations: DiskOperations
+    private val diskMessageOperations: DiskMessageOperations
 ) {
 
     suspend fun store(parcelStream: InputStream): Operation<StoredParcel> {
@@ -39,7 +39,7 @@ class StoreParcel
             return Operation.Error(InvalidParcelException())
         }
 
-        val parcelPath = diskOperations.writeMessage(
+        val parcelPath = diskMessageOperations.writeMessage(
             StoredParcel.STORAGE_FOLDER,
             StoredParcel.STORAGE_PREFIX,
             parcelBytes

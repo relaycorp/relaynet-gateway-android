@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 class CargoStorage
 @Inject constructor(
-    private val diskOperations: DiskOperations
+    private val diskMessageOperations: DiskMessageOperations
 ) {
 
     suspend fun store(cargoStream: InputStream): Operation<String> {
@@ -30,16 +30,16 @@ class CargoStorage
         }
 
         return Operation.Success(
-            diskOperations.writeMessage(
+            diskMessageOperations.writeMessage(
                 FOLDER,
                 PREFIX, cargoBytes
             )
         )
     }
 
-    suspend fun list() = diskOperations.listMessages(FOLDER)
+    suspend fun list() = diskMessageOperations.listMessages(FOLDER)
 
-    suspend fun deleteAll() = diskOperations.deleteAllMessages(FOLDER)
+    suspend fun deleteAll() = diskMessageOperations.deleteAllMessages(FOLDER)
 
     class MalformedCargoException() : Exception()
     class InvalidCargoException() : Exception()

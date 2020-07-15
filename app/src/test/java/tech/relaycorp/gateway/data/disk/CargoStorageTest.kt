@@ -8,7 +8,7 @@ import tech.relaycorp.gateway.common.Operation
 
 internal class CargoStorageTest {
 
-    private val diskOperations = mock<DiskOperations>()
+    private val diskOperations = mock<DiskMessageOperations>()
     private val cargoStorage = CargoStorage(diskOperations)
 
     @Test
