@@ -5,13 +5,12 @@ import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.MessageId
-import tech.relaycorp.gateway.data.model.Parcel
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StorageSize
 import tech.relaycorp.gateway.data.model.StoredParcel
 import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
+import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.ramf.RAMFException
-import tech.relaycorp.relaynet.ramf.RAMFMessage
 import java.io.InputStream
 import java.util.Date
 import javax.inject.Inject
@@ -53,7 +52,7 @@ class StoreParcel
         return storedParcel
     }
 
-    private fun RAMFMessage.toStoredParcel(
+    private fun Parcel.toStoredParcel(
         storagePath: String,
         dataSize: StorageSize,
         recipientLocation: RecipientLocation
