@@ -3,6 +3,7 @@ package tech.relaycorp.gateway.common.di
 import dagger.Component
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.AppModule
+import tech.relaycorp.gateway.background.endpoint.GatewaySyncService
 import tech.relaycorp.gateway.data.DataModule
 import javax.inject.Singleton
 
@@ -16,4 +17,5 @@ import javax.inject.Singleton
 interface AppComponent {
     fun activityComponent(): ActivityComponent
     fun inject(app: App)
+    fun inject(service: GatewaySyncService)
 }

@@ -1,6 +1,7 @@
 package tech.relaycorp.gateway.domain.courier
 
 import tech.relaycorp.gateway.data.disk.CargoStorage
+import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.messages.Cargo
@@ -21,7 +22,7 @@ class ProcessCargo
                 .read(cargo)
                 .forEach {
                     // TODO: handle other gateway messages
-                    storeParcel.store(it)
+                    storeParcel.store(it, RecipientLocation.LocalEndpoint)
                 }
         }
         cargoStorage.deleteAll()

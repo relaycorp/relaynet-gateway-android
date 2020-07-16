@@ -3,13 +3,23 @@ package tech.relaycorp.gateway
 import android.app.Application
 import android.os.Build
 import android.os.StrictMode
+import androidx.work.Configuration
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import org.conscrypt.Conscrypt
+import tech.relaycorp.gateway.background.publicsync.PublicSyncWorker
+import tech.relaycorp.gateway.background.publicsync.PublicSyncWorkerFactory
 import tech.relaycorp.gateway.common.Logging
 import tech.relaycorp.gateway.common.di.AppComponent
 import tech.relaycorp.gateway.common.di.DaggerAppComponent
 import java.security.Security
+import java.time.Duration
 import java.util.logging.Level
 import java.util.logging.LogManager
+import javax.inject.Inject
 
 class App : Application() {
 
@@ -28,12 +38,16 @@ class App : Application() {
         }
     }
 
+    @Inject
+    lateinit var publicSyncWorkerFactory: PublicSyncWorkerFactory
+
     override fun onCreate() {
         super.onCreate()
         component.inject(this)
         setupTLSProvider()
         setupLogger()
         setupStrictMode()
+        enqueuePublicSyncWorker()
     }
 
     private fun setupLogger() {
@@ -81,5 +95,30 @@ class App : Application() {
         Security.insertProviderAt(Conscrypt.newProvider(), 1)
     }
 
+    private fun enqueuePublicSyncWorker() {
+        WorkManager.initialize(
+            this,
+            Configuration.Builder()
+                .setWorkerFactory(publicSyncWorkerFactory)
+                .build()
+        )
+        WorkManager.getInstance(this)
+            .enqueueUniquePeriodicWork(
+                "public-sync",
+                ExistingPeriodicWorkPolicy.REPLACE,
+                PeriodicWorkRequestBuilder<PublicSyncWorker>(PUBLIC_SYNC_WORKER_PERIOD)
+                    .setConstraints(
+                        Constraints.Builder()
+                            .setRequiredNetworkType(NetworkType.CONNECTED)
+                            .build()
+                    )
+                    .build()
+            )
+    }
+
     enum class Mode { Normal, Test }
+
+    companion object {
+        private val PUBLIC_SYNC_WORKER_PERIOD = Duration.ofHours(1)
+    }
 }

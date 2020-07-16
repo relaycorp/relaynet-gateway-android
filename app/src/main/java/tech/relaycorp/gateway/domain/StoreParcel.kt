@@ -1,7 +1,6 @@
 package tech.relaycorp.gateway.domain
 
 import tech.relaycorp.gateway.common.Logging.logger
-import tech.relaycorp.gateway.common.Operation
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.model.MessageAddress
@@ -23,20 +22,24 @@ class StoreParcel
     private val diskMessageOperations: DiskMessageOperations
 ) {
 
-    suspend fun store(parcelStream: InputStream): Operation<StoredParcel> {
+    @Throws(MalformedParcelException::class, InvalidParcelException::class)
+    suspend fun store(
+        parcelStream: InputStream,
+        recipientLocation: RecipientLocation
+    ): StoredParcel {
         val parcelBytes = parcelStream.readBytesAndClose()
         val parcel = try {
             Parcel.deserialize(parcelBytes)
         } catch (exc: RAMFException) {
             logger.warning("Malformed parcel received: ${exc.message}")
-            return Operation.Error(MalformedParcelException())
+            throw MalformedParcelException()
         }
 
         try {
             parcel.validate()
         } catch (exc: RAMFException) {
             logger.warning("Invalid parcel received: ${exc.message}")
-            return Operation.Error(InvalidParcelException())
+            throw InvalidParcelException()
         }
 
         val parcelPath = diskMessageOperations.writeMessage(
@@ -45,17 +48,21 @@ class StoreParcel
             parcelBytes
         )
         val parcelSize = StorageSize(parcelBytes.size.toLong())
-        val storedParcel = parcel.toStoredParcel(parcelPath, parcelSize)
+        val storedParcel = parcel.toStoredParcel(parcelPath, parcelSize, recipientLocation)
         storedParcelRepository.insert(storedParcel)
-        return Operation.Success(storedParcel)
+        return storedParcel
     }
 
-    private fun RAMFMessage.toStoredParcel(storagePath: String, dataSize: StorageSize) =
+    private fun RAMFMessage.toStoredParcel(
+        storagePath: String,
+        dataSize: StorageSize,
+        recipientLocation: RecipientLocation
+    ) =
         StoredParcel(
             recipientAddress = MessageAddress.of(recipientAddress),
             senderAddress = MessageAddress.of(senderCertificate.subjectPrivateAddress),
             messageId = MessageId(id),
-            recipientLocation = RecipientLocation.LocalEndpoint,
+            recipientLocation = recipientLocation,
             creationTimeUtc = Date.from(creationDate.toInstant()),
             expirationTimeUtc = Date.from(expiryDate.toInstant()),
             size = dataSize,
