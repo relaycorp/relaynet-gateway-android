@@ -1,15 +1,11 @@
 package tech.relaycorp.gateway.domain.endpoint
 
 import tech.relaycorp.gateway.data.model.MessageAddress
-import java.io.InputStream
 import javax.inject.Inject
 
-class DeliverParcelToEndpoint
+class NotifyEndpoint
 @Inject constructor() {
 
     // TODO: implementation
-    suspend fun deliver(
-        recipientAddress: MessageAddress,
-        parcelStream: InputStream
-    ) {}
+    suspend fun notify(endpointAddress: MessageAddress) {}
 }

@@ -10,7 +10,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import tech.relaycorp.gateway.background.component
 import tech.relaycorp.gateway.common.Logging.logger
-import tech.relaycorp.gateway.domain.endpoint.EndpointServer
+import tech.relaycorp.gateway.domain.endpoint.PDCServer
 import javax.inject.Inject
 
 class GatewaySyncService : Service() {
@@ -18,20 +18,20 @@ class GatewaySyncService : Service() {
     private val scope get() = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     @Inject
-    lateinit var endpointServer: EndpointServer
+    lateinit var PDCServer: PDCServer
 
     override fun onBind(intent: Intent?): Binder {
         component.inject(this)
         logger.info("GatewaySyncService onBind")
         scope.launch {
-            endpointServer.start()
+            PDCServer.start()
         }
         return Binder()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
         scope.launch {
-            endpointServer.stop()
+            PDCServer.stop()
         }
         return true
     }
