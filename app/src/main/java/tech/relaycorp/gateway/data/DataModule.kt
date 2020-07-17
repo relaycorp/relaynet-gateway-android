@@ -30,7 +30,7 @@ class DataModule {
     @Provides
     @Singleton
     fun storedParcelDao(database: AppDatabase) =
-        database.parcelRepository()
+        database.storedParcelDao()
 
     // Preferences
 
