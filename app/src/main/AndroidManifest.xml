@@ -35,6 +35,15 @@
             android:name=".ui.sync.CourierSyncActivity"
             android:label="@string/sync_courier"
             android:screenOrientation="portrait" />
+
+        <service android:name=".background.endpoint.GatewaySyncService" />
+
+        <!-- Disable WorkManager auto-initialization -->
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
+            tools:node="remove"
+            android:exported="false" />
     </application>
 
 </manifest>
