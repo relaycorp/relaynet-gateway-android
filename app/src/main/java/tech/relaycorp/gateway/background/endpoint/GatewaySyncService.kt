@@ -18,20 +18,20 @@ class GatewaySyncService : Service() {
     private val scope get() = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     @Inject
-    lateinit var PDCServer: PDCServer
+    lateinit var pdcServer: PDCServer
 
     override fun onBind(intent: Intent?): Binder {
         component.inject(this)
         logger.info("GatewaySyncService onBind")
         scope.launch {
-            PDCServer.start()
+            pdcServer.start()
         }
         return Binder()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
         scope.launch {
-            PDCServer.stop()
+            pdcServer.stop()
         }
         return true
     }
