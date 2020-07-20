@@ -8,13 +8,13 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
-import tech.relaycorp.gateway.data.database.StoredParcelDao
+import tech.relaycorp.gateway.data.database.ParcelCollectionDao
 import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoint
 import tech.relaycorp.gateway.test.factory.StoredParcelFactory
 
 class ProcessParcelsTest {
 
-    private val storedParcelDao = mock<StoredParcelDao>()
+    private val storedParcelDao = mock<ParcelCollectionDao>()
     private val notifyEndpoint = mock<NotifyEndpoint>()
     private val processParcels = ProcessParcels(storedParcelDao, notifyEndpoint)
 

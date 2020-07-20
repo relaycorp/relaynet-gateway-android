@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 class StoreParcel
 @Inject constructor(
-    private val storedParcelRepository: StoredParcelDao,
+    private val storedParcelDao: StoredParcelDao,
     private val diskMessageOperations: DiskMessageOperations
 ) {
 
@@ -25,10 +25,15 @@ class StoreParcel
     suspend fun store(
         parcelStream: InputStream,
         recipientLocation: RecipientLocation
+    ) = store(parcelStream.readBytesAndClose(), recipientLocation)
+
+    @Throws(MalformedParcelException::class, InvalidParcelException::class)
+    suspend fun store(
+        parcelData: ByteArray,
+        recipientLocation: RecipientLocation
     ): StoredParcel {
-        val parcelBytes = parcelStream.readBytesAndClose()
         val parcel = try {
-            Parcel.deserialize(parcelBytes)
+            Parcel.deserialize(parcelData)
         } catch (exc: RAMFException) {
             logger.warning("Malformed parcel received: ${exc.message}")
             throw MalformedParcelException()
@@ -44,11 +49,11 @@ class StoreParcel
         val parcelPath = diskMessageOperations.writeMessage(
             StoredParcel.STORAGE_FOLDER,
             StoredParcel.STORAGE_PREFIX,
-            parcelBytes
+            parcelData
         )
-        val parcelSize = StorageSize(parcelBytes.size.toLong())
+        val parcelSize = StorageSize(parcelData.size.toLong())
         val storedParcel = parcel.toStoredParcel(parcelPath, parcelSize, recipientLocation)
-        storedParcelRepository.insert(storedParcel)
+        storedParcelDao.insert(storedParcel)
         return storedParcel
     }
 

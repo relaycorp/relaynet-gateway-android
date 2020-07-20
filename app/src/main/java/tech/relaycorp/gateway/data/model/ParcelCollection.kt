@@ -5,24 +5,15 @@ import androidx.room.Entity
 import java.util.Date
 
 @Entity(
-    tableName = "Parcel",
+    tableName = "ParcelCollection",
     primaryKeys = ["recipientAddress", "senderAddress", "messageId"]
 )
-data class StoredParcel(
+data class ParcelCollection(
     val recipientAddress: MessageAddress,
     val senderAddress: MessageAddress,
     val messageId: MessageId,
     @ColumnInfo(index = true)
-    val recipientLocation: RecipientLocation,
-    @ColumnInfo(index = true)
     val creationTimeUtc: Date,
     @ColumnInfo(index = true)
-    val expirationTimeUtc: Date,
-    val storagePath: String,
-    val size: StorageSize
-) {
-    companion object {
-        const val STORAGE_FOLDER = "parcels"
-        const val STORAGE_PREFIX = "parcel_"
-    }
-}
+    val expirationTimeUtc: Date
+)

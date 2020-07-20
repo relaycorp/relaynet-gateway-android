@@ -32,6 +32,16 @@ class DataModule {
     fun storedParcelDao(database: AppDatabase) =
         database.storedParcelDao()
 
+    @Provides
+    @Singleton
+    fun parcelCollectionDao(database: AppDatabase) =
+        database.parcelCollectionDao()
+
+    @Provides
+    @Singleton
+    fun localEndpointDao(database: AppDatabase) =
+        database.localEndpointDao()
+
     // Preferences
 
     @Provides

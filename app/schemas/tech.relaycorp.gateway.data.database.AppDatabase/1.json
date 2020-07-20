@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "db32d1069e357f79e66ee4b33fb98e9b",
+    "identityHash": "506f52aed2ffcc558dd85b73c09b4f5f",
     "entities": [
       {
         "tableName": "Endpoint",
@@ -127,12 +127,46 @@
           }
         ],
         "foreignKeys": []
+      },
+      {
+        "tableName": "ParcelAck",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recipientAddress` TEXT NOT NULL, `senderAddress` TEXT NOT NULL, `messageId` TEXT NOT NULL, PRIMARY KEY(`recipientAddress`, `senderAddress`, `messageId`))",
+        "fields": [
+          {
+            "fieldPath": "recipientAddress",
+            "columnName": "recipientAddress",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "senderAddress",
+            "columnName": "senderAddress",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "messageId",
+            "columnName": "messageId",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "recipientAddress",
+            "senderAddress",
+            "messageId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'db32d1069e357f79e66ee4b33fb98e9b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '506f52aed2ffcc558dd85b73c09b4f5f')"
     ]
   }
 }
