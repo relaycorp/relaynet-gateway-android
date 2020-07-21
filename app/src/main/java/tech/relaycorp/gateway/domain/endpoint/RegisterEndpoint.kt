@@ -11,6 +11,6 @@ class RegisterEndpoint
 ) {
 
     suspend fun register(applicationId: String, endpointAddress: MessageAddress) {
-        localEndpointDao.insert(LocalEndpoint(applicationId, endpointAddress))
+        localEndpointDao.insert(LocalEndpoint(endpointAddress, applicationId))
     }
 }

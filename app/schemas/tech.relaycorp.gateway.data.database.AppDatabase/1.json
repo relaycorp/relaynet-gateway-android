@@ -2,33 +2,41 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "1ed41e5e9b3f8b773ce914f529ff07f7",
+    "identityHash": "db32d1069e357f79e66ee4b33fb98e9b",
     "entities": [
       {
         "tableName": "Endpoint",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`applicationId` TEXT NOT NULL, `address` TEXT NOT NULL, PRIMARY KEY(`address`, `applicationId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`address` TEXT NOT NULL, `applicationId` TEXT NOT NULL, PRIMARY KEY(`address`))",
         "fields": [
           {
-            "fieldPath": "applicationId",
-            "columnName": "applicationId",
+            "fieldPath": "address",
+            "columnName": "address",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "address",
-            "columnName": "address",
+            "fieldPath": "applicationId",
+            "columnName": "applicationId",
             "affinity": "TEXT",
             "notNull": true
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "address",
-            "applicationId"
+            "address"
           ],
           "autoGenerate": false
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_Endpoint_applicationId",
+            "unique": false,
+            "columnNames": [
+              "applicationId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Endpoint_applicationId` ON `${TABLE_NAME}` (`applicationId`)"
+          }
+        ],
         "foreignKeys": []
       },
       {
@@ -124,7 +132,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1ed41e5e9b3f8b773ce914f529ff07f7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'db32d1069e357f79e66ee4b33fb98e9b')"
     ]
   }
 }
