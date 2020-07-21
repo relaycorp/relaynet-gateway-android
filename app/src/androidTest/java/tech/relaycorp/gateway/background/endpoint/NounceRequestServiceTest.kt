@@ -45,4 +45,18 @@ class NounceRequestServiceTest {
         )
         assertNotNull(resultMessage?.obj)
     }
+
+    @Test
+    fun invalidRequestIsIgnored() {
+        val serviceIntent = Intent(
+            getApplicationContext<Context>(),
+            NounceRequestService::class.java
+        )
+        val binder = serviceRule.bindService(serviceIntent)
+
+        val messenger = Messenger(binder)
+        val invalidMessage = Message.obtain(null, 999)
+
+        messenger.send(invalidMessage)
+    }
 }
