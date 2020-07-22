@@ -4,7 +4,6 @@ import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import tech.relaycorp.gateway.domain.StoreParcel
 
 internal class CargoStorageTest {
 
@@ -13,7 +12,7 @@ internal class CargoStorageTest {
 
     @Test
     internal fun storeMalformed() {
-        assertThrows<StoreParcel.MalformedParcelException> {
+        assertThrows<CargoStorage.Exception.MalformedCargo> {
             runBlocking {
                 cargoStorage.store(ByteArray(0).inputStream())
             }

@@ -8,7 +8,7 @@ import java.time.ZonedDateTime
 object ParcelFactory {
 
     fun build() = Parcel(
-        recipientAddress = "http://example.org",
+        recipientAddress = "012345",
         senderCertificate = certificate,
         payload = "".toByteArray()
     )
@@ -16,11 +16,11 @@ object ParcelFactory {
     fun buildSerialized() =
         build().serialize(keyPair.private)
 
-    private val keyPair by lazy {
+    val keyPair by lazy {
         generateRSAKeyPair()
     }
 
-    private val certificate by lazy {
+    val certificate by lazy {
         issueEndpointCertificate(
             keyPair.public,
             keyPair.private,

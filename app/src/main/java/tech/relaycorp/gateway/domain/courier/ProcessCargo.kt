@@ -46,11 +46,21 @@ class ProcessCargo
     }
 
     private suspend fun storeParcelAndParcelCollection(parcelData: ByteArray) {
-        try {
-            val parcel = storeParcel.store(parcelData, RecipientLocation.LocalEndpoint)
-            storeParcelCollection.storeForParcel(parcel)
-        } catch (e: StoreParcel.Exception) {
+        val parcel = when (
+            val result = storeParcel.store(parcelData, RecipientLocation.LocalEndpoint)
+        ) {
+            is StoreParcel.Result.MalformedParcel -> return
+            is StoreParcel.Result.InvalidParcel -> {
+                logger.log(Level.WARNING, "Invalid parcel received", result.cause)
+                result.parcel
+            }
+            is StoreParcel.Result.InvalidPublicLocalRecipient -> {
+                logger.log(Level.WARNING, "Invalid parcel with public recipient address received")
+                result.parcel
+            }
+            is StoreParcel.Result.Success -> result.parcel
         }
+        storeParcelCollection.storeForParcel(parcel)
     }
 
     private suspend fun deserializeAckAndDeleteParcel(parcelAckData: ByteArray) {

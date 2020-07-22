@@ -1,6 +1,5 @@
 package tech.relaycorp.gateway.domain
 
-import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.model.MessageAddress
@@ -21,26 +20,23 @@ class StoreParcel
     private val diskMessageOperations: DiskMessageOperations
 ) {
 
-    @Throws(Exception.MalformedParcel::class, Exception.InvalidParcel::class)
     suspend fun store(
         parcelStream: InputStream,
         recipientLocation: RecipientLocation
     ) = store(parcelStream.readBytesAndClose(), recipientLocation)
 
-    @Throws(Exception.MalformedParcel::class, Exception.InvalidParcel::class)
     suspend fun store(
         parcelData: ByteArray,
         recipientLocation: RecipientLocation
-    ): StoredParcel {
+    ): Result {
         val parcel = try {
             Parcel.deserialize(parcelData)
         } catch (exc: RAMFException) {
-            logger.warning("Malformed parcel received: ${exc.message}")
-            throw Exception.MalformedParcel()
+            return Result.MalformedParcel(exc)
         }
 
         if (recipientLocation == RecipientLocation.LocalEndpoint && !parcel.isRecipientAddressPrivate) {
-            throw Exception.InvalidPublicLocalRecipient()
+            return Result.InvalidPublicLocalRecipient(parcel)
         }
 
         try {
@@ -49,8 +45,7 @@ class StoreParcel
                 RecipientLocation.ExternalGateway -> parcel.validate()
             }
         } catch (exc: RAMFException) {
-            logger.warning("Invalid parcel received: ${exc.message}")
-            throw Exception.InvalidParcel()
+            return Result.InvalidParcel(parcel, exc)
         }
 
         val parcelPath = diskMessageOperations.writeMessage(
@@ -61,7 +56,7 @@ class StoreParcel
         val parcelSize = StorageSize(parcelData.size.toLong())
         val storedParcel = parcel.toStoredParcel(parcelPath, parcelSize, recipientLocation)
         storedParcelDao.insert(storedParcel)
-        return storedParcel
+        return Result.Success(parcel)
     }
 
     private fun Parcel.toStoredParcel(
@@ -80,9 +75,10 @@ class StoreParcel
             storagePath = storagePath
         )
 
-    sealed class Exception : kotlin.Exception() {
-        class MalformedParcel() : Exception()
-        class InvalidParcel() : Exception()
-        class InvalidPublicLocalRecipient() : Exception()
+    sealed class Result {
+        data class MalformedParcel(val cause: Throwable) : Result()
+        data class InvalidParcel(val parcel: Parcel, val cause: Throwable) : Result()
+        data class InvalidPublicLocalRecipient(val parcel: Parcel) : Result()
+        data class Success(val parcel: Parcel) : Result()
     }
 }

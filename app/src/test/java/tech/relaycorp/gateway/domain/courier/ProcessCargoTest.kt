@@ -3,6 +3,7 @@ package tech.relaycorp.gateway.domain.courier
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.test.runBlockingTest
@@ -17,7 +18,6 @@ import tech.relaycorp.gateway.domain.StoreParcelCollection
 import tech.relaycorp.gateway.test.factory.CargoFactory
 import tech.relaycorp.gateway.test.factory.ParcelCollectionAckFactory
 import tech.relaycorp.gateway.test.factory.ParcelFactory
-import tech.relaycorp.gateway.test.factory.StoredParcelFactory
 import tech.relaycorp.relaynet.messages.payloads.CargoMessage
 
 class ProcessCargoTest {
@@ -39,21 +39,6 @@ class ProcessCargoTest {
     }
 
     @Test
-    fun `store received parcel with ack`() = runBlockingTest {
-        val cargoBytes = CargoFactory.buildSerialized()
-        whenever(cargoStorage.list()).thenReturn(listOf(cargoBytes::inputStream))
-        val parcelMessage = CargoMessage(ParcelFactory.buildSerialized())
-        whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(parcelMessage))
-        val storedParcel = StoredParcelFactory.build()
-        whenever(storeParcel.store(any<ByteArray>(), any())).thenReturn(storedParcel)
-
-        processCargo.process()
-
-        verify(storeParcel).store(any<ByteArray>(), eq(RecipientLocation.LocalEndpoint))
-        verify(storeParcelCollection).storeForParcel(eq(storedParcel))
-    }
-
-    @Test
     internal fun `deletes parcel when its ack is received`() = runBlockingTest {
         val cargoBytes = CargoFactory.buildSerialized()
         whenever(cargoStorage.list()).thenReturn(listOf(cargoBytes::inputStream))
@@ -68,5 +53,66 @@ class ProcessCargoTest {
             eq(MessageAddress.of(pca.senderEndpointPrivateAddress)),
             eq(MessageId(pca.parcelId))
         )
+    }
+
+    @Test
+    fun `store received parcel with collection`() = runBlockingTest {
+        whenever(cargoStorage.list())
+            .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
+        whenever(readMessagesFromCargo.read(any()))
+            .thenReturn(sequenceOf(CargoMessage(ParcelFactory.buildSerialized())))
+        val parcel = ParcelFactory.build()
+        whenever(storeParcel.store(any<ByteArray>(), any()))
+            .thenReturn(StoreParcel.Result.Success(parcel))
+
+        processCargo.process()
+
+        verify(storeParcel).store(any<ByteArray>(), eq(RecipientLocation.LocalEndpoint))
+        verify(storeParcelCollection).storeForParcel(eq(parcel))
+    }
+
+    @Test
+    fun `received malformed parcel that does not get stored`() = runBlockingTest {
+        whenever(cargoStorage.list())
+            .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
+        whenever(readMessagesFromCargo.read(any()))
+            .thenReturn(sequenceOf(CargoMessage(ParcelFactory.buildSerialized())))
+        whenever(storeParcel.store(any<ByteArray>(), any()))
+            .thenReturn(StoreParcel.Result.MalformedParcel(Exception()))
+
+        processCargo.process()
+
+        verify(storeParcel).store(any<ByteArray>(), any())
+        verify(storeParcelCollection, never()).storeForParcel(any())
+    }
+
+    @Test
+    fun `received invalid parcel but collection is stored`() = runBlockingTest {
+        whenever(cargoStorage.list())
+            .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
+        whenever(readMessagesFromCargo.read(any()))
+            .thenReturn(sequenceOf(CargoMessage(ParcelFactory.buildSerialized())))
+        whenever(storeParcel.store(any<ByteArray>(), any()))
+            .thenReturn(StoreParcel.Result.InvalidParcel(ParcelFactory.build(), Exception()))
+
+        processCargo.process()
+
+        verify(storeParcel).store(any<ByteArray>(), any())
+        verify(storeParcelCollection).storeForParcel(any())
+    }
+
+    @Test
+    fun `received parcel with invalid public local recipient but collection is stored`() = runBlockingTest {
+        whenever(cargoStorage.list())
+            .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
+        whenever(readMessagesFromCargo.read(any()))
+            .thenReturn(sequenceOf(CargoMessage(ParcelFactory.buildSerialized())))
+        whenever(storeParcel.store(any<ByteArray>(), any()))
+            .thenReturn(StoreParcel.Result.InvalidPublicLocalRecipient(ParcelFactory.build()))
+
+        processCargo.process()
+
+        verify(storeParcel).store(any<ByteArray>(), any())
+        verify(storeParcelCollection).storeForParcel(any())
     }
 }

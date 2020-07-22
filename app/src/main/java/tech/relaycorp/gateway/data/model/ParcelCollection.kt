@@ -10,7 +10,7 @@ import java.util.Date
 )
 data class ParcelCollection(
     val recipientAddress: MessageAddress,
-    val senderAddress: MessageAddress,
+    val senderAddress: PrivateMessageAddress,
     val messageId: MessageId,
     @ColumnInfo(index = true)
     val creationTimeUtc: Date,
