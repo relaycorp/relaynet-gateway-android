@@ -7,6 +7,10 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
+    <permission
+        android:name="tech.relaycorp.gateway.SYNC"
+        android:label="Gateway Sync" />
+
     <application
         android:name=".App"
         android:allowBackup="false"
@@ -36,14 +40,22 @@
             android:label="@string/sync_courier"
             android:screenOrientation="portrait" />
 
-        <service android:name=".background.endpoint.GatewaySyncService" />
+        <service
+            android:name=".background.endpoint.GatewaySyncService"
+            android:exported="true"
+            android:permission="tech.relaycorp.gateway.SYNC"  />
+
+        <service
+            android:name=".background.endpoint.NonceRequestService"
+            android:exported="true"
+            android:permission="tech.relaycorp.gateway.SYNC" />
 
         <!-- Disable WorkManager auto-initialization -->
         <provider
             android:name="androidx.work.impl.WorkManagerInitializer"
             android:authorities="${applicationId}.workmanager-init"
-            tools:node="remove"
-            android:exported="false" />
+            android:exported="false"
+            tools:node="remove" />
     </application>
 
 </manifest>
