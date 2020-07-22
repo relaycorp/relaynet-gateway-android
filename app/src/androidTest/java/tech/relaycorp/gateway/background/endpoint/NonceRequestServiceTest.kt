@@ -13,23 +13,23 @@ import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 
-class NounceRequestServiceTest {
+class NonceRequestServiceTest {
 
     @get:Rule
     val serviceRule = ServiceTestRule()
 
     @Test
-    fun requestAndReceiveNounce() {
+    fun requestAndReceiveNonce() {
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
-            NounceRequestService::class.java
+            NonceRequestService::class.java
         )
         val binder = serviceRule.bindService(serviceIntent)
 
         var resultMessage: Message? = null
 
         val messenger = Messenger(binder)
-        val requestMessage = Message.obtain(null, NounceRequestService.NOUNCE_REQUEST)
+        val requestMessage = Message.obtain(null, NonceRequestService.NONCE_REQUEST)
         requestMessage.replyTo = Messenger(object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 resultMessage = Message.obtain().also { it.copyFrom(msg) }
@@ -40,7 +40,7 @@ class NounceRequestServiceTest {
         Thread.sleep(100)
 
         assertEquals(
-            NounceRequestService.NOUNCE_RESULT,
+            NonceRequestService.NONCE_RESULT,
             resultMessage?.what
         )
         assertNotNull(resultMessage?.obj)
@@ -50,7 +50,7 @@ class NounceRequestServiceTest {
     fun invalidRequestIsIgnored() {
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
-            NounceRequestService::class.java
+            NonceRequestService::class.java
         )
         val binder = serviceRule.bindService(serviceIntent)
 

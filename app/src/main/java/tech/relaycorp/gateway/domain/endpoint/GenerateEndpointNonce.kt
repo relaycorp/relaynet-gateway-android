@@ -2,7 +2,7 @@ package tech.relaycorp.gateway.domain.endpoint
 
 import javax.inject.Inject
 
-class GenerateEndpointNounce
+class GenerateEndpointNonce
 @Inject constructor() {
 
     // TODO: implementation

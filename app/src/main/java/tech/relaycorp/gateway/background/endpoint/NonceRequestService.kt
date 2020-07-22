@@ -8,13 +8,13 @@ import android.os.Looper
 import android.os.Message
 import android.os.Messenger
 import tech.relaycorp.gateway.background.component
-import tech.relaycorp.gateway.domain.endpoint.GenerateEndpointNounce
+import tech.relaycorp.gateway.domain.endpoint.GenerateEndpointNonce
 import javax.inject.Inject
 
-class NounceRequestService : Service() {
+class NonceRequestService : Service() {
 
     @Inject
-    lateinit var generateEndpointNounce: GenerateEndpointNounce
+    lateinit var generateEndpointNonce: GenerateEndpointNonce
 
     override fun onBind(intent: Intent): IBinder? {
         component.inject(this)
@@ -22,7 +22,7 @@ class NounceRequestService : Service() {
             object : Handler(Looper.getMainLooper()) {
                 override fun handleMessage(msg: Message) {
                     when (msg.what) {
-                        NOUNCE_REQUEST -> reply(msg)
+                        NONCE_REQUEST -> reply(msg)
                     }
                 }
             }
@@ -31,13 +31,13 @@ class NounceRequestService : Service() {
     }
 
     internal fun reply(requestMessage: Message) {
-        val nounce = generateEndpointNounce.generate()
-        val replyMessage = Message.obtain(null, NOUNCE_RESULT, nounce)
+        val nonce = generateEndpointNonce.generate()
+        val replyMessage = Message.obtain(null, NONCE_RESULT, nonce)
         requestMessage.replyTo.send(replyMessage)
     }
 
     companion object {
-        const val NOUNCE_REQUEST = 1
-        const val NOUNCE_RESULT = 2
+        const val NONCE_REQUEST = 1
+        const val NONCE_RESULT = 2
     }
 }

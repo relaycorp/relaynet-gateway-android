@@ -46,7 +46,7 @@
             android:permission="tech.relaycorp.gateway.SYNC"  />
 
         <service
-            android:name=".background.endpoint.NounceRequestService"
+            android:name=".background.endpoint.NonceRequestService"
             android:exported="true"
             android:permission="tech.relaycorp.gateway.SYNC" />
 
