@@ -21,13 +21,13 @@ class StoreParcel
     private val diskMessageOperations: DiskMessageOperations
 ) {
 
-    @Throws(MalformedParcelException::class, InvalidParcelException::class)
+    @Throws(Exception.MalformedParcel::class, Exception.InvalidParcel::class)
     suspend fun store(
         parcelStream: InputStream,
         recipientLocation: RecipientLocation
     ) = store(parcelStream.readBytesAndClose(), recipientLocation)
 
-    @Throws(MalformedParcelException::class, InvalidParcelException::class)
+    @Throws(Exception.MalformedParcel::class, Exception.InvalidParcel::class)
     suspend fun store(
         parcelData: ByteArray,
         recipientLocation: RecipientLocation
@@ -36,14 +36,21 @@ class StoreParcel
             Parcel.deserialize(parcelData)
         } catch (exc: RAMFException) {
             logger.warning("Malformed parcel received: ${exc.message}")
-            throw MalformedParcelException()
+            throw Exception.MalformedParcel()
+        }
+
+        if (recipientLocation == RecipientLocation.LocalEndpoint && !parcel.isRecipientAddressPrivate) {
+            throw Exception.InvalidPublicLocalRecipient()
         }
 
         try {
-            parcel.validate()
+            when (recipientLocation) {
+                RecipientLocation.LocalEndpoint -> parcel.validate() // TODO: validate with private local endpoint
+                RecipientLocation.ExternalGateway -> parcel.validate()
+            }
         } catch (exc: RAMFException) {
             logger.warning("Invalid parcel received: ${exc.message}")
-            throw InvalidParcelException()
+            throw Exception.InvalidParcel()
         }
 
         val parcelPath = diskMessageOperations.writeMessage(
@@ -73,6 +80,9 @@ class StoreParcel
             storagePath = storagePath
         )
 
-    class MalformedParcelException() : Exception()
-    class InvalidParcelException() : Exception()
+    sealed class Exception : kotlin.Exception() {
+        class MalformedParcel() : Exception()
+        class InvalidParcel() : Exception()
+        class InvalidPublicLocalRecipient() : Exception()
+    }
 }

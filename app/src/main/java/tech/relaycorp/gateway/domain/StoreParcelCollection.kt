@@ -15,7 +15,9 @@ class StoreParcelCollection
             ParcelCollection(
                 parcel.recipientAddress,
                 parcel.senderAddress,
-                parcel.messageId
+                parcel.messageId,
+                parcel.creationTimeUtc,
+                parcel.expirationTimeUtc
             )
         )
     }

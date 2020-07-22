@@ -49,10 +49,7 @@ class ProcessCargo
         try {
             val parcel = storeParcel.store(parcelData, RecipientLocation.LocalEndpoint)
             storeParcelCollection.storeForParcel(parcel)
-        } catch (e: StoreParcel.MalformedParcelException) {
-            logger.log(Level.WARNING, "Malformed parcel", e)
-        } catch (e: StoreParcel.InvalidParcelException) {
-            logger.log(Level.WARNING, "Invalid parcel", e)
+        } catch (e: StoreParcel.Exception) {
         }
     }
 
