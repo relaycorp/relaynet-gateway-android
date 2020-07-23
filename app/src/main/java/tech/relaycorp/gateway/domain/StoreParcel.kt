@@ -1,6 +1,5 @@
 package tech.relaycorp.gateway.domain
 
-import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.model.MessageAddress
@@ -17,39 +16,47 @@ import javax.inject.Inject
 
 class StoreParcel
 @Inject constructor(
-    private val storedParcelRepository: StoredParcelDao,
+    private val storedParcelDao: StoredParcelDao,
     private val diskMessageOperations: DiskMessageOperations
 ) {
 
-    @Throws(MalformedParcelException::class, InvalidParcelException::class)
     suspend fun store(
         parcelStream: InputStream,
         recipientLocation: RecipientLocation
-    ): StoredParcel {
-        val parcelBytes = parcelStream.readBytesAndClose()
+    ) = store(parcelStream.readBytesAndClose(), recipientLocation)
+
+    suspend fun store(
+        parcelData: ByteArray,
+        recipientLocation: RecipientLocation
+    ): Result {
         val parcel = try {
-            Parcel.deserialize(parcelBytes)
+            Parcel.deserialize(parcelData)
         } catch (exc: RAMFException) {
-            logger.warning("Malformed parcel received: ${exc.message}")
-            throw MalformedParcelException()
+            return Result.MalformedParcel(exc)
+        }
+
+        if (recipientLocation == RecipientLocation.LocalEndpoint && !parcel.isRecipientAddressPrivate) {
+            return Result.InvalidPublicLocalRecipient(parcel)
         }
 
         try {
-            parcel.validate()
+            when (recipientLocation) {
+                RecipientLocation.LocalEndpoint -> parcel.validate() // TODO: validate with private local endpoint
+                RecipientLocation.ExternalGateway -> parcel.validate()
+            }
         } catch (exc: RAMFException) {
-            logger.warning("Invalid parcel received: ${exc.message}")
-            throw InvalidParcelException()
+            return Result.InvalidParcel(parcel, exc)
         }
 
         val parcelPath = diskMessageOperations.writeMessage(
             StoredParcel.STORAGE_FOLDER,
             StoredParcel.STORAGE_PREFIX,
-            parcelBytes
+            parcelData
         )
-        val parcelSize = StorageSize(parcelBytes.size.toLong())
+        val parcelSize = StorageSize(parcelData.size.toLong())
         val storedParcel = parcel.toStoredParcel(parcelPath, parcelSize, recipientLocation)
-        storedParcelRepository.insert(storedParcel)
-        return storedParcel
+        storedParcelDao.insert(storedParcel)
+        return Result.Success(parcel)
     }
 
     private fun Parcel.toStoredParcel(
@@ -68,6 +75,10 @@ class StoreParcel
             storagePath = storagePath
         )
 
-    class MalformedParcelException() : Exception()
-    class InvalidParcelException() : Exception()
+    sealed class Result {
+        data class MalformedParcel(val cause: Throwable) : Result()
+        data class InvalidParcel(val parcel: Parcel, val cause: Throwable) : Result()
+        data class InvalidPublicLocalRecipient(val parcel: Parcel) : Result()
+        data class Success(val parcel: Parcel) : Result()
+    }
 }

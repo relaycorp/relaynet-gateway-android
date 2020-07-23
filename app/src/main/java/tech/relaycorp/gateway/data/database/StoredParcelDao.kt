@@ -6,6 +6,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
+import tech.relaycorp.gateway.data.model.MessageAddress
+import tech.relaycorp.gateway.data.model.MessageId
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StoredParcel
 
@@ -29,4 +31,19 @@ interface StoredParcelDao {
         """
     )
     suspend fun listForRecipientLocation(recipientLocation: RecipientLocation): List<StoredParcel>
+
+    @Query(
+        """
+        SELECT * FROM Parcel
+        WHERE recipientAddress = :recipientAddress 
+            AND senderAddress = :senderAddress 
+            AND messageId = :messageId
+        LIMIT 1
+        """
+    )
+    suspend fun get(
+        recipientAddress: MessageAddress,
+        senderAddress: MessageAddress,
+        messageId: MessageId
+    ): StoredParcel?
 }

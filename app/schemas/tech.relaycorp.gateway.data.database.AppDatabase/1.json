@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "db32d1069e357f79e66ee4b33fb98e9b",
+    "identityHash": "43eb8ccdf0c797c392d76dcbd39fb770",
     "entities": [
       {
         "tableName": "Endpoint",
@@ -127,12 +127,75 @@
           }
         ],
         "foreignKeys": []
+      },
+      {
+        "tableName": "ParcelCollection",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recipientAddress` TEXT NOT NULL, `senderAddress` TEXT NOT NULL, `messageId` TEXT NOT NULL, `creationTimeUtc` INTEGER NOT NULL, `expirationTimeUtc` INTEGER NOT NULL, PRIMARY KEY(`recipientAddress`, `senderAddress`, `messageId`))",
+        "fields": [
+          {
+            "fieldPath": "recipientAddress",
+            "columnName": "recipientAddress",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "senderAddress",
+            "columnName": "senderAddress",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "messageId",
+            "columnName": "messageId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creationTimeUtc",
+            "columnName": "creationTimeUtc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expirationTimeUtc",
+            "columnName": "expirationTimeUtc",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "recipientAddress",
+            "senderAddress",
+            "messageId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_ParcelCollection_creationTimeUtc",
+            "unique": false,
+            "columnNames": [
+              "creationTimeUtc"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ParcelCollection_creationTimeUtc` ON `${TABLE_NAME}` (`creationTimeUtc`)"
+          },
+          {
+            "name": "index_ParcelCollection_expirationTimeUtc",
+            "unique": false,
+            "columnNames": [
+              "expirationTimeUtc"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ParcelCollection_expirationTimeUtc` ON `${TABLE_NAME}` (`expirationTimeUtc`)"
+          }
+        ],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'db32d1069e357f79e66ee4b33fb98e9b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '43eb8ccdf0c797c392d76dcbd39fb770')"
     ]
   }
 }

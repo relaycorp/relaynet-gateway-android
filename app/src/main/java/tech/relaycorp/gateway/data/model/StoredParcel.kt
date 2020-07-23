@@ -15,9 +15,9 @@ data class StoredParcel(
     @ColumnInfo(index = true)
     val recipientLocation: RecipientLocation,
     @ColumnInfo(index = true)
-    val creationTimeUtc: Date, // in UTC
+    val creationTimeUtc: Date,
     @ColumnInfo(index = true)
-    val expirationTimeUtc: Date, // in UTC
+    val expirationTimeUtc: Date,
     val storagePath: String,
     val size: StorageSize
 ) {
