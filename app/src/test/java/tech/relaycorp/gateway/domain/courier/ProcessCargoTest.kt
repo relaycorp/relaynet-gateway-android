@@ -18,7 +18,6 @@ import tech.relaycorp.gateway.domain.StoreParcelCollection
 import tech.relaycorp.gateway.test.factory.CargoFactory
 import tech.relaycorp.gateway.test.factory.ParcelCollectionAckFactory
 import tech.relaycorp.gateway.test.factory.ParcelFactory
-import tech.relaycorp.relaynet.messages.payloads.CargoMessage
 
 class ProcessCargoTest {
 
@@ -43,8 +42,7 @@ class ProcessCargoTest {
         val cargoBytes = CargoFactory.buildSerialized()
         whenever(cargoStorage.list()).thenReturn(listOf(cargoBytes::inputStream))
         val pca = ParcelCollectionAckFactory.build()
-        val pcaMessage = CargoMessage(pca.serialize())
-        whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(pcaMessage))
+        whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(mock()))
 
         processCargo.process()
 
@@ -60,7 +58,7 @@ class ProcessCargoTest {
         whenever(cargoStorage.list())
             .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
         whenever(readMessagesFromCargo.read(any()))
-            .thenReturn(sequenceOf(CargoMessage(ParcelFactory.buildSerialized())))
+            .thenReturn(sequenceOf(mock()))
         val parcel = ParcelFactory.build()
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.Success(parcel))
@@ -76,7 +74,7 @@ class ProcessCargoTest {
         whenever(cargoStorage.list())
             .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
         whenever(readMessagesFromCargo.read(any()))
-            .thenReturn(sequenceOf(CargoMessage(ParcelFactory.buildSerialized())))
+            .thenReturn(sequenceOf(mock()))
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.MalformedParcel(Exception()))
 
@@ -91,7 +89,7 @@ class ProcessCargoTest {
         whenever(cargoStorage.list())
             .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
         whenever(readMessagesFromCargo.read(any()))
-            .thenReturn(sequenceOf(CargoMessage(ParcelFactory.buildSerialized())))
+            .thenReturn(sequenceOf(mock()))
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.InvalidParcel(ParcelFactory.build(), Exception()))
 
@@ -106,7 +104,7 @@ class ProcessCargoTest {
         whenever(cargoStorage.list())
             .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
         whenever(readMessagesFromCargo.read(any()))
-            .thenReturn(sequenceOf(CargoMessage(ParcelFactory.buildSerialized())))
+            .thenReturn(sequenceOf(mock()))
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.InvalidPublicLocalRecipient(ParcelFactory.build()))
 

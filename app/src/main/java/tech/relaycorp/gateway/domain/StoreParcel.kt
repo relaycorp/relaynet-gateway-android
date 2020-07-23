@@ -1,5 +1,6 @@
 package tech.relaycorp.gateway.domain
 
+import tech.relaycorp.gateway.common.toDate
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.model.MessageAddress
@@ -11,7 +12,6 @@ import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.ramf.RAMFException
 import java.io.InputStream
-import java.util.Date
 import javax.inject.Inject
 
 class StoreParcel
@@ -69,8 +69,8 @@ class StoreParcel
             senderAddress = MessageAddress.of(senderCertificate.subjectPrivateAddress),
             messageId = MessageId(id),
             recipientLocation = recipientLocation,
-            creationTimeUtc = Date.from(creationDate.toInstant()),
-            expirationTimeUtc = Date.from(expiryDate.toInstant()),
+            creationTimeUtc = creationDate.toDate(),
+            expirationTimeUtc = expiryDate.toDate(),
             size = dataSize,
             storagePath = storagePath
         )

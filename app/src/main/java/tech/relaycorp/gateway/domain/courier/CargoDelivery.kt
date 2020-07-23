@@ -32,7 +32,7 @@ class CargoDelivery
 
     private suspend fun generateCargoDeliveries() =
         generateCargo.generate()
-            .map { CargoDeliveryRequest(UUID.randomUUID().toString()) { it } }
+            .map { CargoDeliveryRequest(UUID.randomUUID().toString(), it) }
 
     private suspend fun getCourierAddress() =
         courierConnectionObserver

@@ -17,5 +17,5 @@ interface ParcelCollectionDao {
     suspend fun delete(message: ParcelCollection)
 
     @Query("SELECT * FROM ParcelCollection")
-    fun getAll(): List<ParcelCollection>
+    suspend fun getAll(): List<ParcelCollection>
 }
