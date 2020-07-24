@@ -54,10 +54,6 @@ class ProcessCargo
                 logger.log(Level.WARNING, "Invalid parcel received", result.cause)
                 result.parcel
             }
-            is StoreParcel.Result.InvalidPublicLocalRecipient -> {
-                logger.log(Level.WARNING, "Invalid parcel with public recipient address received")
-                result.parcel
-            }
             is StoreParcel.Result.Success -> result.parcel
         }
         storeParcelCollection.storeForParcel(parcel)

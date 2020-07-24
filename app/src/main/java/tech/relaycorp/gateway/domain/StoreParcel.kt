@@ -7,16 +7,19 @@ import tech.relaycorp.gateway.data.model.MessageId
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StorageSize
 import tech.relaycorp.gateway.data.model.StoredParcel
+import tech.relaycorp.relaynet.RelaynetException
 import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.ramf.RAMFException
+import tech.relaycorp.relaynet.ramf.RecipientAddressType
 import java.io.InputStream
 import javax.inject.Inject
 
 class StoreParcel
 @Inject constructor(
     private val storedParcelDao: StoredParcelDao,
-    private val diskMessageOperations: DiskMessageOperations
+    private val diskMessageOperations: DiskMessageOperations,
+    private val localConfig: LocalConfig
 ) {
 
     suspend fun store(
@@ -34,16 +37,13 @@ class StoreParcel
             return Result.MalformedParcel(exc)
         }
 
-        if (recipientLocation == RecipientLocation.LocalEndpoint && !parcel.isRecipientAddressPrivate) {
-            return Result.InvalidPublicLocalRecipient(parcel)
-        }
-
+        val requiredRecipientAddressType = if (recipientLocation == RecipientLocation.LocalEndpoint)
+            RecipientAddressType.PRIVATE
+        else
+            null
         try {
-            when (recipientLocation) {
-                RecipientLocation.LocalEndpoint -> parcel.validate() // TODO: validate with private local endpoint
-                RecipientLocation.ExternalGateway -> parcel.validate()
-            }
-        } catch (exc: RAMFException) {
+            parcel.validate(requiredRecipientAddressType, setOf(localConfig.getCertificate()))
+        } catch (exc: RelaynetException) {
             return Result.InvalidParcel(parcel, exc)
         }
 
@@ -77,7 +77,6 @@ class StoreParcel
     sealed class Result {
         data class MalformedParcel(val cause: Throwable) : Result()
         data class InvalidParcel(val parcel: Parcel, val cause: Throwable) : Result()
-        data class InvalidPublicLocalRecipient(val parcel: Parcel) : Result()
         data class Success(val parcel: Parcel) : Result()
     }
 }

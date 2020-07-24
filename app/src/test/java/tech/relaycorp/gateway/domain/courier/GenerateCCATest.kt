@@ -36,7 +36,7 @@ class GenerateCCATest {
         val ccaBytes = generateCCA.generateByteArray()
         val cca = CargoCollectionAuthorization.deserialize(ccaBytes)
 
-        cca.validate()
+        cca.validate(null)
         assertEquals(address, cca.recipientAddress)
         assertEquals(certificate, cca.senderCertificate)
     }

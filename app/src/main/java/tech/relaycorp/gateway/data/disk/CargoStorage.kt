@@ -1,15 +1,19 @@
 package tech.relaycorp.gateway.data.disk
 
 import tech.relaycorp.gateway.common.Logging.logger
+import tech.relaycorp.gateway.domain.LocalConfig
+import tech.relaycorp.relaynet.RelaynetException
 import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.messages.Cargo
 import tech.relaycorp.relaynet.ramf.RAMFException
+import tech.relaycorp.relaynet.ramf.RecipientAddressType
 import java.io.InputStream
 import javax.inject.Inject
 
 class CargoStorage
 @Inject constructor(
-    private val diskMessageOperations: DiskMessageOperations
+    private val diskMessageOperations: DiskMessageOperations,
+    private val localConfig: LocalConfig
 ) {
 
     @Throws(Exception::class)
@@ -23,10 +27,10 @@ class CargoStorage
         }
 
         try {
-            cargo.validate()
-        } catch (exc: RAMFException) {
+            cargo.validate(RecipientAddressType.PRIVATE, setOf(localConfig.getCertificate()))
+        } catch (exc: RelaynetException) {
             logger.warning("Invalid cargo received: ${exc.message}")
-            throw Exception.InvalidCargo(exc)
+            throw Exception.InvalidCargo(null, exc)
         }
 
         return diskMessageOperations.writeMessage(FOLDER, PREFIX, cargoBytes)
@@ -36,13 +40,13 @@ class CargoStorage
 
     suspend fun deleteAll() = diskMessageOperations.deleteAllMessages(FOLDER)
 
-    sealed class Exception(cause: Throwable? = null) : kotlin.Exception(cause) {
-        class MalformedCargo(cause: Throwable) : Exception(cause)
-        class InvalidCargo(cause: Throwable) : Exception(cause)
+    sealed class Exception(message: String?, cause: Throwable? = null) : kotlin.Exception(message, cause) {
+        class MalformedCargo(cause: Throwable) : Exception(null, cause)
+        class InvalidCargo(message: String?, cause: Throwable? = null) : Exception(message, cause)
     }
 
     companion object {
-        private const val FOLDER = "cargo"
-        private const val PREFIX = "cargo_"
+        internal const val FOLDER = "cargo"
+        internal const val PREFIX = "cargo_"
     }
 }
