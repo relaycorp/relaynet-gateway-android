@@ -10,11 +10,11 @@ object CargoFactory {
      * Build a cargo bound for a private gateway.
      */
     fun build() = Cargo(
-        recipientAddress = CargoDeliveryCertPath.PRIVATE_GW.subjectPrivateAddress,
-        senderCertificate = CargoDeliveryCertPath.PUBLIC_GW,
-        payload = "".toByteArray()
+        CargoDeliveryCertPath.PRIVATE_GW.subjectPrivateAddress,
+        "".toByteArray(),
+        CargoDeliveryCertPath.PUBLIC_GW
     )
 
     fun buildSerialized() =
-        build().serialize(KeyPairSet.PRIVATE_GW.private)
+        build().serialize(KeyPairSet.PUBLIC_GW.private)
 }
