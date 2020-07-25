@@ -40,7 +40,7 @@ internal class StoreParcelTest {
         val parcel = Parcel(
             FullCertPath.PRIVATE_ENDPOINT.subjectPrivateAddress,
             ByteArray(0),
-            FullCertPath.PUBLIC_GW // Invalid sender
+            FullCertPath.PUBLIC_GW // Unauthorized sender
         ).serialize(KeyPairSet.PUBLIC_GW.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
