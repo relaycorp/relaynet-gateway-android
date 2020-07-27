@@ -1,6 +1,5 @@
 package tech.relaycorp.gateway.domain
 
-import tech.relaycorp.gateway.common.toDate
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.model.MessageAddress
@@ -69,8 +68,8 @@ class StoreParcel
             senderAddress = MessageAddress.of(senderCertificate.subjectPrivateAddress),
             messageId = MessageId(id),
             recipientLocation = recipientLocation,
-            creationTimeUtc = creationDate.toDate(),
-            expirationTimeUtc = expiryDate.toDate(),
+            creationTimeUtc = creationDate,
+            expirationTimeUtc = expiryDate,
             size = dataSize,
             storagePath = storagePath
         )

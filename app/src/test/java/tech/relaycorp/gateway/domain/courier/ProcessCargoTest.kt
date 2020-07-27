@@ -18,6 +18,7 @@ import tech.relaycorp.gateway.domain.StoreParcelCollection
 import tech.relaycorp.gateway.test.factory.CargoFactory
 import tech.relaycorp.gateway.test.factory.ParcelCollectionAckFactory
 import tech.relaycorp.gateway.test.factory.ParcelFactory
+import tech.relaycorp.relaynet.messages.payloads.CargoMessage
 
 class ProcessCargoTest {
 
@@ -42,7 +43,8 @@ class ProcessCargoTest {
         val cargoBytes = CargoFactory.buildSerialized()
         whenever(cargoStorage.list()).thenReturn(listOf(cargoBytes::inputStream))
         val pca = ParcelCollectionAckFactory.build()
-        whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(mock()))
+        val cargoMessage = mockCargoMessage(CargoMessage.Type.PCA, pca.serialize())
+        whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(cargoMessage))
 
         processCargo.process()
 
@@ -57,9 +59,9 @@ class ProcessCargoTest {
     fun `store received parcel with collection`() = runBlockingTest {
         whenever(cargoStorage.list())
             .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
-        whenever(readMessagesFromCargo.read(any()))
-            .thenReturn(sequenceOf(mock()))
         val parcel = ParcelFactory.build()
+        val cargoMessage = mockCargoMessage(CargoMessage.Type.PARCEL)
+        whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(cargoMessage))
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.Success(parcel))
 
@@ -73,8 +75,8 @@ class ProcessCargoTest {
     fun `received malformed parcel that does not get stored`() = runBlockingTest {
         whenever(cargoStorage.list())
             .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
-        whenever(readMessagesFromCargo.read(any()))
-            .thenReturn(sequenceOf(mock()))
+        val cargoMessage = mockCargoMessage(CargoMessage.Type.PARCEL)
+        whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(cargoMessage))
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.MalformedParcel(Exception()))
 
@@ -88,8 +90,8 @@ class ProcessCargoTest {
     fun `received invalid parcel but collection is stored`() = runBlockingTest {
         whenever(cargoStorage.list())
             .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
-        whenever(readMessagesFromCargo.read(any()))
-            .thenReturn(sequenceOf(mock()))
+        val cargoMessage = mockCargoMessage(CargoMessage.Type.PARCEL)
+        whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(cargoMessage))
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.InvalidParcel(ParcelFactory.build(), Exception()))
 
@@ -100,17 +102,28 @@ class ProcessCargoTest {
     }
 
     @Test
-    fun `received parcel with invalid public local recipient but collection is stored`() = runBlockingTest {
-        whenever(cargoStorage.list())
-            .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
-        whenever(readMessagesFromCargo.read(any()))
-            .thenReturn(sequenceOf(mock()))
-        whenever(storeParcel.store(any<ByteArray>(), any()))
-            .thenReturn(StoreParcel.Result.InvalidPublicLocalRecipient(ParcelFactory.build()))
+    fun `received parcel with invalid public local recipient but collection is stored`() =
+        runBlockingTest {
+            whenever(cargoStorage.list())
+                .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
+            val cargoMessage = mockCargoMessage(CargoMessage.Type.PARCEL)
+            whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(cargoMessage))
+            whenever(storeParcel.store(any<ByteArray>(), any()))
+                .thenReturn(StoreParcel.Result.InvalidPublicLocalRecipient(ParcelFactory.build()))
 
-        processCargo.process()
+            processCargo.process()
 
-        verify(storeParcel).store(any<ByteArray>(), any())
-        verify(storeParcelCollection).storeForParcel(any())
+            verify(storeParcel).store(any<ByteArray>(), any())
+            verify(storeParcelCollection).storeForParcel(any())
+        }
+
+    private fun mockCargoMessage(
+        type: CargoMessage.Type,
+        messageSerialized: ByteArray = ByteArray(0)
+    ): CargoMessage {
+        val cargoMessage = mock<CargoMessage>()
+        whenever(cargoMessage.type).thenReturn(type)
+        whenever(cargoMessage.messageSerialized).thenReturn(messageSerialized)
+        return cargoMessage
     }
 }

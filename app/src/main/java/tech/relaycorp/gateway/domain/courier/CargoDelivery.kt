@@ -3,6 +3,7 @@ package tech.relaycorp.gateway.domain.courier
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import tech.relaycorp.gateway.background.CourierConnectionObserver
 import tech.relaycorp.gateway.background.CourierConnectionState
 import tech.relaycorp.relaynet.CargoDeliveryRequest
@@ -23,7 +24,7 @@ class CargoDelivery
 
         try {
             client
-                .deliverCargo(generateCargoDeliveries())
+                .deliverCargo(generateCargoDeliveries().toList())
                 .collect()
         } finally {
             client.close()
@@ -32,7 +33,7 @@ class CargoDelivery
 
     private suspend fun generateCargoDeliveries() =
         generateCargo.generate()
-            .map { CargoDeliveryRequest(UUID.randomUUID().toString(), it) }
+            .map { CargoDeliveryRequest(UUID.randomUUID().toString()) { it } }
 
     private suspend fun getCourierAddress() =
         courierConnectionObserver

@@ -1,6 +1,5 @@
 package tech.relaycorp.gateway.domain
 
-import tech.relaycorp.gateway.common.toDate
 import tech.relaycorp.gateway.data.database.ParcelCollectionDao
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.MessageId
@@ -20,8 +19,8 @@ class StoreParcelCollection
                 MessageAddress.of(parcel.recipientAddress),
                 PrivateMessageAddress(parcel.senderCertificate.subjectPrivateAddress),
                 MessageId(parcel.id),
-                parcel.creationDate.toDate(),
-                parcel.expiryDate.toDate()
+                parcel.creationDate,
+                parcel.expiryDate
             )
         )
     }

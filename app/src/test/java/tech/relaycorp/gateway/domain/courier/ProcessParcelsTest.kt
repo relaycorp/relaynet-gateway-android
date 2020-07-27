@@ -7,7 +7,7 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoint
 import tech.relaycorp.gateway.test.factory.StoredParcelFactory

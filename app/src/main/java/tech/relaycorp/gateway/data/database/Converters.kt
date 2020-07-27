@@ -7,14 +7,16 @@ import tech.relaycorp.gateway.data.model.PrivateMessageAddress
 import tech.relaycorp.gateway.data.model.PublicMessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StorageSize
-import java.util.Date
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 class Converters {
     @TypeConverter
-    fun toDate(dateLong: Long) = Date(dateLong)
+    fun toZonedDateTime(value: Long) = ZonedDateTime.ofInstant(Instant.ofEpochMilli(value), ZoneId.of("UTC"))
 
     @TypeConverter
-    fun fromDate(date: Date) = date.time
+    fun fromZonedDateTime(value: ZonedDateTime) = value.toInstant().toEpochMilli()
 
     @TypeConverter
     fun toAddress(value: String) = MessageAddress.of(value)

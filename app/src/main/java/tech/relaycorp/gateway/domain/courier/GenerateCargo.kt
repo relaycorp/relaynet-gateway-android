@@ -1,7 +1,10 @@
 package tech.relaycorp.gateway.domain.courier
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import tech.relaycorp.gateway.common.Logging.logger
-import tech.relaycorp.gateway.common.toZonedDateTime
 import tech.relaycorp.gateway.data.database.ParcelCollectionDao
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
@@ -9,11 +12,18 @@ import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
 import tech.relaycorp.gateway.data.model.ParcelCollection
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StoredParcel
+import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
+import tech.relaycorp.relaynet.messages.Cargo
 import tech.relaycorp.relaynet.messages.ParcelCollectionAck
+import tech.relaycorp.relaynet.messages.payloads.CargoMessageSetWithExpiry
 import tech.relaycorp.relaynet.messages.payloads.CargoMessageWithExpiry
 import tech.relaycorp.relaynet.messages.payloads.batch
 import java.io.InputStream
+import java.time.Duration
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.logging.Level
 import javax.inject.Inject
 
@@ -21,15 +31,17 @@ class GenerateCargo
 @Inject constructor(
     private val storedParcelDao: StoredParcelDao,
     private val parcelCollectionDao: ParcelCollectionDao,
-    private val diskMessageOperations: DiskMessageOperations
+    private val diskMessageOperations: DiskMessageOperations,
+    private val publicGatewayPreferences: PublicGatewayPreferences,
+    private val localConfig: LocalConfig
 ) {
 
-    suspend fun generate(): Iterable<() -> InputStream> =
+    suspend fun generate(): Flow<InputStream> =
         (getPCAsMessages() + getParcelMessages())
             .asSequence()
             .batch()
-            .map { { it.cargoMessageSet.serializePlaintext().inputStream() } }
-            .asIterable()
+            .asFlow()
+            .map { it.toCargo().serialize(localConfig.getKeyPair().private).inputStream() }
 
     private suspend fun getPCAsMessages() =
         parcelCollectionDao.getAll().map { it.toCargoMessageWithExpiry() }
@@ -45,18 +57,18 @@ class GenerateCargo
                 recipientEndpointAddress = recipientAddress.value,
                 parcelId = messageId.value
             ).serialize(),
-            expiryDate = expirationTimeUtc.toZonedDateTime()
+            expiryDate = expirationTimeUtc
         )
 
-    private suspend fun StoredParcel.toCargoMessageWithExpiry() =
+    private suspend fun StoredParcel.toCargoMessageWithExpiry(): CargoMessageWithExpiry? =
         readParcel()?.let { parcelSerialized ->
             CargoMessageWithExpiry(
                 cargoMessageSerialized = parcelSerialized,
-                expiryDate = expirationTimeUtc.toZonedDateTime()
+                expiryDate = expirationTimeUtc
             )
         }
 
-    private suspend fun StoredParcel.readParcel() =
+    private suspend fun StoredParcel.readParcel(): ByteArray? =
         try {
             diskMessageOperations.readMessage(
                 StoredParcel.STORAGE_FOLDER,
@@ -66,4 +78,21 @@ class GenerateCargo
             logger.log(Level.WARNING, "Read parcel", e)
             null
         }
+
+    private suspend fun getPublicGatewayAddress() =
+        publicGatewayPreferences.getAddress().first()
+
+    private suspend fun getPublicGatewayCertificate() =
+        publicGatewayPreferences.getCertificate().first()
+
+    private suspend fun CargoMessageSetWithExpiry.toCargo(): Cargo {
+        val creationDate = ZonedDateTime.now(ZoneId.of("UTC"))
+        return Cargo(
+            recipientAddress = getPublicGatewayAddress(),
+            payload = cargoMessageSet.encrypt(getPublicGatewayCertificate()),
+            senderCertificate = localConfig.getCertificate(),
+            creationDate = creationDate,
+            ttl = Duration.between(latestMessageExpiryDate, creationDate).seconds.toInt()
+        )
+    }
 }

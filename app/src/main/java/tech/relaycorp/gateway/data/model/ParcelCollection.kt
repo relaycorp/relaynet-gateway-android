@@ -2,7 +2,7 @@ package tech.relaycorp.gateway.data.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import java.util.Date
+import java.time.ZonedDateTime
 
 @Entity(
     tableName = "ParcelCollection",
@@ -13,7 +13,7 @@ data class ParcelCollection(
     val senderAddress: PrivateMessageAddress,
     val messageId: MessageId,
     @ColumnInfo(index = true)
-    val creationTimeUtc: Date,
+    val creationTimeUtc: ZonedDateTime,
     @ColumnInfo(index = true)
-    val expirationTimeUtc: Date
+    val expirationTimeUtc: ZonedDateTime
 )

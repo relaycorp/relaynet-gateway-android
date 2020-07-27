@@ -2,7 +2,7 @@ package tech.relaycorp.gateway.data.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import java.util.Date
+import java.time.ZonedDateTime
 
 @Entity(
     tableName = "Parcel",
@@ -15,9 +15,9 @@ data class StoredParcel(
     @ColumnInfo(index = true)
     val recipientLocation: RecipientLocation,
     @ColumnInfo(index = true)
-    val creationTimeUtc: Date,
+    val creationTimeUtc: ZonedDateTime,
     @ColumnInfo(index = true)
-    val expirationTimeUtc: Date,
+    val expirationTimeUtc: ZonedDateTime,
     val storagePath: String,
     val size: StorageSize
 ) {
