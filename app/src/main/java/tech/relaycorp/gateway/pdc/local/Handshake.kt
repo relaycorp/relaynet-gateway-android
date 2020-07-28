@@ -10,6 +10,7 @@ import org.bouncycastle.cms.CMSSignedData
 import org.bouncycastle.cms.SignerInformation
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder
 import org.bouncycastle.util.Selector
+import tech.relaycorp.gateway.common.CryptoUtils
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.io.IOException
 import java.util.UUID
@@ -55,7 +56,9 @@ internal object Handshake {
                 "Certificate of signer should be attached"
             )
         }
-        val verifier = JcaSimpleSignerInfoVerifierBuilder().build(signerCertificateHolder)
+        val verifier = JcaSimpleSignerInfoVerifierBuilder()
+            .setProvider(CryptoUtils.BC_PROVIDER)
+            .build(signerCertificateHolder)
         try {
             signerInfo.verify(verifier)
         } catch (_: CMSException) {
