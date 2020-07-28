@@ -18,11 +18,11 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.relaynet.issueEndpointCertificate
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import java.io.IOException
 import java.nio.charset.Charset
-import java.time.ZonedDateTime
 
 class HandshakeTest {
     @Nested
@@ -43,7 +43,7 @@ class HandshakeTest {
         private val endpointCertificate = issueEndpointCertificate(
             endpointKeyPair.public,
             endpointKeyPair.private,
-            ZonedDateTime.now().plusDays(1)
+            nowInUtc().plusDays(1)
         )
 
         @Test

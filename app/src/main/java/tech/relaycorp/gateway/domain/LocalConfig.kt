@@ -1,5 +1,6 @@
 package tech.relaycorp.gateway.domain
 
+import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.disk.SensitiveStore
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
@@ -11,7 +12,6 @@ import java.security.interfaces.RSAPrivateCrtKey
 import java.security.spec.EncodedKeySpec
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.RSAPublicKeySpec
-import java.time.ZonedDateTime
 import javax.inject.Inject
 
 class LocalConfig
@@ -39,7 +39,7 @@ class LocalConfig
         issueGatewayCertificate(
             keyPair.public,
             keyPair.private,
-            ZonedDateTime.now().plusYears(GATEWAY_CERTIFICATE_VALIDITY_YEARS)
+            nowInUtc().plusYears(GATEWAY_CERTIFICATE_VALIDITY_YEARS)
         )
 
     private fun ByteArray.toPrivateKey(): PrivateKey {

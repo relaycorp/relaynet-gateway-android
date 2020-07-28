@@ -1,9 +1,9 @@
 package tech.relaycorp.gateway.test.factory
 
+import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.relaynet.issueEndpointCertificate
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
-import java.time.ZonedDateTime
 
 object ParcelFactory {
 
@@ -24,7 +24,7 @@ object ParcelFactory {
         issueEndpointCertificate(
             keyPair.public,
             keyPair.private,
-            ZonedDateTime.now().plusDays(1)
+            nowInUtc().plusDays(1)
         )
     }
 }

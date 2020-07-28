@@ -6,12 +6,12 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.CargoCollectionAuthorization
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
-import java.time.ZonedDateTime
 
 class GenerateCCATest {
 
@@ -23,14 +23,15 @@ class GenerateCCATest {
     internal fun generateByteArray() = runBlockingTest {
         val keyPair = generateRSAKeyPair()
         val certificate = issueGatewayCertificate(
-            keyPair.public,
-            keyPair.private,
-            ZonedDateTime.now().plusMinutes(5)
+            subjectPublicKey = keyPair.public,
+            issuerPrivateKey = keyPair.private,
+            validityEndDate = nowInUtc().plusMinutes(1),
+            validityStartDate = nowInUtc().minusMinutes(1)
         )
         val address = "http://example.org"
         whenever(localConfig.getKeyPair()).thenReturn(keyPair)
         whenever(localConfig.getCertificate()).thenReturn(certificate)
-        whenever(publicGatewayPreferences.getAddress()).thenReturn(flowOf("http://example.org"))
+        whenever(publicGatewayPreferences.getAddress()).thenReturn(flowOf(address))
 
         val ccaBytes = generateCCA.generateByteArray()
         val cca = CargoCollectionAuthorization.deserialize(ccaBytes)

@@ -6,7 +6,6 @@ import tech.relaycorp.gateway.data.model.MessageId
 import tech.relaycorp.gateway.data.model.ParcelCollection
 import tech.relaycorp.gateway.data.model.PrivateMessageAddress
 import tech.relaycorp.relaynet.messages.Parcel
-import java.util.Date
 import javax.inject.Inject
 
 class StoreParcelCollection
@@ -20,8 +19,8 @@ class StoreParcelCollection
                 MessageAddress.of(parcel.recipientAddress),
                 PrivateMessageAddress(parcel.senderCertificate.subjectPrivateAddress),
                 MessageId(parcel.id),
-                Date.from(parcel.creationDate.toInstant()),
-                Date.from(parcel.expiryDate.toInstant())
+                parcel.creationDate,
+                parcel.expiryDate
             )
         )
     }

@@ -10,12 +10,12 @@ import io.ktor.server.testing.withTestApplication
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.poweb.handshake.Challenge
 import tech.relaycorp.poweb.handshake.Response
 import tech.relaycorp.relaynet.issueEndpointCertificate
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import java.nio.charset.Charset
-import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 
 class ParcelCollectionWebSocketsTest {
@@ -23,7 +23,7 @@ class ParcelCollectionWebSocketsTest {
     private val endpointCertificate = issueEndpointCertificate(
         endpointKeyPair.public,
         endpointKeyPair.private,
-        ZonedDateTime.now().plusDays(1)
+        nowInUtc().plusDays(1)
     )
 
     @Test
