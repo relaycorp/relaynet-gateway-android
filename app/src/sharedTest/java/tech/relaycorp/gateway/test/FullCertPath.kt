@@ -11,37 +11,45 @@ import java.time.ZonedDateTime
  * See also [CargoDeliveryCertPath]
  */
 object FullCertPath {
-    private val startDate = ZonedDateTime.now().minusMinutes(1)
-    private val endDate = ZonedDateTime.now().plusHours(1)
+    private val startDate by lazy { ZonedDateTime.now().minusMinutes(1) }
+    private val endDate by lazy { ZonedDateTime.now().plusHours(1) }
 
-    val PUBLIC_GW = issueGatewayCertificate(
-        KeyPairSet.PUBLIC_GW.public,
-        KeyPairSet.PUBLIC_GW.private,
-        endDate,
-        validityStartDate = startDate
-    )
+    val PUBLIC_GW by lazy {
+        issueGatewayCertificate(
+            KeyPairSet.PUBLIC_GW.public,
+            KeyPairSet.PUBLIC_GW.private,
+            endDate,
+            validityStartDate = startDate
+        )
+    }
 
-    val PRIVATE_GW = issueGatewayCertificate(
-        KeyPairSet.PRIVATE_GW.public,
-        KeyPairSet.PUBLIC_GW.private,
-        endDate,
-        PUBLIC_GW,
-        validityStartDate = startDate
-    )
+    val PRIVATE_GW by lazy {
+        issueGatewayCertificate(
+            KeyPairSet.PRIVATE_GW.public,
+            KeyPairSet.PUBLIC_GW.private,
+            endDate,
+            PUBLIC_GW,
+            validityStartDate = startDate
+        )
+    }
 
-    val PRIVATE_ENDPOINT = issueEndpointCertificate(
-        KeyPairSet.PRIVATE_ENDPOINT.public,
-        KeyPairSet.PRIVATE_GW.private,
-        endDate,
-        PRIVATE_GW,
-        validityStartDate = startDate
-    )
+    val PRIVATE_ENDPOINT by lazy {
+        issueEndpointCertificate(
+            KeyPairSet.PRIVATE_ENDPOINT.public,
+            KeyPairSet.PRIVATE_GW.private,
+            endDate,
+            PRIVATE_GW,
+            validityStartDate = startDate
+        )
+    }
 
-    val PDA = issueParcelDeliveryAuthorization(
-        KeyPairSet.PDA_GRANTEE.public,
-        KeyPairSet.PRIVATE_ENDPOINT.private,
-        endDate,
-        PRIVATE_ENDPOINT,
-        validityStartDate = startDate
-    )
+    val PDA by lazy {
+        issueParcelDeliveryAuthorization(
+            KeyPairSet.PDA_GRANTEE.public,
+            KeyPairSet.PRIVATE_ENDPOINT.private,
+            endDate,
+            PRIVATE_ENDPOINT,
+            validityStartDate = startDate
+        )
+    }
 }

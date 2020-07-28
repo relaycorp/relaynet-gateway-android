@@ -9,23 +9,27 @@ import java.time.ZonedDateTime
  * See also [FullCertPath]
  */
 object CargoDeliveryCertPath {
-    private val startDate = ZonedDateTime.now().minusMinutes(1)
-    private val endDate = ZonedDateTime.now().plusHours(1)
+    private val startDate by lazy { ZonedDateTime.now().minusMinutes(1) }
+    private val endDate by lazy { ZonedDateTime.now().plusHours(1) }
 
-    val PRIVATE_GW = issueGatewayCertificate(
-        KeyPairSet.PRIVATE_GW.public,
-        KeyPairSet.PRIVATE_GW.private,
-        endDate,
-        validityStartDate = startDate
-    )
+    val PRIVATE_GW by lazy {
+        issueGatewayCertificate(
+            KeyPairSet.PRIVATE_GW.public,
+            KeyPairSet.PRIVATE_GW.private,
+            endDate,
+            validityStartDate = startDate
+        )
+    }
 
     // TODO: Replace issueGatewayCertificate() with issueCargoDeliveryAuthorization() once it's
     // implemented: https://github.com/relaycorp/relaynet-jvm/issues/76
-    val PUBLIC_GW = issueGatewayCertificate(
-        KeyPairSet.PUBLIC_GW.public,
-        KeyPairSet.PRIVATE_GW.private,
-        endDate,
-        PRIVATE_GW,
-        validityStartDate = startDate
-    )
+    val PUBLIC_GW by lazy {
+        issueGatewayCertificate(
+            KeyPairSet.PUBLIC_GW.public,
+            KeyPairSet.PRIVATE_GW.private,
+            endDate,
+            PRIVATE_GW,
+            validityStartDate = startDate
+        )
+    }
 }
