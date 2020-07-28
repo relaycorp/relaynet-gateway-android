@@ -101,22 +101,6 @@ class ProcessCargoTest {
         verify(storeParcelCollection).storeForParcel(any())
     }
 
-    @Test
-    fun `received parcel with invalid public local recipient but collection is stored`() =
-        runBlockingTest {
-            whenever(cargoStorage.list())
-                .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
-            val cargoMessage = mockCargoMessage(CargoMessage.Type.PARCEL)
-            whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(cargoMessage))
-            whenever(storeParcel.store(any<ByteArray>(), any()))
-                .thenReturn(StoreParcel.Result.InvalidPublicLocalRecipient(ParcelFactory.build()))
-
-            processCargo.process()
-
-            verify(storeParcel).store(any<ByteArray>(), any())
-            verify(storeParcelCollection).storeForParcel(any())
-        }
-
     private fun mockCargoMessage(
         type: CargoMessage.Type,
         messageSerialized: ByteArray = ByteArray(0)

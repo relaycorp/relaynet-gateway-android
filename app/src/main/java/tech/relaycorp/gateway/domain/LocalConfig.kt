@@ -58,7 +58,6 @@ class LocalConfig
 
     companion object {
         private const val KEY_ALGORITHM = "RSA"
-        private const val RSA_KEY_MODULUS = 2048
         private const val GATEWAY_CERTIFICATE_VALIDITY_YEARS = 3L
 
         private const val PRIVATE_KEY_FILE_NAME = "local_gateway.key"
