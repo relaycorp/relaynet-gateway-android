@@ -13,7 +13,8 @@ import java.time.ZonedDateTime
 
 class Converters {
     @TypeConverter
-    fun toZonedDateTime(value: Long) = ZonedDateTime.ofInstant(Instant.ofEpochMilli(value), ZoneId.of("UTC"))
+    fun toZonedDateTime(value: Long): ZonedDateTime =
+        ZonedDateTime.ofInstant(Instant.ofEpochMilli(value), ZoneId.of("UTC"))
 
     @TypeConverter
     fun fromZonedDateTime(value: ZonedDateTime) = value.toInstant().toEpochMilli()
