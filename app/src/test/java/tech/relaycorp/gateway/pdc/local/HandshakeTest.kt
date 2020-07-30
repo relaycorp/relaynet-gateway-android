@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import tech.relaycorp.gateway.common.CryptoUtils
 import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.relaynet.issueEndpointCertificate
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
@@ -134,7 +135,8 @@ class HandshakeTest {
         fun `A SignerInfo collection with more than one item should be refused`() {
             val signedDataGenerator = CMSSignedDataGenerator()
 
-            val signerBuilder = JcaContentSignerBuilder("SHA256withRSA")
+            val signerBuilder = JcaContentSignerBuilder("SHA256WITHRSAANDMGF1")
+                .setProvider(CryptoUtils.BC_PROVIDER)
             val contentSigner: ContentSigner = signerBuilder.build(endpointKeyPair.private)
             val signerInfoGenerator = JcaSignerInfoGeneratorBuilder(
                 JcaDigestCalculatorProviderBuilder()
@@ -167,7 +169,8 @@ class HandshakeTest {
         fun `Certificate of signer should be required`() {
             val signedDataGenerator = CMSSignedDataGenerator()
 
-            val signerBuilder = JcaContentSignerBuilder("SHA256withRSA")
+            val signerBuilder = JcaContentSignerBuilder("SHA256WITHRSAANDMGF1")
+                .setProvider(CryptoUtils.BC_PROVIDER)
             val contentSigner: ContentSigner = signerBuilder.build(endpointKeyPair.private)
             val signerInfoGenerator = JcaSignerInfoGeneratorBuilder(
                 JcaDigestCalculatorProviderBuilder()
