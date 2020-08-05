@@ -18,6 +18,7 @@ object HandshakeTestUtils {
             plaintext,
             signerPrivateKey,
             signerCertificate,
+            setOf(signerCertificate),
             encapsulatePlaintext = encapsulatePlaintext
         )
         return signedData.serialize()
