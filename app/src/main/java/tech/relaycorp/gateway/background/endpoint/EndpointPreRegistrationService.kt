@@ -38,7 +38,7 @@ class EndpointPreRegistrationService : Service() {
     // TODO: Replace runBlocking with scope.launch
     internal fun reply(requestMessage: Message) = runBlocking {
         // TODO: Dynamically compute the application id
-        val craSerialized = endpointRegistration.authorize("appId")
+        val craSerialized = endpointRegistration.authorize("temp-app-id")
         val replyMessage = Message.obtain(null, REGISTRATION_AUTHORIZATION, craSerialized)
         requestMessage.replyTo.send(replyMessage)
     }
