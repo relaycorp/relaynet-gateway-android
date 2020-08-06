@@ -1,5 +1,6 @@
 package tech.relaycorp.gateway.domain
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.disk.SensitiveStore
 import tech.relaycorp.relaynet.issueGatewayCertificate
@@ -18,7 +19,6 @@ class LocalConfig
 @Inject constructor(
     private val sensitiveStore: SensitiveStore
 ) {
-
     suspend fun getKeyPair() =
         sensitiveStore.read(PRIVATE_KEY_FILE_NAME)
             ?.toPrivateKey()
@@ -44,14 +44,14 @@ class LocalConfig
 
     private fun ByteArray.toPrivateKey(): PrivateKey {
         val privateKeySpec: EncodedKeySpec = PKCS8EncodedKeySpec(this)
-        val generator: KeyFactory = KeyFactory.getInstance(KEY_ALGORITHM)
+        val generator: KeyFactory = KeyFactory.getInstance(KEY_ALGORITHM, bouncyCastleProvider)
         return generator.generatePrivate(privateKeySpec)
     }
 
     private fun PrivateKey.toKeyPair(): KeyPair {
         val publicKeySpec =
             (this as RSAPrivateCrtKey).run { RSAPublicKeySpec(modulus, publicExponent) }
-        val keyFactory = KeyFactory.getInstance("RSA")
+        val keyFactory = KeyFactory.getInstance("RSA", bouncyCastleProvider)
         val publicKey = keyFactory.generatePublic(publicKeySpec)
         return KeyPair(publicKey, this)
     }
@@ -62,5 +62,7 @@ class LocalConfig
 
         private const val PRIVATE_KEY_FILE_NAME = "local_gateway.key"
         private const val CERTIFICATE_FILE_NAME = "local_gateway.certificate"
+
+        private val bouncyCastleProvider = BouncyCastleProvider()
     }
 }

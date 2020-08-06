@@ -10,26 +10,28 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.rule.ServiceTestRule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
-class NonceRequestServiceTest {
+class EndpointPreRegistrationServiceTest {
 
     @get:Rule
     val serviceRule = ServiceTestRule()
 
     @Test
-    fun requestAndReceiveNonce() {
+    fun requestPreRegistration() {
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
-            NonceRequestService::class.java
+            EndpointPreRegistrationService::class.java
         )
         val binder = serviceRule.bindService(serviceIntent)
 
         var resultMessage: Message? = null
 
         val messenger = Messenger(binder)
-        val requestMessage = Message.obtain(null, NonceRequestService.NONCE_REQUEST)
+        val requestMessage =
+            Message.obtain(null, EndpointPreRegistrationService.PREREGISTRATION_REQUEST)
         requestMessage.replyTo = Messenger(object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 resultMessage = Message.obtain().also { it.copyFrom(msg) }
@@ -37,20 +39,27 @@ class NonceRequestServiceTest {
         })
         messenger.send(requestMessage)
 
-        Thread.sleep(100)
+        Thread.sleep(500)
 
+        assertNotNull("We should have got a reply", resultMessage)
         assertEquals(
-            NonceRequestService.NONCE_RESULT,
-            resultMessage?.what
+            EndpointPreRegistrationService.REGISTRATION_AUTHORIZATION,
+            resultMessage!!.what
         )
-        assertNotNull(resultMessage?.obj)
+        assertTrue(resultMessage!!.obj is ByteArray)
+        // TODO: Check we got a valid CRA
+//        val craSerialized = resultMessage!!.obj
+//        val store = SensitiveStore(InstrumentationRegistry.getInstrumentation().targetContext)
+//        val localConfig = LocalConfig(store)
+//        val gatewayKeyPair = runBlocking { localConfig.getKeyPair() }
+//        ClientRegistrationAuthorization.deserialize(craSerialized as ByteArray, gatewayKeyPair.public)
     }
 
     @Test
     fun invalidRequestIsIgnored() {
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
-            NonceRequestService::class.java
+            EndpointPreRegistrationService::class.java
         )
         val binder = serviceRule.bindService(serviceIntent)
 
