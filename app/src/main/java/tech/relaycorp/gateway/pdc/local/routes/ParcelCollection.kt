@@ -14,7 +14,7 @@ import tech.relaycorp.poweb.handshake.Challenge
 import tech.relaycorp.poweb.handshake.InvalidMessageException
 import tech.relaycorp.poweb.handshake.Response
 
-fun Routing.parcelCollection() {
+fun Routing.registerParcelCollection() {
     webSocket("/v1/parcel-collection") {
         if (call.request.header("Origin") != null) {
             // The client is most likely a (malicious) web page
