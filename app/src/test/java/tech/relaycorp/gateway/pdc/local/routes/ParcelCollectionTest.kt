@@ -1,4 +1,4 @@
-package tech.relaycorp.gateway.pdc.local
+package tech.relaycorp.gateway.pdc.local.routes
 
 import io.ktor.application.Application
 import io.ktor.http.cio.websocket.CloseReason
@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.common.nowInUtc
+import tech.relaycorp.gateway.pdc.local.HandshakeTestUtils
+import tech.relaycorp.gateway.pdc.local.main
 import tech.relaycorp.poweb.handshake.Challenge
 import tech.relaycorp.poweb.handshake.Response
 import tech.relaycorp.relaynet.issueEndpointCertificate
@@ -18,7 +20,7 @@ import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import java.nio.charset.Charset
 import kotlin.test.assertEquals
 
-class ParcelCollectionWebSocketsTest {
+class ParcelCollectionTest {
     private val endpointKeyPair = generateRSAKeyPair()
     private val endpointCertificate = issueEndpointCertificate(
         endpointKeyPair.public,
