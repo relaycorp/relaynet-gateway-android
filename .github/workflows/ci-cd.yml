@@ -23,6 +23,8 @@ jobs:
       - uses: eskatos/gradle-command-action@v1
         with:
           arguments: build
+      - name: Run instrumentation tests locally
+        uses: vgaidarji/android-github-actions-emulator@v1.0.1
 #      - name: Run tests on physical and virtual devices
 #        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
 #        with:
