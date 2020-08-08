@@ -19,6 +19,11 @@ class NonceRequestServiceTest {
     val serviceRule = ServiceTestRule()
 
     @Test
+    fun brokenTest() {
+        assertEquals(2, 1)
+    }
+
+    @Test
     fun requestAndReceiveNonce() {
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
