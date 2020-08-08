@@ -154,7 +154,7 @@ dependencies {
 
 spotless {
     kotlin {
-        ktlint('0.37.1').userData(['disabled_rules': 'import-ordering'])
+        ktlint('0.37.2').userData(['disabled_rules': 'import-ordering', 'max_line_length': '100'])
         target '**/*.kt'
     }
 }

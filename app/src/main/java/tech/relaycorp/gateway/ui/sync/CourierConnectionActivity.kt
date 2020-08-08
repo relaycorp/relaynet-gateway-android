@@ -42,7 +42,8 @@ class CourierConnectionActivity : BaseActivity() {
                 stateMessage.setText(
                     when (it) {
                         is CourierConnectionState.ConnectedWithCourier -> R.string.courier_connected
-                        is CourierConnectionState.ConnectedWithUnknown -> R.string.courier_connected_with_unknown
+                        is CourierConnectionState.ConnectedWithUnknown ->
+                            R.string.courier_connected_with_unknown
                         is CourierConnectionState.Disconnected -> R.string.courier_disconnected
                     }
                 )

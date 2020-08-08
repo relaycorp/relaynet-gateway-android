@@ -34,7 +34,9 @@ class DiskMessageOperations
     @Throws(MessageDataNotFoundException::class)
     suspend fun readMessage(folder: String, path: String): (() -> InputStream) {
         val file = File(getOrCreateDir(folder), path)
-        if (!file.exists()) throw MessageDataNotFoundException("Message data not found on path '$path'")
+        if (!file.exists()) {
+            throw MessageDataNotFoundException("Message data not found on path '$path'")
+        }
         return file::inputStream
     }
 

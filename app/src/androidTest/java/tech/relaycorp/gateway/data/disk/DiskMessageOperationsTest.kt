@@ -59,7 +59,8 @@ class DiskMessageOperationsTest {
     fun writeAndReadMessage() {
         runBlocking {
             val message = "123456"
-            val path = diskMessageOperations.writeMessage(folder.name, "file_", message.toByteArray())
+            val path =
+                diskMessageOperations.writeMessage(folder.name, "file_", message.toByteArray())
             val result = diskMessageOperations.readMessage(folder.name, path)()
                 .readBytes().toString(Charset.defaultCharset())
             assertEquals(message, result)

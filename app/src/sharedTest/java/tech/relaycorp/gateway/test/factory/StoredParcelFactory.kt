@@ -9,14 +9,17 @@ import java.util.Random
 
 object StoredParcelFactory {
 
-    fun build() = StoredParcel(
-        recipientAddress = MessageAddress.of(Random().nextInt().toString()),
-        senderAddress = MessageAddress.of(Random().nextInt().toString()),
-        messageId = MessageId(Random().nextInt().toString()),
-        recipientLocation = RecipientLocation.values()[Random().nextInt(RecipientLocation.values().size)],
-        creationTimeUtc = nowInUtc(),
-        expirationTimeUtc = nowInUtc(),
-        storagePath = "",
-        size = StorageSizeFactory.build()
-    )
+    fun build(): StoredParcel {
+        val recipientLocations = RecipientLocation.values()
+        return StoredParcel(
+            recipientAddress = MessageAddress.of(Random().nextInt().toString()),
+            senderAddress = MessageAddress.of(Random().nextInt().toString()),
+            messageId = MessageId(Random().nextInt().toString()),
+            recipientLocation = recipientLocations[Random().nextInt(recipientLocations.size)],
+            creationTimeUtc = nowInUtc(),
+            expirationTimeUtc = nowInUtc(),
+            storagePath = "",
+            size = StorageSizeFactory.build()
+        )
+    }
 }
