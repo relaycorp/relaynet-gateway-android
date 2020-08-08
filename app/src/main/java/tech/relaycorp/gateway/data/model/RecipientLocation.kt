@@ -5,8 +5,10 @@ enum class RecipientLocation(val value: String) {
     ExternalGateway("external-gateway");
 
     companion object {
-        fun fromValue(value: String) =
-            values().firstOrNull { it.value == value }
-                ?: throw IllegalArgumentException("Invalid ${RecipientLocation::class.simpleName} value = $value")
+        fun fromValue(value: String): RecipientLocation {
+            val recipientLocationType = RecipientLocation::class.simpleName
+            return values().firstOrNull { it.value == value }
+                ?: throw IllegalArgumentException("Invalid $recipientLocationType value = $value")
+        }
     }
 }

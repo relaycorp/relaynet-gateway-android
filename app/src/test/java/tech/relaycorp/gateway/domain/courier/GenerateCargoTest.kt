@@ -81,7 +81,10 @@ class GenerateCargoTest {
         val maxExpirationTime =
             max(listOf(parcel.expirationTimeUtc, parcelCollection.expirationTimeUtc))
 
-        assertEquals(maxExpirationTime.toInstant().epochSecond, cargo.expiryDate.toInstant().epochSecond)
+        assertEquals(
+            maxExpirationTime.toInstant().epochSecond,
+            cargo.expiryDate.toInstant().epochSecond
+        )
 
         val cargoMessages = cargo.unwrapPayload(localConfig.getKeyPair().private)
         assertEquals(2, cargoMessages.messages.size)
