@@ -40,7 +40,8 @@ class CargoStorage
 
     suspend fun deleteAll() = diskMessageOperations.deleteAllMessages(FOLDER)
 
-    sealed class Exception(message: String?, cause: Throwable? = null) : kotlin.Exception(message, cause) {
+    sealed class Exception(message: String?, cause: Throwable? = null) :
+        kotlin.Exception(message, cause) {
         class MalformedCargo(cause: Throwable) : Exception(null, cause)
         class InvalidCargo(message: String?, cause: Throwable? = null) : Exception(message, cause)
     }
