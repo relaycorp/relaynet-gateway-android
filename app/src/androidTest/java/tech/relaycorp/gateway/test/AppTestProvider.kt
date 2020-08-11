@@ -5,7 +5,6 @@ import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.test.TestCoroutineDispatcher
-import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.database.AppDatabase
 
 object AppTestProvider {
@@ -13,7 +12,7 @@ object AppTestProvider {
         get() = InstrumentationRegistry.getInstrumentation().targetContext
 
     val app
-        get() = context.applicationContext as App
+        get() = context.applicationContext as TestApp
 
     val component
         get() = app.component
