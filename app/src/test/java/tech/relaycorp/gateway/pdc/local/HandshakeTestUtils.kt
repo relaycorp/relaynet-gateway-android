@@ -1,6 +1,6 @@
 package tech.relaycorp.gateway.pdc.local
 
-import tech.relaycorp.relaynet.crypto.SignedData
+import tech.relaycorp.relaynet.messages.control.NonceSignature
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.security.PrivateKey
 
@@ -9,18 +9,11 @@ object HandshakeTestUtils {
         """^[-0-9a-f]{36}$""".toRegex()
 
     fun sign(
-        plaintext: ByteArray,
+        nonce: ByteArray,
         signerPrivateKey: PrivateKey,
-        signerCertificate: Certificate,
-        encapsulatePlaintext: Boolean = false
+        signerCertificate: Certificate
     ): ByteArray {
-        val signedData = SignedData.sign(
-            plaintext,
-            signerPrivateKey,
-            signerCertificate,
-            setOf(signerCertificate),
-            encapsulatePlaintext = encapsulatePlaintext
-        )
-        return signedData.serialize()
+        val signature = NonceSignature(nonce, signerCertificate)
+        return signature.serialize(signerPrivateKey)
     }
 }
