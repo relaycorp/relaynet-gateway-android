@@ -1,20 +1,15 @@
 package tech.relaycorp.gateway.pdc.local
 
-import org.bouncycastle.asn1.ASN1InputStream
-import org.bouncycastle.asn1.cms.ContentInfo
-import org.bouncycastle.cms.CMSException
-import org.bouncycastle.cms.CMSSignedData
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import tech.relaycorp.gateway.common.nowInUtc
-import tech.relaycorp.relaynet.crypto.SignedDataException
-import tech.relaycorp.relaynet.issueEndpointCertificate
-import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
-import java.io.IOException
+import tech.relaycorp.gateway.test.FullCertPath
+import tech.relaycorp.gateway.test.KeyPairSet
+import tech.relaycorp.relaynet.messages.InvalidMessageException
 import java.nio.charset.Charset
+import kotlin.test.assertNull
 
 class HandshakeTest {
     @Nested
@@ -31,69 +26,47 @@ class HandshakeTest {
     @Nested
     inner class VerifySignature {
         private val nonce = "The nonce".toByteArray()
-        private val endpointKeyPair = generateRSAKeyPair()
-        private val endpointCertificate = issueEndpointCertificate(
-            endpointKeyPair.public,
-            endpointKeyPair.private,
-            nowInUtc().plusDays(1)
-        )
+        private val endpointPrivateKey = KeyPairSet.PRIVATE_ENDPOINT.private
+        private val endpointCertificate = FullCertPath.PRIVATE_ENDPOINT
 
         @Test
-        fun `Invalid DER values should be refused`() {
-            val invalidCMSSignedData = "Not really DER-encoded".toByteArray()
+        fun `Invalid signatures should be refused`() {
+            // Sign with different private key:
+            val invalidSignatureSerialized =
+                HandshakeTestUtils.sign(nonce, KeyPairSet.PDA_GRANTEE.private, endpointCertificate)
 
             val exception = assertThrows<InvalidHandshakeSignatureException> {
-                Handshake.verifySignature(invalidCMSSignedData, nonce)
+                Handshake.verifySignature(invalidSignatureSerialized, nonce)
             }
 
-            assertEquals("Invalid CMS SignedData value", exception.message)
-            assertTrue(exception.cause is SignedDataException)
+            assertEquals("Invalid signature", exception.message)
+            assertTrue(exception.cause is InvalidMessageException)
         }
 
         @Test
-        fun `Well formed but invalid signatures should be rejected`() {
-            // Swap the SignerInfo collection from two different CMS SignedData values
-
-            val cmsSignedDataSerialized1 =
-                HandshakeTestUtils.sign(nonce, endpointKeyPair.private, endpointCertificate)
-            val cmsSignedData1 = parseCmsSignedData(cmsSignedDataSerialized1)
-
-            val cmsSignedDataSerialized2 = HandshakeTestUtils.sign(
-                byteArrayOf(0xde.toByte(), *nonce),
-                endpointKeyPair.private,
+        fun `Verification should fail if signed nonce doesn't match expected plaintext`() {
+            val invalidSignatureSerialized = HandshakeTestUtils.sign(
+                byteArrayOf(1, *nonce),
+                endpointPrivateKey,
                 endpointCertificate
             )
-            val cmsSignedData2 = parseCmsSignedData(cmsSignedDataSerialized2)
-
-            val invalidCmsSignedData = CMSSignedData.replaceSigners(
-                cmsSignedData1,
-                cmsSignedData2.signerInfos
-            )
-            val invalidCmsSignedDataSerialized = invalidCmsSignedData.toASN1Structure().encoded
 
             val exception = assertThrows<InvalidHandshakeSignatureException> {
-                Handshake.verifySignature(invalidCmsSignedDataSerialized, nonce)
+                Handshake.verifySignature(invalidSignatureSerialized, nonce)
             }
 
-            assertEquals("Invalid CMS SignedData value", exception.message)
-            assertTrue(exception.cause is SignedDataException)
+            assertEquals("Signed nonce does not match expected one", exception.message)
+            assertNull(exception.cause)
         }
 
         @Test
-        fun `Verification should succeed if signed nonce matches expected plaintext`() {
-            val cmsSignedDataSerialized =
-                HandshakeTestUtils.sign(nonce, endpointKeyPair.private, endpointCertificate)
+        fun `Signer's certificate should be output if signed nonce matches expected plaintext`() {
+            val signatureSerialized =
+                HandshakeTestUtils.sign(nonce, endpointPrivateKey, endpointCertificate)
 
-            // No exceptions thrown
-            Handshake.verifySignature(cmsSignedDataSerialized, nonce)
-        }
+            val signerCertificate = Handshake.verifySignature(signatureSerialized, nonce)
 
-        @Throws(IOException::class, IllegalArgumentException::class, CMSException::class)
-        private fun parseCmsSignedData(cmsSignedDataSerialized: ByteArray): CMSSignedData {
-            val asn1Stream = ASN1InputStream(cmsSignedDataSerialized)
-            val asn1Sequence = asn1Stream.readObject()
-            val contentInfo = ContentInfo.getInstance(asn1Sequence)
-            return CMSSignedData(contentInfo)
+            assertEquals(endpointCertificate, signerCertificate)
         }
     }
 }

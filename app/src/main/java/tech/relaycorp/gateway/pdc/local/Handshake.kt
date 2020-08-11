@@ -1,7 +1,8 @@
 package tech.relaycorp.gateway.pdc.local
 
-import tech.relaycorp.relaynet.crypto.SignedData
-import tech.relaycorp.relaynet.crypto.SignedDataException
+import tech.relaycorp.relaynet.messages.InvalidMessageException
+import tech.relaycorp.relaynet.messages.control.NonceSignature
+import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.util.UUID
 
 internal object Handshake {
@@ -14,18 +15,22 @@ internal object Handshake {
     }
 
     /**
-     * Verify that the signature in `cmsSignedData` is valid and its plaintext corresponds to
-     * `nonce`.
+     * Verify that the signature in `signatureSerialized` is valid and its plaintext corresponds to
+     * `nonce`, and return the signer's certificate if the signature is valid.
      */
     @Throws(InvalidHandshakeSignatureException::class)
     internal fun verifySignature(
-        signedDataSerialized: ByteArray,
+        signatureSerialized: ByteArray,
         nonce: ByteArray
-    ): SignedData {
-        return try {
-            SignedData.deserialize(signedDataSerialized).also { it.verify(nonce) }
-        } catch (exc: SignedDataException) {
-            throw InvalidHandshakeSignatureException("Invalid CMS SignedData value", exc)
+    ): Certificate {
+        val signature = try {
+            NonceSignature.deserialize(signatureSerialized)
+        } catch (exc: InvalidMessageException) {
+            throw InvalidHandshakeSignatureException("Invalid signature", exc)
         }
+        if (nonce.asList() != signature.nonce.asList()) {
+            throw InvalidHandshakeSignatureException("Signed nonce does not match expected one")
+        }
+        return signature.signerCertificate
     }
 }
