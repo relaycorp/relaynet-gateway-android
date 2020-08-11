@@ -69,10 +69,7 @@ private suspend fun DefaultWebSocketServerSession.handshake() {
 
     for (nonceSignature in response.nonceSignatures) {
         try {
-            Handshake.verifySignature(
-                nonceSignature,
-                nonce
-            )
+            Handshake.verifySignature(nonceSignature, nonce)
         } catch (_: InvalidHandshakeSignatureException) {
             close(
                 CloseReason(
