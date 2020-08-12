@@ -17,6 +17,6 @@ object WaitAssertions {
         throw AssertionError("Timeout waiting", lastError)
     }
 
-    private const val TIMEOUT = 10_000L
+    private const val TIMEOUT = 15_000L
     private const val INTERVAL = TIMEOUT / 20
 }
