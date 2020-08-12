@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 open class App : Application() {
 
-    val component: AppComponent by lazy {
+    open val component: AppComponent by lazy {
         DaggerAppComponent.builder()
             .appModule(AppModule(this))
             .build()

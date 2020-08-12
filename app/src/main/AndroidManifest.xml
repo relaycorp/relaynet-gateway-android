@@ -49,7 +49,7 @@
             android:permission="tech.relaycorp.gateway.SYNC"  />
 
         <service
-            android:name=".background.endpoint.NonceRequestService"
+            android:name=".background.endpoint.EndpointPreRegistrationService"
             android:exported="true"
             android:permission="tech.relaycorp.gateway.SYNC" />
 
