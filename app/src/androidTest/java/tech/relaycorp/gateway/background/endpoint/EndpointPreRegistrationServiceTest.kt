@@ -69,7 +69,7 @@ class EndpointPreRegistrationServiceTest {
             resultMessage!!.obj as ByteArray,
             gatewayKeyPair.public
         )
-        assertEquals("temp-app-id", cra.serverData.toString(Charset.defaultCharset()))
+        assertEquals("tech.relaycorp.gateway", cra.serverData.toString(Charset.defaultCharset()))
     }
 
     @Test
