@@ -22,7 +22,9 @@ class ParcelDelivery
 
     private val parcelsSentForDelivery = mutableMapOf<String, StoredParcel>()
 
-    suspend fun getParcelsToDeliver(endpointAddress: MessageAddress): Iterable<ParcelDeliveryRequest> {
+    suspend fun getParcelsToDeliver(
+        endpointAddress: MessageAddress
+    ): Iterable<ParcelDeliveryRequest> {
         val parcels =
             storedParcelDao.listForRecipient(endpointAddress, RecipientLocation.LocalEndpoint)
                 .map { Pair(generateLocalId(), it) }

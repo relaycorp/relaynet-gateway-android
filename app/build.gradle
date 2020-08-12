@@ -66,6 +66,7 @@ android {
     }
     packagingOptions {
         exclude 'META-INF/*'
+        // Due to https://github.com/Kotlin/kotlinx.coroutines/issues/2023
         exclude 'META-INF/licenses/*'
         exclude '**/attach_hotspot_windows.dll'
     }
