@@ -35,6 +35,18 @@ interface StoredParcelDao {
     @Query(
         """
         SELECT * FROM Parcel
+        WHERE recipientAddress = :recipientAddress AND recipientLocation = :recipientLocation 
+        ORDER BY creationTimeUtc ASC
+        """
+    )
+    suspend fun listForRecipient(
+        recipientAddress: MessageAddress,
+        recipientLocation: RecipientLocation
+    ): List<StoredParcel>
+
+    @Query(
+        """
+        SELECT * FROM Parcel
         WHERE recipientAddress = :recipientAddress 
             AND senderAddress = :senderAddress 
             AND messageId = :messageId

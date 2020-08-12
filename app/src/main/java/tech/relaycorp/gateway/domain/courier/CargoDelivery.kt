@@ -4,8 +4,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import tech.relaycorp.gateway.background.CourierConnectionObserver
-import tech.relaycorp.gateway.background.CourierConnectionState
+import tech.relaycorp.gateway.background.ConnectionStateObserver
+import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.relaynet.CargoDeliveryRequest
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
 import java.util.UUID
@@ -14,7 +14,7 @@ import javax.inject.Inject
 class CargoDelivery
 @Inject constructor(
     private val clientBuilder: CogRPCClient.Builder,
-    private val courierConnectionObserver: CourierConnectionObserver,
+    private val connectionStateObserver: ConnectionStateObserver,
     private val generateCargo: GenerateCargo
 ) {
 
@@ -36,11 +36,11 @@ class CargoDelivery
             .map { CargoDeliveryRequest(UUID.randomUUID().toString()) { it } }
 
     private suspend fun getCourierAddress() =
-        courierConnectionObserver
+        connectionStateObserver
             .observe()
-            .map { it as? CourierConnectionState.ConnectedWithCourier }
+            .map { it as? ConnectionState.WiFiWithCourier }
             .first()
-            ?.address
+            ?.courierAddress
 
     class Disconnected : Exception()
 }

@@ -66,6 +66,9 @@ android {
     }
     packagingOptions {
         exclude 'META-INF/*'
+        // Due to https://github.com/Kotlin/kotlinx.coroutines/issues/2023
+        exclude 'META-INF/licenses/*'
+        exclude '**/attach_hotspot_windows.dll'
     }
     lintOptions {
         checkAllWarnings true
@@ -83,6 +86,8 @@ android {
             resources.srcDirs += "src/sharedTest/resources"
         }
     }
+
+    useLibrary 'android.test.mock'
 }
 
 dependencies {
@@ -149,6 +154,8 @@ dependencies {
     androidTestImplementation('com.schibsted.spain:barista:3.5.0') {
         exclude group: 'org.jetbrains.kotlin'
     }
+    androidTestImplementation "org.mockito:mockito-android:3.4.6"
+    androidTestImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
     kaptAndroidTest 'com.google.dagger:dagger-compiler:2.28'
 }
 
