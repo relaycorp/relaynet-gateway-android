@@ -23,7 +23,7 @@ class EndpointRegistration
      * Issue CRA for an application to register one or more of its endpoints.
      */
     suspend fun authorize(endpointApplicationId: String): ByteArray {
-        val expiryDate = ZonedDateTime.now().plusSeconds(5)
+        val expiryDate = ZonedDateTime.now().plusSeconds(CRA_VALIDITY_SECONDS)
         val cra = ClientRegistrationAuthorization(expiryDate, endpointApplicationId.toByteArray())
         return cra.serialize(localConfig.getKeyPair().private)
     }
@@ -58,6 +58,7 @@ class EndpointRegistration
     }
 
     companion object {
+        private const val CRA_VALIDITY_SECONDS: Long = 10
         private const val ENDPOINT_CERTIFICATE_VALIDITY_YEARS = 3L
     }
 }
