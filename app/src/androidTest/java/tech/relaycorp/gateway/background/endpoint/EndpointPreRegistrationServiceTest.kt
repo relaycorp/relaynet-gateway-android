@@ -17,6 +17,7 @@ import org.junit.Rule
 import org.junit.Test
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.AppTestProvider
+import tech.relaycorp.gateway.test.WaitAssertions.waitFor
 import tech.relaycorp.relaynet.messages.control.ClientRegistrationAuthorization
 import java.nio.charset.Charset
 import javax.inject.Inject
@@ -45,18 +46,19 @@ class EndpointPreRegistrationServiceTest {
         var resultMessage: Message? = null
 
         val messenger = Messenger(binder)
-        val requestMessage =
-            Message.obtain(null, EndpointPreRegistrationService.PREREGISTRATION_REQUEST)
-        requestMessage.replyTo = Messenger(object : Handler(Looper.getMainLooper()) {
+        val handler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 resultMessage = Message.obtain().also { it.copyFrom(msg) }
             }
-        })
+        }
+        val requestMessage =
+            Message.obtain(handler, EndpointPreRegistrationService.PREREGISTRATION_REQUEST)
+        requestMessage.replyTo = Messenger(handler)
         messenger.send(requestMessage)
 
-        Thread.sleep(500)
-
-        assertNotNull("We should have got a reply", resultMessage)
+        waitFor {
+            assertNotNull("We should have got a reply", resultMessage)
+        }
         assertEquals(
             EndpointPreRegistrationService.REGISTRATION_AUTHORIZATION,
             resultMessage!!.what
@@ -69,7 +71,10 @@ class EndpointPreRegistrationServiceTest {
             resultMessage!!.obj as ByteArray,
             gatewayKeyPair.public
         )
-        assertEquals("tech.relaycorp.gateway", cra.serverData.toString(Charset.defaultCharset()))
+        assertEquals(
+            getApplicationContext<Context>().packageName,
+            cra.serverData.toString(Charset.defaultCharset())
+        )
     }
 
     @Test

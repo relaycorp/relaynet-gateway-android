@@ -10,9 +10,11 @@ import android.os.Messenger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import tech.relaycorp.gateway.background.component
+import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.domain.endpoint.EndpointRegistration
+import java.util.logging.Level
 import javax.inject.Inject
 
 class EndpointPreRegistrationService : Service() {
@@ -26,32 +28,42 @@ class EndpointPreRegistrationService : Service() {
         val messenger = Messenger(
             object : Handler(Looper.getMainLooper()) {
                 override fun handleMessage(msg: Message) {
-                    when (msg.what) {
-                        PREREGISTRATION_REQUEST -> reply(msg)
-                    }
+                    onMessageReceived(msg)
                 }
             }
         )
         return messenger.binder
     }
 
-    // TODO: Replace runBlocking with scope.launch
-    internal fun reply(requestMessage: Message) {
-        val endpointApplicationId = getApplicationNameForUID(requestMessage.sendingUid)
-        runBlocking {
-            val craSerialized = endpointRegistration.authorize(endpointApplicationId)
-            val replyMessage = Message.obtain(null, REGISTRATION_AUTHORIZATION, craSerialized)
-            requestMessage.replyTo.send(replyMessage)
-        }
-    }
-
-    private fun getApplicationNameForUID(uid: Int): String =
-        applicationContext.packageManager.getNameForUid(uid)!!
-
     override fun onDestroy() {
         super.onDestroy()
         scope.cancel()
     }
+
+    internal fun onMessageReceived(message: Message) {
+        // The original message will be recycled when the scope changes
+        val localMessage = Message.obtain(message)
+        scope.launch {
+            when (localMessage.what) {
+                PREREGISTRATION_REQUEST -> reply(localMessage)
+            }
+        }
+    }
+
+    private suspend fun reply(requestMessage: Message) {
+        val endpointApplicationId = getApplicationNameForUID(requestMessage.sendingUid)
+        if (endpointApplicationId == null) {
+            logger.log(Level.WARNING, "Could not get applicationId from caller")
+            return
+        }
+
+        val craSerialized = endpointRegistration.authorize(endpointApplicationId)
+        val replyMessage = Message.obtain(null, REGISTRATION_AUTHORIZATION, craSerialized)
+        requestMessage.replyTo.send(replyMessage)
+    }
+
+    private fun getApplicationNameForUID(uid: Int) =
+        applicationContext.packageManager.getNameForUid(uid)
 
     companion object {
         const val PREREGISTRATION_REQUEST = 1
