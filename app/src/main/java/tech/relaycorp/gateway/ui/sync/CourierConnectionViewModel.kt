@@ -1,17 +1,17 @@
 package tech.relaycorp.gateway.ui.sync
 
-import tech.relaycorp.gateway.background.CourierConnectionObserver
+import tech.relaycorp.gateway.background.ConnectionStateObserver
 import tech.relaycorp.gateway.ui.BaseViewModel
 import javax.inject.Inject
 
 class CourierConnectionViewModel
 @Inject constructor(
-    private val connectionObserver: CourierConnectionObserver
+    private val connectionStateObserver: ConnectionStateObserver
 ) : BaseViewModel() {
 
     // Outputs
 
-    val state get() = connectionObserver.observe()
+    val state get() = connectionStateObserver.observe()
 
     init {
     }

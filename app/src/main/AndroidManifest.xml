@@ -21,6 +21,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Gateway"
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute">
+
         <activity
             android:name=".ui.main.MainActivity"
             android:screenOrientation="portrait"
@@ -31,10 +32,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.sync.CourierConnectionActivity"
             android:label="@string/sync_courier"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".ui.sync.CourierSyncActivity"
             android:label="@string/sync_courier"

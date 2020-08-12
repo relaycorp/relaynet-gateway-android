@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.activity_courier_connection.wifiSettings
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import tech.relaycorp.gateway.R
-import tech.relaycorp.gateway.background.CourierConnectionState
+import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.ui.BaseActivity
 import javax.inject.Inject
 
@@ -38,13 +38,15 @@ class CourierConnectionActivity : BaseActivity() {
         viewModel
             .state
             .onEach {
-                startSync.isEnabled = it is CourierConnectionState.ConnectedWithCourier
+                startSync.isEnabled = it is ConnectionState.WiFiWithCourier
                 stateMessage.setText(
                     when (it) {
-                        is CourierConnectionState.ConnectedWithCourier -> R.string.courier_connected
-                        is CourierConnectionState.ConnectedWithUnknown ->
+                        is ConnectionState.WiFiWithCourier ->
+                            R.string.courier_connected
+                        is ConnectionState.WiFiWithUnknown ->
                             R.string.courier_connected_with_unknown
-                        is CourierConnectionState.Disconnected -> R.string.courier_disconnected
+                        else ->
+                            R.string.courier_disconnected
                     }
                 )
             }
