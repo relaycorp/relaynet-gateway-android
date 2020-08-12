@@ -15,6 +15,13 @@
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
+
+        <TextView
+            android:id="@+id/networkState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textIsSelectable="true" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/syncCourier"
             android:layout_width="wrap_content"
