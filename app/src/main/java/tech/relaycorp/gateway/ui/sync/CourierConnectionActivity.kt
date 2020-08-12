@@ -41,9 +41,12 @@ class CourierConnectionActivity : BaseActivity() {
                 startSync.isEnabled = it is ConnectionState.WiFiWithCourier
                 stateMessage.setText(
                     when (it) {
-                        is ConnectionState.WiFiWithCourier -> R.string.courier_connected
-                        is ConnectionState.WiFiWithUnknown -> R.string.courier_connected_with_unknown
-                        else -> R.string.courier_disconnected
+                        is ConnectionState.WiFiWithCourier ->
+                            R.string.courier_connected
+                        is ConnectionState.WiFiWithUnknown ->
+                            R.string.courier_connected_with_unknown
+                        else ->
+                            R.string.courier_disconnected
                     }
                 )
             }

@@ -10,6 +10,6 @@ class CheckInternetAccess
         pingRemoteServer.pingHostname(INTERNET_TEST_WEBSITE)
 
     companion object {
-        private const val INTERNET_TEST_WEBSITE = "http://google.com"
+        private const val INTERNET_TEST_WEBSITE = "https://google.com"
     }
 }
