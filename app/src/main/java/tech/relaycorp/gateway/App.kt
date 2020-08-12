@@ -21,7 +21,7 @@ import java.util.logging.Level
 import java.util.logging.LogManager
 import javax.inject.Inject
 
-class App : Application() {
+open class App : Application() {
 
     val component: AppComponent by lazy {
         DaggerAppComponent.builder()
