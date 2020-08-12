@@ -52,13 +52,13 @@ class EndpointPreRegistrationService : Service() {
 
     private suspend fun reply(requestMessage: Message) {
         val endpointApplicationId = getApplicationNameForUID(requestMessage.sendingUid)
-        if (endpointApplicationId == null) {
+        val replyMessage = if (endpointApplicationId == null) {
             logger.log(Level.WARNING, "Could not get applicationId from caller")
-            return
+            Message.obtain(null, PREREGISTRATION_ERROR)
+        } else {
+            val craSerialized = endpointRegistration.authorize(endpointApplicationId)
+            Message.obtain(null, REGISTRATION_AUTHORIZATION, craSerialized)
         }
-
-        val craSerialized = endpointRegistration.authorize(endpointApplicationId)
-        val replyMessage = Message.obtain(null, REGISTRATION_AUTHORIZATION, craSerialized)
         requestMessage.replyTo.send(replyMessage)
     }
 
@@ -68,5 +68,6 @@ class EndpointPreRegistrationService : Service() {
     companion object {
         const val PREREGISTRATION_REQUEST = 1
         const val REGISTRATION_AUTHORIZATION = 2
+        const val PREREGISTRATION_ERROR = 3
     }
 }
