@@ -1,6 +1,7 @@
 package tech.relaycorp.gateway.ui.sync
 
 import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.launchIn
@@ -26,7 +27,7 @@ class CourierSyncViewModel
     // Outputs
 
     private val _state = MutableStateFlow(CourierSync.State.Initial)
-    val state = courierSync.state()
+    val state: Flow<CourierSync.State> = _state
 
     private val _finish = PublishFlow<Finish>()
     val finish get() = _finish.asFlow()
