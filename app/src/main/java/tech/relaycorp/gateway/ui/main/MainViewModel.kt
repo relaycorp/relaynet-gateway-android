@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -36,7 +37,7 @@ class MainViewModel
     init {
         connectionStateObserver
             .observe()
-            .flatMapConcat { connectionState ->
+            .flatMapLatest { connectionState ->
                 combine(
                     getTotalOutgoingData.get(),
                     getEndpointApplicationsCount.get()
