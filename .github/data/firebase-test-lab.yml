@@ -34,8 +34,8 @@ spec:
       locale: en
       orientation: portrait
 
-    # Pixel 2 (virtual)
-    - model: Pixel2
+    # Pixel 4 (physical)
+    - model: flame
       version: 29   # Android 10.0
       locale: en
       orientation: portrait
