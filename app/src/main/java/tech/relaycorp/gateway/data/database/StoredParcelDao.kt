@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.MessageId
 import tech.relaycorp.gateway.data.model.RecipientLocation
+import tech.relaycorp.gateway.data.model.StorageSize
 import tech.relaycorp.gateway.data.model.StoredParcel
 
 @Dao
@@ -43,6 +44,9 @@ interface StoredParcelDao {
         recipientAddress: MessageAddress,
         recipientLocation: RecipientLocation
     ): List<StoredParcel>
+
+    @Query("SELECT SUM(Parcel.size) FROM Parcel WHERE recipientLocation = :recipientLocation")
+    fun countSizeForRecipientLocation(recipientLocation: RecipientLocation): Flow<StorageSize>
 
     @Query(
         """

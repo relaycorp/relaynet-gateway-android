@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import tech.relaycorp.gateway.data.model.LocalEndpoint
 import tech.relaycorp.gateway.data.model.MessageAddress
 
@@ -16,6 +17,9 @@ interface LocalEndpointDao {
 
     @Delete
     suspend fun delete(endpoint: LocalEndpoint)
+
+    @Query("SELECT COUNT(DISTINCT Endpoint.applicationId) FROM Endpoint")
+    fun countApplicationIds(): Flow<Int>
 
     @Query("SELECT * FROM Endpoint WHERE address = :address LIMIT 1")
     suspend fun get(address: MessageAddress): LocalEndpoint?

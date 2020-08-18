@@ -8,6 +8,9 @@
 
     <!-- Main -->
     <string name="main_title">Relaynet Gateway</string>
+    <string name="main_data_to_sync_none">No data is waiting to be synced, but there might be some incoming data.</string>
+    <string name="main_data_to_sync_some">%s of data waiting to be synced. Some data may be incoming too.</string>
+    <string name="main_no_apps">No Relaynet apps connected.</string>
 
     <!-- Sync -->
     <string name="sync_courier">Sync with Courier</string>
