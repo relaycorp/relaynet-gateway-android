@@ -10,7 +10,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import tech.relaycorp.gateway.background.component
 import tech.relaycorp.gateway.common.Logging.logger
-import tech.relaycorp.gateway.domain.endpoint.PDCServer
+import tech.relaycorp.gateway.pdc.local.PDCServer
 import javax.inject.Inject
 
 class GatewaySyncService : Service() {

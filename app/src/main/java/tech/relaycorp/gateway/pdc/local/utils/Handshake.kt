@@ -1,4 +1,4 @@
-package tech.relaycorp.gateway.pdc.local
+package tech.relaycorp.gateway.pdc.local.utils
 
 import tech.relaycorp.relaynet.messages.InvalidMessageException
 import tech.relaycorp.relaynet.messages.control.NonceSignature

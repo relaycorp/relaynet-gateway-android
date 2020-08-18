@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.pdc.local.HandshakeTestUtils
+import tech.relaycorp.gateway.pdc.local.utils.ParcelCollectionHandshake
 import tech.relaycorp.poweb.handshake.Challenge
 import tech.relaycorp.poweb.handshake.Response
 import tech.relaycorp.relaynet.issueEndpointCertificate
@@ -17,17 +18,19 @@ import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import java.nio.charset.Charset
 import kotlin.test.assertEquals
 
-class ParcelCollectionTest {
+class ParcelCollectionHandshakeTest {
     private val endpointKeyPair = generateRSAKeyPair()
     private val endpointCertificate = issueEndpointCertificate(
         endpointKeyPair.public,
         endpointKeyPair.private,
         nowInUtc().plusDays(1)
     )
+    private val route = ParcelCollectionRoute(ParcelCollectionHandshake())
 
     @Test
     fun `Requests with Origin header should be refused`() {
-        testPDCServer {
+        testPDCServerRoute(route) {
+
             handleWebSocketConversation(
                 "/v1/parcel-collection",
                 { addHeader("Origin", "http://example.com") }
@@ -52,7 +55,7 @@ class ParcelCollectionTest {
     inner class Handshake {
         @Test
         fun `Challenge should be sent as soon as client connects`() {
-            testPDCServer {
+            testPDCServerRoute(route) {
                 handleWebSocketConversation("/v1/parcel-collection") { incoming, _ ->
                     val challengeRaw = incoming.receive()
                     assertEquals(FrameType.BINARY, challengeRaw.frameType)
@@ -66,7 +69,7 @@ class ParcelCollectionTest {
 
         @Test
         fun `Connection should error out if response is invalid`() {
-            testPDCServer {
+            testPDCServerRoute(route) {
                 handleWebSocketConversation("/v1/parcel-collection") { incoming, outgoing ->
                     // Ignore the challenge
                     incoming.receive()
@@ -92,7 +95,7 @@ class ParcelCollectionTest {
 
         @Test
         fun `Connection should error out if response contains zero signatures`() {
-            testPDCServer {
+            testPDCServerRoute(route) {
                 handleWebSocketConversation("/v1/parcel-collection") { incoming, outgoing ->
                     // Ignore the challenge because we're not signing its nonce
                     incoming.receive()
@@ -118,7 +121,7 @@ class ParcelCollectionTest {
 
         @Test
         fun `Connection should error out if response contains at least one invalid signature`() {
-            testPDCServer {
+            testPDCServerRoute(route) {
                 handleWebSocketConversation("/v1/parcel-collection") { incoming, outgoing ->
                     val challenge = Challenge.deserialize(incoming.receive().readBytes())
 
@@ -149,7 +152,7 @@ class ParcelCollectionTest {
 
         @Test
         fun `Handshake should complete successfully if all signatures are valid`() {
-            testPDCServer {
+            testPDCServerRoute(route) {
                 handleWebSocketConversation("/v1/parcel-collection") { incoming, outgoing ->
                     val challenge = Challenge.deserialize(incoming.receive().readBytes())
 
