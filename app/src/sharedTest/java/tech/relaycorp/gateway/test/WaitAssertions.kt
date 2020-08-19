@@ -1,6 +1,7 @@
 package tech.relaycorp.gateway.test
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 object WaitAssertions {
 
@@ -18,6 +19,9 @@ object WaitAssertions {
         } while (System.currentTimeMillis() - initialTime < TIMEOUT)
         throw AssertionError("Timeout waiting", lastError)
     }
+
+    suspend fun suspendWaitFor(check: suspend () -> Unit) =
+        waitFor { runBlocking { check.invoke() } }
 
     suspend fun waitForAssertEquals(expected: Any, actualCheck: suspend () -> Any) {
         val initialTime = System.currentTimeMillis()

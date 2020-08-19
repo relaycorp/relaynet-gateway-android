@@ -1,14 +1,20 @@
 package tech.relaycorp.gateway.pdc.local.routes
 
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.FrameType
 import io.ktor.http.cio.websocket.readBytes
 import io.ktor.http.cio.websocket.readReason
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.common.nowInUtc
+import tech.relaycorp.gateway.domain.endpoint.CollectParcels
 import tech.relaycorp.gateway.pdc.local.HandshakeTestUtils
 import tech.relaycorp.gateway.pdc.local.utils.ParcelCollectionHandshake
 import tech.relaycorp.poweb.handshake.Challenge
@@ -16,6 +22,7 @@ import tech.relaycorp.poweb.handshake.Response
 import tech.relaycorp.relaynet.issueEndpointCertificate
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import java.nio.charset.Charset
+import javax.inject.Provider
 import kotlin.test.assertEquals
 
 class ParcelCollectionHandshakeTest {
@@ -25,15 +32,17 @@ class ParcelCollectionHandshakeTest {
         endpointKeyPair.private,
         nowInUtc().plusDays(1)
     )
-    private val route = ParcelCollectionRoute(ParcelCollectionHandshake())
+    private val collectParcels = mock<CollectParcels>()
+    private val route =
+        ParcelCollectionRoute(ParcelCollectionHandshake(), Provider { collectParcels })
 
     @Test
     fun `Requests with Origin header should be refused`() {
         testPDCServerRoute(route) {
 
             handleWebSocketConversation(
-                "/v1/parcel-collection",
-                { addHeader("Origin", "http://example.com") }
+                ParcelCollectionRoute.URL_PATH,
+                { addHeader(ParcelCollectionRoute.HEADER_ORIGIN, "http://example.com") }
             ) { incoming, _ ->
                 val closingFrameRaw = incoming.receive()
                 assertEquals(FrameType.CLOSE, closingFrameRaw.frameType)
@@ -56,7 +65,7 @@ class ParcelCollectionHandshakeTest {
         @Test
         fun `Challenge should be sent as soon as client connects`() {
             testPDCServerRoute(route) {
-                handleWebSocketConversation("/v1/parcel-collection") { incoming, _ ->
+                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, _ ->
                     val challengeRaw = incoming.receive()
                     assertEquals(FrameType.BINARY, challengeRaw.frameType)
 
@@ -70,7 +79,7 @@ class ParcelCollectionHandshakeTest {
         @Test
         fun `Connection should error out if response is invalid`() {
             testPDCServerRoute(route) {
-                handleWebSocketConversation("/v1/parcel-collection") { incoming, outgoing ->
+                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, outgoing ->
                     // Ignore the challenge
                     incoming.receive()
 
@@ -96,7 +105,7 @@ class ParcelCollectionHandshakeTest {
         @Test
         fun `Connection should error out if response contains zero signatures`() {
             testPDCServerRoute(route) {
-                handleWebSocketConversation("/v1/parcel-collection") { incoming, outgoing ->
+                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, outgoing ->
                     // Ignore the challenge because we're not signing its nonce
                     incoming.receive()
 
@@ -122,7 +131,7 @@ class ParcelCollectionHandshakeTest {
         @Test
         fun `Connection should error out if response contains at least one invalid signature`() {
             testPDCServerRoute(route) {
-                handleWebSocketConversation("/v1/parcel-collection") { incoming, outgoing ->
+                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, outgoing ->
                     val challenge = Challenge.deserialize(incoming.receive().readBytes())
 
                     val validSignature = HandshakeTestUtils.sign(
@@ -151,29 +160,38 @@ class ParcelCollectionHandshakeTest {
         }
 
         @Test
-        fun `Handshake should complete successfully if all signatures are valid`() {
-            testPDCServerRoute(route) {
-                handleWebSocketConversation("/v1/parcel-collection") { incoming, outgoing ->
-                    val challenge = Challenge.deserialize(incoming.receive().readBytes())
+        fun `Handshake should complete successfully if all signatures are valid`() =
+            runBlockingTest {
+                whenever(collectParcels.getNewParcelsForEndpoints(any()))
+                    .thenReturn(flowOf(emptyList()))
+                whenever(collectParcels.noParcelsToDeliverOrAck)
+                    .thenReturn(flowOf(true))
 
-                    val validSignature = HandshakeTestUtils.sign(
-                        challenge.nonce,
-                        endpointKeyPair.private,
-                        endpointCertificate
-                    )
-                    val response = Response(arrayOf(validSignature))
-                    outgoing.send(Frame.Binary(true, response.serialize()))
+                testPDCServerRoute(route) {
+                    handleWebSocketConversation(
+                        ParcelCollectionRoute.URL_PATH,
+                        setup = { addHeader(ParcelCollectionRoute.HEADER_KEEP_ALIVE, "off") }
+                    ) { incoming, outgoing ->
+                        val challenge = Challenge.deserialize(incoming.receive().readBytes())
 
-                    val closingFrameRaw = incoming.receive()
-                    assertEquals(FrameType.CLOSE, closingFrameRaw.frameType)
+                        val validSignature = HandshakeTestUtils.sign(
+                            challenge.nonce,
+                            endpointKeyPair.private,
+                            endpointCertificate
+                        )
+                        val response = Response(arrayOf(validSignature))
+                        outgoing.send(Frame.Binary(true, response.serialize()))
 
-                    val closingFrame = closingFrameRaw as Frame.Close
-                    assertEquals(
-                        CloseReason.Codes.NORMAL,
-                        closingFrame.readReason()!!.knownReason
-                    )
+                        val closingFrameRaw = incoming.receive()
+                        assertEquals(FrameType.CLOSE, closingFrameRaw.frameType)
+
+                        val closingFrame = closingFrameRaw as Frame.Close
+                        assertEquals(
+                            CloseReason.Codes.NORMAL,
+                            closingFrame.readReason()!!.knownReason
+                        )
+                    }
                 }
             }
-        }
     }
 }
