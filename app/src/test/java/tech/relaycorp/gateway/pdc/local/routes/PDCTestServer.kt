@@ -1,16 +1,13 @@
 package tech.relaycorp.gateway.pdc.local.routes
 
-import io.ktor.application.install
-import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.withTestApplication
-import io.ktor.websocket.WebSockets
+import tech.relaycorp.gateway.pdc.local.PDCServerConfiguration
 
 fun <R> testPDCServerRoute(route: PDCServerRoute, test: TestApplicationEngine.() -> R) =
     withTestApplication(
         {
-            install(WebSockets)
-            routing(route::register)
+            PDCServerConfiguration.configure(this, listOf(route))
         },
         test
     )

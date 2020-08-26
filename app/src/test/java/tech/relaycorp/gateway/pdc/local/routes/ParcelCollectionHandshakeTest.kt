@@ -165,7 +165,7 @@ class ParcelCollectionHandshakeTest {
                 whenever(collectParcels.getNewParcelsForEndpoints(any()))
                     .thenReturn(flowOf(emptyList()))
                 whenever(collectParcels.anyParcelsLeftToDeliverOrAck)
-                    .thenReturn(flowOf(true))
+                    .thenReturn(flowOf(false))
 
                 testPDCServerRoute(route) {
                     handleWebSocketConversation(

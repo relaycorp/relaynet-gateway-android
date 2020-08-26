@@ -1,7 +1,7 @@
 package tech.relaycorp.gateway.pdc.local
 
+import io.ktor.application.Application
 import io.ktor.application.install
-import io.ktor.routing.Routing
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -22,12 +22,13 @@ class PDCServer
 
     private val server by lazy {
         embeddedServer(Netty, PORT) {
-            install(WebSockets)
-
-            routing {
-                register(endpointRegistrationRoute)
-                register(parcelCollectionRoute)
-            }
+            PDCServerConfiguration.configure(
+                this,
+                listOf(
+                    parcelCollectionRoute,
+                    endpointRegistrationRoute
+                )
+            )
         }
     }
 
@@ -43,12 +44,20 @@ class PDCServer
         }
     }
 
-    private fun Routing.register(route: PDCServerRoute) {
-        route.register(this)
-    }
-
     companion object {
         private const val PORT = 13276
         private val CALL_DEADLINE = 5.seconds
+    }
+}
+
+object PDCServerConfiguration {
+    fun configure(serverApp: Application, routes: List<PDCServerRoute>) {
+        with(serverApp) {
+            install(WebSockets)
+
+            routing {
+                routes.forEach { it.register(this) }
+            }
+        }
     }
 }

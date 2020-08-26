@@ -24,8 +24,6 @@ import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import javax.inject.Provider
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertTrue
-import kotlin.time.seconds
 
 class ParcelCollectionRouteTest {
 
