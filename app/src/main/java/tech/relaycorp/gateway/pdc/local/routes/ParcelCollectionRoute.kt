@@ -1,5 +1,6 @@
 package tech.relaycorp.gateway.pdc.local.routes
 
+import androidx.annotation.VisibleForTesting
 import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.close
@@ -14,7 +15,6 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
-import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.domain.endpoint.CollectParcels
 import tech.relaycorp.gateway.pdc.local.utils.ParcelCollectionHandshake
@@ -22,6 +22,7 @@ import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.messages.control.ParcelDelivery
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.util.logging.Level
+import java.util.logging.Logger
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -31,21 +32,30 @@ class ParcelCollectionRoute
     private val collectParcelsProvider: Provider<CollectParcels>
 ) : PDCServerRoute {
 
+    @VisibleForTesting
+    var logger: Logger = Logger.getLogger(javaClass.name)
+
     private val asyncJob = SupervisorJob()
     private val asyncScope = CoroutineScope(asyncJob)
 
     override fun register(routing: Routing) {
-        routing.webSocket(URL_PATH) {
-            try {
-                handle()
-            } catch (exc: ClosedReceiveChannelException) {
-                val reason = closeReason.await()
-                if (reason == null) {
-                    logger.log(Level.WARNING, "TCP connection closed abruptly", exc)
-                } else if (reason.knownReason != CloseReason.Codes.NORMAL) {
-                    logger.log(Level.WARNING, "TCP connection closed due to $reason", exc)
+        try {
+            routing.webSocket(URL_PATH) {
+                try {
+                    handle()
+                } catch (exc: ClosedReceiveChannelException) {
+                    val reason = closeReason.await()
+                    if (reason == null) {
+                        logger.log(Level.WARNING, "TCP connection closed abruptly", exc)
+                    } else if (reason.knownReason != CloseReason.Codes.NORMAL) {
+                        logger.log(Level.WARNING, "TCP connection closed due to $reason", exc)
+                    }
+                } catch (exc: Exception) {
+                    logger.log(Level.WARNING, "Connection closed without normal reasons", exc)
                 }
             }
+        } catch (exc: Exception) {
+            logger.log(Level.WARNING, "Client disconnected", exc)
         }
     }
 
@@ -70,8 +80,8 @@ class ParcelCollectionRoute
         // TODO: Call cert.getCertificatePath() and validate certificate chain
 
         val collectParcels = collectParcelsProvider.get()
-        sendParcels(collectParcels, certificates.toAddresses())
-        receiveAcks(collectParcels)
+        val sendJob = sendParcels(collectParcels, certificates.toAddresses())
+        val receiveJob = receiveAcks(collectParcels)
 
         val keepAlive = call.request.header(HEADER_KEEP_ALIVE) != "off"
         if (!keepAlive) {
@@ -91,7 +101,18 @@ class ParcelCollectionRoute
                 .launchIn(asyncScope)
         }
 
-        asyncJob.join()
+        sendJob.join()
+        receiveJob.join()
+
+        // The server must've closed the connection for us to get here, since we're consuming
+        // all incoming messages indefinitely.
+        val reason = closeReason.await()
+        if (reason?.code != CloseReason.Codes.NORMAL.code) {
+            throw ServerConnectionException(
+                "Server closed the connection unexpectedly " +
+                    "(code: ${reason?.code}, reason: ${reason?.message})"
+            )
+        }
     }
 
     private fun List<Certificate>.toAddresses() =
@@ -100,20 +121,20 @@ class ParcelCollectionRoute
     private suspend fun DefaultWebSocketServerSession.sendParcels(
         collectParcels: CollectParcels,
         addresses: List<MessageAddress>
-    ) {
+    ) =
         collectParcels.getNewParcelsForEndpoints(addresses)
             .onEach { parcels ->
                 parcels.forEach { (localId, parcelStream) ->
-                    val parcelDelivery = ParcelDelivery(localId, parcelStream.readBytesAndClose())
+                    val parcelDelivery =
+                        ParcelDelivery(localId, parcelStream.readBytesAndClose())
                     outgoing.send(
                         Frame.Binary(true, parcelDelivery.serialize())
                     )
                 }
             }
             .launchIn(asyncScope)
-    }
 
-    private suspend fun DefaultWebSocketServerSession.receiveAcks(collectParcels: CollectParcels) {
+    private suspend fun DefaultWebSocketServerSession.receiveAcks(collectParcels: CollectParcels) =
         incoming.receiveAsFlow()
             .onEach { frame ->
                 if (frame !is Frame.Text) {
@@ -126,7 +147,6 @@ class ParcelCollectionRoute
                 collectParcels.processParcelAck(localId)
             }
             .launchIn(asyncScope)
-    }
 
     companion object {
         const val URL_PATH = "/v1/parcel-collection"

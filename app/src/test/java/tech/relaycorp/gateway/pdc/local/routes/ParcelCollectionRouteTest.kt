@@ -1,8 +1,10 @@
 package tech.relaycorp.gateway.pdc.local.routes
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.ktor.http.cio.websocket.CloseReason
@@ -19,8 +21,11 @@ import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.domain.endpoint.CollectParcels
 import tech.relaycorp.gateway.pdc.local.utils.ParcelCollectionHandshake
 import tech.relaycorp.gateway.test.WaitAssertions.suspendWaitFor
+import tech.relaycorp.gateway.test.WaitAssertions.waitFor
 import tech.relaycorp.relaynet.messages.control.ParcelDelivery
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
+import java.util.logging.Level
+import java.util.logging.Logger
 import javax.inject.Provider
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -29,8 +34,10 @@ class ParcelCollectionRouteTest {
 
     private val parcelCollectionHandshake = mock<ParcelCollectionHandshake>()
     private val collectParcels = mock<CollectParcels>()
+    private val logger = mock<Logger>()
     private val route =
         ParcelCollectionRoute(parcelCollectionHandshake, Provider { collectParcels })
+            .also { it.logger = logger }
 
     private val endpointAddress = MessageAddress.of("1234")
     private val certificate = mock<Certificate>()
@@ -86,6 +93,22 @@ class ParcelCollectionRouteTest {
         }
 
     @Test
+    fun `Server should keep connection if Keep-Alive is invalid value`() =
+        runBlockingTest {
+            whenever(collectParcels.anyParcelsLeftToDeliverOrAck).thenReturn(flowOf(true))
+
+            testPDCServerRoute(route) {
+                handleWebSocketConversation(
+                    ParcelCollectionRoute.URL_PATH,
+                    { addHeader(ParcelCollectionRoute.HEADER_KEEP_ALIVE, "whatever") }
+                ) { incoming, _ ->
+                    delay(3_000) // wait to see if the connection is kept alive
+                    assertFalse(incoming.isClosedForReceive)
+                }
+            }
+        }
+
+    @Test
     fun `Server should send parcel to deliver`() =
         runBlockingTest {
             val parcel = Pair("abc", ByteArray(0).inputStream())
@@ -93,10 +116,7 @@ class ParcelCollectionRouteTest {
                 .thenReturn(flowOf(listOf(parcel)))
 
             testPDCServerRoute(route) {
-                handleWebSocketConversation(
-                    ParcelCollectionRoute.URL_PATH,
-                    { addHeader(ParcelCollectionRoute.HEADER_KEEP_ALIVE, "off") }
-                ) { incoming, _ ->
+                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, _ ->
                     val parcelFrame = incoming.receive() as Frame.Binary
                     val parcelDelivery = ParcelDelivery.deserialize(parcelFrame.data)
                     assertEquals(parcel.first, parcelDelivery.deliveryId)
@@ -108,16 +128,66 @@ class ParcelCollectionRouteTest {
     fun `Server should process client parcel acks`() =
         runBlockingTest {
             testPDCServerRoute(route) {
-                handleWebSocketConversation(
-                    ParcelCollectionRoute.URL_PATH,
-                    { addHeader(ParcelCollectionRoute.HEADER_KEEP_ALIVE, "off") }
-                ) { _, outgoing ->
+                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { _, outgoing ->
                     val localId = "abc"
 
                     outgoing.send(Frame.Text(localId))
 
                     suspendWaitFor {
                         verify(collectParcels).processParcelAck(eq(localId))
+                    }
+                }
+            }
+        }
+
+    @Test
+    fun `Server should ignore binary acks`() =
+        runBlockingTest {
+            testPDCServerRoute(route) {
+                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { _, outgoing ->
+                    outgoing.send(Frame.Binary(true, "abc".toByteArray()))
+
+                    verify(collectParcels, never()).processParcelAck(any())
+                }
+            }
+        }
+
+    @Test
+    fun `Server should handle gracefully client abrupt close`() =
+        runBlockingTest {
+            testPDCServerRoute(route) {
+                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, _ ->
+                    this@testPDCServerRoute.stop(0, 0)
+                    // TODO: figure out a way to tell if the server handled this correctly
+                }
+            }
+        }
+
+    @Test
+    fun `Server should handle gracefully client closes with normal`() =
+        runBlockingTest {
+            testPDCServerRoute(route) {
+                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { _, outgoing ->
+                    outgoing.send(Frame.Close(CloseReason(CloseReason.Codes.NORMAL, "")))
+                    delay(1_000)
+                    verify(logger, never()).log(eq(Level.WARNING), any(), anyOrNull<Exception>())
+                }
+            }
+        }
+
+    @Test
+    fun `Server should handle gracefully client closes with another reason besides normal`() =
+        runBlockingTest {
+            testPDCServerRoute(route) {
+                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, outgoing ->
+                    val reason = CloseReason(CloseReason.Codes.VIOLATED_POLICY, "")
+                    outgoing.send(Frame.Close(reason))
+                    waitFor {
+                        verify(logger).log(
+                            eq(Level.WARNING),
+                            eq("Connection closed without normal reasons"),
+                            anyOrNull<Exception>()
+                        )
                     }
                 }
             }
