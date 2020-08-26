@@ -10,15 +10,18 @@ import io.ktor.websocket.DefaultWebSocketServerSession
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.domain.endpoint.CollectParcels
 import tech.relaycorp.gateway.pdc.local.utils.ParcelCollectionHandshake
 import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.messages.control.ParcelDelivery
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
+import java.util.logging.Level
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -33,49 +36,62 @@ class ParcelCollectionRoute
 
     override fun register(routing: Routing) {
         routing.webSocket(URL_PATH) {
-            if (call.request.header(HEADER_ORIGIN) != null) {
-                // The client is most likely a (malicious) web page
-                close(
-                    CloseReason(
-                        CloseReason.Codes.VIOLATED_POLICY,
-                        "Web browser requests are disabled for security reasons"
-                    )
-                )
-                return@webSocket
+            try {
+                handle()
+            } catch (exc: ClosedReceiveChannelException) {
+                val reason = closeReason.await()
+                if (reason == null) {
+                    logger.log(Level.WARNING, "TCP connection closed abruptly", exc)
+                } else if (reason.knownReason != CloseReason.Codes.NORMAL) {
+                    logger.log(Level.WARNING, "TCP connection closed due to $reason", exc)
+                }
             }
-
-            val certificates = try {
-                parcelCollectionHandshake.handshake(this)
-            } catch (e: ParcelCollectionHandshake.HandshakeUnsuccessful) {
-                return@webSocket
-            }
-
-            // TODO: Call cert.getCertificatePath() and validate certificate chain
-
-            val collectParcels = collectParcelsProvider.get()
-            sendParcels(collectParcels, certificates.toAddresses())
-            receiveAcks(collectParcels)
-
-            val keepAlive = call.request.header(HEADER_KEEP_ALIVE) == "on"
-            if (!keepAlive) {
-                collectParcels
-                    .noParcelsToDeliverOrAck
-                    .onEach { noParcelsToDeliverOrAck ->
-                        if (!keepAlive && noParcelsToDeliverOrAck) {
-                            close(
-                                CloseReason(
-                                    CloseReason.Codes.NORMAL,
-                                    "All available parcels delivered"
-                                )
-                            )
-                            asyncJob.complete()
-                        }
-                    }
-                    .launchIn(asyncScope)
-            }
-
-            asyncJob.join()
         }
+    }
+
+    private suspend fun DefaultWebSocketServerSession.handle() {
+        if (call.request.header(HEADER_ORIGIN) != null) {
+            // The client is most likely a (malicious) web page
+            close(
+                CloseReason(
+                    CloseReason.Codes.VIOLATED_POLICY,
+                    "Web browser requests are disabled for security reasons"
+                )
+            )
+            return
+        }
+
+        val certificates = try {
+            parcelCollectionHandshake.handshake(this)
+        } catch (e: ParcelCollectionHandshake.HandshakeUnsuccessful) {
+            return
+        }
+
+        // TODO: Call cert.getCertificatePath() and validate certificate chain
+
+        val collectParcels = collectParcelsProvider.get()
+        sendParcels(collectParcels, certificates.toAddresses())
+        receiveAcks(collectParcels)
+
+        val keepAlive = call.request.header(HEADER_KEEP_ALIVE) != "off"
+        if (!keepAlive) {
+            collectParcels
+                .anyParcelsLeftToDeliverOrAck
+                .onEach { anyParcelsLeft ->
+                    if (!anyParcelsLeft) {
+                        close(
+                            CloseReason(
+                                CloseReason.Codes.NORMAL,
+                                "All available parcels delivered"
+                            )
+                        )
+                        asyncJob.complete()
+                    }
+                }
+                .launchIn(asyncScope)
+        }
+
+        asyncJob.join()
     }
 
     private fun List<Certificate>.toAddresses() =

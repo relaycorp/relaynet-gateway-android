@@ -99,10 +99,10 @@ class CollectParcelsTest {
             .getNewParcelsForEndpoints(listOf(MessageAddress.of("1234")))
             .launchIn(CoroutineScope(Dispatchers.Unconfined))
 
-        assertFalse(subject.noParcelsToDeliverOrAck.first())
+        assertTrue(subject.anyParcelsLeftToDeliverOrAck.first())
 
         listState.value = emptyList()
-        assertTrue(subject.noParcelsToDeliverOrAck.first())
+        assertFalse(subject.anyParcelsLeftToDeliverOrAck.first())
     }
 
     @Test

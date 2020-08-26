@@ -164,7 +164,7 @@ class ParcelCollectionHandshakeTest {
             runBlockingTest {
                 whenever(collectParcels.getNewParcelsForEndpoints(any()))
                     .thenReturn(flowOf(emptyList()))
-                whenever(collectParcels.noParcelsToDeliverOrAck)
+                whenever(collectParcels.anyParcelsLeftToDeliverOrAck)
                     .thenReturn(flowOf(true))
 
                 testPDCServerRoute(route) {
