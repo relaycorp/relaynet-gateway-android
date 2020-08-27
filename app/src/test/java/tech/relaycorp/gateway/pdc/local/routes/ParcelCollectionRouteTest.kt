@@ -141,12 +141,18 @@ class ParcelCollectionRouteTest {
         }
 
     @Test
-    fun `Server should ignore binary acks`() =
+    fun `Server should tell the client that it cannot accept binary acks`() =
         runBlockingTest {
             testPDCServerRoute(route) {
-                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { _, outgoing ->
+                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, outgoing ->
                     outgoing.send(Frame.Binary(true, "abc".toByteArray()))
 
+                    suspendWaitFor {
+                        assertEquals(
+                            CloseReason.Codes.CANNOT_ACCEPT,
+                            (incoming.receive() as Frame.Close).readReason()?.knownReason
+                        )
+                    }
                     verify(collectParcels, never()).processParcelAck(any())
                 }
             }
@@ -168,13 +174,13 @@ class ParcelCollectionRouteTest {
     fun `Server should handle gracefully client closes with another reason besides normal`() =
         runBlockingTest {
             testPDCServerRoute(route) {
-                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, outgoing ->
+                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { _, outgoing ->
                     val reason = CloseReason(CloseReason.Codes.VIOLATED_POLICY, "")
                     outgoing.send(Frame.Close(reason))
                     waitFor {
                         verify(logger).log(
                             eq(Level.WARNING),
-                            eq("Connection closed without normal reasons"),
+                            eq("Connection closed without a normal reason"),
                             anyOrNull<Exception>()
                         )
                     }
