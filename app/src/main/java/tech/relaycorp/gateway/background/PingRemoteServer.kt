@@ -33,7 +33,7 @@ class PingRemoteServer
     suspend fun pingHostname(hostname: String) =
         withContext(Dispatchers.IO) {
             try {
-                val urlc = URL(hostname)
+                URL(hostname)
                     .openConnection()
                     .apply {
                         setRequestProperty("Connection", "close")
