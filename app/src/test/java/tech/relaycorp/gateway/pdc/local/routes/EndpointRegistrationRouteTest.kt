@@ -14,21 +14,22 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.domain.endpoint.EndpointRegistration
 import tech.relaycorp.gateway.domain.endpoint.InvalidCRAException
-import tech.relaycorp.gateway.pdc.local.ControlMessageContentType
+import tech.relaycorp.gateway.pdc.local.utils.ControlMessageContentType
 import tech.relaycorp.gateway.test.FullCertPath
 import tech.relaycorp.gateway.test.KeyPairSet
 import tech.relaycorp.relaynet.messages.control.ClientRegistration
 import tech.relaycorp.relaynet.messages.control.ClientRegistrationRequest
 import kotlin.test.assertEquals
 
-class EndpointRegistrationTest {
+class EndpointRegistrationRouteTest {
     private val plainTextUTF8ContentType = ContentType.Text.Plain.withCharset(Charsets.UTF_8)
 
-    private val mockEndpointRegistration = mock<EndpointRegistration>()
+    private val endpointRegistration = mock<EndpointRegistration>()
+    private val route = EndpointRegistrationRoute(endpointRegistration)
 
     @Test
     fun `Invalid request content type should be refused`() {
-        testPDCServer(mockEndpointRegistration) {
+        testPDCServerRoute(route) {
             val call = handleRequest(HttpMethod.Post, "/v1/clients") {
                 addHeader("Content-Type", ContentType.Application.Json.toString())
             }
@@ -45,7 +46,7 @@ class EndpointRegistrationTest {
 
     @Test
     fun `Invalid CRR should be refused`() {
-        testPDCServer {
+        testPDCServerRoute(route) {
             val call = handleRequest(HttpMethod.Post, "/v1/clients") {
                 addHeader("Content-Type", ControlMessageContentType.CRR.toString())
                 setBody("invalid CRR".toByteArray())
@@ -63,10 +64,10 @@ class EndpointRegistrationTest {
 
     @Test
     fun `Valid CRR with invalid CRA encapsulated should be refused`() = runBlockingTest {
-        whenever(mockEndpointRegistration.register(any()))
+        whenever(endpointRegistration.register(any()))
             .thenThrow(InvalidCRAException("Invalid CRA", null))
 
-        testPDCServer(mockEndpointRegistration) {
+        testPDCServerRoute(route) {
             val crr = ClientRegistrationRequest(
                 KeyPairSet.PRIVATE_ENDPOINT.public,
                 "invalid CRA".toByteArray()
@@ -91,9 +92,9 @@ class EndpointRegistrationTest {
         val clientRegistration =
             ClientRegistration(FullCertPath.PRIVATE_ENDPOINT, FullCertPath.PRIVATE_GW)
         val clientRegistrationSerialized = clientRegistration.serialize()
-        whenever(mockEndpointRegistration.register(any())).thenReturn(clientRegistrationSerialized)
+        whenever(endpointRegistration.register(any())).thenReturn(clientRegistrationSerialized)
 
-        testPDCServer(mockEndpointRegistration) {
+        testPDCServerRoute(route) {
             val crr = ClientRegistrationRequest(
                 KeyPairSet.PRIVATE_ENDPOINT.public,
                 "invalid CRA".toByteArray()

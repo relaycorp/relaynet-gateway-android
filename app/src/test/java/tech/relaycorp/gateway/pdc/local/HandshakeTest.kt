@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import tech.relaycorp.gateway.pdc.local.utils.Handshake
+import tech.relaycorp.gateway.pdc.local.utils.InvalidHandshakeSignatureException
 import tech.relaycorp.gateway.test.FullCertPath
 import tech.relaycorp.gateway.test.KeyPairSet
 import tech.relaycorp.relaynet.messages.InvalidMessageException
