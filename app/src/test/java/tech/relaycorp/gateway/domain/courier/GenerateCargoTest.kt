@@ -78,6 +78,7 @@ class GenerateCargoTest {
         val cargo = Cargo.deserialize(cargoes.first().readBytes())
         assertEquals(publicGatewayPreferences.getAddress().first(), cargo.recipientAddress)
 
+        // TODO: fix this expiryDate assertion that is failing on CI
         /*
         val maxExpirationTime =
             max(listOf(parcel.expirationTimeUtc, parcelCollection.expirationTimeUtc))
@@ -85,7 +86,7 @@ class GenerateCargoTest {
             maxExpirationTime.toInstant().epochSecond,
             cargo.expiryDate.toInstant().epochSecond
         )
-         */
+        */
 
         val cargoMessages = cargo.unwrapPayload(localConfig.getKeyPair().private)
         assertEquals(2, cargoMessages.messages.size)
