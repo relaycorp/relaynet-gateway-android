@@ -1,6 +1,6 @@
 package tech.relaycorp.gateway.pdc.local.routes
 
-public abstract class PoWebException internal constructor(
+abstract class PoWebException internal constructor(
     message: String?,
     cause: Throwable? = null
 ) : Exception(message, cause)
@@ -8,7 +8,7 @@ public abstract class PoWebException internal constructor(
 /**
  * Base class for connectivity errors and errors caused by the server.
  */
-public abstract class ServerException internal constructor(message: String, cause: Throwable?) :
+abstract class ServerException internal constructor(message: String, cause: Throwable?) :
     PoWebException(message, cause)
 
 /**
@@ -16,5 +16,5 @@ public abstract class ServerException internal constructor(message: String, caus
  *
  * The client should retry later.
  */
-public class ServerConnectionException(message: String, cause: Throwable? = null) :
+class ServerConnectionException(message: String, cause: Throwable? = null) :
     ServerException(message, cause)

@@ -39,23 +39,19 @@ class ParcelCollectionRoute
     private val asyncScope = CoroutineScope(asyncJob)
 
     override fun register(routing: Routing) {
-        try {
-            routing.webSocket(URL_PATH) {
-                try {
-                    handle()
-                } catch (exc: ClosedReceiveChannelException) {
-                    val reason = closeReason.await()
-                    if (reason == null) {
-                        logger.log(Level.WARNING, "TCP connection closed abruptly", exc)
-                    } else if (reason.knownReason != CloseReason.Codes.NORMAL) {
-                        logger.log(Level.WARNING, "TCP connection closed due to $reason", exc)
-                    }
-                } catch (exc: Exception) {
-                    logger.log(Level.WARNING, "Connection closed without normal reasons", exc)
+        routing.webSocket(URL_PATH) {
+            try {
+                handle()
+            } catch (exc: ClosedReceiveChannelException) {
+                val reason = closeReason.await()
+                if (reason == null) {
+                    logger.log(Level.WARNING, "TCP connection closed abruptly", exc)
+                } else if (reason.knownReason != CloseReason.Codes.NORMAL) {
+                    logger.log(Level.WARNING, "TCP connection closed due to $reason", exc)
                 }
+            } catch (exc: PoWebException) {
+                logger.log(Level.WARNING, "Connection closed without a normal reason", exc)
             }
-        } catch (exc: Exception) {
-            logger.log(Level.WARNING, "Client disconnected", exc)
         }
     }
 

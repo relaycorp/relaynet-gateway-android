@@ -153,17 +153,6 @@ class ParcelCollectionRouteTest {
         }
 
     @Test
-    fun `Server should handle gracefully client abrupt close`() =
-        runBlockingTest {
-            testPDCServerRoute(route) {
-                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, _ ->
-                    this@testPDCServerRoute.stop(0, 0)
-                    // TODO: figure out a way to tell if the server handled this correctly
-                }
-            }
-        }
-
-    @Test
     fun `Server should handle gracefully client closes with normal`() =
         runBlockingTest {
             testPDCServerRoute(route) {
