@@ -6,7 +6,7 @@ import io.ktor.http.cio.websocket.close
 import io.ktor.http.cio.websocket.readBytes
 import io.ktor.websocket.DefaultWebSocketServerSession
 import tech.relaycorp.poweb.handshake.Challenge
-import tech.relaycorp.poweb.handshake.InvalidMessageException
+import tech.relaycorp.poweb.handshake.InvalidResponseException
 import tech.relaycorp.poweb.handshake.Response
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import javax.inject.Inject
@@ -25,7 +25,7 @@ class ParcelCollectionHandshake
         val responseRaw = session.incoming.receive()
         val response = try {
             Response.deserialize(responseRaw.readBytes())
-        } catch (_: InvalidMessageException) {
+        } catch (_: InvalidResponseException) {
             session.closeCannotAccept("Invalid handshake response")
             throw HandshakeUnsuccessful()
         }
