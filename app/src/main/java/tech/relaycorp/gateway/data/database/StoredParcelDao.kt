@@ -36,14 +36,14 @@ interface StoredParcelDao {
     @Query(
         """
         SELECT * FROM Parcel
-        WHERE recipientAddress = :recipientAddress AND recipientLocation = :recipientLocation 
+        WHERE recipientAddress IN (:recipientAddresses) AND recipientLocation = :recipientLocation 
         ORDER BY creationTimeUtc ASC
         """
     )
-    suspend fun listForRecipient(
-        recipientAddress: MessageAddress,
+    fun listForRecipients(
+        recipientAddresses: List<MessageAddress>,
         recipientLocation: RecipientLocation
-    ): List<StoredParcel>
+    ): Flow<List<StoredParcel>>
 
     @Query("SELECT SUM(Parcel.size) FROM Parcel WHERE recipientLocation = :recipientLocation")
     fun countSizeForRecipientLocation(recipientLocation: RecipientLocation): Flow<StorageSize>

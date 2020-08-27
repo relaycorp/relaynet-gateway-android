@@ -47,6 +47,8 @@ class StoreParcel
             return Result.InvalidParcel(parcel, exc)
         }
 
+        // TODO: check if we haven't received the parcel before, through the ParcelCollection table
+
         val parcelPath = diskMessageOperations.writeMessage(
             StoredParcel.STORAGE_FOLDER,
             StoredParcel.STORAGE_PREFIX,
