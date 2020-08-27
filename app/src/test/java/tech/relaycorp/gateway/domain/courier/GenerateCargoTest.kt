@@ -23,7 +23,6 @@ import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.Cargo
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import java.io.InputStream
-import java.util.Collections.max
 
 class GenerateCargoTest {
 

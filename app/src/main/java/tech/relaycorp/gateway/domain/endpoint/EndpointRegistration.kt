@@ -58,7 +58,7 @@ class EndpointRegistration
     }
 
     companion object {
-        private const val CRA_VALIDITY_SECONDS: Long = 5
+        private const val CRA_VALIDITY_SECONDS: Long = 10
         private const val ENDPOINT_CERTIFICATE_VALIDITY_YEARS = 3L
     }
 }
