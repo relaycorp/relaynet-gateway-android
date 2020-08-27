@@ -1,4 +1,4 @@
-package tech.relaycorp.gateway.pdc.local
+package tech.relaycorp.gateway.pdc.local.utils
 
 import io.ktor.http.ContentType
 
