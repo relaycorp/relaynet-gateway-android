@@ -42,53 +42,56 @@ class EndpointRegistrationTest {
     inner class Authorize {
         @Test
         fun `Application Id for endpoint should be stored in server data`() = runBlockingTest {
-            val craSerialized = endpointRegistration.authorize(dummyApplicationId)
+            val authorizationSerialized = endpointRegistration.authorize(dummyApplicationId)
 
-            val cra = ClientRegistrationAuthorization.deserialize(
-                craSerialized,
+            val authorization = ClientRegistrationAuthorization.deserialize(
+                authorizationSerialized,
                 KeyPairSet.PRIVATE_GW.public
             )
 
-            assertEquals(dummyApplicationId, cra.serverData.toString(Charset.defaultCharset()))
+            assertEquals(
+                dummyApplicationId,
+                authorization.serverData.toString(Charset.defaultCharset())
+            )
         }
 
         @Test
         fun `Authorization should be valid for 10 seconds`() = runBlockingTest {
-            val craSerialized = endpointRegistration.authorize(dummyApplicationId)
+            val authorizationSerialized = endpointRegistration.authorize(dummyApplicationId)
 
-            val cra = ClientRegistrationAuthorization.deserialize(
-                craSerialized,
+            val authorization = ClientRegistrationAuthorization.deserialize(
+                authorizationSerialized,
                 KeyPairSet.PRIVATE_GW.public
             )
 
-            val craTTL = ChronoUnit.SECONDS.between(ZonedDateTime.now(), cra.expiryDate)
-            assertTrue(craTTL in 8..10) // Give some wiggle room
+            val ttl = ChronoUnit.SECONDS.between(ZonedDateTime.now(), authorization.expiryDate)
+            assertTrue(ttl in 8..10) // Give some wiggle room
         }
     }
 
     @Nested
     inner class Register {
-        private val cra = ClientRegistrationAuthorization(
+        private val authorization = ClientRegistrationAuthorization(
             ZonedDateTime.now().plusSeconds(3),
             dummyApplicationId.toByteArray()
         )
         private val crr = ClientRegistrationRequest(
             KeyPairSet.PRIVATE_ENDPOINT.public,
-            cra.serialize(KeyPairSet.PRIVATE_GW.private)
+            authorization.serialize(KeyPairSet.PRIVATE_GW.private)
         )
 
         @Test
-        fun `CRR should be refused if its encapsulated CRA is invalid`() {
+        fun `CRR should be refused if its encapsulated authorization is invalid`() {
             val invalidCRR = ClientRegistrationRequest(
                 KeyPairSet.PRIVATE_ENDPOINT.public,
-                "invalid CRA".toByteArray()
+                "invalid authorization".toByteArray()
             )
 
-            val exception = assertThrows<InvalidCRAException> {
+            val exception = assertThrows<InvalidPNRAException> {
                 runBlockingTest { endpointRegistration.register(invalidCRR) }
             }
 
-            assertEquals("CRR contains invalid CRA", exception.message)
+            assertEquals("Registration request contains invalid authorization", exception.message)
             assertTrue(exception.cause is InvalidMessageException)
         }
 

@@ -9,7 +9,7 @@ import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.post
 import tech.relaycorp.gateway.domain.endpoint.EndpointRegistration
-import tech.relaycorp.gateway.domain.endpoint.InvalidCRAException
+import tech.relaycorp.gateway.domain.endpoint.InvalidPNRAException
 import tech.relaycorp.gateway.pdc.local.utils.ControlMessageContentType
 import tech.relaycorp.relaynet.messages.InvalidMessageException
 import tech.relaycorp.relaynet.messages.control.ClientRegistrationRequest
@@ -22,9 +22,9 @@ class EndpointRegistrationRoute
 
     override fun register(routing: Routing) {
         routing.post("/v1/clients") {
-            if (call.request.contentType() != ControlMessageContentType.CRR) {
+            if (call.request.contentType() != ControlMessageContentType.PNRR) {
                 call.respondText(
-                    "Content type ${ControlMessageContentType.CRR} is required",
+                    "Content type ${ControlMessageContentType.PNRR} is required",
                     status = HttpStatusCode.UnsupportedMediaType
                 )
                 return@post
@@ -34,7 +34,7 @@ class EndpointRegistrationRoute
                 ClientRegistrationRequest.deserialize(call.receive())
             } catch (_: InvalidMessageException) {
                 call.respondText(
-                    "Invalid client registration request",
+                    "Invalid registration request",
                     status = HttpStatusCode.BadRequest
                 )
                 return@post
@@ -42,15 +42,15 @@ class EndpointRegistrationRoute
 
             val registrationSerialized = try {
                 endpointRegistration.register(crr)
-            } catch (_: InvalidCRAException) {
+            } catch (_: InvalidPNRAException) {
                 call.respondText(
-                    "Invalid client registration authorization encapsulated in CRR",
+                    "Invalid authorization encapsulated in registration request",
                     status = HttpStatusCode.BadRequest
                 )
                 return@post
             }
 
-            call.respondBytes(registrationSerialized, ControlMessageContentType.CLIENT_REGISTRATION)
+            call.respondBytes(registrationSerialized, ControlMessageContentType.PNR)
         }
     }
 }

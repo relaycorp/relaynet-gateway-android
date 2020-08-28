@@ -20,35 +20,39 @@ class EndpointRegistration
     private val localConfig: LocalConfig
 ) {
     /**
-     * Issue CRA for an application to register one or more of its endpoints.
+     * Issue PNRA for an application to register one or more of its endpoints.
      */
     suspend fun authorize(endpointApplicationId: String): ByteArray {
-        val expiryDate = ZonedDateTime.now().plusSeconds(CRA_VALIDITY_SECONDS)
-        val cra = ClientRegistrationAuthorization(expiryDate, endpointApplicationId.toByteArray())
-        return cra.serialize(localConfig.getKeyPair().private)
+        val expiryDate = ZonedDateTime.now().plusSeconds(AUTHORIZATION_VALIDITY_SECONDS)
+        val authorization =
+            ClientRegistrationAuthorization(expiryDate, endpointApplicationId.toByteArray())
+        return authorization.serialize(localConfig.getKeyPair().private)
     }
 
     /**
      * Complete endpoint registration and return registration serialized.
      */
-    @Throws(InvalidCRAException::class)
-    suspend fun register(crr: ClientRegistrationRequest): ByteArray {
+    @Throws(InvalidPNRAException::class)
+    suspend fun register(request: ClientRegistrationRequest): ByteArray {
         val gatewayKeyPair = localConfig.getKeyPair()
-        val cra = try {
-            ClientRegistrationAuthorization.deserialize(crr.craSerialized, gatewayKeyPair.public)
+        val authorization = try {
+            ClientRegistrationAuthorization.deserialize(
+                request.craSerialized,
+                gatewayKeyPair.public
+            )
         } catch (exc: InvalidMessageException) {
-            throw InvalidCRAException("CRR contains invalid CRA", exc)
+            throw InvalidPNRAException("Registration request contains invalid authorization", exc)
         }
-        val applicationId = cra.serverData.toString(Charset.defaultCharset())
+        val applicationId = authorization.serverData.toString(Charset.defaultCharset())
         val endpoint = LocalEndpoint(
-            MessageAddress.of(crr.clientPublicKey.privateAddress),
+            MessageAddress.of(request.clientPublicKey.privateAddress),
             applicationId
         )
         localEndpointDao.insert(endpoint)
 
         val gatewayCertificate = localConfig.getCertificate()
         val endpointCertificate = issueEndpointCertificate(
-            crr.clientPublicKey,
+            request.clientPublicKey,
             gatewayKeyPair.private,
             ZonedDateTime.now().plusYears(ENDPOINT_CERTIFICATE_VALIDITY_YEARS),
             gatewayCertificate
@@ -58,7 +62,7 @@ class EndpointRegistration
     }
 
     companion object {
-        private const val CRA_VALIDITY_SECONDS: Long = 10
+        private const val AUTHORIZATION_VALIDITY_SECONDS: Long = 10
         private const val ENDPOINT_CERTIFICATE_VALIDITY_YEARS = 3L
     }
 }

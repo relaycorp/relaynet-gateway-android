@@ -64,16 +64,16 @@ class EndpointPreRegistrationServiceTest {
             resultMessage!!.what
         )
 
-        // Check we got a valid CRA
+        // Check we got a valid authorization
         assertTrue(resultMessage!!.obj is ByteArray)
         val gatewayKeyPair = localConfig.getKeyPair()
-        val cra = ClientRegistrationAuthorization.deserialize(
+        val authorization = ClientRegistrationAuthorization.deserialize(
             resultMessage!!.obj as ByteArray,
             gatewayKeyPair.public
         )
         assertEquals(
             getApplicationContext<Context>().packageName,
-            cra.serverData.toString(Charset.defaultCharset())
+            authorization.serverData.toString(Charset.defaultCharset())
         )
     }
 

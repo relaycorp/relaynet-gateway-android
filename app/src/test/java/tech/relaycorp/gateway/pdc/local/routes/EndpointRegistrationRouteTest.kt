@@ -13,7 +13,7 @@ import io.ktor.server.testing.setBody
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.domain.endpoint.EndpointRegistration
-import tech.relaycorp.gateway.domain.endpoint.InvalidCRAException
+import tech.relaycorp.gateway.domain.endpoint.InvalidPNRAException
 import tech.relaycorp.gateway.pdc.local.utils.ControlMessageContentType
 import tech.relaycorp.gateway.test.FullCertPath
 import tech.relaycorp.gateway.test.KeyPairSet
@@ -37,7 +37,7 @@ class EndpointRegistrationRouteTest {
                 assertEquals(HttpStatusCode.UnsupportedMediaType, response.status())
                 assertEquals(plainTextUTF8ContentType, response.contentType())
                 assertEquals(
-                    "Content type ${ControlMessageContentType.CRR} is required",
+                    "Content type ${ControlMessageContentType.PNRR} is required",
                     response.content
                 )
             }
@@ -48,14 +48,14 @@ class EndpointRegistrationRouteTest {
     fun `Invalid CRR should be refused`() {
         testPDCServerRoute(route) {
             val call = handleRequest(HttpMethod.Post, "/v1/clients") {
-                addHeader("Content-Type", ControlMessageContentType.CRR.toString())
+                addHeader("Content-Type", ControlMessageContentType.PNRR.toString())
                 setBody("invalid CRR".toByteArray())
             }
             with(call) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals(plainTextUTF8ContentType, response.contentType())
                 assertEquals(
-                    "Invalid client registration request",
+                    "Invalid registration request",
                     response.content
                 )
             }
@@ -63,24 +63,24 @@ class EndpointRegistrationRouteTest {
     }
 
     @Test
-    fun `Valid CRR with invalid CRA encapsulated should be refused`() = runBlockingTest {
+    fun `Valid CRR with invalid authorization encapsulated should be refused`() = runBlockingTest {
         whenever(endpointRegistration.register(any()))
-            .thenThrow(InvalidCRAException("Invalid CRA", null))
+            .thenThrow(InvalidPNRAException("Invalid authorization", null))
 
         testPDCServerRoute(route) {
             val crr = ClientRegistrationRequest(
                 KeyPairSet.PRIVATE_ENDPOINT.public,
-                "invalid CRA".toByteArray()
+                "invalid authorization".toByteArray()
             )
             val call = handleRequest(HttpMethod.Post, "/v1/clients") {
-                addHeader("Content-Type", ControlMessageContentType.CRR.toString())
+                addHeader("Content-Type", ControlMessageContentType.PNRR.toString())
                 setBody(crr.serialize(KeyPairSet.PRIVATE_ENDPOINT.private))
             }
             with(call) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals(plainTextUTF8ContentType, response.contentType())
                 assertEquals(
-                    "Invalid client registration authorization encapsulated in CRR",
+                    "Invalid authorization encapsulated in registration request",
                     response.content
                 )
             }
@@ -97,15 +97,15 @@ class EndpointRegistrationRouteTest {
         testPDCServerRoute(route) {
             val crr = ClientRegistrationRequest(
                 KeyPairSet.PRIVATE_ENDPOINT.public,
-                "invalid CRA".toByteArray()
+                "invalid authorization".toByteArray()
             )
             val call = handleRequest(HttpMethod.Post, "/v1/clients") {
-                addHeader("Content-Type", ControlMessageContentType.CRR.toString())
+                addHeader("Content-Type", ControlMessageContentType.PNRR.toString())
                 setBody(crr.serialize(KeyPairSet.PRIVATE_ENDPOINT.private))
             }
             with(call) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(ControlMessageContentType.CLIENT_REGISTRATION, response.contentType())
+                assertEquals(ControlMessageContentType.PNR, response.contentType())
                 assertEquals(
                     clientRegistrationSerialized.asList(),
                     response.byteContent!!.asList()
