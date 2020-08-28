@@ -5,14 +5,18 @@ import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.close
 import io.ktor.http.cio.websocket.readBytes
 import io.ktor.websocket.DefaultWebSocketServerSession
+import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.poweb.handshake.Challenge
 import tech.relaycorp.poweb.handshake.InvalidResponseException
 import tech.relaycorp.poweb.handshake.Response
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
+import tech.relaycorp.relaynet.wrappers.x509.CertificateException
 import javax.inject.Inject
 
 class ParcelCollectionHandshake
-@Inject constructor() {
+@Inject constructor(
+    private val localConfig: LocalConfig
+) {
 
     @Throws(HandshakeUnsuccessful::class)
     suspend fun handshake(session: DefaultWebSocketServerSession): List<Certificate> {
@@ -35,7 +39,7 @@ class ParcelCollectionHandshake
             throw HandshakeUnsuccessful()
         }
 
-        return response.nonceSignatures
+        val certificates = response.nonceSignatures
             .map { nonceSignature ->
                 try {
                     Handshake.verifySignature(
@@ -49,6 +53,27 @@ class ParcelCollectionHandshake
                     throw HandshakeUnsuccessful()
                 }
             }
+
+        if (!areCertificatesValid(certificates)) {
+            session.closeCannotAccept(
+                "Handshake response included invalid certificates"
+            )
+            throw HandshakeUnsuccessful()
+        }
+
+        return certificates
+    }
+
+    private suspend fun areCertificatesValid(certificates: List<Certificate>): Boolean {
+        val localCertificate = localConfig.getCertificate()
+        certificates.forEach { certificate ->
+            try {
+                certificate.getCertificationPath(emptyList(), listOf(localCertificate))
+            } catch (exc: CertificateException) {
+                return false
+            }
+        }
+        return true
     }
 
     private suspend fun DefaultWebSocketServerSession.closeCannotAccept(reason: String) {

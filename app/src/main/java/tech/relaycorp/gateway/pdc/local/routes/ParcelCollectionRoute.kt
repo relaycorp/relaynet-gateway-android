@@ -73,8 +73,6 @@ class ParcelCollectionRoute
             return
         }
 
-        // TODO: Call cert.getCertificatePath() and validate certificate chain
-
         val collectParcels = collectParcelsProvider.get()
         val sendJob = sendParcels(collectParcels, certificates.toAddresses())
         val receiveJob = receiveAcks(collectParcels)
