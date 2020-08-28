@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import tech.relaycorp.gateway.common.Logging.logger
+import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.database.ParcelCollectionDao
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
@@ -22,8 +23,6 @@ import tech.relaycorp.relaynet.messages.payloads.CargoMessageWithExpiry
 import tech.relaycorp.relaynet.messages.payloads.batch
 import java.io.InputStream
 import java.time.Duration
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.util.logging.Level
 import javax.inject.Inject
 
@@ -86,13 +85,18 @@ class GenerateCargo
         publicGatewayPreferences.getCertificate().first()
 
     private suspend fun CargoMessageSetWithExpiry.toCargo(): Cargo {
-        val creationDate = ZonedDateTime.now(ZoneId.of("UTC"))
+        val creationDate = nowInUtc()
+        if (creationDate > latestMessageExpiryDate) {
+            throw IllegalArgumentException(
+                "The latest expiration date $latestMessageExpiryDate has expired already"
+            )
+        }
         return Cargo(
             recipientAddress = getPublicGatewayAddress(),
             payload = cargoMessageSet.encrypt(getPublicGatewayCertificate()),
             senderCertificate = localConfig.getCertificate(),
             creationDate = creationDate,
-            ttl = Duration.between(latestMessageExpiryDate, creationDate).seconds.toInt()
+            ttl = Duration.between(creationDate, latestMessageExpiryDate).seconds.toInt()
         )
     }
 }
