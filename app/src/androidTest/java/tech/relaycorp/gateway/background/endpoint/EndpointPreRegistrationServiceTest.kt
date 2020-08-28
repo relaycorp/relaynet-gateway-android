@@ -18,7 +18,7 @@ import org.junit.Test
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.AppTestProvider
 import tech.relaycorp.gateway.test.WaitAssertions.waitFor
-import tech.relaycorp.relaynet.messages.control.ClientRegistrationAuthorization
+import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
 import java.nio.charset.Charset
 import javax.inject.Inject
 
@@ -64,16 +64,16 @@ class EndpointPreRegistrationServiceTest {
             resultMessage!!.what
         )
 
-        // Check we got a valid CRA
+        // Check we got a valid authorization
         assertTrue(resultMessage!!.obj is ByteArray)
         val gatewayKeyPair = localConfig.getKeyPair()
-        val cra = ClientRegistrationAuthorization.deserialize(
+        val authorization = PrivateNodeRegistrationAuthorization.deserialize(
             resultMessage!!.obj as ByteArray,
             gatewayKeyPair.public
         )
         assertEquals(
             getApplicationContext<Context>().packageName,
-            cra.serverData.toString(Charset.defaultCharset())
+            authorization.gatewayData.toString(Charset.defaultCharset())
         )
     }
 
