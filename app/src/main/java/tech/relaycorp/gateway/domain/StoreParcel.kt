@@ -68,11 +68,11 @@ class StoreParcel
     }
 
     private suspend fun isParcelAlreadyCollected(parcel: Parcel) =
-        parcelCollectionDao.get(
+        parcelCollectionDao.exists(
             MessageAddress.of(parcel.recipientAddress),
             PrivateMessageAddress(parcel.senderCertificate.subjectPrivateAddress),
             MessageId(parcel.id)
-        ) != null
+        )
 
     private fun Parcel.toStoredParcel(
         storagePath: String,

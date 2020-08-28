@@ -14,7 +14,6 @@ import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.test.FullCertPath
 import tech.relaycorp.gateway.test.KeyPairSet
-import tech.relaycorp.gateway.test.factory.ParcelCollectionFactory
 import tech.relaycorp.relaynet.messages.Parcel
 
 internal class StoreParcelTest {
@@ -31,6 +30,7 @@ internal class StoreParcelTest {
     @BeforeEach
     fun setUp() = runBlockingTest {
         whenever(mockLocalConfig.getCertificate()).thenReturn(FullCertPath.PRIVATE_GW)
+        whenever(parcelCollectionDao.exists(any(), any(), any())).thenReturn(false)
     }
 
     @Test
@@ -112,8 +112,7 @@ internal class StoreParcelTest {
 
     @Test
     internal fun `store duplicated parcel`() = runBlockingTest {
-        whenever(parcelCollectionDao.get(any(), any(), any()))
-            .thenReturn(ParcelCollectionFactory.build())
+        whenever(parcelCollectionDao.exists(any(), any(), any())).thenReturn(true)
 
         val parcel = Parcel(
             FullCertPath.PRIVATE_ENDPOINT.subjectPrivateAddress,

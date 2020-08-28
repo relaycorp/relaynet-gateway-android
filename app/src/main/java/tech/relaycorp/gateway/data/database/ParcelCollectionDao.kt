@@ -24,16 +24,18 @@ interface ParcelCollectionDao {
 
     @Query(
         """
-        SELECT * FROM ParcelCollection
-        WHERE recipientAddress = :recipientAddress 
-            AND senderAddress = :senderAddress 
-            AND messageId = :messageId
-        LIMIT 1
+        SELECT EXISTS(
+            SELECT 1 FROM ParcelCollection
+            WHERE recipientAddress = :recipientAddress 
+                AND senderAddress = :senderAddress 
+                AND messageId = :messageId
+            LIMIT 1
+        )
         """
     )
-    suspend fun get(
+    suspend fun exists(
         recipientAddress: MessageAddress,
         senderAddress: PrivateMessageAddress,
         messageId: MessageId
-    ): ParcelCollection?
+    ): Boolean
 }
