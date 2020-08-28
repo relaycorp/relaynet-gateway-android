@@ -21,7 +21,7 @@ class EndpointRegistrationRoute
 ) : PDCServerRoute {
 
     override fun register(routing: Routing) {
-        routing.post("/v1/clients") {
+        routing.post("/v1/nodes") {
             if (call.request.contentType() != ControlMessageContentType.PNRR) {
                 call.respondText(
                     "Content type ${ControlMessageContentType.PNRR} is required",

@@ -30,7 +30,7 @@ class EndpointRegistrationRouteTest {
     @Test
     fun `Invalid request content type should be refused`() {
         testPDCServerRoute(route) {
-            val call = handleRequest(HttpMethod.Post, "/v1/clients") {
+            val call = handleRequest(HttpMethod.Post, "/v1/nodes") {
                 addHeader("Content-Type", ContentType.Application.Json.toString())
             }
             with(call) {
@@ -47,7 +47,7 @@ class EndpointRegistrationRouteTest {
     @Test
     fun `Invalid CRR should be refused`() {
         testPDCServerRoute(route) {
-            val call = handleRequest(HttpMethod.Post, "/v1/clients") {
+            val call = handleRequest(HttpMethod.Post, "/v1/nodes") {
                 addHeader("Content-Type", ControlMessageContentType.PNRR.toString())
                 setBody("invalid CRR".toByteArray())
             }
@@ -72,7 +72,7 @@ class EndpointRegistrationRouteTest {
                 KeyPairSet.PRIVATE_ENDPOINT.public,
                 "invalid authorization".toByteArray()
             )
-            val call = handleRequest(HttpMethod.Post, "/v1/clients") {
+            val call = handleRequest(HttpMethod.Post, "/v1/nodes") {
                 addHeader("Content-Type", ControlMessageContentType.PNRR.toString())
                 setBody(crr.serialize(KeyPairSet.PRIVATE_ENDPOINT.private))
             }
@@ -99,7 +99,7 @@ class EndpointRegistrationRouteTest {
                 KeyPairSet.PRIVATE_ENDPOINT.public,
                 "invalid authorization".toByteArray()
             )
-            val call = handleRequest(HttpMethod.Post, "/v1/clients") {
+            val call = handleRequest(HttpMethod.Post, "/v1/nodes") {
                 addHeader("Content-Type", ControlMessageContentType.PNRR.toString())
                 setBody(crr.serialize(KeyPairSet.PRIVATE_ENDPOINT.private))
             }
