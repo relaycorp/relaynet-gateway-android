@@ -1,9 +1,11 @@
 package tech.relaycorp.gateway.domain
 
+import tech.relaycorp.gateway.data.database.ParcelCollectionDao
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.MessageId
+import tech.relaycorp.gateway.data.model.PrivateMessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StorageSize
 import tech.relaycorp.gateway.data.model.StoredParcel
@@ -18,6 +20,7 @@ import javax.inject.Inject
 class StoreParcel
 @Inject constructor(
     private val storedParcelDao: StoredParcelDao,
+    private val parcelCollectionDao: ParcelCollectionDao,
     private val diskMessageOperations: DiskMessageOperations,
     private val localConfig: LocalConfig
 ) {
@@ -37,17 +40,21 @@ class StoreParcel
             return Result.MalformedParcel(exc)
         }
 
-        val requiredRecipientAddressType = if (recipientLocation == RecipientLocation.LocalEndpoint)
-            RecipientAddressType.PRIVATE
-        else
-            null
+        val requiredRecipientAddressType =
+            if (recipientLocation == RecipientLocation.LocalEndpoint) {
+                RecipientAddressType.PRIVATE
+            } else {
+                null
+            }
         try {
             parcel.validate(requiredRecipientAddressType, setOf(localConfig.getCertificate()))
         } catch (exc: RelaynetException) {
             return Result.InvalidParcel(parcel, exc)
         }
 
-        // TODO: check if we haven't received the parcel before, through the ParcelCollection table
+        if (isParcelAlreadyCollected(parcel)) {
+            return Result.DuplicatedParcel(parcel)
+        }
 
         val parcelPath = diskMessageOperations.writeMessage(
             StoredParcel.STORAGE_FOLDER,
@@ -59,6 +66,13 @@ class StoreParcel
         storedParcelDao.insert(storedParcel)
         return Result.Success(parcel)
     }
+
+    private suspend fun isParcelAlreadyCollected(parcel: Parcel) =
+        parcelCollectionDao.get(
+            MessageAddress.of(parcel.recipientAddress),
+            PrivateMessageAddress(parcel.senderCertificate.subjectPrivateAddress),
+            MessageId(parcel.id)
+        ) != null
 
     private fun Parcel.toStoredParcel(
         storagePath: String,
@@ -79,6 +93,7 @@ class StoreParcel
     sealed class Result {
         data class MalformedParcel(val cause: Throwable) : Result()
         data class InvalidParcel(val parcel: Parcel, val cause: Throwable) : Result()
+        data class DuplicatedParcel(val parcel: Parcel) : Result()
         data class Success(val parcel: Parcel) : Result()
     }
 }

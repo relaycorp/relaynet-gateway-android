@@ -49,7 +49,8 @@ class ProcessCargo
         val parcel = when (
             val result = storeParcel.store(parcelData, RecipientLocation.LocalEndpoint)
         ) {
-            is StoreParcel.Result.MalformedParcel -> return
+            is StoreParcel.Result.MalformedParcel,
+            is StoreParcel.Result.DuplicatedParcel -> return
             is StoreParcel.Result.InvalidParcel -> {
                 logger.log(Level.WARNING, "Invalid parcel received", result.cause)
                 result.parcel

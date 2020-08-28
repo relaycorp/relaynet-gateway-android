@@ -8,19 +8,23 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import tech.relaycorp.gateway.data.database.ParcelCollectionDao
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.test.FullCertPath
 import tech.relaycorp.gateway.test.KeyPairSet
+import tech.relaycorp.gateway.test.factory.ParcelCollectionFactory
 import tech.relaycorp.relaynet.messages.Parcel
 
 internal class StoreParcelTest {
 
     private val storedParcelDao = mock<StoredParcelDao>()
+    private val parcelCollectionDao = mock<ParcelCollectionDao>()
     private val diskOperations = mock<DiskMessageOperations>()
     private val mockLocalConfig = mock<LocalConfig>()
-    private val storeParcel = StoreParcel(storedParcelDao, diskOperations, mockLocalConfig)
+    private val storeParcel =
+        StoreParcel(storedParcelDao, parcelCollectionDao, diskOperations, mockLocalConfig)
 
     private val publicEndpointAddress = "https://api.twitter.com/relaynet"
 
@@ -104,5 +108,21 @@ internal class StoreParcelTest {
         assertTrue(result is StoreParcel.Result.Success)
         verify(diskOperations).writeMessage(any(), any(), any())
         verify(storedParcelDao).insert(any())
+    }
+
+    @Test
+    internal fun `store duplicated parcel`() = runBlockingTest {
+        whenever(parcelCollectionDao.get(any(), any(), any()))
+            .thenReturn(ParcelCollectionFactory.build())
+
+        val parcel = Parcel(
+            FullCertPath.PRIVATE_ENDPOINT.subjectPrivateAddress,
+            ByteArray(0),
+            FullCertPath.PDA,
+            senderCertificateChain = setOf(FullCertPath.PRIVATE_ENDPOINT)
+        ).serialize(KeyPairSet.PDA_GRANTEE.private)
+
+        val result = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
+        assertTrue(result is StoreParcel.Result.DuplicatedParcel)
     }
 }
