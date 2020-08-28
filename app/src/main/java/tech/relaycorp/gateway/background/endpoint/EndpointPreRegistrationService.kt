@@ -56,8 +56,8 @@ class EndpointPreRegistrationService : Service() {
             logger.log(Level.WARNING, "Could not get applicationId from caller")
             Message.obtain(null, PREREGISTRATION_ERROR)
         } else {
-            val craSerialized = endpointRegistration.authorize(endpointApplicationId)
-            Message.obtain(null, REGISTRATION_AUTHORIZATION, craSerialized)
+            val authorizationSerialized = endpointRegistration.authorize(endpointApplicationId)
+            Message.obtain(null, REGISTRATION_AUTHORIZATION, authorizationSerialized)
         }
         requestMessage.replyTo.send(replyMessage)
     }
