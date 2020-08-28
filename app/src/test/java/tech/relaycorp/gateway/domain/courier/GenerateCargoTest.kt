@@ -23,6 +23,7 @@ import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.Cargo
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import java.io.InputStream
+import java.time.Duration
 
 class GenerateCargoTest {
 
@@ -66,27 +67,23 @@ class GenerateCargoTest {
     @Test
     internal fun `generate 1 cargo with 1 PCA and 1 parcel`() = runBlockingTest {
         val parcel = StoredParcelFactory.build()
+            .copy(expirationTimeUtc = nowInUtc().plusDays(1))
         whenever(storedParcelDao.listForRecipientLocation(any())).thenReturn(listOf(parcel))
         val messageStream: () -> InputStream = "ABC".toByteArray()::inputStream
         whenever(diskMessageOperations.readMessage(any(), any())).thenReturn(messageStream)
         val parcelCollection = ParcelCollectionFactory.build()
+            .copy(expirationTimeUtc = nowInUtc())
         whenever(parcelCollectionDao.getAll()).thenReturn(listOf(parcelCollection))
 
         val cargoes = generateCargo.generate().toList()
         assertEquals(1, cargoes.size)
 
         val cargo = Cargo.deserialize(cargoes.first().readBytes())
-        assertEquals(publicGatewayPreferences.getAddress().first(), cargo.recipientAddress)
-
-        // TODO: fix this expiryDate assertion that is failing on CI
-        /*
-        val maxExpirationTime =
-            max(listOf(parcel.expirationTimeUtc, parcelCollection.expirationTimeUtc))
         assertEquals(
-            maxExpirationTime.toInstant().epochSecond,
-            cargo.expiryDate.toInstant().epochSecond
+            publicGatewayPreferences.getAddress().first(),
+            cargo.recipientAddress
         )
-        */
+        assertTrue(Duration.between(parcel.expirationTimeUtc, cargo.expiryDate).abs().seconds <= 2)
 
         val cargoMessages = cargo.unwrapPayload(localConfig.getKeyPair().private)
         assertEquals(2, cargoMessages.messages.size)
