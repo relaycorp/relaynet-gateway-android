@@ -12,7 +12,7 @@ import tech.relaycorp.gateway.domain.endpoint.EndpointRegistration
 import tech.relaycorp.gateway.domain.endpoint.InvalidPNRAException
 import tech.relaycorp.gateway.pdc.local.utils.ControlMessageContentType
 import tech.relaycorp.relaynet.messages.InvalidMessageException
-import tech.relaycorp.relaynet.messages.control.ClientRegistrationRequest
+import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
 import javax.inject.Inject
 
 class EndpointRegistrationRoute
@@ -31,7 +31,7 @@ class EndpointRegistrationRoute
             }
 
             val crr = try {
-                ClientRegistrationRequest.deserialize(call.receive())
+                PrivateNodeRegistrationRequest.deserialize(call.receive())
             } catch (_: InvalidMessageException) {
                 call.respondText(
                     "Invalid registration request",

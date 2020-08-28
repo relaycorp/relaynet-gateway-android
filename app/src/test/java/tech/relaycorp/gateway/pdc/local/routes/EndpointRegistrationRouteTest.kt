@@ -17,8 +17,8 @@ import tech.relaycorp.gateway.domain.endpoint.InvalidPNRAException
 import tech.relaycorp.gateway.pdc.local.utils.ControlMessageContentType
 import tech.relaycorp.gateway.test.FullCertPath
 import tech.relaycorp.gateway.test.KeyPairSet
-import tech.relaycorp.relaynet.messages.control.ClientRegistration
-import tech.relaycorp.relaynet.messages.control.ClientRegistrationRequest
+import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
+import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
 import kotlin.test.assertEquals
 
 class EndpointRegistrationRouteTest {
@@ -68,7 +68,7 @@ class EndpointRegistrationRouteTest {
             .thenThrow(InvalidPNRAException("Invalid authorization", null))
 
         testPDCServerRoute(route) {
-            val crr = ClientRegistrationRequest(
+            val crr = PrivateNodeRegistrationRequest(
                 KeyPairSet.PRIVATE_ENDPOINT.public,
                 "invalid authorization".toByteArray()
             )
@@ -89,13 +89,13 @@ class EndpointRegistrationRouteTest {
 
     @Test
     fun `Valid CRR should complete the registration`() = runBlockingTest {
-        val clientRegistration =
-            ClientRegistration(FullCertPath.PRIVATE_ENDPOINT, FullCertPath.PRIVATE_GW)
-        val clientRegistrationSerialized = clientRegistration.serialize()
-        whenever(endpointRegistration.register(any())).thenReturn(clientRegistrationSerialized)
+        val PrivateNodeRegistration =
+            PrivateNodeRegistration(FullCertPath.PRIVATE_ENDPOINT, FullCertPath.PRIVATE_GW)
+        val PrivateNodeRegistrationSerialized = PrivateNodeRegistration.serialize()
+        whenever(endpointRegistration.register(any())).thenReturn(PrivateNodeRegistrationSerialized)
 
         testPDCServerRoute(route) {
-            val crr = ClientRegistrationRequest(
+            val crr = PrivateNodeRegistrationRequest(
                 KeyPairSet.PRIVATE_ENDPOINT.public,
                 "invalid authorization".toByteArray()
             )
@@ -107,7 +107,7 @@ class EndpointRegistrationRouteTest {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(ControlMessageContentType.PNR, response.contentType())
                 assertEquals(
-                    clientRegistrationSerialized.asList(),
+                    PrivateNodeRegistrationSerialized.asList(),
                     response.byteContent!!.asList()
                 )
             }

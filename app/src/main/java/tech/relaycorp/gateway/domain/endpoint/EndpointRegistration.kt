@@ -6,9 +6,9 @@ import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.issueEndpointCertificate
 import tech.relaycorp.relaynet.messages.InvalidMessageException
-import tech.relaycorp.relaynet.messages.control.ClientRegistration
-import tech.relaycorp.relaynet.messages.control.ClientRegistrationAuthorization
-import tech.relaycorp.relaynet.messages.control.ClientRegistrationRequest
+import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
+import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
+import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
 import tech.relaycorp.relaynet.wrappers.privateAddress
 import java.nio.charset.Charset
 import java.time.ZonedDateTime
@@ -25,7 +25,7 @@ class EndpointRegistration
     suspend fun authorize(endpointApplicationId: String): ByteArray {
         val expiryDate = ZonedDateTime.now().plusSeconds(AUTHORIZATION_VALIDITY_SECONDS)
         val authorization =
-            ClientRegistrationAuthorization(expiryDate, endpointApplicationId.toByteArray())
+            PrivateNodeRegistrationAuthorization(expiryDate, endpointApplicationId.toByteArray())
         return authorization.serialize(localConfig.getKeyPair().private)
     }
 
@@ -33,31 +33,31 @@ class EndpointRegistration
      * Complete endpoint registration and return registration serialized.
      */
     @Throws(InvalidPNRAException::class)
-    suspend fun register(request: ClientRegistrationRequest): ByteArray {
+    suspend fun register(request: PrivateNodeRegistrationRequest): ByteArray {
         val gatewayKeyPair = localConfig.getKeyPair()
         val authorization = try {
-            ClientRegistrationAuthorization.deserialize(
-                request.craSerialized,
+            PrivateNodeRegistrationAuthorization.deserialize(
+                request.pnraSerialized,
                 gatewayKeyPair.public
             )
         } catch (exc: InvalidMessageException) {
             throw InvalidPNRAException("Registration request contains invalid authorization", exc)
         }
-        val applicationId = authorization.serverData.toString(Charset.defaultCharset())
+        val applicationId = authorization.gatewayData.toString(Charset.defaultCharset())
         val endpoint = LocalEndpoint(
-            MessageAddress.of(request.clientPublicKey.privateAddress),
+            MessageAddress.of(request.privateNodePublicKey.privateAddress),
             applicationId
         )
         localEndpointDao.insert(endpoint)
 
         val gatewayCertificate = localConfig.getCertificate()
         val endpointCertificate = issueEndpointCertificate(
-            request.clientPublicKey,
+            request.privateNodePublicKey,
             gatewayKeyPair.private,
             ZonedDateTime.now().plusYears(ENDPOINT_CERTIFICATE_VALIDITY_YEARS),
             gatewayCertificate
         )
-        val registration = ClientRegistration(endpointCertificate, gatewayCertificate)
+        val registration = PrivateNodeRegistration(endpointCertificate, gatewayCertificate)
         return registration.serialize()
     }
 
