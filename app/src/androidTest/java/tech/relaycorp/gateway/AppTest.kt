@@ -26,6 +26,6 @@ class AppTest {
     @Test
     fun desugaringDependency() {
         val keyPair = generateRSAKeyPair()
-        issueGatewayCertificate(keyPair.public, keyPair.private, ZonedDateTime.now())
+        issueGatewayCertificate(keyPair.public, keyPair.private, ZonedDateTime.now().plusYears(1))
     }
 }
