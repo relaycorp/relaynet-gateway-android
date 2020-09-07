@@ -153,7 +153,7 @@ dependencies {
     androidTestImplementation('com.schibsted.spain:barista:3.6.0') {
         exclude group: 'org.jetbrains.kotlin'
     }
-    androidTestImplementation "org.mockito:mockito-android:3.4.6"
+    androidTestImplementation "org.mockito:mockito-android:3.5.10"
     androidTestImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
     kaptAndroidTest 'com.google.dagger:dagger-compiler:2.28'
 }
