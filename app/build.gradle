@@ -113,8 +113,8 @@ dependencies {
 
     // Relaynet
     implementation 'tech.relaycorp:relaynet:1.36.3'
-    implementation 'com.github.relaycorp:relaynet-cogrpc-jvm:PR43-SNAPSHOT'
-    implementation 'com.github.relaycorp:relaynet-cogrpc-jvm-okhttp:PR1-SNAPSHOT'
+    implementation 'com.github.relaycorp:relaynet-cogrpc-jvm:1.1.2'
+    implementation 'com.github.relaycorp:relaynet-cogrpc-jvm-okhttp:1.1.0'
 
     // Android TLS support for Netty
     implementation "io.netty:netty-handler:4.1.51.Final"
