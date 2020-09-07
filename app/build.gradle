@@ -154,7 +154,11 @@ dependencies {
         exclude group: 'org.jetbrains.kotlin'
     }
     androidTestImplementation "org.mockito:mockito-android:3.5.10"
-    androidTestImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
+    androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0") {
+        // Workaround for Androdi API < 26:
+        // https://github.com/mockito/mockito/pull/2024
+        exclude group: "org.mockito", module: "mockito-core"
+    }
     kaptAndroidTest 'com.google.dagger:dagger-compiler:2.28'
 }
 
