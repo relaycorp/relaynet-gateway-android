@@ -4,8 +4,9 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import tech.relaycorp.gateway.background.ConnectionStateObserver
+import tech.relaycorp.cogrpc.okhttp.OkHTTPChannelBuilderProvider
 import tech.relaycorp.gateway.background.ConnectionState
+import tech.relaycorp.gateway.background.ConnectionStateObserver
 import tech.relaycorp.relaynet.CargoDeliveryRequest
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
 import java.util.UUID
@@ -20,7 +21,9 @@ class CargoDelivery
 
     suspend fun deliver() {
         val client =
-            getCourierAddress()?.let { clientBuilder.build(it) } ?: throw Disconnected()
+            getCourierAddress()?.let {
+                clientBuilder.build(it, OkHTTPChannelBuilderProvider.Companion::makeBuilder)
+            } ?: throw Disconnected()
 
         try {
             client

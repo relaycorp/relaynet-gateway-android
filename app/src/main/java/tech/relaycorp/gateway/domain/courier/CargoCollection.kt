@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
+import tech.relaycorp.cogrpc.okhttp.OkHTTPChannelBuilderProvider
 import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.background.ConnectionStateObserver
 import tech.relaycorp.gateway.common.Logging.logger
@@ -24,8 +25,9 @@ class CargoCollection
 
     @Throws(Disconnected::class)
     suspend fun collect() {
-        val client =
-            getCourierAddress()?.let { clientBuilder.build(it) } ?: throw Disconnected()
+        val client = getCourierAddress()?.let {
+            clientBuilder.build(it, OkHTTPChannelBuilderProvider.Companion::makeBuilder)
+        } ?: throw Disconnected()
 
         try {
             client
