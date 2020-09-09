@@ -12,12 +12,12 @@ import tech.relaycorp.gateway.data.database.LocalEndpointDao
 import tech.relaycorp.gateway.data.model.LocalEndpoint
 import tech.relaycorp.gateway.data.model.PrivateMessageAddress
 import tech.relaycorp.gateway.domain.LocalConfig
-import tech.relaycorp.gateway.test.FullCertPath
-import tech.relaycorp.gateway.test.KeyPairSet
 import tech.relaycorp.relaynet.messages.InvalidMessageException
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
+import tech.relaycorp.relaynet.testing.CertificationPath
+import tech.relaycorp.relaynet.testing.KeyPairSet
 import tech.relaycorp.relaynet.wrappers.privateAddress
 import java.nio.charset.Charset
 import java.time.ZonedDateTime
@@ -35,7 +35,7 @@ class EndpointRegistrationTest {
     @BeforeEach
     internal fun setUp() = runBlockingTest {
         whenever(mockLocalConfig.getKeyPair()).thenReturn(KeyPairSet.PRIVATE_GW)
-        whenever(mockLocalConfig.getCertificate()).thenReturn(FullCertPath.PRIVATE_GW)
+        whenever(mockLocalConfig.getCertificate()).thenReturn(CertificationPath.PRIVATE_GW)
     }
 
     @Nested
@@ -112,7 +112,7 @@ class EndpointRegistrationTest {
             val registrationSerialized = endpointRegistration.register(crr)
 
             val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
-            assertEquals(FullCertPath.PRIVATE_GW, registration.gatewayCertificate)
+            assertEquals(CertificationPath.PRIVATE_GW, registration.gatewayCertificate)
         }
 
         @Nested
@@ -123,10 +123,10 @@ class EndpointRegistrationTest {
 
                 val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
                 assertEquals(
-                    listOf(registration.privateNodeCertificate, FullCertPath.PRIVATE_GW),
+                    listOf(registration.privateNodeCertificate, CertificationPath.PRIVATE_GW),
                     registration.privateNodeCertificate.getCertificationPath(
                         emptyList(),
-                        setOf(FullCertPath.PRIVATE_GW)
+                        setOf(CertificationPath.PRIVATE_GW)
                     ).asList()
                 )
             }
