@@ -93,7 +93,7 @@ class ProcessCargoTest {
         val cargoMessage = mockCargoMessage(CargoMessage.Type.PARCEL)
         whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(cargoMessage))
         whenever(storeParcel.store(any<ByteArray>(), any()))
-            .thenReturn(StoreParcel.Result.DuplicatedParcel(ParcelFactory.build()))
+            .thenReturn(StoreParcel.Result.CollectedParcel(ParcelFactory.build()))
 
         processCargo.process()
 

@@ -14,7 +14,7 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.domain.endpoint.EndpointRegistration
 import tech.relaycorp.gateway.domain.endpoint.InvalidPNRAException
-import tech.relaycorp.gateway.pdc.local.utils.ControlMessageContentType
+import tech.relaycorp.gateway.pdc.local.utils.PoWebContentType
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
 import tech.relaycorp.relaynet.testing.CertificationPath
@@ -37,7 +37,7 @@ class EndpointRegistrationRouteTest {
                 assertEquals(HttpStatusCode.UnsupportedMediaType, response.status())
                 assertEquals(plainTextUTF8ContentType, response.contentType())
                 assertEquals(
-                    "Content type ${ControlMessageContentType.PNRR} is required",
+                    "Content type ${PoWebContentType.PNRR} is required",
                     response.content
                 )
             }
@@ -48,7 +48,7 @@ class EndpointRegistrationRouteTest {
     fun `Invalid CRR should be refused`() {
         testPDCServerRoute(route) {
             val call = handleRequest(HttpMethod.Post, "/v1/nodes") {
-                addHeader("Content-Type", ControlMessageContentType.PNRR.toString())
+                addHeader("Content-Type", PoWebContentType.PNRR.toString())
                 setBody("invalid CRR".toByteArray())
             }
             with(call) {
@@ -73,7 +73,7 @@ class EndpointRegistrationRouteTest {
                 "invalid authorization".toByteArray()
             )
             val call = handleRequest(HttpMethod.Post, "/v1/nodes") {
-                addHeader("Content-Type", ControlMessageContentType.PNRR.toString())
+                addHeader("Content-Type", PoWebContentType.PNRR.toString())
                 setBody(crr.serialize(KeyPairSet.PRIVATE_ENDPOINT.private))
             }
             with(call) {
@@ -102,12 +102,12 @@ class EndpointRegistrationRouteTest {
                 "invalid authorization".toByteArray()
             )
             val call = handleRequest(HttpMethod.Post, "/v1/nodes") {
-                addHeader("Content-Type", ControlMessageContentType.PNRR.toString())
+                addHeader("Content-Type", PoWebContentType.PNRR.toString())
                 setBody(crr.serialize(KeyPairSet.PRIVATE_ENDPOINT.private))
             }
             with(call) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(ControlMessageContentType.PNR, response.contentType())
+                assertEquals(PoWebContentType.PNR, response.contentType())
                 assertEquals(
                     privateNodeRegistrationSerialized.asList(),
                     response.byteContent!!.asList()

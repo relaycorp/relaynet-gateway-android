@@ -122,6 +122,6 @@ internal class StoreParcelTest {
         ).serialize(KeyPairSet.PDA_GRANTEE.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
-        assertTrue(result is StoreParcel.Result.DuplicatedParcel)
+        assertTrue(result is StoreParcel.Result.CollectedParcel)
     }
 }
