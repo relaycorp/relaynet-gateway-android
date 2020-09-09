@@ -58,7 +58,6 @@ class ParcelDeliveryRouteTest {
             }
             with(call) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
-                // TODO: Use JSON instead
                 assertEquals(ContentType.Text.Plain, response.contentType())
                 assertEquals("Parcel is malformed", response.content)
             }
@@ -76,7 +75,6 @@ class ParcelDeliveryRouteTest {
             }
             with(call) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
-                // TODO: Use JSON instead
                 assertEquals(ContentType.Text.Plain, response.contentType())
                 assertEquals("Parcel is invalid", response.content)
             }
