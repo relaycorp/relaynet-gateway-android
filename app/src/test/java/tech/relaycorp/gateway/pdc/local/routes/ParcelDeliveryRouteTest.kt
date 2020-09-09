@@ -21,6 +21,7 @@ import tech.relaycorp.relaynet.testing.KeyPairSet
 import kotlin.test.assertEquals
 
 class ParcelDeliveryRouteTest {
+    private val endpointPath = "/v1/parcels"
     private val plainTextUTF8ContentType = ContentType.Text.Plain.withCharset(Charsets.UTF_8)
 
     private val storeParcel = mock<StoreParcel>()
@@ -33,7 +34,7 @@ class ParcelDeliveryRouteTest {
     @Test
     fun `Invalid request Content-Type should be refused with an HTTP 415 response`() {
         testPDCServerRoute(route) {
-            val call = handleRequest(HttpMethod.Post, "/v1/parcels") {
+            val call = handleRequest(HttpMethod.Post, endpointPath) {
                 addHeader("Content-Type", ContentType.Application.Json.toString())
             }
             with(call) {
@@ -53,7 +54,7 @@ class ParcelDeliveryRouteTest {
             .thenReturn(StoreParcel.Result.MalformedParcel(Exception()))
 
         testPDCServerRoute(route) {
-            val call = handleRequest(HttpMethod.Post, "/v1/parcels") {
+            val call = handleRequest(HttpMethod.Post, endpointPath) {
                 addHeader("Content-Type", PoWebContentType.PARCEL.toString())
             }
             with(call) {
@@ -70,7 +71,7 @@ class ParcelDeliveryRouteTest {
             .thenReturn(StoreParcel.Result.InvalidParcel(parcel, Exception()))
 
         testPDCServerRoute(route) {
-            val call = handleRequest(HttpMethod.Post, "/v1/parcels") {
+            val call = handleRequest(HttpMethod.Post, endpointPath) {
                 addHeader("Content-Type", PoWebContentType.PARCEL.toString())
             }
             with(call) {
@@ -87,7 +88,7 @@ class ParcelDeliveryRouteTest {
             .thenReturn(StoreParcel.Result.Success(parcel))
 
         testPDCServerRoute(route) {
-            val call = handleRequest(HttpMethod.Post, "/v1/parcels") {
+            val call = handleRequest(HttpMethod.Post, endpointPath) {
                 addHeader("Content-Type", PoWebContentType.PARCEL.toString())
             }
             with(call) {
