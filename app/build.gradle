@@ -9,6 +9,7 @@ buildscript {
     ext {
         ktorVersion = '1.4.0'
         junitVersion = '5.6.2'
+        relaynetTestingVersion = '1.0.0'
     }
 }
 
@@ -115,7 +116,8 @@ dependencies {
     implementation 'tech.relaycorp:relaynet:1.36.3'
     implementation 'tech.relaycorp:relaynet-cogrpc:1.1.2'
     implementation 'tech.relaycorp:relaynet-cogrpc-okhttp:1.1.0'
-    testImplementation 'tech.relaycorp:relaynet-testing:1.0.0'
+    testImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
+    androidTestImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
 
     // Android TLS support for Netty
     implementation "io.netty:netty-handler:4.1.51.Final"
