@@ -15,10 +15,10 @@ import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.domain.endpoint.EndpointRegistration
 import tech.relaycorp.gateway.domain.endpoint.InvalidPNRAException
 import tech.relaycorp.gateway.pdc.local.utils.ControlMessageContentType
-import tech.relaycorp.gateway.test.FullCertPath
-import tech.relaycorp.gateway.test.KeyPairSet
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
+import tech.relaycorp.relaynet.testing.CertificationPath
+import tech.relaycorp.relaynet.testing.KeyPairSet
 import kotlin.test.assertEquals
 
 class EndpointRegistrationRouteTest {
@@ -89,10 +89,12 @@ class EndpointRegistrationRouteTest {
 
     @Test
     fun `Valid CRR should complete the registration`() = runBlockingTest {
-        val PrivateNodeRegistration =
-            PrivateNodeRegistration(FullCertPath.PRIVATE_ENDPOINT, FullCertPath.PRIVATE_GW)
-        val PrivateNodeRegistrationSerialized = PrivateNodeRegistration.serialize()
-        whenever(endpointRegistration.register(any())).thenReturn(PrivateNodeRegistrationSerialized)
+        val privateNodeRegistration = PrivateNodeRegistration(
+            CertificationPath.PRIVATE_ENDPOINT,
+            CertificationPath.PRIVATE_GW
+        )
+        val privateNodeRegistrationSerialized = privateNodeRegistration.serialize()
+        whenever(endpointRegistration.register(any())).thenReturn(privateNodeRegistrationSerialized)
 
         testPDCServerRoute(route) {
             val crr = PrivateNodeRegistrationRequest(
@@ -107,7 +109,7 @@ class EndpointRegistrationRouteTest {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(ControlMessageContentType.PNR, response.contentType())
                 assertEquals(
-                    PrivateNodeRegistrationSerialized.asList(),
+                    privateNodeRegistrationSerialized.asList(),
                     response.byteContent!!.asList()
                 )
             }

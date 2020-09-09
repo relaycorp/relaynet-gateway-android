@@ -14,10 +14,10 @@ import org.junit.jupiter.api.assertThrows
 import org.mockito.ArgumentMatchers.anyString
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.CargoDeliveryCertPath
-import tech.relaycorp.gateway.test.KeyPairSet
 import tech.relaycorp.gateway.test.factory.CargoFactory
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.Cargo
+import tech.relaycorp.relaynet.testing.KeyPairSet
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import java.time.ZonedDateTime
 import kotlin.test.assertEquals

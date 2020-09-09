@@ -1,12 +1,11 @@
 package tech.relaycorp.gateway.test
 
 import tech.relaycorp.relaynet.issueGatewayCertificate
+import tech.relaycorp.relaynet.testing.KeyPairSet
 import java.time.ZonedDateTime
 
 /**
  * Relaynet PKI certification path from a private gateway to a public gateway.
- *
- * See also [FullCertPath]
  */
 object CargoDeliveryCertPath {
     private val startDate by lazy { ZonedDateTime.now().minusMinutes(1) }

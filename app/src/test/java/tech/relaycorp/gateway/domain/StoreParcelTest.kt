@@ -12,9 +12,9 @@ import tech.relaycorp.gateway.data.database.ParcelCollectionDao
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.model.RecipientLocation
-import tech.relaycorp.gateway.test.FullCertPath
-import tech.relaycorp.gateway.test.KeyPairSet
 import tech.relaycorp.relaynet.messages.Parcel
+import tech.relaycorp.relaynet.testing.CertificationPath
+import tech.relaycorp.relaynet.testing.KeyPairSet
 
 internal class StoreParcelTest {
 
@@ -29,7 +29,7 @@ internal class StoreParcelTest {
 
     @BeforeEach
     fun setUp() = runBlockingTest {
-        whenever(mockLocalConfig.getCertificate()).thenReturn(FullCertPath.PRIVATE_GW)
+        whenever(mockLocalConfig.getCertificate()).thenReturn(CertificationPath.PRIVATE_GW)
         whenever(parcelCollectionDao.exists(any(), any(), any())).thenReturn(false)
     }
 
@@ -42,9 +42,9 @@ internal class StoreParcelTest {
     @Test
     internal fun `store invalid parcel bound for local endpoint`() = runBlockingTest {
         val parcel = Parcel(
-            FullCertPath.PRIVATE_ENDPOINT.subjectPrivateAddress,
+            CertificationPath.PRIVATE_ENDPOINT.subjectPrivateAddress,
             ByteArray(0),
-            FullCertPath.PUBLIC_GW // Unauthorized sender
+            CertificationPath.PUBLIC_GW // Unauthorized sender
         ).serialize(KeyPairSet.PUBLIC_GW.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
@@ -56,7 +56,7 @@ internal class StoreParcelTest {
         val parcel = Parcel(
             "this is an invalid address",
             ByteArray(0),
-            FullCertPath.PRIVATE_ENDPOINT
+            CertificationPath.PRIVATE_ENDPOINT
         ).serialize(KeyPairSet.PRIVATE_ENDPOINT.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.ExternalGateway)
@@ -70,7 +70,7 @@ internal class StoreParcelTest {
         val parcel = Parcel(
             publicEndpointAddress,
             ByteArray(0),
-            FullCertPath.PDA
+            CertificationPath.PDA
         ).serialize(KeyPairSet.PDA_GRANTEE.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
@@ -81,10 +81,10 @@ internal class StoreParcelTest {
     fun `store parcel bound for local endpoint successfully`() = runBlockingTest {
         whenever(diskOperations.writeMessage(any(), any(), any())).thenReturn("")
         val parcel = Parcel(
-            FullCertPath.PRIVATE_ENDPOINT.subjectPrivateAddress,
+            CertificationPath.PRIVATE_ENDPOINT.subjectPrivateAddress,
             ByteArray(0),
-            FullCertPath.PDA,
-            senderCertificateChain = setOf(FullCertPath.PRIVATE_ENDPOINT)
+            CertificationPath.PDA,
+            senderCertificateChain = setOf(CertificationPath.PRIVATE_ENDPOINT)
         ).serialize(KeyPairSet.PDA_GRANTEE.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
@@ -100,7 +100,7 @@ internal class StoreParcelTest {
         val parcel = Parcel(
             publicEndpointAddress,
             ByteArray(0),
-            FullCertPath.PRIVATE_ENDPOINT
+            CertificationPath.PRIVATE_ENDPOINT
         ).serialize(KeyPairSet.PRIVATE_ENDPOINT.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.ExternalGateway)
@@ -115,10 +115,10 @@ internal class StoreParcelTest {
         whenever(parcelCollectionDao.exists(any(), any(), any())).thenReturn(true)
 
         val parcel = Parcel(
-            FullCertPath.PRIVATE_ENDPOINT.subjectPrivateAddress,
+            CertificationPath.PRIVATE_ENDPOINT.subjectPrivateAddress,
             ByteArray(0),
-            FullCertPath.PDA,
-            senderCertificateChain = setOf(FullCertPath.PRIVATE_ENDPOINT)
+            CertificationPath.PDA,
+            senderCertificateChain = setOf(CertificationPath.PRIVATE_ENDPOINT)
         ).serialize(KeyPairSet.PDA_GRANTEE.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)

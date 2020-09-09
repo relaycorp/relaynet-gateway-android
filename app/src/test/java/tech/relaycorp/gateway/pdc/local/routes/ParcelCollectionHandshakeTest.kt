@@ -19,11 +19,11 @@ import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.endpoint.CollectParcels
 import tech.relaycorp.gateway.pdc.local.HandshakeTestUtils
 import tech.relaycorp.gateway.pdc.local.utils.ParcelCollectionHandshake
-import tech.relaycorp.gateway.test.FullCertPath
-import tech.relaycorp.gateway.test.KeyPairSet
 import tech.relaycorp.poweb.handshake.Challenge
 import tech.relaycorp.poweb.handshake.Response
 import tech.relaycorp.relaynet.issueEndpointCertificate
+import tech.relaycorp.relaynet.testing.CertificationPath
+import tech.relaycorp.relaynet.testing.KeyPairSet
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.nio.charset.Charset
@@ -39,7 +39,7 @@ class ParcelCollectionHandshakeTest {
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
-        whenever(localConfig.getCertificate()).thenReturn(FullCertPath.PRIVATE_GW)
+        whenever(localConfig.getCertificate()).thenReturn(CertificationPath.PRIVATE_GW)
     }
 
     @Test
@@ -239,7 +239,7 @@ class ParcelCollectionHandshakeTest {
     }
 
     private fun buildEndpointCertificate(
-        issuerCertificate: Certificate? = FullCertPath.PRIVATE_GW
+        issuerCertificate: Certificate? = CertificationPath.PRIVATE_GW
     ) =
         issueEndpointCertificate(
             endpointKeyPair.public,

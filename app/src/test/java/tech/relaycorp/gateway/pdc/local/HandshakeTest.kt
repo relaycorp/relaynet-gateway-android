@@ -7,12 +7,13 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.gateway.pdc.local.utils.Handshake
 import tech.relaycorp.gateway.pdc.local.utils.InvalidHandshakeSignatureException
-import tech.relaycorp.gateway.test.FullCertPath
-import tech.relaycorp.gateway.test.KeyPairSet
 import tech.relaycorp.relaynet.messages.InvalidMessageException
+import tech.relaycorp.relaynet.testing.CertificationPath
+import tech.relaycorp.relaynet.testing.KeyPairSet
 import java.nio.charset.Charset
 import kotlin.test.assertNull
 
+@Suppress("RedundantInnerClassModifier")
 class HandshakeTest {
     @Nested
     inner class GenerateNonce {
@@ -29,7 +30,7 @@ class HandshakeTest {
     inner class VerifySignature {
         private val nonce = "The nonce".toByteArray()
         private val endpointPrivateKey = KeyPairSet.PRIVATE_ENDPOINT.private
-        private val endpointCertificate = FullCertPath.PRIVATE_ENDPOINT
+        private val endpointCertificate = CertificationPath.PRIVATE_ENDPOINT
 
         @Test
         fun `Invalid signatures should be refused`() {
