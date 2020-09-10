@@ -4,7 +4,6 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.withCharset
@@ -14,15 +13,16 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.domain.StoreParcel
-import tech.relaycorp.gateway.pdc.local.utils.PoWebContentType
+import tech.relaycorp.gateway.pdc.local.utils.ContentType
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.testing.CertificationPath
 import tech.relaycorp.relaynet.testing.KeyPairSet
 import kotlin.test.assertEquals
+import io.ktor.http.ContentType as KtorContentType
 
 class ParcelDeliveryRouteTest {
     private val endpointPath = "/v1/parcels"
-    private val plainTextUTF8ContentType = ContentType.Text.Plain.withCharset(Charsets.UTF_8)
+    private val plainTextUTF8ContentType = KtorContentType.Text.Plain.withCharset(Charsets.UTF_8)
 
     private val storeParcel = mock<StoreParcel>()
     private val route = ParcelDeliveryRoute(storeParcel)
@@ -35,13 +35,13 @@ class ParcelDeliveryRouteTest {
     fun `Invalid request Content-Type should be refused with an HTTP 415 response`() {
         testPDCServerRoute(route) {
             val call = handleRequest(HttpMethod.Post, endpointPath) {
-                addHeader("Content-Type", ContentType.Application.Json.toString())
+                addHeader("Content-Type", KtorContentType.Application.Json.toString())
             }
             with(call) {
                 assertEquals(HttpStatusCode.UnsupportedMediaType, response.status())
                 assertEquals(plainTextUTF8ContentType, response.contentType())
                 assertEquals(
-                    "Content type ${PoWebContentType.PARCEL} is required",
+                    "Content type ${ContentType.PARCEL} is required",
                     response.content
                 )
             }
@@ -55,11 +55,11 @@ class ParcelDeliveryRouteTest {
 
         testPDCServerRoute(route) {
             val call = handleRequest(HttpMethod.Post, endpointPath) {
-                addHeader("Content-Type", PoWebContentType.PARCEL.toString())
+                addHeader("Content-Type", ContentType.PARCEL.toString())
             }
             with(call) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals(ContentType.Text.Plain, response.contentType())
+                assertEquals(KtorContentType.Text.Plain, response.contentType())
                 assertEquals("Parcel is malformed", response.content)
             }
         }
@@ -72,11 +72,11 @@ class ParcelDeliveryRouteTest {
 
         testPDCServerRoute(route) {
             val call = handleRequest(HttpMethod.Post, endpointPath) {
-                addHeader("Content-Type", PoWebContentType.PARCEL.toString())
+                addHeader("Content-Type", ContentType.PARCEL.toString())
             }
             with(call) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
-                assertEquals(ContentType.Text.Plain, response.contentType())
+                assertEquals(KtorContentType.Text.Plain, response.contentType())
                 assertEquals("Parcel is invalid", response.content)
             }
         }
@@ -89,7 +89,7 @@ class ParcelDeliveryRouteTest {
 
         testPDCServerRoute(route) {
             val call = handleRequest(HttpMethod.Post, endpointPath) {
-                addHeader("Content-Type", PoWebContentType.PARCEL.toString())
+                addHeader("Content-Type", ContentType.PARCEL.toString())
             }
             with(call) {
                 assertEquals(HttpStatusCode.Accepted, response.status())
