@@ -10,7 +10,7 @@ import io.ktor.routing.Routing
 import io.ktor.routing.post
 import tech.relaycorp.gateway.domain.endpoint.EndpointRegistration
 import tech.relaycorp.gateway.domain.endpoint.InvalidPNRAException
-import tech.relaycorp.gateway.pdc.local.utils.ControlMessageContentType
+import tech.relaycorp.gateway.pdc.local.utils.ContentType
 import tech.relaycorp.relaynet.messages.InvalidMessageException
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
 import javax.inject.Inject
@@ -22,9 +22,9 @@ class EndpointRegistrationRoute
 
     override fun register(routing: Routing) {
         routing.post("/v1/nodes") {
-            if (call.request.contentType() != ControlMessageContentType.PNRR) {
+            if (call.request.contentType() != ContentType.REGISTRATION_REQUEST) {
                 call.respondText(
-                    "Content type ${ControlMessageContentType.PNRR} is required",
+                    "Content type ${ContentType.REGISTRATION_REQUEST} is required",
                     status = HttpStatusCode.UnsupportedMediaType
                 )
                 return@post
@@ -50,7 +50,7 @@ class EndpointRegistrationRoute
                 return@post
             }
 
-            call.respondBytes(registrationSerialized, ControlMessageContentType.PNR)
+            call.respondBytes(registrationSerialized, ContentType.REGISTRATION)
         }
     }
 }

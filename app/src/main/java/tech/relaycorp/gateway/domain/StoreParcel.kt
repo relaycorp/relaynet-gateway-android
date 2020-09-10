@@ -53,7 +53,7 @@ class StoreParcel
         }
 
         if (isParcelAlreadyCollected(parcel)) {
-            return Result.DuplicatedParcel(parcel)
+            return Result.CollectedParcel(parcel)
         }
 
         val parcelPath = diskMessageOperations.writeMessage(
@@ -93,7 +93,7 @@ class StoreParcel
     sealed class Result {
         data class MalformedParcel(val cause: Throwable) : Result()
         data class InvalidParcel(val parcel: Parcel, val cause: Throwable) : Result()
-        data class DuplicatedParcel(val parcel: Parcel) : Result()
+        data class CollectedParcel(val parcel: Parcel) : Result()
         data class Success(val parcel: Parcel) : Result()
     }
 }

@@ -3,7 +3,6 @@ package tech.relaycorp.gateway.pdc.local.routes
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.withCharset
@@ -14,15 +13,16 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.domain.endpoint.EndpointRegistration
 import tech.relaycorp.gateway.domain.endpoint.InvalidPNRAException
-import tech.relaycorp.gateway.pdc.local.utils.ControlMessageContentType
+import tech.relaycorp.gateway.pdc.local.utils.ContentType
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
 import tech.relaycorp.relaynet.testing.CertificationPath
 import tech.relaycorp.relaynet.testing.KeyPairSet
 import kotlin.test.assertEquals
+import io.ktor.http.ContentType as KtorContentType
 
 class EndpointRegistrationRouteTest {
-    private val plainTextUTF8ContentType = ContentType.Text.Plain.withCharset(Charsets.UTF_8)
+    private val plainTextUTF8ContentType = KtorContentType.Text.Plain.withCharset(Charsets.UTF_8)
 
     private val endpointRegistration = mock<EndpointRegistration>()
     private val route = EndpointRegistrationRoute(endpointRegistration)
@@ -31,13 +31,13 @@ class EndpointRegistrationRouteTest {
     fun `Invalid request content type should be refused`() {
         testPDCServerRoute(route) {
             val call = handleRequest(HttpMethod.Post, "/v1/nodes") {
-                addHeader("Content-Type", ContentType.Application.Json.toString())
+                addHeader("Content-Type", KtorContentType.Application.Json.toString())
             }
             with(call) {
                 assertEquals(HttpStatusCode.UnsupportedMediaType, response.status())
                 assertEquals(plainTextUTF8ContentType, response.contentType())
                 assertEquals(
-                    "Content type ${ControlMessageContentType.PNRR} is required",
+                    "Content type ${ContentType.REGISTRATION_REQUEST} is required",
                     response.content
                 )
             }
@@ -48,7 +48,7 @@ class EndpointRegistrationRouteTest {
     fun `Invalid CRR should be refused`() {
         testPDCServerRoute(route) {
             val call = handleRequest(HttpMethod.Post, "/v1/nodes") {
-                addHeader("Content-Type", ControlMessageContentType.PNRR.toString())
+                addHeader("Content-Type", ContentType.REGISTRATION_REQUEST.toString())
                 setBody("invalid CRR".toByteArray())
             }
             with(call) {
@@ -73,7 +73,7 @@ class EndpointRegistrationRouteTest {
                 "invalid authorization".toByteArray()
             )
             val call = handleRequest(HttpMethod.Post, "/v1/nodes") {
-                addHeader("Content-Type", ControlMessageContentType.PNRR.toString())
+                addHeader("Content-Type", ContentType.REGISTRATION_REQUEST.toString())
                 setBody(crr.serialize(KeyPairSet.PRIVATE_ENDPOINT.private))
             }
             with(call) {
@@ -102,12 +102,12 @@ class EndpointRegistrationRouteTest {
                 "invalid authorization".toByteArray()
             )
             val call = handleRequest(HttpMethod.Post, "/v1/nodes") {
-                addHeader("Content-Type", ControlMessageContentType.PNRR.toString())
+                addHeader("Content-Type", ContentType.REGISTRATION_REQUEST.toString())
                 setBody(crr.serialize(KeyPairSet.PRIVATE_ENDPOINT.private))
             }
             with(call) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(ControlMessageContentType.PNR, response.contentType())
+                assertEquals(ContentType.REGISTRATION, response.contentType())
                 assertEquals(
                     privateNodeRegistrationSerialized.asList(),
                     response.byteContent!!.asList()

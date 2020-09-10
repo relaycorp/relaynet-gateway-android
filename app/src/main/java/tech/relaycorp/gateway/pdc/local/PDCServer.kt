@@ -11,13 +11,15 @@ import kotlinx.coroutines.withContext
 import tech.relaycorp.gateway.pdc.local.routes.EndpointRegistrationRoute
 import tech.relaycorp.gateway.pdc.local.routes.PDCServerRoute
 import tech.relaycorp.gateway.pdc.local.routes.ParcelCollectionRoute
+import tech.relaycorp.gateway.pdc.local.routes.ParcelDeliveryRoute
 import javax.inject.Inject
 import kotlin.time.seconds
 
 class PDCServer
 @Inject constructor(
     endpointRegistrationRoute: EndpointRegistrationRoute,
-    parcelCollectionRoute: ParcelCollectionRoute
+    parcelCollectionRoute: ParcelCollectionRoute,
+    parcelDeliveryRoute: ParcelDeliveryRoute
 ) {
 
     private val server by lazy {
@@ -25,8 +27,9 @@ class PDCServer
             PDCServerConfiguration.configure(
                 this,
                 listOf(
+                    endpointRegistrationRoute,
                     parcelCollectionRoute,
-                    endpointRegistrationRoute
+                    parcelDeliveryRoute
                 )
             )
         }
