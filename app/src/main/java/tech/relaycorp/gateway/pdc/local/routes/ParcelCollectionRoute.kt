@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.domain.endpoint.CollectParcels
 import tech.relaycorp.gateway.pdc.local.utils.ParcelCollectionHandshake
+import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.messages.control.ParcelDelivery
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
@@ -77,7 +78,8 @@ class ParcelCollectionRoute
         val sendJob = sendParcels(collectParcels, certificates.toAddresses())
         val receiveJob = receiveAcks(collectParcels)
 
-        val keepAlive = call.request.header(HEADER_KEEP_ALIVE) != "off"
+        val keepAlive =
+            call.request.header(StreamingMode.HEADER_NAME) != StreamingMode.KeepAlive.headerValue
         if (!keepAlive) {
             collectParcels
                 .anyParcelsLeftToDeliverOrAck
@@ -145,6 +147,5 @@ class ParcelCollectionRoute
     companion object {
         const val URL_PATH = "/v1/parcel-collection"
         const val HEADER_ORIGIN = "Origin"
-        const val HEADER_KEEP_ALIVE = "X-Relaynet-Keep-Alive"
     }
 }

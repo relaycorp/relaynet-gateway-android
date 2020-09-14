@@ -58,7 +58,7 @@ class ParcelCollectionRouteTest {
             testPDCServerRoute(route) {
                 handleWebSocketConversation(
                     ParcelCollectionRoute.URL_PATH,
-                    { addHeader(ParcelCollectionRoute.HEADER_KEEP_ALIVE, "off") }
+                    { addHeader(ParcelCollectionRoute.HEADER_STREAMING_MODE, "off") }
                 ) { incoming, _ ->
                     val closingFrameRaw = incoming.receive()
                     assertEquals(FrameType.CLOSE, closingFrameRaw.frameType)
@@ -84,7 +84,7 @@ class ParcelCollectionRouteTest {
             testPDCServerRoute(route) {
                 handleWebSocketConversation(
                     ParcelCollectionRoute.URL_PATH,
-                    { addHeader(ParcelCollectionRoute.HEADER_KEEP_ALIVE, "on") }
+                    { addHeader(ParcelCollectionRoute.HEADER_STREAMING_MODE, "on") }
                 ) { incoming, _ ->
                     delay(3_000) // wait to see if the connection is kept alive
                     assertFalse(incoming.isClosedForReceive)
@@ -100,7 +100,7 @@ class ParcelCollectionRouteTest {
             testPDCServerRoute(route) {
                 handleWebSocketConversation(
                     ParcelCollectionRoute.URL_PATH,
-                    { addHeader(ParcelCollectionRoute.HEADER_KEEP_ALIVE, "whatever") }
+                    { addHeader(ParcelCollectionRoute.HEADER_STREAMING_MODE, "whatever") }
                 ) { incoming, _ ->
                     delay(3_000) // wait to see if the connection is kept alive
                     assertFalse(incoming.isClosedForReceive)

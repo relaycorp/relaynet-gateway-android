@@ -9,11 +9,9 @@ import tech.relaycorp.gateway.data.model.PrivateMessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StorageSize
 import tech.relaycorp.gateway.data.model.StoredParcel
-import tech.relaycorp.relaynet.RelaynetException
 import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.ramf.RAMFException
-import tech.relaycorp.relaynet.ramf.RecipientAddressType
 import java.io.InputStream
 import javax.inject.Inject
 
@@ -40,6 +38,7 @@ class StoreParcel
             return Result.MalformedParcel(exc)
         }
 
+        /*
         val requiredRecipientAddressType =
             if (recipientLocation == RecipientLocation.LocalEndpoint) {
                 RecipientAddressType.PRIVATE
@@ -51,6 +50,7 @@ class StoreParcel
         } catch (exc: RelaynetException) {
             return Result.InvalidParcel(parcel, exc)
         }
+         */
 
         if (isParcelAlreadyCollected(parcel)) {
             return Result.CollectedParcel(parcel)

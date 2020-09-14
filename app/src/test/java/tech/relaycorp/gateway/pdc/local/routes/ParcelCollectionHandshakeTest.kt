@@ -172,7 +172,7 @@ class ParcelCollectionHandshakeTest {
                 testPDCServerRoute(route) {
                     handleWebSocketConversation(
                         ParcelCollectionRoute.URL_PATH,
-                        setup = { addHeader(ParcelCollectionRoute.HEADER_KEEP_ALIVE, "off") }
+                        setup = { addHeader(ParcelCollectionRoute.HEADER_STREAMING_MODE, "off") }
                     ) { incoming, outgoing ->
                         val challenge = Challenge.deserialize(incoming.receive().readBytes())
 
@@ -212,7 +212,7 @@ class ParcelCollectionHandshakeTest {
                 testPDCServerRoute(route) {
                     handleWebSocketConversation(
                         ParcelCollectionRoute.URL_PATH,
-                        setup = { addHeader(ParcelCollectionRoute.HEADER_KEEP_ALIVE, "off") }
+                        setup = { addHeader(ParcelCollectionRoute.HEADER_STREAMING_MODE, "off") }
                     ) { incoming, outgoing ->
                         val challenge = Challenge.deserialize(incoming.receive().readBytes())
 

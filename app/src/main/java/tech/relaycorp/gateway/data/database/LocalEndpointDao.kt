@@ -23,4 +23,7 @@ interface LocalEndpointDao {
 
     @Query("SELECT * FROM Endpoint WHERE address = :address LIMIT 1")
     suspend fun get(address: MessageAddress): LocalEndpoint?
+
+    @Query("SELECT * FROM Endpoint")
+    suspend fun list(): List<LocalEndpoint>
 }

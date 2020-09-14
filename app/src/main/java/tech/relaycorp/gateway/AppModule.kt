@@ -1,6 +1,7 @@
 package tech.relaycorp.gateway
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
@@ -23,6 +24,9 @@ class AppModule(
 
     @Provides
     fun resources(): Resources = app.resources
+
+    @Provides
+    fun packageManager(): PackageManager = app.packageManager
 
     @Provides
     fun connectivityManager() =

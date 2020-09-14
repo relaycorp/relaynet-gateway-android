@@ -33,5 +33,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/sync_courier" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/echoTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:text="Send random message to Echo" />
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

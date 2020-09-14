@@ -6,10 +6,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.stationhead.android.shared.viewmodel.ViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.dataState
+import kotlinx.android.synthetic.main.activity_main.echoTest
 import kotlinx.android.synthetic.main.activity_main.networkState
 import kotlinx.android.synthetic.main.activity_main.syncCourier
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.ui.BaseActivity
 import tech.relaycorp.gateway.ui.common.format
@@ -17,6 +19,9 @@ import tech.relaycorp.gateway.ui.sync.CourierConnectionActivity
 import javax.inject.Inject
 
 class MainActivity : BaseActivity() {
+
+    @Inject
+    lateinit var sendEchoTest: SendEchoTest
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory<MainViewModel>
@@ -58,6 +63,14 @@ class MainActivity : BaseActivity() {
                 syncCourier.isVisible = it
             }
             .launchIn(lifecycleScope)
+
+        echoTest.setOnClickListener {
+            lifecycleScope.launchWhenCreated {
+                echoTest.isEnabled = false
+                sendEchoTest.send()
+                echoTest.isEnabled = true
+            }
+        }
     }
 
     private fun MainViewModel.DataToSyncState.Visible.toText() =

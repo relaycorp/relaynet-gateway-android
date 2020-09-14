@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         maven { url 'https://plugins.gradle.org/m2/' }
+        maven { url 'https://jitpack.io' }
     }
     dependencies {
         classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.5.1'
@@ -142,6 +143,8 @@ dependencies {
     // Preferences
     implementation 'androidx.preference:preference:1.1.1'
     implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
+
+    compile 'com.github.blocoio:faker:1.2.8'
 
     // Testing
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
