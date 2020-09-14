@@ -65,10 +65,11 @@ class EndpointPreRegistrationServiceTest {
         )
 
         // Check we got a valid authorization
-        assertTrue(resultMessage!!.obj is ByteArray)
+        val resultData = resultMessage!!.data
+        assertTrue(resultData.containsKey("auth"))
         val gatewayKeyPair = localConfig.getKeyPair()
         val authorization = PrivateNodeRegistrationAuthorization.deserialize(
-            resultMessage!!.data.getByteArray("auth")!!,
+            resultData.getByteArray("auth")!!,
             gatewayKeyPair.public
         )
         assertEquals(

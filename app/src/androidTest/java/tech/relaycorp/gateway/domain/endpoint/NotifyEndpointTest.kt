@@ -33,12 +33,9 @@ class NotifyEndpointTest {
 
             notifyEndpoint.notify(endpoint.address)
 
-            verify(context).sendBroadcast(
-                check {
-                    assertEquals(endpoint.applicationId, it.`package`)
-                },
-                any()
-            )
+            verify(context).sendBroadcast(check {
+                assertEquals(endpoint.applicationId, it.`package`)
+            })
         }
     }
 
