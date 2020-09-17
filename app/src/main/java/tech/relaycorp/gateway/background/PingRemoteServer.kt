@@ -5,6 +5,7 @@ import kotlinx.coroutines.withContext
 import tech.relaycorp.gateway.common.Logging.logger
 import java.io.IOException
 import java.net.ConnectException
+import java.net.HttpURLConnection
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.URL
@@ -32,18 +33,19 @@ class PingRemoteServer
 
     suspend fun pingHostname(hostname: String) =
         withContext(Dispatchers.IO) {
+            val connection = URL(hostname).openConnection() as HttpURLConnection
             try {
-                URL(hostname)
-                    .openConnection()
-                    .apply {
-                        setRequestProperty("Connection", "close")
-                        connectTimeout = TIMEOUT
-                        connect()
-                    }
+                with(connection) {
+                    setRequestProperty("Connection", "close")
+                    connectTimeout = TIMEOUT
+                    connect()
+                }
                 true
             } catch (ex: IOException) {
                 logger.log(Level.INFO, "Could not reach $hostname", ex)
                 false
+            } finally {
+                connection.disconnect()
             }
         }
 

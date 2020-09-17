@@ -19,8 +19,7 @@ class NotifyEndpoint
             ?.let { endpoint ->
                 context.sendBroadcast(
                     Intent(RelaynetAndroid.ENDPOINT_NOTIFY_ACTION)
-                        .setPackage(endpoint.applicationId),
-                    RelaynetAndroid.GATEWAY_SYNC_PERMISSION
+                        .setPackage(endpoint.applicationId)
                 )
             }
             ?: logger.warning("Can't notify endpoint with unknown address $endpointAddress")

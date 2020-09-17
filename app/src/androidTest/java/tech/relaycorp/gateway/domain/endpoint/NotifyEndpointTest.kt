@@ -36,8 +36,7 @@ class NotifyEndpointTest {
             verify(context).sendBroadcast(
                 check {
                     assertEquals(endpoint.applicationId, it.`package`)
-                },
-                any()
+                }
             )
         }
     }

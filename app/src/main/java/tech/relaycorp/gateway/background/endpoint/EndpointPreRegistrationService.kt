@@ -2,6 +2,7 @@ package tech.relaycorp.gateway.background.endpoint
 
 import android.app.Service
 import android.content.Intent
+import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -57,7 +58,9 @@ class EndpointPreRegistrationService : Service() {
             Message.obtain(null, PREREGISTRATION_ERROR)
         } else {
             val authorizationSerialized = endpointRegistration.authorize(endpointApplicationId)
-            Message.obtain(null, REGISTRATION_AUTHORIZATION, authorizationSerialized)
+            Message.obtain(null, REGISTRATION_AUTHORIZATION).also {
+                it.data = Bundle().apply { putByteArray("auth", authorizationSerialized) }
+            }
         }
         requestMessage.replyTo.send(replyMessage)
     }
