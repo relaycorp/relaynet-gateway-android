@@ -85,7 +85,7 @@ class GenerateCargo
         publicGatewayPreferences.getCertificate().first()
 
     private suspend fun CargoMessageSetWithExpiry.toCargo(): Cargo {
-        val creationDate = nowInUtc()
+        val creationDate = nowInUtc().minusMinutes(5)
         if (creationDate > latestMessageExpiryDate) {
             throw IllegalArgumentException(
                 "The latest expiration date $latestMessageExpiryDate has expired already"
