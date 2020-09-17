@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.stationhead.android.shared.viewmodel.ViewModelFactory
@@ -49,6 +50,8 @@ class CourierConnectionActivity : BaseActivity() {
                             R.string.courier_disconnected
                     }
                 )
+                wifiSettings.isVisible = it !is ConnectionState.WiFiWithCourier
+                startSync.isVisible = it is ConnectionState.WiFiWithCourier
             }
             .launchIn(lifecycleScope)
     }

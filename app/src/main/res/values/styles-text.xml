@@ -19,4 +19,16 @@
         <item name="android:textColor">?android:textColorSecondary</item>
     </style>
 
+    <style name="TextAppearance.Gateway.CardTitle" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.15</item>
+    </style>
+
+    <style name="TextAppearance.Gateway.Heading2" parent="TextAppearance.MaterialComponents.Headline2">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
 </resources>
