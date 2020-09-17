@@ -2,6 +2,7 @@ package tech.relaycorp.gateway
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.AssetManager
 import android.content.res.Resources
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
