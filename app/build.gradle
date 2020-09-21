@@ -120,8 +120,8 @@ dependencies {
     androidTestImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
 
     // Android TLS support for Netty
-    implementation "io.netty:netty-handler:4.1.51.Final"
-    implementation 'org.conscrypt:conscrypt-android:2.5.0'
+    implementation "io.netty:netty-handler:4.1.52.Final"
+    implementation 'org.conscrypt:conscrypt-android:2.5.1'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
     implementation 'tech.relaycorp:poweb:1.5.2'
@@ -147,7 +147,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
-    testImplementation 'org.mockito:mockito-inline:3.5.10'
+    testImplementation 'org.mockito:mockito-inline:3.5.11'
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
 
     // Instrumentation Testing
