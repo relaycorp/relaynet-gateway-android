@@ -121,7 +121,7 @@ dependencies {
 
     // Android TLS support for Netty
     implementation "io.netty:netty-handler:4.1.51.Final"
-    implementation 'org.conscrypt:conscrypt-android:2.5.0'
+    implementation 'org.conscrypt:conscrypt-android:2.5.1'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
     implementation 'tech.relaycorp:poweb:1.5.2'
