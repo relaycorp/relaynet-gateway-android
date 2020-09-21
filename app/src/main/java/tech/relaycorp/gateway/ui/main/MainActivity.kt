@@ -8,7 +8,6 @@ import com.stationhead.android.shared.viewmodel.ViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.appsState
 import kotlinx.android.synthetic.main.activity_main.dataLayout
 import kotlinx.android.synthetic.main.activity_main.dataState
-import kotlinx.android.synthetic.main.activity_main.echoTest
 import kotlinx.android.synthetic.main.activity_main.networkState
 import kotlinx.android.synthetic.main.activity_main.syncCourier
 import kotlinx.coroutines.flow.launchIn
@@ -22,10 +21,6 @@ import javax.inject.Inject
 
 class MainActivity : BaseActivity() {
 
-    // TODO: Remove, only for Echo Demo
-    @Inject
-    lateinit var sendEchoTest: SendEchoTest
-
     @Inject
     lateinit var viewModelFactory: ViewModelFactory<MainViewModel>
 
@@ -38,7 +33,6 @@ class MainActivity : BaseActivity() {
         component.inject(this)
         setTitle(R.string.main_title)
         setContentView(R.layout.activity_main)
-
 
         syncCourier.setOnClickListener {
             startActivity(CourierConnectionActivity.getIntent(this))
@@ -79,15 +73,6 @@ class MainActivity : BaseActivity() {
                 syncCourier.isVisible = it
             }
             .launchIn(lifecycleScope)
-
-        // TODO: Remove, only for Echo Demo
-        echoTest.setOnClickListener {
-            lifecycleScope.launchWhenCreated {
-                echoTest.isEnabled = false
-                sendEchoTest.send()
-                echoTest.isEnabled = true
-            }
-        }
     }
 
     private fun ConnectionState.toTitleRes() =

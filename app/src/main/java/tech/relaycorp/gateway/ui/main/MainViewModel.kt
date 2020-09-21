@@ -45,9 +45,9 @@ class MainViewModel
                             is ConnectionState.InternetAndPublicGateway -> DataState.Invisible
                             else ->
                                 if (outgoingData.isZero) {
-                                    DataState.Visible.WithOutgoingData(outgoingData)
-                                } else {
                                     DataState.Visible.WithoutOutgoingData
+                                } else {
+                                    DataState.Visible.WithOutgoingData(outgoingData)
                                 }
                         }
                     }

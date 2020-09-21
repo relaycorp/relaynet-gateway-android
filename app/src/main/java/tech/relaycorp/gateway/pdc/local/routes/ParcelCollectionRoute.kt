@@ -79,7 +79,7 @@ class ParcelCollectionRoute
         val receiveJob = receiveAcks(collectParcels)
 
         val keepAlive =
-            call.request.header(StreamingMode.HEADER_NAME) != StreamingMode.KeepAlive.headerValue
+            call.request.header(StreamingMode.HEADER_NAME) == StreamingMode.KeepAlive.headerValue
         if (!keepAlive) {
             collectParcels
                 .anyParcelsLeftToDeliverOrAck

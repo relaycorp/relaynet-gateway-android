@@ -24,7 +24,6 @@
                 tools:ignore="SelectableText" />
 
             <ImageButton
-                android:id="@+id/settings"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|end"
@@ -73,6 +72,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
+                        android:textIsSelectable="true"
                         android:textAppearance="@style/TextAppearance.Gateway.Heading2"
                         tools:text="@string/main_status_disconnected" />
 
@@ -154,14 +154,6 @@
                         tools:text="@string/main_apps_some" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
-            <!-- TODO: Remove, only for Echo Demo -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/echoTest"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Send random message to Echo" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

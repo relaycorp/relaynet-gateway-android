@@ -1,11 +1,9 @@
 package tech.relaycorp.gateway.domain
 
-import android.content.res.Resources
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import tech.relaycorp.gateway.R
-import tech.relaycorp.gateway.common.nowInUtc
-import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
-import tech.relaycorp.relaynet.issueGatewayCertificate
+import tech.relaycorp.gateway.data.disk.ReadRawFile
+import tech.relaycorp.gateway.data.disk.SensitiveStore
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.security.KeyFactory
 import java.security.KeyPair
@@ -18,31 +16,27 @@ import javax.inject.Inject
 
 class LocalConfig
 @Inject constructor(
-//    private val sensitiveStore: SensitiveStore,
-    private val resources: Resources
+    private val sensitiveStore: SensitiveStore,
+    private val readRawFile: ReadRawFile
 ) {
     suspend fun getKeyPair() =
-        resources.openRawResource(R.raw.priv_gateway_key).readBytesAndClose()
+        (
+            sensitiveStore.read(PRIVATE_KEY_FILE_NAME)
+                ?: readRawFile.read(R.raw.priv_gateway_key).also {
+                    sensitiveStore.store(PRIVATE_KEY_FILE_NAME, it)
+                }
+            )
             .toPrivateKey()
             .toKeyPair()
-//            ?: generateRSAKeyPair().also {
-//                sensitiveStore.store(PRIVATE_KEY_FILE_NAME, it.private.encoded)
-//            }
 
     suspend fun getCertificate() =
-        resources.openRawResource(R.raw.priv_gateway_cert).readBytesAndClose()
-            ?.let { Certificate.deserialize(it) }
-//            ?: generateGatewayCertificate(getKeyPair())
-//                .also {
-//                    sensitiveStore.store(CERTIFICATE_FILE_NAME, it.serialize())
-//                }
-
-    private fun generateGatewayCertificate(keyPair: KeyPair) =
-        issueGatewayCertificate(
-            keyPair.public,
-            keyPair.private,
-            nowInUtc().plusYears(GATEWAY_CERTIFICATE_VALIDITY_YEARS)
-        )
+        (
+            sensitiveStore.read(CERTIFICATE_FILE_NAME)
+                ?: readRawFile.read(R.raw.priv_gateway_cert).also {
+                    sensitiveStore.store(CERTIFICATE_FILE_NAME, it)
+                }
+            )
+            .let { Certificate.deserialize(it) }
 
     private fun ByteArray.toPrivateKey(): PrivateKey {
         val privateKeySpec: EncodedKeySpec = PKCS8EncodedKeySpec(this)
@@ -60,10 +54,9 @@ class LocalConfig
 
     companion object {
         private const val KEY_ALGORITHM = "RSA"
-        private const val GATEWAY_CERTIFICATE_VALIDITY_YEARS = 3L
 
-//        private const val PRIVATE_KEY_FILE_NAME = "local_gateway.key"
-//        private const val CERTIFICATE_FILE_NAME = "local_gateway.certificate"
+        private const val PRIVATE_KEY_FILE_NAME = "local_gateway.key"
+        private const val CERTIFICATE_FILE_NAME = "local_gateway.certificate"
 
         private val bouncyCastleProvider = BouncyCastleProvider()
     }

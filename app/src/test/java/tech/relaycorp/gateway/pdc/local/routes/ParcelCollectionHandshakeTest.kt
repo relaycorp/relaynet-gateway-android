@@ -21,6 +21,7 @@ import tech.relaycorp.gateway.pdc.local.HandshakeTestUtils
 import tech.relaycorp.gateway.pdc.local.utils.ParcelCollectionHandshake
 import tech.relaycorp.poweb.handshake.Challenge
 import tech.relaycorp.poweb.handshake.Response
+import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.issueEndpointCertificate
 import tech.relaycorp.relaynet.testing.CertificationPath
 import tech.relaycorp.relaynet.testing.KeyPairSet
@@ -172,7 +173,12 @@ class ParcelCollectionHandshakeTest {
                 testPDCServerRoute(route) {
                     handleWebSocketConversation(
                         ParcelCollectionRoute.URL_PATH,
-                        setup = { addHeader(ParcelCollectionRoute.HEADER_STREAMING_MODE, "off") }
+                        setup = {
+                            addHeader(
+                                StreamingMode.HEADER_NAME,
+                                StreamingMode.CloseUponCompletion.headerValue
+                            )
+                        }
                     ) { incoming, outgoing ->
                         val challenge = Challenge.deserialize(incoming.receive().readBytes())
 
@@ -212,7 +218,12 @@ class ParcelCollectionHandshakeTest {
                 testPDCServerRoute(route) {
                     handleWebSocketConversation(
                         ParcelCollectionRoute.URL_PATH,
-                        setup = { addHeader(ParcelCollectionRoute.HEADER_STREAMING_MODE, "off") }
+                        setup = {
+                            addHeader(
+                                StreamingMode.HEADER_NAME,
+                                StreamingMode.CloseUponCompletion.headerValue
+                            )
+                        }
                     ) { incoming, outgoing ->
                         val challenge = Challenge.deserialize(incoming.receive().readBytes())
 

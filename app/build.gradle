@@ -145,15 +145,13 @@ dependencies {
     implementation 'androidx.preference:preference:1.1.1'
     implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
 
-    // TODO: Remove, only for Echo Demo
-    implementation 'com.github.blocoio:faker:1.2.8'
-
     // Testing
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
     testImplementation 'org.mockito:mockito-inline:3.5.10'
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
+    testImplementation 'tech.relaycorp:relaynet-testing:1.0.0'
 
     // Instrumentation Testing
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

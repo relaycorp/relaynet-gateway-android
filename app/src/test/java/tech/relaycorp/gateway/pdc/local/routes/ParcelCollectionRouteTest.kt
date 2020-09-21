@@ -22,6 +22,7 @@ import tech.relaycorp.gateway.domain.endpoint.CollectParcels
 import tech.relaycorp.gateway.pdc.local.utils.ParcelCollectionHandshake
 import tech.relaycorp.gateway.test.WaitAssertions.suspendWaitFor
 import tech.relaycorp.gateway.test.WaitAssertions.waitFor
+import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.messages.control.ParcelDelivery
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.util.logging.Level
@@ -58,7 +59,12 @@ class ParcelCollectionRouteTest {
             testPDCServerRoute(route) {
                 handleWebSocketConversation(
                     ParcelCollectionRoute.URL_PATH,
-                    { addHeader(ParcelCollectionRoute.HEADER_STREAMING_MODE, "off") }
+                    {
+                        addHeader(
+                            StreamingMode.HEADER_NAME,
+                            StreamingMode.CloseUponCompletion.headerValue
+                        )
+                    }
                 ) { incoming, _ ->
                     val closingFrameRaw = incoming.receive()
                     assertEquals(FrameType.CLOSE, closingFrameRaw.frameType)
@@ -84,7 +90,12 @@ class ParcelCollectionRouteTest {
             testPDCServerRoute(route) {
                 handleWebSocketConversation(
                     ParcelCollectionRoute.URL_PATH,
-                    { addHeader(ParcelCollectionRoute.HEADER_STREAMING_MODE, "on") }
+                    {
+                        addHeader(
+                            StreamingMode.HEADER_NAME,
+                            StreamingMode.KeepAlive.headerValue
+                        )
+                    }
                 ) { incoming, _ ->
                     delay(3_000) // wait to see if the connection is kept alive
                     assertFalse(incoming.isClosedForReceive)
@@ -100,7 +111,7 @@ class ParcelCollectionRouteTest {
             testPDCServerRoute(route) {
                 handleWebSocketConversation(
                     ParcelCollectionRoute.URL_PATH,
-                    { addHeader(ParcelCollectionRoute.HEADER_STREAMING_MODE, "whatever") }
+                    { addHeader(StreamingMode.HEADER_NAME, "whatever") }
                 ) { incoming, _ ->
                     delay(3_000) // wait to see if the connection is kept alive
                     assertFalse(incoming.isClosedForReceive)
