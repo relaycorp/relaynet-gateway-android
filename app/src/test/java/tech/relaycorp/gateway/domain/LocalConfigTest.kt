@@ -8,13 +8,14 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.disk.SensitiveStore
 import java.nio.charset.Charset
 
 internal class LocalConfigTest {
 
     private val sensitiveStore = mock<SensitiveStore>()
-    private val localConfig = LocalConfig(sensitiveStore)
+    private val localConfig = LocalConfig(App().resources)
 
     @BeforeEach
     internal fun setUp() {

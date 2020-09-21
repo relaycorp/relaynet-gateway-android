@@ -86,13 +86,15 @@ class GenerateCargo
 
     private suspend fun CargoMessageSetWithExpiry.toCargo(): Cargo {
         val creationDate = nowInUtc().minusMinutes(5)
-        if (creationDate > latestMessageExpiryDate) {
-            throw IllegalArgumentException(
-                "The latest expiration date $latestMessageExpiryDate has expired already"
-            )
-        }
+//        if (creationDate > latestMessageExpiryDate) {
+//            throw IllegalArgumentException(
+//                "The latest expiration date $latestMessageExpiryDate has expired already"
+//            )
+//        }
+        val recipientAddress = getPublicGatewayAddress()
+        logger.info("Generating cargo for $recipientAddress")
         return Cargo(
-            recipientAddress = getPublicGatewayAddress(),
+            recipientAddress = recipientAddress,
             payload = cargoMessageSet.encrypt(getPublicGatewayCertificate()),
             senderCertificate = localConfig.getCertificate(),
             creationDate = creationDate,

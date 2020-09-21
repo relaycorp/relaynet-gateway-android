@@ -1,10 +1,11 @@
 package tech.relaycorp.gateway.domain
 
+import android.content.res.Resources
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.common.nowInUtc
-import tech.relaycorp.gateway.data.disk.SensitiveStore
+import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.issueGatewayCertificate
-import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.security.KeyFactory
 import java.security.KeyPair
@@ -17,23 +18,24 @@ import javax.inject.Inject
 
 class LocalConfig
 @Inject constructor(
-    private val sensitiveStore: SensitiveStore
+//    private val sensitiveStore: SensitiveStore,
+    private val resources: Resources
 ) {
     suspend fun getKeyPair() =
-        sensitiveStore.read(PRIVATE_KEY_FILE_NAME)
-            ?.toPrivateKey()
-            ?.toKeyPair()
-            ?: generateRSAKeyPair().also {
-                sensitiveStore.store(PRIVATE_KEY_FILE_NAME, it.private.encoded)
-            }
+        resources.openRawResource(R.raw.priv_gateway_key).readBytesAndClose()
+            .toPrivateKey()
+            .toKeyPair()
+//            ?: generateRSAKeyPair().also {
+//                sensitiveStore.store(PRIVATE_KEY_FILE_NAME, it.private.encoded)
+//            }
 
     suspend fun getCertificate() =
-        sensitiveStore.read(CERTIFICATE_FILE_NAME)
+        resources.openRawResource(R.raw.priv_gateway_cert).readBytesAndClose()
             ?.let { Certificate.deserialize(it) }
-            ?: generateGatewayCertificate(getKeyPair())
-                .also {
-                    sensitiveStore.store(CERTIFICATE_FILE_NAME, it.serialize())
-                }
+//            ?: generateGatewayCertificate(getKeyPair())
+//                .also {
+//                    sensitiveStore.store(CERTIFICATE_FILE_NAME, it.serialize())
+//                }
 
     private fun generateGatewayCertificate(keyPair: KeyPair) =
         issueGatewayCertificate(
@@ -60,8 +62,8 @@ class LocalConfig
         private const val KEY_ALGORITHM = "RSA"
         private const val GATEWAY_CERTIFICATE_VALIDITY_YEARS = 3L
 
-        private const val PRIVATE_KEY_FILE_NAME = "local_gateway.key"
-        private const val CERTIFICATE_FILE_NAME = "local_gateway.certificate"
+//        private const val PRIVATE_KEY_FILE_NAME = "local_gateway.key"
+//        private const val CERTIFICATE_FILE_NAME = "local_gateway.certificate"
 
         private val bouncyCastleProvider = BouncyCastleProvider()
     }
