@@ -3,12 +3,12 @@ buildscript {
         maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
-        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.5.1'
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.5.2'
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.6.2.0'
     }
     ext {
         ktorVersion = '1.4.0'
-        junitVersion = '5.6.2'
+        junitVersion = '5.7.0'
         relaynetTestingVersion = '1.0.0'
     }
 }
@@ -109,7 +109,7 @@ dependencies {
     implementation 'androidx.work:work-runtime-ktx:2.4.0'
 
     // Dependency Injection
-    api 'com.google.dagger:dagger:2.28.3'
+    api 'com.google.dagger:dagger:2.29.1'
     kapt 'com.google.dagger:dagger-compiler:2.28.1'
 
     // Relaynet
@@ -157,7 +157,7 @@ dependencies {
     androidTestImplementation('com.schibsted.spain:barista:3.6.0') {
         exclude group: 'org.jetbrains.kotlin'
     }
-    androidTestImplementation "org.mockito:mockito-android:3.5.10"
+    androidTestImplementation "org.mockito:mockito-android:3.5.11"
     androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0") {
         // Workaround for Android API < 26:
         // https://github.com/mockito/mockito/pull/2024
