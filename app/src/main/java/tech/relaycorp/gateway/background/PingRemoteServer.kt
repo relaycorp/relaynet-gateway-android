@@ -41,8 +41,8 @@ class PingRemoteServer
                     connect()
                 }
                 true
-            } catch (ex: IOException) {
-                logger.log(Level.INFO, "Could not reach $hostname", ex)
+            } catch (_: IOException) {
+                logger.log(Level.INFO, "Could not ping $hostname")
                 false
             } finally {
                 connection.disconnect()
