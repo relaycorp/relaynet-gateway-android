@@ -2,7 +2,6 @@ package tech.relaycorp.gateway.ui.main
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -26,8 +25,10 @@ class MainViewModel
 
     val connectionState get() = connectionStateObserver.observe()
 
-    val dataToSyncState: Flow<DataToSyncState> get() = _dataToSyncState
-    private val _dataToSyncState = MutableStateFlow<DataToSyncState>(DataToSyncState.Invisible)
+    val dataState: Flow<DataState> get() = _dataState
+    private val _dataState = MutableStateFlow<DataState>(DataState.Invisible)
+    val appsState: Flow<AppsState> get() = _appsState
+    private val _appsState = MutableStateFlow<AppsState>(AppsState.None)
 
     val isCourierSyncVisible
         get() = connectionStateObserver.observe()
@@ -37,30 +38,38 @@ class MainViewModel
         connectionStateObserver
             .observe()
             .flatMapLatest { connectionState ->
-                combine(
-                    getTotalOutgoingData.get(),
-                    getEndpointApplicationsCount.get()
-                ) { outgoingData, appCount ->
-                    when (connectionState) {
-                        is ConnectionState.InternetAndPublicGateway -> DataToSyncState.Invisible
-                        else ->
-                            if (appCount > 0) {
-                                DataToSyncState.Visible.WithApplications(outgoingData)
-                            } else {
-                                DataToSyncState.Visible.WithoutApplications
-                            }
+                getTotalOutgoingData
+                    .get()
+                    .map { outgoingData ->
+                        when (connectionState) {
+                            is ConnectionState.InternetAndPublicGateway -> DataState.Invisible
+                            else ->
+                                if (outgoingData.isZero) {
+                                    DataState.Visible.WithoutOutgoingData
+                                } else {
+                                    DataState.Visible.WithOutgoingData(outgoingData)
+                                }
+                        }
                     }
-                }
             }
-            .onEach { _dataToSyncState.value = it }
+            .onEach { _dataState.value = it }
+            .launchIn(ioScope)
+
+        getEndpointApplicationsCount.get()
+            .map { if (it > 0) AppsState.Some else AppsState.None }
+            .onEach { _appsState.value = it }
             .launchIn(ioScope)
     }
 
-    sealed class DataToSyncState {
-        object Invisible : DataToSyncState()
-        sealed class Visible : DataToSyncState() {
-            data class WithApplications(val dataWaitingToSync: StorageSize) : Visible()
-            object WithoutApplications : Visible()
+    sealed class DataState {
+        object Invisible : DataState()
+        sealed class Visible : DataState() {
+            data class WithOutgoingData(val dataWaitingToSync: StorageSize) : Visible()
+            object WithoutOutgoingData : Visible()
         }
+    }
+
+    enum class AppsState {
+        Some, None
     }
 }

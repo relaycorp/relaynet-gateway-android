@@ -5,24 +5,33 @@
     <string name="close">Close</string>
     <string name="stop">Stop</string>
     <string name="continue_">Continue</string>
+    <string name="settings">Settings</string>
 
     <!-- Main -->
     <string name="main_title">Relaynet Gateway</string>
+    <string name="main_status">Status</string>
+    <string name="main_status_disconnected">You’re disconnected from Relaynet</string>
+    <string name="main_status_internet">You’re connect to Relaynet via Internet</string>
+    <string name="main_status_courier">You’re connect to a Courier</string>
+    <string name="main_data">Data</string>
     <string name="main_data_to_sync_none">No data is waiting to be synced, but there might be some incoming data.</string>
     <string name="main_data_to_sync_some">%s of data waiting to be synced. Some data may be incoming too.</string>
-    <string name="main_no_apps">No Relaynet apps connected.</string>
+    <string name="main_apps">Apps</string>
+    <string name="main_apps_none">No Relaynet apps connected.</string>
+    <string name="main_apps_some">Some Relaynet apps connected.</string>
 
     <!-- Sync -->
     <string name="sync_courier">Sync with Courier</string>
 
     <!-- Courier Connection -->
-    <string name="courier_connected">Connected</string>
-    <string name="courier_connected_with_unknown">Connected with network without Courier.</string>
-    <string name="courier_disconnected">Not connected</string>
+    <string name="courier_connected">Connected with Courier</string>
+    <string name="courier_connected_with_unknown">Connected with network without Courier</string>
+    <string name="courier_disconnected">Disconnected</string>
     <string name="courier_configure_wifi">Open Wi-Fi Settings</string>
     <string name="courier_sync_start">Start Sync</string>
 
     <!-- Courier Sync -->
+    <string name="sync_courier_title">Syncing with Courier</string>
     <string name="sync_delivering_cargo">Delivering data…</string>
     <string name="sync_waiting">Waiting for the incoming data to become available…</string>
     <string name="sync_collecting_cargo">Collecting data…</string>

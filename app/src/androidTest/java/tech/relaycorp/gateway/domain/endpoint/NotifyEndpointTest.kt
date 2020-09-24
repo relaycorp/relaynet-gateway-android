@@ -4,9 +4,11 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.check
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -23,21 +25,40 @@ class NotifyEndpointTest {
             .localEndpointDao()
     }
     private val context by lazy { spy(getApplicationContext<App>()) }
-    private val notifyEndpoint by lazy { NotifyEndpoint(localEndpointDao, context) }
+    private val getEndpointReceiver = mock<GetEndpointReceiver>()
+    private val notifyEndpoint by lazy {
+        NotifyEndpoint(localEndpointDao, getEndpointReceiver, context)
+    }
 
     @Test
-    fun notify_withKnownAddress() {
+    fun notify_withKnownAddressAndReceiver() {
         runBlocking {
             val endpoint = LocalEndpointFactory.build()
             localEndpointDao.insert(endpoint)
+
+            val receiverName = "${endpoint.applicationId}.Receiver"
+            whenever(getEndpointReceiver.get(any())).thenReturn(receiverName)
 
             notifyEndpoint.notify(endpoint.address)
 
             verify(context).sendBroadcast(
                 check {
-                    assertEquals(endpoint.applicationId, it.`package`)
+                    assertEquals(endpoint.applicationId, it.component?.packageName)
+                    assertEquals(receiverName, it.component?.className)
                 }
             )
+        }
+    }
+
+    @Test(expected = NotifyEndpoint.UnreachableEndpointApp::class)
+    fun notify_withKnownAddressButWithoutReceiver() {
+        runBlocking {
+            val endpoint = LocalEndpointFactory.build()
+            localEndpointDao.insert(endpoint)
+
+            whenever(getEndpointReceiver.get(any())).thenReturn(null)
+
+            notifyEndpoint.notify(endpoint.address)
         }
     }
 

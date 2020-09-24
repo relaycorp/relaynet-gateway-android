@@ -1,5 +1,6 @@
 package tech.relaycorp.gateway.domain.endpoint
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import tech.relaycorp.gateway.background.RelaynetAndroid
@@ -11,17 +12,31 @@ import javax.inject.Inject
 class NotifyEndpoint
 @Inject constructor(
     private val endpointDao: LocalEndpointDao,
+    private val getEndpointReceiver: GetEndpointReceiver,
     private val context: Context
 ) {
 
+    @Throws(UnreachableEndpointApp::class)
     suspend fun notify(endpointAddress: MessageAddress) {
-        endpointDao.get(endpointAddress)
-            ?.let { endpoint ->
-                context.sendBroadcast(
-                    Intent(RelaynetAndroid.ENDPOINT_NOTIFY_ACTION)
-                        .setPackage(endpoint.applicationId)
+        val endpoint = endpointDao.get(endpointAddress)
+        if (endpoint == null) {
+            logger.warning("Can't notify endpoint with unknown address $endpointAddress")
+            return
+        }
+
+        val receiverName = getEndpointReceiver.get(endpoint.applicationId)
+            ?: throw UnreachableEndpointApp("Can't notify ${endpoint.applicationId}")
+
+        context.sendBroadcast(
+            Intent(RelaynetAndroid.ENDPOINT_NOTIFY_ACTION)
+                .setComponent(
+                    ComponentName(
+                        endpoint.applicationId,
+                        receiverName
+                    )
                 )
-            }
-            ?: logger.warning("Can't notify endpoint with unknown address $endpointAddress")
+        )
     }
+
+    class UnreachableEndpointApp(message: String) : Exception(message)
 }

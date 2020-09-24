@@ -40,7 +40,8 @@
 
         <activity
             android:name=".ui.sync.CourierSyncActivity"
-            android:label="@string/sync_courier"
+            android:label="@string/sync_courier_title"
+            android:theme="@style/Theme.Gateway.Sync"
             android:screenOrientation="portrait" />
 
         <service

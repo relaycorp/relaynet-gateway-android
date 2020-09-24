@@ -25,36 +25,33 @@ class MainViewModelTest {
         whenever(connectionStateObserver.observe())
             .thenReturn(flowOf(ConnectionState.InternetAndPublicGateway))
         whenever(getTotalOutgoingData.get()).thenReturn(flowOf(StorageSize.ZERO))
-        whenever(getEndpointApplicationsCount.get()).thenReturn(flowOf(0))
 
         assertEquals(
-            MainViewModel.DataToSyncState.Invisible,
-            buildViewModel().dataToSyncState.first()
+            MainViewModel.DataState.Invisible,
+            buildViewModel().dataState.first()
         )
     }
 
     @Test
-    internal fun `data to sync visible with applications`() = runBlockingTest {
+    internal fun `data to sync visible with outgoing data`() = runBlockingTest {
         whenever(connectionStateObserver.observe()).thenReturn(flowOf(ConnectionState.Disconnected))
         val totalSize = StorageSize(100)
         whenever(getTotalOutgoingData.get()).thenReturn(flowOf(totalSize))
-        whenever(getEndpointApplicationsCount.get()).thenReturn(flowOf(1))
 
         waitForAssertEquals(
-            MainViewModel.DataToSyncState.Visible.WithApplications(totalSize),
-            buildViewModel().dataToSyncState::first
+            MainViewModel.DataState.Visible.WithOutgoingData(totalSize),
+            buildViewModel().dataState::first
         )
     }
 
     @Test
-    internal fun `data to sync visible without applications`() = runBlockingTest {
+    internal fun `data to sync visible without outgoing data`() = runBlockingTest {
         whenever(connectionStateObserver.observe()).thenReturn(flowOf(ConnectionState.Disconnected))
         whenever(getTotalOutgoingData.get()).thenReturn(flowOf(StorageSize.ZERO))
-        whenever(getEndpointApplicationsCount.get()).thenReturn(flowOf(0))
 
         waitForAssertEquals(
-            MainViewModel.DataToSyncState.Visible.WithoutApplications,
-            buildViewModel().dataToSyncState::first
+            MainViewModel.DataState.Visible.WithoutOutgoingData,
+            buildViewModel().dataState::first
         )
     }
 
