@@ -6,11 +6,13 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
+import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.MessageId
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StorageSize
 import tech.relaycorp.gateway.data.model.StoredParcel
+import java.time.ZonedDateTime
 
 @Dao
 interface StoredParcelDao {
@@ -27,22 +29,28 @@ interface StoredParcelDao {
     @Query(
         """
         SELECT * FROM Parcel
-        WHERE recipientLocation = :recipientLocation 
+        WHERE recipientLocation = :recipientLocation AND expirationTimeUtc > :expiresSince
         ORDER BY creationTimeUtc ASC
         """
     )
-    suspend fun listForRecipientLocation(recipientLocation: RecipientLocation): List<StoredParcel>
+    suspend fun listForRecipientLocation(
+        recipientLocation: RecipientLocation,
+        expiresSince: ZonedDateTime = nowInUtc()
+    ): List<StoredParcel>
 
     @Query(
         """
         SELECT * FROM Parcel
-        WHERE recipientAddress IN (:recipientAddresses) AND recipientLocation = :recipientLocation 
+        WHERE recipientAddress IN (:recipientAddresses) 
+          AND recipientLocation = :recipientLocation 
+          AND expirationTimeUtc > :expiresSince
         ORDER BY creationTimeUtc ASC
         """
     )
     fun listForRecipients(
         recipientAddresses: List<MessageAddress>,
-        recipientLocation: RecipientLocation
+        recipientLocation: RecipientLocation,
+        expiresSince: ZonedDateTime = nowInUtc()
     ): Flow<List<StoredParcel>>
 
     @Query("SELECT SUM(Parcel.size) FROM Parcel WHERE recipientLocation = :recipientLocation")

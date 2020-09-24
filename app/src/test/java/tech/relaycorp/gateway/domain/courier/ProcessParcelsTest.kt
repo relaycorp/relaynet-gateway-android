@@ -25,7 +25,7 @@ class ProcessParcelsTest {
         val parcel3 = StoredParcelFactory.build().copy(recipientAddress = parcel2.recipientAddress)
 
         val parcels = listOf(parcel1, parcel2, parcel3)
-        whenever(storedParcelDao.listForRecipientLocation(any())).thenReturn(parcels)
+        whenever(storedParcelDao.listForRecipientLocation(any(), any())).thenReturn(parcels)
 
         processParcels.process()
 

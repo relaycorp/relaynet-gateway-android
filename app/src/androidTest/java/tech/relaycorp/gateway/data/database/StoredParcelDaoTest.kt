@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.test.factory.StoredParcelFactory
 
@@ -31,6 +32,30 @@ class StoredParcelDaoTest {
             val result =
                 dao.countSizeForRecipientLocation(RecipientLocation.ExternalGateway).first()
             assertEquals(totalSize, result)
+        }
+    }
+
+    @Test
+    internal fun listForRecipientLocation_skipsExpired() {
+        runBlocking {
+            // expired
+            StoredParcelFactory.build()
+                .copy(
+                    recipientLocation = RecipientLocation.ExternalGateway,
+                    expirationTimeUtc = nowInUtc().minusMinutes(5)
+                )
+                .also { dao.insert(it) }
+            val parcelUnexpired = StoredParcelFactory.build()
+                .copy(
+                    recipientLocation = RecipientLocation.ExternalGateway,
+                    expirationTimeUtc = nowInUtc().plusMinutes(5)
+                )
+                .also { dao.insert(it) }
+
+            val result = dao.listForRecipientLocation(RecipientLocation.ExternalGateway)
+
+            assertEquals(1, result.size)
+            assertEquals(parcelUnexpired, result.first())
         }
     }
 }
