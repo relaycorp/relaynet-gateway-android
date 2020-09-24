@@ -40,7 +40,7 @@ class CollectParcelsTest {
 
     @Test
     internal fun getParcelsForEndpoint() = runBlockingTest {
-        whenever(storedParcelDao.listForRecipients(any(), any()))
+        whenever(storedParcelDao.listForRecipients(any(), any(), any()))
             .thenReturn(flowOf(listOf(StoredParcelFactory.build())))
 
         val result =
@@ -51,7 +51,7 @@ class CollectParcelsTest {
 
     @Test
     internal fun `getParcelsToDeliver with parcel data not found`() = runBlockingTest {
-        whenever(storedParcelDao.listForRecipients(any(), any()))
+        whenever(storedParcelDao.listForRecipients(any(), any(), any()))
             .thenReturn(flowOf(listOf(StoredParcelFactory.build())))
         whenever(diskMessageOperations.readMessage(any(), any()))
             .thenThrow(MessageDataNotFoundException())
@@ -65,7 +65,7 @@ class CollectParcelsTest {
     @Test
     internal fun `getParcelsToDeliver does not send duplicates`() = runBlockingTest {
         val parcel = StoredParcelFactory.build()
-        whenever(storedParcelDao.listForRecipients(any(), any()))
+        whenever(storedParcelDao.listForRecipients(any(), any(), any()))
             .thenReturn(flowOf(listOf(parcel), listOf(parcel)))
 
         val result =
@@ -77,7 +77,7 @@ class CollectParcelsTest {
     @Test
     internal fun processParcelAck() = runBlockingTest {
         val parcel = StoredParcelFactory.build()
-        whenever(storedParcelDao.listForRecipients(any(), any()))
+        whenever(storedParcelDao.listForRecipients(any(), any(), any()))
             .thenReturn(flowOf(listOf(parcel)))
 
         val subject = buildSubject()
@@ -92,7 +92,7 @@ class CollectParcelsTest {
     @Test
     internal fun noParcelsToDeliverOrAck() = runBlockingTest {
         val listState = MutableStateFlow(listOf(StoredParcelFactory.build()))
-        whenever(storedParcelDao.listForRecipients(any(), any())).thenReturn(listState)
+        whenever(storedParcelDao.listForRecipients(any(), any(), any())).thenReturn(listState)
 
         val subject = buildSubject()
         subject

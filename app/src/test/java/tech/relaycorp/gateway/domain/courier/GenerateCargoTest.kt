@@ -56,7 +56,7 @@ class GenerateCargoTest {
 
     @Test
     internal fun `empty cargo`() = runBlockingTest {
-        whenever(storedParcelDao.listForRecipientLocation(any())).thenReturn(emptyList())
+        whenever(storedParcelDao.listForRecipientLocation(any(), any())).thenReturn(emptyList())
         whenever(parcelCollectionDao.getAll()).thenReturn(emptyList())
 
         val cargoes = generateCargo.generate().toList()
@@ -68,7 +68,7 @@ class GenerateCargoTest {
     internal fun `generate 1 cargo with 1 PCA and 1 parcel`() = runBlockingTest {
         val parcel = StoredParcelFactory.build()
             .copy(expirationTimeUtc = nowInUtc().plusDays(1))
-        whenever(storedParcelDao.listForRecipientLocation(any())).thenReturn(listOf(parcel))
+        whenever(storedParcelDao.listForRecipientLocation(any(), any())).thenReturn(listOf(parcel))
         val messageStream: () -> InputStream = "ABC".toByteArray()::inputStream
         whenever(diskMessageOperations.readMessage(any(), any())).thenReturn(messageStream)
         val parcelCollection = ParcelCollectionFactory.build()
