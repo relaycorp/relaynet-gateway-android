@@ -3,6 +3,7 @@ package tech.relaycorp.gateway.test
 import dagger.Component
 import tech.relaycorp.gateway.AppModule
 import tech.relaycorp.gateway.background.endpoint.EndpointPreRegistrationServiceTest
+import tech.relaycorp.gateway.background.endpoint.GatewaySyncServiceTest
 import tech.relaycorp.gateway.common.di.AppComponent
 import tech.relaycorp.gateway.data.DataModule
 import javax.inject.Singleton
@@ -15,4 +16,5 @@ interface AppTestComponent : AppComponent {
     // Tests
 
     fun inject(test: EndpointPreRegistrationServiceTest)
+    fun inject(test: GatewaySyncServiceTest)
 }
