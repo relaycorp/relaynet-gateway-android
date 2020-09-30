@@ -17,7 +17,7 @@ object StoredParcelFactory {
             messageId = MessageId(Random().nextInt().toString()),
             recipientLocation = recipientLocations[Random().nextInt(recipientLocations.size)],
             creationTimeUtc = nowInUtc(),
-            expirationTimeUtc = nowInUtc(),
+            expirationTimeUtc = nowInUtc().plusDays(1),
             storagePath = "",
             size = StorageSizeFactory.build()
         )

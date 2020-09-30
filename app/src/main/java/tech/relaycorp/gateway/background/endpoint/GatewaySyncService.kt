@@ -6,7 +6,6 @@ import android.os.Binder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import tech.relaycorp.gateway.background.component
@@ -32,8 +31,10 @@ class GatewaySyncService : Service() {
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        scope.launch {
-            pdcServer.stop()
+        runBlocking {
+            withContext(scope.coroutineContext) {
+                pdcServer.stop()
+            }
         }
         return true
     }

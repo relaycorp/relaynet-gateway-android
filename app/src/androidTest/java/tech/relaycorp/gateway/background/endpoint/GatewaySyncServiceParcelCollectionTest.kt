@@ -6,7 +6,9 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.rule.ServiceTestRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -14,10 +16,15 @@ import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.SensitiveStore
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
+import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.pdc.local.PDCServer
 import tech.relaycorp.gateway.test.AppTestProvider
+import tech.relaycorp.gateway.test.factory.ParcelFactory
+import tech.relaycorp.gateway.test.factory.StoredParcelFactory
 import tech.relaycorp.poweb.PoWebClient
-import tech.relaycorp.poweb.RejectedParcelException
+import tech.relaycorp.poweb.ServerConnectionException
+import tech.relaycorp.relaynet.bindings.pdc.NonceSigner
+import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.testing.CertificationPath
 import tech.relaycorp.relaynet.testing.KeyPairSet
@@ -33,7 +40,7 @@ class GatewaySyncServiceParcelCollectionTest {
     lateinit var sensitiveStore: SensitiveStore
 
     @Inject
-    lateinit var storedParcelDao: StoredParcelDao
+    lateinit var storeParcel: StoreParcel
 
     @Before
     fun setUp() {
@@ -47,35 +54,53 @@ class GatewaySyncServiceParcelCollectionTest {
     }
 
     @Test
-    fun parcelDelivery_validParcel() = runBlocking {
+    fun parcelCollection_receiveParcel() = runBlocking {
         setGatewayCertificate(CertificationPath.PRIVATE_GW)
-        val recipient = "https://example.org"
+        val parcel = ParcelFactory.buildSerialized()
+        val storeResult = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
+        assertTrue(storeResult is StoreParcel.Result.Success)
 
-        val parcel = Parcel(
-            recipient,
-            ByteArray(0),
-            CertificationPath.PRIVATE_ENDPOINT,
-            senderCertificateChain = setOf(CertificationPath.PRIVATE_GW)
-        ).serialize(KeyPairSet.PRIVATE_ENDPOINT.private)
+        val parcelCollection =
+            PoWebClient.initLocal(PDCServer.PORT)
+                .collectParcels(
+                    arrayOf(
+                        NonceSigner(
+                            CertificationPath.PRIVATE_ENDPOINT,
+                            KeyPairSet.PRIVATE_ENDPOINT.private
+                        )
+                    ), StreamingMode.CloseUponCompletion
+                )
+                .first()
 
-        PoWebClient.initLocal(PDCServer.PORT).deliverParcel(parcel)
-
-        val storedParcels = storedParcelDao.listForRecipients(
-            listOf(MessageAddress.of(recipient)),
-            RecipientLocation.ExternalGateway
-        ).first()
-        assertEquals(1, storedParcels.size)
+        assertEquals(
+            Parcel.deserialize(parcel).id,
+            Parcel.deserialize(parcelCollection.parcelSerialized).id
+        )
     }
 
-    @Test(expected = RejectedParcelException::class)
-    fun parcelDelivery_invalidParcel() = runBlocking {
-        val parcel = Parcel(
-            "https://example.org",
-            ByteArray(0),
-            CertificationPath.PUBLIC_GW // Wrong certificate to make this parcel invalid
-        ).serialize(KeyPairSet.PUBLIC_GW.private)
+    @Test(expected = ServerConnectionException::class)
+    fun parcelCollection_invalidHandshake() = runBlocking {
+        setGatewayCertificate(CertificationPath.PRIVATE_GW)
+        val parcel = ParcelFactory.buildSerialized()
+        val storeResult = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
+        assertTrue(storeResult is StoreParcel.Result.Success)
 
-        PoWebClient.initLocal(PDCServer.PORT).deliverParcel(parcel)
+        val parcelCollection =
+            PoWebClient.initLocal(PDCServer.PORT)
+                .collectParcels(
+                    arrayOf(
+                        NonceSigner(
+                            CertificationPath.PRIVATE_ENDPOINT,
+                            KeyPairSet.PUBLIC_GW.private // Invalid key to trigger invalid handshake
+                        )
+                    ), StreamingMode.CloseUponCompletion
+                )
+                .first()
+
+        assertEquals(
+            Parcel.deserialize(parcel).id,
+            Parcel.deserialize(parcelCollection.parcelSerialized).id
+        )
     }
 
     private suspend fun setGatewayCertificate(cert: Certificate) {
