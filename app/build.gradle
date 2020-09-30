@@ -125,7 +125,7 @@ dependencies {
     implementation 'org.conscrypt:conscrypt-android:2.5.1'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
-    implementation 'tech.relaycorp:poweb:1.5.2'
+    implementation 'tech.relaycorp:poweb:1.5.4'
     implementation "io.ktor:ktor-server-core:$ktorVersion"
     implementation "io.ktor:ktor-server-netty:$ktorVersion"
     implementation "io.ktor:ktor-websockets:$ktorVersion"
@@ -179,7 +179,6 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     kotlinOptions.freeCompilerArgs += [
             '-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi',
             '-Xuse-experimental=kotlinx.coroutines.FlowPreview',
-            '-Xuse-experimental=kotlin.time.ExperimentalTime',
-            '-Xuse-experimental=io.ktor.util.KtorExperimentalAPI'
+            '-Xuse-experimental=kotlin.time.ExperimentalTime'
     ]
 }
