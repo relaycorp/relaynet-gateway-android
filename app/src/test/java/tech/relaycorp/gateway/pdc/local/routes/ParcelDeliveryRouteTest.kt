@@ -59,7 +59,7 @@ class ParcelDeliveryRouteTest {
             }
             with(call) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals(KtorContentType.Text.Plain, response.contentType())
+                assertEquals(KtorContentType.Text.Plain, response.contentType().withoutParameters())
                 assertEquals("Parcel is malformed", response.content)
             }
         }
@@ -76,7 +76,7 @@ class ParcelDeliveryRouteTest {
             }
             with(call) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
-                assertEquals(KtorContentType.Text.Plain, response.contentType())
+                assertEquals(KtorContentType.Text.Plain, response.contentType().withoutParameters())
                 assertEquals("Parcel is invalid", response.content)
             }
         }

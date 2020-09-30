@@ -2,7 +2,6 @@ package tech.relaycorp.gateway.pdc.local.routes
 
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.TextContent
 import io.ktor.request.contentType
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -13,7 +12,6 @@ import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.pdc.local.utils.ContentType
 import javax.inject.Inject
-import io.ktor.http.ContentType as KtorContentType
 
 class ParcelDeliveryRoute
 @Inject constructor(private val storeParcel: StoreParcel) : PDCServerRoute {
@@ -29,21 +27,17 @@ class ParcelDeliveryRoute
 
             val storeResult =
                 storeParcel.store(call.receive<ByteArray>(), RecipientLocation.ExternalGateway)
-            call.respond(
-                when (storeResult) {
-                    is StoreParcel.Result.MalformedParcel -> TextContent(
-                        "Parcel is malformed",
-                        KtorContentType.Text.Plain,
-                        HttpStatusCode.BadRequest
-                    )
-                    is StoreParcel.Result.InvalidParcel -> TextContent(
-                        "Parcel is invalid",
-                        KtorContentType.Text.Plain,
-                        HttpStatusCode.Forbidden
-                    )
-                    else -> HttpStatusCode.Accepted
-                }
-            )
+            when (storeResult) {
+                is StoreParcel.Result.MalformedParcel -> call.respondText(
+                    "Parcel is malformed",
+                    status = HttpStatusCode.BadRequest
+                )
+                is StoreParcel.Result.InvalidParcel -> call.respondText(
+                    "Parcel is invalid",
+                    status = HttpStatusCode.Forbidden
+                )
+                else -> call.respond(HttpStatusCode.Accepted)
+            }
         }
     }
 }
