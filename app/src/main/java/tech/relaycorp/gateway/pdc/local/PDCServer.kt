@@ -7,7 +7,6 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.websocket.WebSockets
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import tech.relaycorp.gateway.pdc.local.routes.EndpointRegistrationRoute
 import tech.relaycorp.gateway.pdc.local.routes.PDCServerRoute
