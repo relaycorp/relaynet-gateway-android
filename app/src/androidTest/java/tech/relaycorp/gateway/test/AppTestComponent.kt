@@ -3,6 +3,7 @@ package tech.relaycorp.gateway.test
 import dagger.Component
 import tech.relaycorp.gateway.AppModule
 import tech.relaycorp.gateway.background.endpoint.EndpointPreRegistrationServiceTest
+import tech.relaycorp.gateway.background.endpoint.GatewaySyncServiceParcelCollectionTest
 import tech.relaycorp.gateway.background.endpoint.GatewaySyncServiceParcelDeliveryTest
 import tech.relaycorp.gateway.common.di.AppComponent
 import tech.relaycorp.gateway.data.DataModule
@@ -17,4 +18,5 @@ interface AppTestComponent : AppComponent {
 
     fun inject(test: EndpointPreRegistrationServiceTest)
     fun inject(test: GatewaySyncServiceParcelDeliveryTest)
+    fun inject(test: GatewaySyncServiceParcelCollectionTest)
 }
