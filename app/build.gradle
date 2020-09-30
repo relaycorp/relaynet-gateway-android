@@ -3,11 +3,11 @@ buildscript {
         maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
-        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.6.0'
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.6.1'
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.6.2.0'
     }
     ext {
-        ktorVersion = '1.4.0'
+        ktorVersion = '1.4.1'
         junitVersion = '5.7.0'
         relaynetTestingVersion = '1.0.0'
     }
@@ -148,7 +148,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
-    testImplementation 'org.mockito:mockito-inline:3.5.11'
+    testImplementation 'org.mockito:mockito-inline:3.5.13'
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
     testImplementation 'tech.relaycorp:relaynet-testing:1.0.0'
 
@@ -159,7 +159,7 @@ dependencies {
     androidTestImplementation('com.schibsted.spain:barista:3.6.0') {
         exclude group: 'org.jetbrains.kotlin'
     }
-    androidTestImplementation "org.mockito:mockito-android:3.5.11"
+    androidTestImplementation "org.mockito:mockito-android:3.5.13"
     androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0") {
         // Workaround for Android API < 26:
         // https://github.com/mockito/mockito/pull/2024
