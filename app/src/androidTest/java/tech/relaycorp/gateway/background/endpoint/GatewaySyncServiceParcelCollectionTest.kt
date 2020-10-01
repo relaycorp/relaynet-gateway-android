@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.rule.ServiceTestRule
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -82,23 +83,17 @@ class GatewaySyncServiceParcelCollectionTest {
         val storeResult = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
         assertTrue(storeResult is StoreParcel.Result.Success)
 
-        val parcelCollection =
-            PoWebClient.initLocal(PDCServer.PORT)
-                .collectParcels(
-                    arrayOf(
-                        NonceSigner(
-                            CertificationPath.PRIVATE_ENDPOINT,
-                            KeyPairSet.PUBLIC_GW.private // Invalid key to trigger invalid handshake
-                        )
-                    ),
-                    StreamingMode.CloseUponCompletion
-                )
-                .first()
-
-        assertEquals(
-            Parcel.deserialize(parcel).id,
-            Parcel.deserialize(parcelCollection.parcelSerialized).id
-        )
+        PoWebClient.initLocal(PDCServer.PORT)
+            .collectParcels(
+                arrayOf(
+                    NonceSigner(
+                        CertificationPath.PRIVATE_ENDPOINT,
+                        KeyPairSet.PUBLIC_GW.private // Invalid key to trigger invalid handshake
+                    )
+                ),
+                StreamingMode.CloseUponCompletion
+            )
+            .collect()
     }
 
     private suspend fun setGatewayCertificate(cert: Certificate) {
