@@ -43,4 +43,21 @@ class SensitiveStoreTest {
             )
         }
     }
+
+    @Test
+    fun storeAndUpdate() {
+        runBlocking {
+            val store = SensitiveStore(InstrumentationRegistry.getInstrumentation().targetContext)
+            val message1 = "1"
+            val message2 = "2"
+            val fileName = "${folder.name}/file"
+            store.store(fileName, message1.toByteArray(Charset.defaultCharset()))
+            store.store(fileName, message2.toByteArray(Charset.defaultCharset()))
+            val readData = store.read(fileName)
+            assertEquals(
+                message2,
+                readData!!.toString(Charset.defaultCharset())
+            )
+        }
+    }
 }

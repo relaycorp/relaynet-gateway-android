@@ -24,6 +24,7 @@ class SensitiveStore
 
     suspend fun store(location: String, data: ByteArray) {
         withContext(Dispatchers.IO) {
+            buildFile(location).delete()
             buildEncryptedFile(location)
                 .openFileOutput()
                 .use { it.write(data) }
@@ -41,10 +42,12 @@ class SensitiveStore
         }
     }
 
+    private fun buildFile(location: String) = File(context.filesDir, location)
+
     private fun buildEncryptedFile(location: String) =
         EncryptedFile.Builder(
             context,
-            File(context.filesDir, location),
+            buildFile(location),
             masterKey,
             EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
         ).build()

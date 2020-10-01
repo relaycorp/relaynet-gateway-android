@@ -37,7 +37,7 @@ class PDCServer
 
     suspend fun start() {
         withContext(Dispatchers.IO) {
-            server.start(true)
+            server.start(false)
         }
     }
 
@@ -48,7 +48,7 @@ class PDCServer
     }
 
     companion object {
-        private const val PORT = 13276
+        const val PORT = 13276
         private val CALL_DEADLINE = 5.seconds
     }
 }
