@@ -156,7 +156,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    androidTestImplementation('com.schibsted.spain:barista:3.6.0') {
+    androidTestImplementation('com.schibsted.spain:barista:3.7.0') {
         exclude group: 'org.jetbrains.kotlin'
     }
     androidTestImplementation "org.mockito:mockito-android:3.5.13"
