@@ -5,4 +5,7 @@
             <solid android:color="@color/relaynet_primary" />
         </shape>
     </item>
+    <item android:gravity="center">
+        <bitmap android:src="@drawable/splash_logo" />
+    </item>
 </layer-list>
