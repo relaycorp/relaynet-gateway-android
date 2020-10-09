@@ -26,6 +26,12 @@
         <item name="android:letterSpacing">0.15</item>
     </style>
 
+    <style name="TextAppearance.Gateway.Heading1" parent="TextAppearance.MaterialComponents.Headline2">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="TextAppearance.Gateway.Heading2" parent="TextAppearance.MaterialComponents.Headline2">
         <item name="android:textSize">18sp</item>
         <item name="android:textColor">?android:textColorPrimary</item>
