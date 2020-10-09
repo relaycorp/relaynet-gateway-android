@@ -11,6 +11,7 @@ import kotlinx.android.synthetic.main.activity_main.appsState
 import kotlinx.android.synthetic.main.activity_main.dataLayout
 import kotlinx.android.synthetic.main.activity_main.dataState
 import kotlinx.android.synthetic.main.activity_main.networkState
+import kotlinx.android.synthetic.main.activity_main.settings
 import kotlinx.android.synthetic.main.activity_main.syncCourier
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -19,6 +20,7 @@ import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.ui.BaseActivity
 import tech.relaycorp.gateway.ui.common.format
 import tech.relaycorp.gateway.ui.onboarding.OnboardingActivity
+import tech.relaycorp.gateway.ui.settings.SettingsActivity
 import tech.relaycorp.gateway.ui.sync.CourierConnectionActivity
 import javax.inject.Inject
 
@@ -37,6 +39,9 @@ class MainActivity : BaseActivity() {
         setTitle(R.string.main_title)
         setContentView(R.layout.activity_main)
 
+        settings.setOnClickListener {
+            startActivity(SettingsActivity.getIntent(this))
+        }
         syncCourier.setOnClickListener {
             startActivity(CourierConnectionActivity.getIntent(this))
         }

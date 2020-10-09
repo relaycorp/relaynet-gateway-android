@@ -51,6 +51,18 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Gateway.Color" />
 
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:label="@string/settings"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.settings.LicensesActivity"
+            android:label="@string/settings_licenses"
+            android:screenOrientation="portrait" />
+
+        <!-- Services -->
+
         <service
             android:name=".background.endpoint.GatewaySyncService"
             android:exported="true"
