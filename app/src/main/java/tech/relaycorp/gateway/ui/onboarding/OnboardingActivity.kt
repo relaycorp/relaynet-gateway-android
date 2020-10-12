@@ -49,7 +49,7 @@ class OnboardingActivity : BaseActivity() {
             pager.currentItem = (pager.currentItem - 1).coerceAtLeast(0)
         }
         next.setOnClickListener {
-            pager.currentItem = (pager.currentItem + 1).coerceAtLeast(ONBOARDING_PAGES.size - 1)
+            pager.currentItem = (pager.currentItem + 1).coerceAtMost(ONBOARDING_PAGES.size - 1)
         }
     }
 
