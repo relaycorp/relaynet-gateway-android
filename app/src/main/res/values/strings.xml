@@ -16,7 +16,7 @@
     <string name="main_status_courier">You’re connect to a Courier</string>
     <string name="main_data">Data</string>
     <string name="main_data_to_sync_none">No data is waiting to be synced, but there might be some incoming data.</string>
-    <string name="main_data_to_sync_some">%s of data waiting to be synced. Some data may be incoming too.</string>
+    <string name="main_data_to_sync_some">Data waiting to be synced. Some data may be incoming too.</string>
     <string name="main_apps">Apps</string>
     <string name="main_apps_none">No Relaynet apps connected.</string>
     <string name="main_apps_some">Some Relaynet apps connected.</string>
@@ -71,5 +71,8 @@
     <string name="settings_learn_more">Learn more about Relaynet</string>
     <string name="settings_open_libraries">See open source libraries</string>
     <string name="settings_licenses">Open Source Libraries</string>
+    <string name="settings_data">Outgoing Data</string>
+    <string name="settings_data_in_transit">In transit</string>
+    <string name="settings_data_queued">Queued</string>
 
 </resources>

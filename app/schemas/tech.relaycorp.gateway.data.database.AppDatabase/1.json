@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "43eb8ccdf0c797c392d76dcbd39fb770",
+    "identityHash": "3877aabfaebe04c4c0e411074f05e918",
     "entities": [
       {
         "tableName": "Endpoint",
@@ -41,7 +41,7 @@
       },
       {
         "tableName": "Parcel",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recipientAddress` TEXT NOT NULL, `senderAddress` TEXT NOT NULL, `messageId` TEXT NOT NULL, `recipientLocation` TEXT NOT NULL, `creationTimeUtc` INTEGER NOT NULL, `expirationTimeUtc` INTEGER NOT NULL, `storagePath` TEXT NOT NULL, `size` INTEGER NOT NULL, PRIMARY KEY(`recipientAddress`, `senderAddress`, `messageId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recipientAddress` TEXT NOT NULL, `senderAddress` TEXT NOT NULL, `messageId` TEXT NOT NULL, `recipientLocation` TEXT NOT NULL, `creationTimeUtc` INTEGER NOT NULL, `expirationTimeUtc` INTEGER NOT NULL, `storagePath` TEXT NOT NULL, `size` INTEGER NOT NULL, `inCourierTransit` INTEGER NOT NULL, PRIMARY KEY(`recipientAddress`, `senderAddress`, `messageId`))",
         "fields": [
           {
             "fieldPath": "recipientAddress",
@@ -88,6 +88,12 @@
           {
             "fieldPath": "size",
             "columnName": "size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inCourierTransit",
+            "columnName": "inCourierTransit",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -195,7 +201,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '43eb8ccdf0c797c392d76dcbd39fb770')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3877aabfaebe04c4c0e411074f05e918')"
     ]
   }
 }

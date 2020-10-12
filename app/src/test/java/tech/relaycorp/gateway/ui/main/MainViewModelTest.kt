@@ -10,17 +10,16 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.background.ConnectionStateObserver
-import tech.relaycorp.gateway.data.model.StorageSize
 import tech.relaycorp.gateway.data.preference.AppPreferences
 import tech.relaycorp.gateway.domain.GetEndpointApplicationsCount
-import tech.relaycorp.gateway.domain.GetTotalOutgoingData
+import tech.relaycorp.gateway.domain.GetOutgoingData
 import tech.relaycorp.gateway.test.WaitAssertions.waitForAssertEquals
 
 class MainViewModelTest {
 
     private val appPreferences = mock<AppPreferences>()
     private val connectionStateObserver = mock<ConnectionStateObserver>()
-    private val getTotalOutgoingData = mock<GetTotalOutgoingData>()
+    private val getOutgoingData = mock<GetOutgoingData>()
     private val getEndpointApplicationsCount = mock<GetEndpointApplicationsCount>()
 
     @BeforeEach
@@ -28,7 +27,6 @@ class MainViewModelTest {
         whenever(appPreferences.isOnboardingDone()).thenReturn(flowOf(true))
         whenever(connectionStateObserver.observe())
             .thenReturn(flowOf(ConnectionState.InternetAndPublicGateway))
-        whenever(getTotalOutgoingData.get()).thenReturn(flowOf(StorageSize.ZERO))
         whenever(getEndpointApplicationsCount.get()).thenReturn(flowOf(0))
     }
 
@@ -46,7 +44,7 @@ class MainViewModelTest {
     internal fun `data to sync invisible when connected to public gateway`() = runBlockingTest {
         whenever(connectionStateObserver.observe())
             .thenReturn(flowOf(ConnectionState.InternetAndPublicGateway))
-        whenever(getTotalOutgoingData.get()).thenReturn(flowOf(StorageSize.ZERO))
+        whenever(getOutgoingData.any()).thenReturn(flowOf(false))
 
         assertEquals(
             MainViewModel.DataState.Invisible,
@@ -57,11 +55,10 @@ class MainViewModelTest {
     @Test
     internal fun `data to sync visible with outgoing data`() = runBlockingTest {
         whenever(connectionStateObserver.observe()).thenReturn(flowOf(ConnectionState.Disconnected))
-        val totalSize = StorageSize(100)
-        whenever(getTotalOutgoingData.get()).thenReturn(flowOf(totalSize))
+        whenever(getOutgoingData.any()).thenReturn(flowOf(true))
 
         waitForAssertEquals(
-            MainViewModel.DataState.Visible.WithOutgoingData(totalSize),
+            MainViewModel.DataState.Visible.WithOutgoingData,
             buildViewModel().dataState::first
         )
     }
@@ -69,7 +66,7 @@ class MainViewModelTest {
     @Test
     internal fun `data to sync visible without outgoing data`() = runBlockingTest {
         whenever(connectionStateObserver.observe()).thenReturn(flowOf(ConnectionState.Disconnected))
-        whenever(getTotalOutgoingData.get()).thenReturn(flowOf(StorageSize.ZERO))
+        whenever(getOutgoingData.any()).thenReturn(flowOf(false))
 
         waitForAssertEquals(
             MainViewModel.DataState.Visible.WithoutOutgoingData,
@@ -81,7 +78,7 @@ class MainViewModelTest {
         MainViewModel(
             appPreferences,
             connectionStateObserver,
-            getTotalOutgoingData,
+            getOutgoingData,
             getEndpointApplicationsCount
         )
 }

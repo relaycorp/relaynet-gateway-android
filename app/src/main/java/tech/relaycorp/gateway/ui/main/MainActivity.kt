@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.onEach
 import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.ui.BaseActivity
-import tech.relaycorp.gateway.ui.common.format
 import tech.relaycorp.gateway.ui.onboarding.OnboardingActivity
 import tech.relaycorp.gateway.ui.settings.SettingsActivity
 import tech.relaycorp.gateway.ui.sync.CourierConnectionActivity
@@ -99,15 +98,14 @@ class MainActivity : BaseActivity() {
         }
 
     private fun MainViewModel.DataState.Visible.toText() =
-        when (this) {
-            MainViewModel.DataState.Visible.WithoutOutgoingData ->
-                getString(R.string.main_data_to_sync_none)
-            is MainViewModel.DataState.Visible.WithOutgoingData ->
-                getString(
-                    R.string.main_data_to_sync_some,
-                    dataWaitingToSync.format(this@MainActivity)
-                )
-        }
+        getString(
+            when (this) {
+                MainViewModel.DataState.Visible.WithoutOutgoingData ->
+                    R.string.main_data_to_sync_none
+                is MainViewModel.DataState.Visible.WithOutgoingData ->
+                    R.string.main_data_to_sync_some
+            }
+        )
 
     companion object {
         fun getIntent(context: Context) = Intent(context, MainActivity::class.java)

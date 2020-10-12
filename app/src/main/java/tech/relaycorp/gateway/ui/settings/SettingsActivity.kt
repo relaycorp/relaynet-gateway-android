@@ -4,15 +4,24 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.mikepenz.aboutlibraries.LibsBuilder
 import com.stationhead.android.shared.viewmodel.ViewModelFactory
+import kotlinx.android.synthetic.main.activity_settings.dataChart
+import kotlinx.android.synthetic.main.activity_settings.dataTotal
 import kotlinx.android.synthetic.main.activity_settings.learnMore
 import kotlinx.android.synthetic.main.activity_settings.libraries
+import kotlinx.android.synthetic.main.activity_settings.outgoingDataLayout
+import kotlinx.android.synthetic.main.activity_settings.outgoingDataTitle
 import kotlinx.android.synthetic.main.activity_settings.version
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import tech.relaycorp.gateway.BuildConfig
 import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.ui.BaseActivity
+import tech.relaycorp.gateway.ui.common.format
 import javax.inject.Inject
 
 class SettingsActivity : BaseActivity() {
@@ -37,6 +46,22 @@ class SettingsActivity : BaseActivity() {
         )
         learnMore.setOnClickListener { openKnowMore() }
         libraries.setOnClickListener { openLicenses() }
+
+        viewModel
+            .showOutgoingData
+            .onEach {
+                outgoingDataTitle.isVisible = it
+                outgoingDataLayout.isVisible = it
+            }
+            .launchIn(lifecycleScope)
+
+        viewModel
+            .outgoingData
+            .onEach {
+                dataChart.progress = it.percentage
+                dataTotal.text = it.total.format(this)
+            }
+            .launchIn(lifecycleScope)
     }
 
     private fun openKnowMore() {
