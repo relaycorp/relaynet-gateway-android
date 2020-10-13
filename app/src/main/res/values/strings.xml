@@ -45,19 +45,19 @@
     <string name="sync_internet_stop_confirm_message">The sync hasn’t finished yet.</string>
 
     <!-- Onboarding -->
-    <string name="onboarding_title_1">Welcome\nto Relaynet!</string>
+    <string name="onboarding_title_1">Welcome to Relaynet!</string>
     <string name="onboarding_text_1">
         Relaynet enables compatible apps on your device to send and receive data from the Internet
         securely, even when you’re disconnected from the Internet.
     </string>
-    <string name="onboarding_title_2">Using Relaynet\nis easy</string>
+    <string name="onboarding_title_2">Using Relaynet is easy</string>
     <string name="onboarding_text_2">
         When you’re connected to the Internet, it’ll be used seamlessly and you won’t have to do a
         thing.
         \n\nWhen you’re cut off from the Internet, Relaynet will connect you to couriers who will
         transport your data securely to and from the Internet.
     </string>
-    <string name="onboarding_title_3">Relaynet keeps\nyou safe</string>
+    <string name="onboarding_title_3">Relaynet keeps you safe</string>
     <string name="onboarding_text_3">
         Your apps will use end-to-end encryption, so it’s impossible for this app or couriers to see
         the contents of such data. Nor can couriers see which apps you’re using, besides Relaynet.
