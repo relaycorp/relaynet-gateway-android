@@ -27,10 +27,10 @@ class GetOutgoingData
 
     data class Data(
         val total: StorageSize = StorageSize.ZERO,
-        val inCourierTransit: StorageSize = StorageSize.ZERO
+        val inTransit: StorageSize = StorageSize.ZERO
     ) {
         val percentage
-            get() = if (total.isZero) 0 else (inCourierTransit.bytes / total.bytes).toInt()
+            get() = if (total.isZero) 0 else (inTransit.bytes / total.bytes).toInt()
         val isZero get() = total.isZero
     }
 }

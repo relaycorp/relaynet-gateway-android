@@ -31,10 +31,11 @@ class CargoDelivery
             client
                 .deliverCargo(generateCargoDeliveries().toList())
                 .collect()
-            storedParcelDao.markAsInCourierTransit()
         } finally {
             client.close()
         }
+
+        storedParcelDao.setInTransit(inTransit = true)
     }
 
     private suspend fun generateCargoDeliveries() =

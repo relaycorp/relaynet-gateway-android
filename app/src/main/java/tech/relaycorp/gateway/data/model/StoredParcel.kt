@@ -20,7 +20,7 @@ data class StoredParcel(
     val expirationTimeUtc: ZonedDateTime,
     val storagePath: String,
     val size: StorageSize,
-    val inCourierTransit: Boolean = false
+    val inTransit: Boolean = false
 ) {
     companion object {
         const val STORAGE_FOLDER = "parcels"
