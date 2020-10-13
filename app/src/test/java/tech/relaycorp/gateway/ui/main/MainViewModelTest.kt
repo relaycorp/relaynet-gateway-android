@@ -36,9 +36,9 @@ class MainViewModelTest {
     internal fun `open onboarding if not done`() = runBlockingTest {
         whenever(appPreferences.isOnboardingDone()).thenReturn(flowOf(false))
 
-        assertEquals(
+        waitForAssertEquals(
             Unit,
-            buildViewModel().openOnboarding.first()
+            buildViewModel().openOnboarding::first
         )
     }
 
