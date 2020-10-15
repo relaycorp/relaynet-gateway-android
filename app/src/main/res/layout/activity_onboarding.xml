@@ -26,9 +26,9 @@
             android:layout_marginBottom="16dp"
             app:tabBackground="@drawable/tab_dot_default"
             app:tabGravity="center"
-            app:tabIndicatorGravity="center"
             app:tabIndicator="@drawable/tab_dot_selected"
-            app:tabIndicatorHeight="8dp"/>
+            app:tabIndicatorGravity="center"
+            app:tabIndicatorHeight="8dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/back"
@@ -36,7 +36,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|start"
-            android:layout_margin="16dp"
+            android:layout_marginHorizontal="@dimen/onboarding_padding"
+            android:layout_marginVertical="16dp"
             android:text="@string/back"
             android:visibility="gone"
             tools:visibility="visible" />
@@ -47,7 +48,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
+            android:layout_marginHorizontal="@dimen/onboarding_padding"
+            android:layout_marginVertical="16dp"
             android:text="@string/next"
             android:visibility="visible" />
     </FrameLayout>
