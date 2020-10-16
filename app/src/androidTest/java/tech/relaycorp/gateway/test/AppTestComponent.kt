@@ -7,6 +7,7 @@ import tech.relaycorp.gateway.background.endpoint.GatewaySyncServiceParcelCollec
 import tech.relaycorp.gateway.background.endpoint.GatewaySyncServiceParcelDeliveryTest
 import tech.relaycorp.gateway.common.di.AppComponent
 import tech.relaycorp.gateway.data.DataModule
+import tech.relaycorp.gateway.ui.main.MainActivityTest
 import javax.inject.Singleton
 
 @Singleton
@@ -16,7 +17,9 @@ interface AppTestComponent : AppComponent {
 
     // Tests
 
+    fun inject(test: ClearTestDatabaseRule)
     fun inject(test: EndpointPreRegistrationServiceTest)
     fun inject(test: GatewaySyncServiceParcelDeliveryTest)
     fun inject(test: GatewaySyncServiceParcelCollectionTest)
+    fun inject(test: MainActivityTest)
 }
