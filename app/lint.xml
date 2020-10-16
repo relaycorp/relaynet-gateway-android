@@ -4,6 +4,7 @@
     <issue id="NewerVersionAvailable" severity="ignore"/>
     <issue id="GradleDependency" severity="ignore"/>
     <issue id="LockedOrientationActivity" severity="ignore"/>
+    <issue id="ConvertToWebp" severity="informational"/>
 
     <issue id="InvalidPackage">
         <!-- Ignore errors about BC importing javax.naming because we don't use those modules -->
