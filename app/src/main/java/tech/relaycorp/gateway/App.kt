@@ -9,6 +9,9 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.conscrypt.Conscrypt
 import tech.relaycorp.gateway.background.publicsync.PublicSyncWorker
 import tech.relaycorp.gateway.background.publicsync.PublicSyncWorkerFactory
@@ -37,6 +40,8 @@ open class App : Application() {
             Mode.Normal
         }
     }
+
+    private val ioScope = CoroutineScope(Dispatchers.IO)
 
     @Inject
     lateinit var publicSyncWorkerFactory: PublicSyncWorkerFactory
@@ -96,24 +101,26 @@ open class App : Application() {
     }
 
     private fun enqueuePublicSyncWorker() {
-        WorkManager.initialize(
-            this,
-            Configuration.Builder()
-                .setWorkerFactory(publicSyncWorkerFactory)
-                .build()
-        )
-        WorkManager.getInstance(this)
-            .enqueueUniquePeriodicWork(
-                "public-sync",
-                ExistingPeriodicWorkPolicy.REPLACE,
-                PeriodicWorkRequestBuilder<PublicSyncWorker>(PUBLIC_SYNC_WORKER_PERIOD)
-                    .setConstraints(
-                        Constraints.Builder()
-                            .setRequiredNetworkType(NetworkType.CONNECTED)
-                            .build()
-                    )
+        ioScope.launch {
+            WorkManager.initialize(
+                this@App,
+                Configuration.Builder()
+                    .setWorkerFactory(publicSyncWorkerFactory)
                     .build()
             )
+            WorkManager.getInstance(this@App)
+                .enqueueUniquePeriodicWork(
+                    "public-sync",
+                    ExistingPeriodicWorkPolicy.REPLACE,
+                    PeriodicWorkRequestBuilder<PublicSyncWorker>(PUBLIC_SYNC_WORKER_PERIOD)
+                        .setConstraints(
+                            Constraints.Builder()
+                                .setRequiredNetworkType(NetworkType.CONNECTED)
+                                .build()
+                        )
+                        .build()
+                )
+        }
     }
 
     enum class Mode { Normal, Test }

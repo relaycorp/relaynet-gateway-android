@@ -1,5 +1,7 @@
 package tech.relaycorp.gateway.ui.main
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +18,7 @@ import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.ui.BaseActivity
 import tech.relaycorp.gateway.ui.common.format
+import tech.relaycorp.gateway.ui.onboarding.OnboardingActivity
 import tech.relaycorp.gateway.ui.sync.CourierConnectionActivity
 import javax.inject.Inject
 
@@ -37,6 +40,14 @@ class MainActivity : BaseActivity() {
         syncCourier.setOnClickListener {
             startActivity(CourierConnectionActivity.getIntent(this))
         }
+
+        viewModel
+            .openOnboarding
+            .onEach {
+                startActivity(OnboardingActivity.getIntent(this))
+                finish()
+            }
+            .launchIn(lifecycleScope)
 
         viewModel
             .connectionState
@@ -92,4 +103,8 @@ class MainActivity : BaseActivity() {
                     dataWaitingToSync.format(this@MainActivity)
                 )
         }
+
+    companion object {
+        fun getIntent(context: Context) = Intent(context, MainActivity::class.java)
+    }
 }
