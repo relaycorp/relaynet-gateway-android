@@ -19,10 +19,10 @@ import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.endpoint.CollectParcels
 import tech.relaycorp.gateway.pdc.local.HandshakeTestUtils
 import tech.relaycorp.gateway.pdc.local.utils.ParcelCollectionHandshake
-import tech.relaycorp.poweb.handshake.Challenge
-import tech.relaycorp.poweb.handshake.Response
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.issueEndpointCertificate
+import tech.relaycorp.relaynet.messages.control.HandshakeChallenge
+import tech.relaycorp.relaynet.messages.control.HandshakeResponse
 import tech.relaycorp.relaynet.testing.CertificationPath
 import tech.relaycorp.relaynet.testing.KeyPairSet
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
@@ -76,7 +76,7 @@ class ParcelCollectionHandshakeTest {
                     val challengeRaw = incoming.receive()
                     assertEquals(FrameType.BINARY, challengeRaw.frameType)
 
-                    val challenge = Challenge.deserialize(challengeRaw.readBytes())
+                    val challenge = HandshakeChallenge.deserialize(challengeRaw.readBytes())
                     val nonceString = challenge.nonce.toString(Charset.forName("UTF8"))
                     Assertions.assertTrue(HandshakeTestUtils.UUID4_REGEX.matches(nonceString))
                 }
@@ -116,7 +116,7 @@ class ParcelCollectionHandshakeTest {
                     // Ignore the challenge because we're not signing its nonce
                     incoming.receive()
 
-                    val response = Response(emptyArray())
+                    val response = HandshakeResponse(emptyList())
                     outgoing.send(Frame.Binary(true, response.serialize()))
 
                     val closingFrameRaw = incoming.receive()
@@ -139,7 +139,7 @@ class ParcelCollectionHandshakeTest {
         fun `Connection should error out if response contains at least one invalid signature`() {
             testPDCServerRoute(route) {
                 handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, outgoing ->
-                    val challenge = Challenge.deserialize(incoming.receive().readBytes())
+                    val challenge = HandshakeChallenge.deserialize(incoming.receive().readBytes())
 
                     val endpointCertificate = buildEndpointCertificate()
                     val validSignature = HandshakeTestUtils.sign(
@@ -148,7 +148,7 @@ class ParcelCollectionHandshakeTest {
                         endpointCertificate
                     )
                     val invalidSignature = "not really a signature".toByteArray()
-                    val response = Response(arrayOf(validSignature, invalidSignature))
+                    val response = HandshakeResponse(listOf(validSignature, invalidSignature))
                     outgoing.send(Frame.Binary(true, response.serialize()))
 
                     val closingFrameRaw = incoming.receive()
@@ -180,7 +180,8 @@ class ParcelCollectionHandshakeTest {
                             )
                         }
                     ) { incoming, outgoing ->
-                        val challenge = Challenge.deserialize(incoming.receive().readBytes())
+                        val challenge =
+                            HandshakeChallenge.deserialize(incoming.receive().readBytes())
 
                         val endpointCertificate = buildEndpointCertificate(null)
                         val validSignature = HandshakeTestUtils.sign(
@@ -188,7 +189,7 @@ class ParcelCollectionHandshakeTest {
                             endpointKeyPair.private,
                             endpointCertificate
                         )
-                        val response = Response(arrayOf(validSignature))
+                        val response = HandshakeResponse(listOf(validSignature))
                         outgoing.send(Frame.Binary(true, response.serialize()))
 
                         val closingFrameRaw = incoming.receive()
@@ -225,7 +226,8 @@ class ParcelCollectionHandshakeTest {
                             )
                         }
                     ) { incoming, outgoing ->
-                        val challenge = Challenge.deserialize(incoming.receive().readBytes())
+                        val challenge =
+                            HandshakeChallenge.deserialize(incoming.receive().readBytes())
 
                         val endpointCertificate = buildEndpointCertificate()
                         val validSignature = HandshakeTestUtils.sign(
@@ -233,7 +235,7 @@ class ParcelCollectionHandshakeTest {
                             endpointKeyPair.private,
                             endpointCertificate
                         )
-                        val response = Response(arrayOf(validSignature))
+                        val response = HandshakeResponse(listOf(validSignature))
                         outgoing.send(Frame.Binary(true, response.serialize()))
 
                         val closingFrameRaw = incoming.receive()
