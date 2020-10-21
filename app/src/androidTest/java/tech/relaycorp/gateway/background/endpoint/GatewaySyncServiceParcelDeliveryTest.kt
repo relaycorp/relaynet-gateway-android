@@ -18,6 +18,7 @@ import tech.relaycorp.gateway.pdc.local.PDCServer
 import tech.relaycorp.gateway.test.AppTestProvider
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.poweb.RejectedParcelException
+import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.testing.CertificationPath
 import tech.relaycorp.relaynet.testing.KeyPairSet
@@ -28,6 +29,9 @@ class GatewaySyncServiceParcelDeliveryTest {
 
     @get:Rule
     val serviceRule = ServiceTestRule()
+
+    private val endpointSigner =
+        Signer(CertificationPath.PRIVATE_ENDPOINT, KeyPairSet.PRIVATE_ENDPOINT.private)
 
     @Inject
     lateinit var sensitiveStore: SensitiveStore
@@ -58,7 +62,7 @@ class GatewaySyncServiceParcelDeliveryTest {
             senderCertificateChain = setOf(CertificationPath.PRIVATE_GW)
         ).serialize(KeyPairSet.PRIVATE_ENDPOINT.private)
 
-        PoWebClient.initLocal(PDCServer.PORT).deliverParcel(parcel)
+        PoWebClient.initLocal(PDCServer.PORT).deliverParcel(parcel, endpointSigner)
 
         val storedParcels = storedParcelDao.listForRecipients(
             listOf(MessageAddress.of(recipient)),
@@ -75,7 +79,7 @@ class GatewaySyncServiceParcelDeliveryTest {
             CertificationPath.PUBLIC_GW // Wrong certificate to make this parcel invalid
         ).serialize(KeyPairSet.PUBLIC_GW.private)
 
-        PoWebClient.initLocal(PDCServer.PORT).deliverParcel(parcel)
+        PoWebClient.initLocal(PDCServer.PORT).deliverParcel(parcel, endpointSigner)
     }
 
     private suspend fun setGatewayCertificate(cert: Certificate) {
