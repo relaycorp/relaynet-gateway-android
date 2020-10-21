@@ -14,25 +14,22 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.endpoint.CollectParcels
 import tech.relaycorp.gateway.pdc.local.HandshakeTestUtils
 import tech.relaycorp.gateway.pdc.local.utils.ParcelCollectionHandshake
+import tech.relaycorp.relaynet.bindings.pdc.DetachedSignatureType
+import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
-import tech.relaycorp.relaynet.issueEndpointCertificate
 import tech.relaycorp.relaynet.messages.control.HandshakeChallenge
 import tech.relaycorp.relaynet.messages.control.HandshakeResponse
 import tech.relaycorp.relaynet.testing.CertificationPath
 import tech.relaycorp.relaynet.testing.KeyPairSet
-import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
-import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.nio.charset.Charset
 import javax.inject.Provider
 import kotlin.test.assertEquals
 
 class ParcelCollectionHandshakeTest {
-    private val endpointKeyPair = generateRSAKeyPair()
     private val collectParcels = mock<CollectParcels>()
     private val localConfig = mock<LocalConfig>()
     private val route =
@@ -69,6 +66,9 @@ class ParcelCollectionHandshakeTest {
 
     @Nested
     inner class Handshake {
+        private val endpointSigner =
+            Signer(CertificationPath.PRIVATE_ENDPOINT, KeyPairSet.PRIVATE_ENDPOINT.private)
+
         @Test
         fun `Challenge should be sent as soon as client connects`() {
             testPDCServerRoute(route) {
@@ -141,11 +141,9 @@ class ParcelCollectionHandshakeTest {
                 handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, outgoing ->
                     val challenge = HandshakeChallenge.deserialize(incoming.receive().readBytes())
 
-                    val endpointCertificate = buildEndpointCertificate()
-                    val validSignature = HandshakeTestUtils.sign(
+                    val validSignature = endpointSigner.sign(
                         challenge.nonce,
-                        endpointKeyPair.private,
-                        endpointCertificate
+                        DetachedSignatureType.NONCE
                     )
                     val invalidSignature = "not really a signature".toByteArray()
                     val response = HandshakeResponse(listOf(validSignature, invalidSignature))
@@ -160,7 +158,8 @@ class ParcelCollectionHandshakeTest {
                         closingFrame.readReason()!!.knownReason
                     )
                     assertEquals(
-                        "Handshake response included invalid nonce signatures",
+                        "Handshake response included invalid nonce signatures or untrusted " +
+                            "signers",
                         closingFrame.readReason()!!.message
                     )
                 }
@@ -168,7 +167,7 @@ class ParcelCollectionHandshakeTest {
         }
 
         @Test
-        fun `Connection should error out if response contains at least one invalid certificate`() =
+        fun `Connection should error out if response contains at least one untrusted certificate`() =
             runBlockingTest {
                 testPDCServerRoute(route) {
                     handleWebSocketConversation(
@@ -183,13 +182,11 @@ class ParcelCollectionHandshakeTest {
                         val challenge =
                             HandshakeChallenge.deserialize(incoming.receive().readBytes())
 
-                        val endpointCertificate = buildEndpointCertificate(null)
-                        val validSignature = HandshakeTestUtils.sign(
-                            challenge.nonce,
-                            endpointKeyPair.private,
-                            endpointCertificate
-                        )
-                        val response = HandshakeResponse(listOf(validSignature))
+                        val untrustedSigner =
+                            Signer(CertificationPath.PDA, KeyPairSet.PDA_GRANTEE.private)
+                        val signature =
+                            untrustedSigner.sign(challenge.nonce, DetachedSignatureType.NONCE)
+                        val response = HandshakeResponse(listOf(signature))
                         outgoing.send(Frame.Binary(true, response.serialize()))
 
                         val closingFrameRaw = incoming.receive()
@@ -201,7 +198,8 @@ class ParcelCollectionHandshakeTest {
                             closingFrame.readReason()!!.knownReason
                         )
                         assertEquals(
-                            "Handshake response included invalid certificates",
+                            "Handshake response included invalid nonce signatures or untrusted " +
+                                "signers",
                             closingFrame.readReason()!!.message
                         )
                     }
@@ -229,11 +227,9 @@ class ParcelCollectionHandshakeTest {
                         val challenge =
                             HandshakeChallenge.deserialize(incoming.receive().readBytes())
 
-                        val endpointCertificate = buildEndpointCertificate()
-                        val validSignature = HandshakeTestUtils.sign(
+                        val validSignature = endpointSigner.sign(
                             challenge.nonce,
-                            endpointKeyPair.private,
-                            endpointCertificate
+                            DetachedSignatureType.NONCE
                         )
                         val response = HandshakeResponse(listOf(validSignature))
                         outgoing.send(Frame.Binary(true, response.serialize()))
@@ -250,14 +246,4 @@ class ParcelCollectionHandshakeTest {
                 }
             }
     }
-
-    private fun buildEndpointCertificate(
-        issuerCertificate: Certificate? = CertificationPath.PRIVATE_GW
-    ) =
-        issueEndpointCertificate(
-            endpointKeyPair.public,
-            KeyPairSet.PRIVATE_GW.private,
-            nowInUtc().plusDays(1),
-            issuerCertificate = issuerCertificate
-        )
 }
