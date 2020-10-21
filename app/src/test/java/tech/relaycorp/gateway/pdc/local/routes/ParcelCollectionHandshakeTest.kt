@@ -167,7 +167,7 @@ class ParcelCollectionHandshakeTest {
         }
 
         @Test
-        fun `Connection should error out if response contains at least one untrusted certificate`() =
+        fun `Connection should error out if response contains an untrusted certificate`() =
             runBlockingTest {
                 testPDCServerRoute(route) {
                     handleWebSocketConversation(
