@@ -3,7 +3,7 @@ buildscript {
         maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
-        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.6.1'
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.7.0'
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.6.2.0'
     }
     ext {
@@ -18,7 +18,8 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.diffplug.spotless'
-apply plugin: "de.mannodermaus.android-junit5"
+apply plugin: 'com.mikepenz.aboutlibraries.plugin'
+apply plugin: 'de.mannodermaus.android-junit5'
 
 apply from: 'jacoco.gradle'
 
@@ -144,6 +145,9 @@ dependencies {
     implementation 'androidx.preference:preference:1.1.1'
     implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
 
+    // Display open-source licenses
+    implementation "com.mikepenz:aboutlibraries:8.4.2"
+
     // Testing
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
@@ -159,7 +163,7 @@ dependencies {
     androidTestImplementation('com.schibsted.spain:barista:3.7.0') {
         exclude group: 'org.jetbrains.kotlin'
     }
-    androidTestImplementation "org.mockito:mockito-android:3.5.13"
+    androidTestImplementation "org.mockito:mockito-android:3.5.15"
     androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0") {
         // Workaround for Android API < 26:
         // https://github.com/mockito/mockito/pull/2024

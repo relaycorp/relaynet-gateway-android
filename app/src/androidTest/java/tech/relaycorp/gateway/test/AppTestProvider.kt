@@ -8,7 +8,7 @@ import kotlinx.coroutines.test.TestCoroutineDispatcher
 import tech.relaycorp.gateway.data.database.AppDatabase
 
 object AppTestProvider {
-    private val context: Context
+    val context: Context
         get() = InstrumentationRegistry.getInstrumentation().targetContext
 
     val app

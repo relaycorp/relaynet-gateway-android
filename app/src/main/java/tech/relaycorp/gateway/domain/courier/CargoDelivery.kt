@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.toList
 import tech.relaycorp.cogrpc.okhttp.OkHTTPChannelBuilderProvider
 import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.background.ConnectionStateObserver
+import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.relaynet.CargoDeliveryRequest
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
 import java.util.UUID
@@ -16,7 +17,8 @@ class CargoDelivery
 @Inject constructor(
     private val clientBuilder: CogRPCClient.Builder,
     private val connectionStateObserver: ConnectionStateObserver,
-    private val generateCargo: GenerateCargo
+    private val generateCargo: GenerateCargo,
+    private val storedParcelDao: StoredParcelDao
 ) {
 
     suspend fun deliver() {
@@ -32,6 +34,8 @@ class CargoDelivery
         } finally {
             client.close()
         }
+
+        storedParcelDao.setInTransit(inTransit = true)
     }
 
     private suspend fun generateCargoDeliveries() =
