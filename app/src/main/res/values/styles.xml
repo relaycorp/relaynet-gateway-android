@@ -30,9 +30,7 @@
         <item name="android:letterSpacing">0.025</item>
     </style>
 
-    <style name="Widget.Gateway.Button.Outline" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="strokeColor">@color/text_button</item>
-    </style>
+    <style name="Widget.Gateway.Button.Outline" parent="Widget.MaterialComponents.Button.OutlinedButton"/>
 
     <style name="Widget.Gateway.Button.Text" parent="Widget.MaterialComponents.Button.TextButton" tools:ignore="UnusedResources" />
 

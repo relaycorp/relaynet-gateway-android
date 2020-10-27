@@ -10,10 +10,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.background.ConnectionStateObserver
-import tech.relaycorp.gateway.data.model.StorageSize
 import tech.relaycorp.gateway.data.preference.AppPreferences
 import tech.relaycorp.gateway.domain.GetEndpointApplicationsCount
-import tech.relaycorp.gateway.domain.GetTotalOutgoingData
+import tech.relaycorp.gateway.domain.GetOutgoingData
 import tech.relaycorp.gateway.ui.BaseViewModel
 import javax.inject.Inject
 
@@ -21,8 +20,8 @@ class MainViewModel
 @Inject constructor(
     appPreferences: AppPreferences,
     private val connectionStateObserver: ConnectionStateObserver,
-    private val getTotalOutgoingData: GetTotalOutgoingData,
-    getEndpointApplicationsCount: GetEndpointApplicationsCount
+    private val getOutgoingData: GetOutgoingData,
+    private val getEndpointApplicationsCount: GetEndpointApplicationsCount
 ) : BaseViewModel() {
 
     // Outputs
@@ -52,16 +51,16 @@ class MainViewModel
         connectionStateObserver
             .observe()
             .flatMapLatest { connectionState ->
-                getTotalOutgoingData
-                    .get()
-                    .map { outgoingData ->
+                getOutgoingData
+                    .any()
+                    .map { anyOutgoingData ->
                         when (connectionState) {
                             is ConnectionState.InternetAndPublicGateway -> DataState.Invisible
                             else ->
-                                if (outgoingData.isZero) {
-                                    DataState.Visible.WithoutOutgoingData
+                                if (anyOutgoingData) {
+                                    DataState.Visible.WithOutgoingData
                                 } else {
-                                    DataState.Visible.WithOutgoingData(outgoingData)
+                                    DataState.Visible.WithoutOutgoingData
                                 }
                         }
                     }
@@ -78,7 +77,7 @@ class MainViewModel
     sealed class DataState {
         object Invisible : DataState()
         sealed class Visible : DataState() {
-            data class WithOutgoingData(val dataWaitingToSync: StorageSize) : Visible()
+            object WithOutgoingData : Visible()
             object WithoutOutgoingData : Visible()
         }
     }
