@@ -58,6 +58,17 @@ interface StoredParcelDao {
 
     @Query(
         """
+        SELECT SUM(Parcel.size) FROM Parcel 
+        WHERE recipientLocation = :recipientLocation AND inTransit = :inTransit
+        """
+    )
+    fun countSizeForRecipientLocationAndInTransit(
+        recipientLocation: RecipientLocation,
+        inTransit: Boolean
+    ): Flow<StorageSize>
+
+    @Query(
+        """
         SELECT * FROM Parcel
         WHERE recipientAddress = :recipientAddress 
             AND senderAddress = :senderAddress 
@@ -70,4 +81,15 @@ interface StoredParcelDao {
         senderAddress: MessageAddress,
         messageId: MessageId
     ): StoredParcel?
+
+    @Query(
+        """
+        UPDATE Parcel SET inTransit = :inTransit
+        WHERE recipientLocation = :recipientLocation 
+        """
+    )
+    suspend fun setInTransit(
+        recipientLocation: RecipientLocation = RecipientLocation.ExternalGateway,
+        inTransit: Boolean
+    )
 }

@@ -17,13 +17,13 @@
         <item name="colorOnSurface">?colorPrimary</item>
         <item name="colorOnError">@color/white</item>
 
-        <item name="android:textColor">@color/text_primary</item>
-        <item name="android:textColorPrimary">@color/text_primary</item>
-        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColor">?colorOnBackground</item>
+        <item name="android:textColorPrimary">?colorOnBackground</item>
+        <item name="android:textColorSecondary">@color/gray_dark</item>
         <item name="android:fontFamily">@font/inria_sans</item>
         <item name="android:textAppearance">@style/TextAppearance.Gateway.Body</item>
 
-        <item name="iconTint">?colorOnSurface</item>
+        <item name="iconTint">@color/gray_dark</item>
         <item name="android:colorControlHighlight">@color/gray_light</item>
         <item name="android:listDivider">@color/gray_dark</item>
 

@@ -18,7 +18,8 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.diffplug.spotless'
-apply plugin: "de.mannodermaus.android-junit5"
+apply plugin: 'com.mikepenz.aboutlibraries.plugin'
+apply plugin: 'de.mannodermaus.android-junit5'
 
 apply from: 'jacoco.gradle'
 
@@ -143,6 +144,9 @@ dependencies {
     // Preferences
     implementation 'androidx.preference:preference:1.1.1'
     implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
+
+    // Display open-source licenses
+    implementation "com.mikepenz:aboutlibraries:8.4.2"
 
     // Testing
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
