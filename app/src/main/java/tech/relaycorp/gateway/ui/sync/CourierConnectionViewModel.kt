@@ -12,7 +12,4 @@ class CourierConnectionViewModel
     // Outputs
 
     val state get() = connectionStateObserver.observe()
-
-    init {
-    }
 }
