@@ -8,8 +8,9 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.stationhead.android.shared.viewmodel.ViewModelFactory
+import kotlinx.android.synthetic.main.activity_courier_connection.connectedLayout
+import kotlinx.android.synthetic.main.activity_courier_connection.disconnectedLayout
 import kotlinx.android.synthetic.main.activity_courier_connection.startSync
-import kotlinx.android.synthetic.main.activity_courier_connection.stateMessage
 import kotlinx.android.synthetic.main.activity_courier_connection.wifiSettings
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -32,6 +33,7 @@ class CourierConnectionActivity : BaseActivity() {
         component.inject(this)
         setTitle(R.string.main_title)
         setContentView(R.layout.activity_courier_connection)
+        setupNavigation()
 
         startSync.setOnClickListener { openCourierSync() }
         wifiSettings.setOnClickListener { openWifiSettings() }
@@ -39,19 +41,8 @@ class CourierConnectionActivity : BaseActivity() {
         viewModel
             .state
             .onEach {
-                startSync.isEnabled = it is ConnectionState.WiFiWithCourier
-                stateMessage.setText(
-                    when (it) {
-                        is ConnectionState.WiFiWithCourier ->
-                            R.string.courier_connected
-                        is ConnectionState.WiFiWithUnknown ->
-                            R.string.courier_connected_with_unknown
-                        else ->
-                            R.string.courier_disconnected
-                    }
-                )
-                wifiSettings.isVisible = it !is ConnectionState.WiFiWithCourier
-                startSync.isVisible = it is ConnectionState.WiFiWithCourier
+                disconnectedLayout.isVisible = it !is ConnectionState.WiFiWithCourier
+                connectedLayout.isVisible = it is ConnectionState.WiFiWithCourier
             }
             .launchIn(lifecycleScope)
     }

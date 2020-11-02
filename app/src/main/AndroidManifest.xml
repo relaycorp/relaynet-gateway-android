@@ -81,4 +81,9 @@
             tools:node="remove" />
     </application>
 
+    <queries>
+        <intent>
+            <action android:name="tech.relaycorp.endpoint.NOTIFY" />
+        </intent>
+    </queries>
 </manifest>
