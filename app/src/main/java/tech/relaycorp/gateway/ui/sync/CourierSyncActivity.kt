@@ -9,8 +9,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.stationhead.android.shared.viewmodel.ViewModelFactory
-import kotlinx.android.synthetic.main.activity_courier_connection.*
-import kotlinx.android.synthetic.main.activity_courier_connection.stateMessage
 import kotlinx.android.synthetic.main.activity_courier_sync.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
