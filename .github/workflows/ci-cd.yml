@@ -3,7 +3,16 @@ on:
   push:
     branches-ignore: [gh-pages]
 jobs:
+  static-checks:
+    name: Static checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
   ci:
+    needs: static-checks
     name: "Run static checks and tests"
     runs-on: ubuntu-latest
     steps:
@@ -11,8 +20,6 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 8
-      - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
       - name: Cache Grade dependencies
         uses: actions/cache@v1
         with:
