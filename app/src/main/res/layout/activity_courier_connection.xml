@@ -8,46 +8,170 @@
 
     <include layout="@layout/common_app_bar" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/innerContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="32dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-        <TextView
-            android:id="@+id/stateMessage"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:textAppearance="@style/TextAppearance.Gateway.Heading2"
-            android:textIsSelectable="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="@string/courier_connected" />
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical"
+            android:padding="32dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/wifiSettings"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="64dp"
-            android:text="@string/courier_configure_wifi"
-            app:icon="@drawable/ic_wifi"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="64dp"
+                android:layout_marginBottom="32dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/onboarding_image_1" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/startSync"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="64dp"
-            android:text="@string/courier_sync_start"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/disconnectedLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:visibility="gone"
+                tools:visibility="gone">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/disconnectedTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="@string/courier_instructions_title"
+                    android:textAppearance="@style/TextAppearance.Gateway.Heading2"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/disconnectedListTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:text="@string/courier_instructions_list_title"
+                    app:layout_constraintTop_toBottomOf="@id/disconnectedTitle" />
+
+                <TextView
+                    android:id="@+id/instruction1Bullet"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/circunference"
+                    android:gravity="center"
+                    android:text="@string/courier_instructions_1_bullet"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/disconnectedListTitle" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="@string/courier_instructions_1"
+                    app:layout_constraintBottom_toBottomOf="@id/instruction1Bullet"
+                    app:layout_constraintStart_toEndOf="@id/instruction1Bullet"
+                    app:layout_constraintTop_toTopOf="@id/instruction1Bullet" />
+
+                <TextView
+                    android:id="@+id/instruction2Bullet"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/circunference"
+                    android:gravity="center"
+                    android:text="@string/courier_instructions_2_bullet"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/instruction1Bullet" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="@string/courier_instructions_2"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintBottom_toBottomOf="@id/instruction2Bullet"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/instruction2Bullet"
+                    app:layout_constraintTop_toTopOf="@id/instruction2Bullet" />
+
+                <TextView
+                    android:id="@+id/instruction3Bullet"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/circunference"
+                    android:gravity="center"
+                    android:text="@string/courier_instructions_3_bullet"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/instruction2Bullet" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="@string/courier_instructions_3"
+                    app:layout_constraintBottom_toBottomOf="@id/instruction3Bullet"
+                    app:layout_constraintStart_toEndOf="@id/instruction3Bullet"
+                    app:layout_constraintTop_toTopOf="@id/instruction3Bullet" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/wifiSettings"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:text="@string/courier_configure_wifi"
+                    app:icon="@drawable/ic_wifi"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/instruction3Bullet" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:id="@+id/connectedLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="@string/courier_connected"
+                    android:textAppearance="@style/TextAppearance.Gateway.Heading1" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_marginTop="32dp"
+                    android:text="@string/courier_connected_text"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/startSync"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="64dp"
+                    android:text="@string/courier_sync_start"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

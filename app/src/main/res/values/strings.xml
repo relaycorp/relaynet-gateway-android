@@ -25,10 +25,19 @@
     <string name="sync_courier">Sync with Courier</string>
 
     <!-- Courier Connection -->
-    <string name="courier_connected">Connected with Courier</string>
-    <string name="courier_connected_with_unknown">Connected with network without Courier</string>
-    <string name="courier_disconnected">Disconnected</string>
+    <string name="courier_instructions_title">
+        If there is a Courier near you, connect to their Wi-Fi network to sync the data.
+    </string>
+    <string name="courier_instructions_list_title">You will need to:</string>
+    <string name="courier_instructions_1_bullet">1</string>
+    <string name="courier_instructions_2_bullet">2</string>
+    <string name="courier_instructions_3_bullet">3</string>
+    <string name="courier_instructions_1">Turn on the Wi-Fi</string>
+    <string name="courier_instructions_2">Connected to the Courier Wi-Fi network</string>
+    <string name="courier_instructions_3">Wait until the Courier is ready to sync</string>
     <string name="courier_configure_wifi">Open Wi-Fi Settings</string>
+    <string name="courier_connected">You’re Connected</string>
+    <string name="courier_connected_text">You’re connect to the Courier</string>
     <string name="courier_sync_start">Start Sync</string>
 
     <!-- Courier Sync -->
