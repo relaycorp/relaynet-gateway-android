@@ -36,9 +36,6 @@ class ConnectionStateObserver
     private val hotspotSourceIpAddress
         get() = wifiManager.dhcpInfo?.serverAddress?.toIpAddressString()
 
-    private val wifiNetworkName
-        get() = wifiManager.connectionInfo.ssid
-
     init {
         val networkCallback = NetworkCallback()
 
@@ -68,14 +65,11 @@ class ConnectionStateObserver
             }
         } else if (network.isWifi) {
             val serverAddress = hotspotSourceIpAddress
-                ?: return ConnectionState.WiFiWithUnknown(wifiNetworkName)
+                ?: return ConnectionState.WiFiWithUnknown
             if (pingCourierServer(serverAddress)) {
-                ConnectionState.WiFiWithCourier(
-                    wifiNetworkName,
-                    serverAddress.toFullServerAddress()
-                )
+                ConnectionState.WiFiWithCourier(serverAddress.toFullServerAddress())
             } else {
-                ConnectionState.WiFiWithUnknown(wifiNetworkName)
+                ConnectionState.WiFiWithUnknown
             }
         } else {
             ConnectionState.Disconnected
