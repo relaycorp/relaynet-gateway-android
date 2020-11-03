@@ -19,7 +19,7 @@ import tech.relaycorp.gateway.pdc.local.PDCServer
 import tech.relaycorp.gateway.test.AppTestProvider
 import tech.relaycorp.gateway.test.factory.ParcelFactory
 import tech.relaycorp.poweb.PoWebClient
-import tech.relaycorp.poweb.ServerConnectionException
+import tech.relaycorp.relaynet.bindings.pdc.ServerConnectionException
 import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.messages.Parcel
