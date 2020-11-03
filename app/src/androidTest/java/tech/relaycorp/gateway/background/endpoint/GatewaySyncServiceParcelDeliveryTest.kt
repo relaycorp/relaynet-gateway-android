@@ -17,7 +17,7 @@ import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.pdc.local.PDCServer
 import tech.relaycorp.gateway.test.AppTestProvider
 import tech.relaycorp.poweb.PoWebClient
-import tech.relaycorp.poweb.RejectedParcelException
+import tech.relaycorp.relaynet.bindings.pdc.RejectedParcelException
 import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.testing.CertificationPath
