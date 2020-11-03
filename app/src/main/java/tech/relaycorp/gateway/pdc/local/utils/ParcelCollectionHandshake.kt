@@ -7,6 +7,7 @@ import io.ktor.http.cio.websocket.readBytes
 import io.ktor.websocket.DefaultWebSocketServerSession
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.bindings.pdc.DetachedSignatureType
+import tech.relaycorp.relaynet.bindings.pdc.InvalidSignatureException
 import tech.relaycorp.relaynet.messages.InvalidMessageException
 import tech.relaycorp.relaynet.messages.control.HandshakeChallenge
 import tech.relaycorp.relaynet.messages.control.HandshakeResponse
@@ -49,7 +50,7 @@ class ParcelCollectionHandshake
                         nonce,
                         trustedCertificates
                     )
-                } catch (_: InvalidMessageException) {
+                } catch (_: InvalidSignatureException) {
                     session.closeCannotAccept(
                         "Handshake response included invalid nonce signatures or untrusted signers"
                     )
