@@ -13,11 +13,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.conscrypt.Conscrypt
+import tech.relaycorp.gateway.background.ForegroundAppMonitor
 import tech.relaycorp.gateway.background.publicsync.PublicSyncWorker
 import tech.relaycorp.gateway.background.publicsync.PublicSyncWorkerFactory
 import tech.relaycorp.gateway.common.Logging
 import tech.relaycorp.gateway.common.di.AppComponent
 import tech.relaycorp.gateway.common.di.DaggerAppComponent
+import tech.relaycorp.gateway.domain.publicsync.PublicSync
 import tech.relaycorp.gateway.domain.publicsync.RegisterGateway
 import java.security.Security
 import java.time.Duration
@@ -45,7 +47,13 @@ open class App : Application() {
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
     @Inject
+    lateinit var foregroundAppMonitor: ForegroundAppMonitor
+
+    @Inject
     lateinit var registerGateway: RegisterGateway
+
+    @Inject
+    lateinit var publicSync: PublicSync
 
     @Inject
     lateinit var publicSyncWorkerFactory: PublicSyncWorkerFactory
@@ -56,7 +64,10 @@ open class App : Application() {
         setupTLSProvider()
         setupLogger()
         setupStrictMode()
+        registerActivityLifecycleCallbacks(foregroundAppMonitor)
+
         registerGateway()
+        triggerPublicSyncOnForeground()
         enqueuePublicSyncWorker()
     }
 
@@ -109,6 +120,12 @@ open class App : Application() {
         if (mode == Mode.Test) return
         ioScope.launch {
             registerGateway.registerIfNeeded()
+        }
+    }
+
+    private fun triggerPublicSyncOnForeground() {
+        ioScope.launch {
+            publicSync.syncOnAppForeground()
         }
     }
 

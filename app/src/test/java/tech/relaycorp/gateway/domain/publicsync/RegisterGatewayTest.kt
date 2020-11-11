@@ -28,14 +28,12 @@ class RegisterGatewayTest {
     private val pgwPreferences = mock<PublicGatewayPreferences>()
     private val localConfig = mock<LocalConfig>()
     private val poWebClient = mock<PoWebClient>()
-    private val poWebClientBuilder: ((String) -> PoWebClient) = { poWebClient }
-    private val registerGateway =
-        RegisterGateway(pgwPreferences, localConfig, poWebClientBuilder)
+    private val poWebClientBuilder = suspend { poWebClient }
+    private val registerGateway = RegisterGateway(pgwPreferences, localConfig, poWebClientBuilder)
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
         whenever(localConfig.getKeyPair()).thenReturn(generateRSAKeyPair())
-        whenever(pgwPreferences.getAddress()).thenReturn(PublicGatewayPreferences.DEFAULT_ADDRESS)
     }
 
     @Test
