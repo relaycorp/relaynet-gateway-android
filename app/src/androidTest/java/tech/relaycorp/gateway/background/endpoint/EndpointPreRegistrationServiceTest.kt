@@ -8,13 +8,17 @@ import android.os.Message
 import android.os.Messenger
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.rule.ServiceTestRule
+import com.schibsted.spain.barista.rule.cleardata.ClearPreferencesRule
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import tech.relaycorp.gateway.data.model.RegistrationState
+import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.AppTestProvider
 import tech.relaycorp.gateway.test.WaitAssertions.waitFor
@@ -26,13 +30,25 @@ class EndpointPreRegistrationServiceTest {
 
     @get:Rule
     val serviceRule = ServiceTestRule()
+    @get:Rule
+    val clearPreferencesRule = ClearPreferencesRule()
 
     @Inject
     lateinit var localConfig: LocalConfig
 
+    @Inject
+    lateinit var publicGatewayPreferences: PublicGatewayPreferences
+
     @Before
     fun setUp() {
         AppTestProvider.component.inject(this)
+        runBlocking {
+            publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
+        }
+    }
+
+    @After
+    fun tearDown() {
     }
 
     @Test
@@ -90,5 +106,39 @@ class EndpointPreRegistrationServiceTest {
         val invalidMessage = Message.obtain(null, 999)
 
         messenger.send(invalidMessage)
+    }
+
+    @Test
+    fun errorReturnedWhenGatewayIsNotRegisteredYet() {
+        runBlocking {
+            publicGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
+        }
+
+        val serviceIntent = Intent(
+            getApplicationContext<Context>(),
+            EndpointPreRegistrationService::class.java
+        )
+        val binder = serviceRule.bindService(serviceIntent)
+
+        var resultMessage: Message? = null
+
+        val messenger = Messenger(binder)
+        val handler = object : Handler(Looper.getMainLooper()) {
+            override fun handleMessage(msg: Message) {
+                resultMessage = Message.obtain().also { it.copyFrom(msg) }
+            }
+        }
+        val requestMessage =
+            Message.obtain(handler, EndpointPreRegistrationService.PREREGISTRATION_REQUEST)
+        requestMessage.replyTo = Messenger(handler)
+        messenger.send(requestMessage)
+
+        waitFor {
+            assertNotNull("We should have got a reply", resultMessage)
+        }
+        assertEquals(
+            EndpointPreRegistrationService.PREREGISTRATION_ERROR,
+            resultMessage!!.what
+        )
     }
 }

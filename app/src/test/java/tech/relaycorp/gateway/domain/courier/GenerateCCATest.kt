@@ -2,7 +2,6 @@ package tech.relaycorp.gateway.domain.courier
 
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -31,7 +30,7 @@ class GenerateCCATest {
         val address = "http://example.org"
         whenever(localConfig.getKeyPair()).thenReturn(keyPair)
         whenever(localConfig.getCertificate()).thenReturn(certificate)
-        whenever(publicGatewayPreferences.getAddress()).thenReturn(flowOf(address))
+        whenever(publicGatewayPreferences.getAddress()).thenReturn(address)
 
         val ccaBytes = generateCCA.generateByteArray()
         val cca = CargoCollectionAuthorization.deserialize(ccaBytes)

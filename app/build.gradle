@@ -142,11 +142,14 @@ dependencies {
     implementation "androidx.room:room-ktx:$room_version"
 
     // Preferences
-    implementation 'androidx.preference:preference:1.1.1'
+    implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
 
     // Display open-source licenses
     implementation "com.mikepenz:aboutlibraries:8.4.5"
+
+    // HTTP
+    implementation 'tech.relaycorp:poweb:1.5.7'
 
     // Testing
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"

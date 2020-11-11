@@ -8,6 +8,7 @@ import dagger.Module
 import dagger.Provides
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.database.AppDatabase
+import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
 import javax.inject.Named
 import javax.inject.Singleton
@@ -67,4 +68,11 @@ class DataModule {
 
     @Provides
     fun cogRPCClientBuilder(): CogRPCClient.Builder = CogRPCClient.Builder
+
+    // PoWeb
+
+    @Provides
+    fun poWebClientBuilder(): ((String) -> PoWebClient) = { hostName ->
+        PoWebClient.initRemote(hostName)
+    }
 }
