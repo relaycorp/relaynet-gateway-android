@@ -106,6 +106,7 @@ open class App : Application() {
     }
 
     private fun registerGateway() {
+        if (mode == Mode.Test) return
         ioScope.launch {
             registerGateway.registerIfNeeded()
         }
