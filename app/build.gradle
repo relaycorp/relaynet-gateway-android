@@ -148,9 +148,6 @@ dependencies {
     // Display open-source licenses
     implementation "com.mikepenz:aboutlibraries:8.4.5"
 
-    // HTTP
-    implementation 'tech.relaycorp:poweb:1.5.7'
-
     // Testing
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"

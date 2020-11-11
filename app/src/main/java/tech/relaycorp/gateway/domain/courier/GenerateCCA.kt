@@ -14,7 +14,7 @@ class GenerateCCA
 
     suspend fun generate() =
         CargoCollectionAuthorization(
-            recipientAddress = publicGatewayPreferences.getAddress(),
+            recipientAddress = publicGatewayPreferences.getCogRPCAddress(),
             payload = "".toByteArray(),
             senderCertificate = localConfig.getCertificate(),
             ttl = TTL.inSeconds.toInt()

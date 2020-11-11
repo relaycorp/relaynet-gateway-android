@@ -28,6 +28,8 @@ class PublicGatewayPreferences
     private fun observeAddress() = { address }.toFlow()
     suspend fun setAddress(value: String) = address.setAndCommit(value)
 
+    suspend fun getCogRPCAddress() = COGRPC_ADDRESS
+
     // Certificate
 
     private val certificate by lazy {
@@ -63,5 +65,6 @@ class PublicGatewayPreferences
     companion object {
         @VisibleForTesting
         internal const val DEFAULT_ADDRESS = "https://poweb-test.relaycorp.tech"
+        private const val COGRPC_ADDRESS = "https://cogrpc-test.relaycorp.tech"
     }
 }

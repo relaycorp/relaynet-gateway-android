@@ -30,7 +30,7 @@ class GenerateCCATest {
         val address = "http://example.org"
         whenever(localConfig.getKeyPair()).thenReturn(keyPair)
         whenever(localConfig.getCertificate()).thenReturn(certificate)
-        whenever(publicGatewayPreferences.getAddress()).thenReturn(address)
+        whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn(address)
 
         val ccaBytes = generateCCA.generateByteArray()
         val cca = CargoCollectionAuthorization.deserialize(ccaBytes)

@@ -78,7 +78,7 @@ class GenerateCargo
         }
 
     private suspend fun getPublicGatewayAddress() =
-        publicGatewayPreferences.getAddress()
+        publicGatewayPreferences.getCogRPCAddress()
 
     private suspend fun getPublicGatewayCertificate() =
         publicGatewayPreferences.getCertificate()

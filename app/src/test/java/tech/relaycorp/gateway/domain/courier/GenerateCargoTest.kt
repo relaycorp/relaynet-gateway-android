@@ -49,7 +49,7 @@ class GenerateCargoTest {
         )
         whenever(localConfig.getKeyPair()).thenReturn(keyPair)
         whenever(localConfig.getCertificate()).thenReturn(certificate)
-        whenever(publicGatewayPreferences.getAddress()).thenReturn("https://example.org")
+        whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn("https://example.org")
         whenever(publicGatewayPreferences.getCertificate()).thenReturn(certificate)
     }
 
@@ -79,7 +79,7 @@ class GenerateCargoTest {
 
         val cargo = Cargo.deserialize(cargoes.first().readBytes())
         assertEquals(
-            publicGatewayPreferences.getAddress(),
+            publicGatewayPreferences.getCogRPCAddress(),
             cargo.recipientAddress
         )
         assertTrue(Duration.between(parcel.expirationTimeUtc, cargo.expiryDate).abs().seconds <= 2)

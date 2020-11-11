@@ -51,7 +51,7 @@ class EndpointPreRegistrationService : Service() {
         val localMessage = Message.obtain(message)
         scope.launch {
             when (localMessage.what) {
-                PREREGISTRATION_REQUEST -> reply(localMessage)
+                PRE_REGISTRATION_REQUEST -> reply(localMessage)
             }
         }
     }
@@ -61,12 +61,12 @@ class EndpointPreRegistrationService : Service() {
         val replyMessage = when {
             endpointApplicationId == null -> {
                 logger.log(Level.WARNING, "Could not get applicationId from caller")
-                Message.obtain(null, PREREGISTRATION_ERROR)
+                Message.obtain(null, PRE_REGISTRATION_ERROR)
             }
 
             publicGatewayPreferences.getRegistrationState() != RegistrationState.Done -> {
                 logger.log(Level.WARNING, "Gateway not ready for registration")
-                Message.obtain(null, PREREGISTRATION_ERROR)
+                Message.obtain(null, GATEWAY_NOT_REGISTERED)
             }
 
             else -> {
@@ -83,8 +83,9 @@ class EndpointPreRegistrationService : Service() {
         applicationContext.packageManager.getNameForUid(uid)
 
     companion object {
-        const val PREREGISTRATION_REQUEST = 1
+        const val PRE_REGISTRATION_REQUEST = 1
         const val REGISTRATION_AUTHORIZATION = 2
-        const val PREREGISTRATION_ERROR = 3
+        const val PRE_REGISTRATION_ERROR = 3
+        const val GATEWAY_NOT_REGISTERED = 4
     }
 }

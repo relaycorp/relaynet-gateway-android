@@ -68,7 +68,7 @@ class EndpointPreRegistrationServiceTest {
             }
         }
         val requestMessage =
-            Message.obtain(handler, EndpointPreRegistrationService.PREREGISTRATION_REQUEST)
+            Message.obtain(handler, EndpointPreRegistrationService.PRE_REGISTRATION_REQUEST)
         requestMessage.replyTo = Messenger(handler)
         messenger.send(requestMessage)
 
@@ -129,7 +129,7 @@ class EndpointPreRegistrationServiceTest {
             }
         }
         val requestMessage =
-            Message.obtain(handler, EndpointPreRegistrationService.PREREGISTRATION_REQUEST)
+            Message.obtain(handler, EndpointPreRegistrationService.PRE_REGISTRATION_REQUEST)
         requestMessage.replyTo = Messenger(handler)
         messenger.send(requestMessage)
 
@@ -137,7 +137,7 @@ class EndpointPreRegistrationServiceTest {
             assertNotNull("We should have got a reply", resultMessage)
         }
         assertEquals(
-            EndpointPreRegistrationService.PREREGISTRATION_ERROR,
+            EndpointPreRegistrationService.GATEWAY_NOT_REGISTERED,
             resultMessage!!.what
         )
     }
