@@ -4,9 +4,9 @@ import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
-import tech.relaycorp.gateway.pdc.local.routes.ServerException
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
+import tech.relaycorp.relaynet.bindings.pdc.ServerException
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import java.net.URL
 import java.util.logging.Level
