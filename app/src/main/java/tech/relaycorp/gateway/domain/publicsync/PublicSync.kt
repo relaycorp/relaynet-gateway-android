@@ -16,8 +16,8 @@ import kotlin.time.seconds
 class PublicSync
 @Inject constructor(
     private val foregroundAppMonitor: ForegroundAppMonitor,
-    private val deliverPublicParcels: DeliverPublicParcels,
-    private val collectPublicParcels: CollectPublicParcels
+    private val deliverParcelsToGateway: DeliverParcelsToGateway,
+    private val collectParcelsFromGateway: CollectParcelsFromGateway
 ) {
 
     private var syncJob: Job? = null
@@ -38,9 +38,9 @@ class PublicSync
         if (isSyncing) return // If the app is on the foreground it's already syncing
 
         logger.info("Starting Public Gateway Sync (one-off)")
-        deliverPublicParcels.deliver(false)
+        deliverParcelsToGateway.deliver(false)
         delay(3.seconds)
-        collectPublicParcels.collect(false)
+        collectParcelsFromGateway.collect(false)
     }
 
     private fun startSync() {
@@ -48,8 +48,8 @@ class PublicSync
         val syncJob = Job()
         this.syncJob = syncJob
         val syncScope = CoroutineScope(syncJob + Dispatchers.IO)
-        syncScope.launch { deliverPublicParcels.deliver(true) }
-        syncScope.launch { collectPublicParcels.collect(true) }
+        syncScope.launch { deliverParcelsToGateway.deliver(true) }
+        syncScope.launch { collectParcelsFromGateway.collect(true) }
     }
 
     private fun stopSync() {

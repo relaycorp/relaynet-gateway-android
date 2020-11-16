@@ -25,7 +25,7 @@ import java.util.logging.Level
 import javax.inject.Inject
 
 @JvmSuppressWildcards
-class DeliverPublicParcels
+class DeliverParcelsToGateway
 @Inject constructor(
     private val storedParcelDao: StoredParcelDao,
     private val diskMessageOperations: DiskMessageOperations,
@@ -49,11 +49,13 @@ class DeliverPublicParcels
                 parcelsQuery.take(1).flatMapLatest { it.asFlow() }
             }
 
-        parcelsFlow.collect { parcel ->
-            try {
-                deliverParcel(poWebClient, parcel)
-            } catch (e: ServerException) {
-                logger.log(Level.INFO, "Could not deliver parcels due to server error", e)
+        poWebClient.use {
+            parcelsFlow.collect { parcel ->
+                try {
+                    deliverParcel(poWebClient, parcel)
+                } catch (e: ServerException) {
+                    logger.log(Level.INFO, "Could not deliver parcels due to server error", e)
+                }
             }
         }
     }
@@ -64,9 +66,9 @@ class DeliverPublicParcels
 
         try {
             poWebClient.deliverParcel(parcelStream.readBytesAndClose(), getSigner())
-            deleteParcel.delete(parcel)
         } catch (e: RejectedParcelException) {
-            logger.log(Level.WARNING, "Could not deliver rejected parcel", e)
+            logger.log(Level.WARNING, "Could not deliver rejected parcel (will be deleted)", e)
+            deleteParcel.delete(parcel)
         } catch (e: ClientBindingException) {
             logger.log(Level.SEVERE, "Could not deliver parcel due to client error", e)
         }
@@ -80,6 +82,14 @@ class DeliverPublicParcels
             null
         }
 
+    private lateinit var _signer: Signer
     private suspend fun getSigner() =
-        Signer(localConfig.getCertificate(), localConfig.getKeyPair().private)
+        if (this::_signer.isInitialized) {
+            _signer
+        } else {
+            Signer(localConfig.getCertificate(), localConfig.getKeyPair().private).also {
+                _signer = it
+            }
+        }
 }
+

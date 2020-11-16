@@ -17,7 +17,7 @@ import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import java.util.logging.Level
 import javax.inject.Inject
 
-class CollectPublicParcels
+class CollectParcelsFromGateway
 @Inject constructor(
     private val storeParcel: StoreParcel,
     private val poWebClientBuilder: PoWebClientBuilder,
@@ -34,9 +34,11 @@ class CollectPublicParcels
             if (keepAlive) StreamingMode.KeepAlive else StreamingMode.CloseUponCompletion
 
         try {
-            poWebClient
-                .collectParcels(arrayOf(signer), streamingMode)
-                .collect { collectParcel(it, keepAlive) }
+            poWebClient.use {
+                poWebClient
+                    .collectParcels(arrayOf(signer), streamingMode)
+                    .collect { collectParcel(it, keepAlive) }
+            }
         } catch (e: ServerException) {
             logger.log(Level.INFO, "Could not collect parcels due to server error", e)
             return

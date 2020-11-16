@@ -2,7 +2,6 @@ package tech.relaycorp.gateway.data
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.PowerManager
 import androidx.room.Room
 import com.tfcporciuncula.flow.FlowSharedPreferences
 import dagger.Module
@@ -79,8 +78,11 @@ class DataModule {
     fun poWebClientBuilder(publicGatewayPreferences: PublicGatewayPreferences) =
         object : PoWebClientBuilder {
             override suspend fun build(): PoWebClient {
-                val address = publicGatewayPreferences.getAddress()
-                return PoWebClient.initRemote(URL(address).host)
+                val url = URL(publicGatewayPreferences.getAddress())
+                return PoWebClient.initRemote(
+                    hostName = url.host,
+                    port = if (url.port != -1) url.port else 443
+                )
             }
         }
 }

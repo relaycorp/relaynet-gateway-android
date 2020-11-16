@@ -4,7 +4,6 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.check
-import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.spy
@@ -42,7 +41,7 @@ class NotifyEndpointsTest {
     }
 
     @Test
-    fun notifyAllPending() {
+    fun notifyAllPending_oncePerEndpoint() {
         runBlocking {
             val parcel1 = StoredParcelFactory.build()
                 .copy(recipientLocation = RecipientLocation.LocalEndpoint)
@@ -79,6 +78,38 @@ class NotifyEndpointsTest {
     }
 
     @Test
+    fun notifyAllPending_oncePerApplicationId() {
+        runBlocking {
+            val parcel1 = StoredParcelFactory.build()
+                .copy(recipientLocation = RecipientLocation.LocalEndpoint)
+            val parcel2 = StoredParcelFactory.build()
+                .copy(recipientLocation = RecipientLocation.LocalEndpoint)
+            storedParcelDao.insert(parcel1)
+            storedParcelDao.insert(parcel2)
+
+            val appId = "123"
+            val endpoint1 = LocalEndpointFactory.build()
+                .copy(address = parcel1.recipientAddress, applicationId = "123")
+            localEndpointDao.insert(endpoint1)
+            val endpoint2 = LocalEndpointFactory.build()
+                .copy(address = parcel2.recipientAddress, applicationId = "123")
+            localEndpointDao.insert(endpoint2)
+
+            whenever(getEndpointReceiver.get(any())).thenReturn(".Receiver")
+
+            notifyEndpoints.notifyAllPending()
+
+            verify(context, times(1)).sendBroadcast(
+                check {
+                    assertEquals(appId, it.component?.packageName)
+                    assertEquals(".Receiver", it.component?.className)
+                }
+            )
+            verifyNoMoreInteractions(context)
+        }
+    }
+
+    @Test
     fun notify_withKnownAddressAndReceiver() {
         runBlocking {
             val endpoint = LocalEndpointFactory.build()
@@ -98,7 +129,6 @@ class NotifyEndpointsTest {
         }
     }
 
-    @Test(expected = NotifyEndpoints.UnreachableEndpointApp::class)
     fun notify_withKnownAddressButWithoutReceiver() {
         runBlocking {
             val endpoint = LocalEndpointFactory.build()
@@ -107,6 +137,7 @@ class NotifyEndpointsTest {
             whenever(getEndpointReceiver.get(any())).thenReturn(null)
 
             notifyEndpoints.notify(endpoint.address)
+            verifyNoMoreInteractions(context)
         }
     }
 
