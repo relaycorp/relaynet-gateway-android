@@ -2,7 +2,6 @@ package tech.relaycorp.gateway.domain.courier
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.common.nowInUtc
@@ -79,10 +78,10 @@ class GenerateCargo
         }
 
     private suspend fun getPublicGatewayAddress() =
-        publicGatewayPreferences.getAddress().first()
+        publicGatewayPreferences.getCogRPCAddress()
 
     private suspend fun getPublicGatewayCertificate() =
-        publicGatewayPreferences.getCertificate().first()
+        publicGatewayPreferences.getCertificate()
 
     private suspend fun CargoMessageSetWithExpiry.toCargo(): Cargo {
         if (nowInUtc() > latestMessageExpiryDate) {

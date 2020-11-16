@@ -18,6 +18,7 @@ import tech.relaycorp.gateway.background.publicsync.PublicSyncWorkerFactory
 import tech.relaycorp.gateway.common.Logging
 import tech.relaycorp.gateway.common.di.AppComponent
 import tech.relaycorp.gateway.common.di.DaggerAppComponent
+import tech.relaycorp.gateway.domain.publicsync.RegisterGateway
 import java.security.Security
 import java.time.Duration
 import java.util.logging.Level
@@ -44,6 +45,9 @@ open class App : Application() {
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
     @Inject
+    lateinit var registerGateway: RegisterGateway
+
+    @Inject
     lateinit var publicSyncWorkerFactory: PublicSyncWorkerFactory
 
     override fun onCreate() {
@@ -52,6 +56,7 @@ open class App : Application() {
         setupTLSProvider()
         setupLogger()
         setupStrictMode()
+        registerGateway()
         enqueuePublicSyncWorker()
     }
 
@@ -98,6 +103,13 @@ open class App : Application() {
 
     private fun setupTLSProvider() {
         Security.insertProviderAt(Conscrypt.newProvider(), 1)
+    }
+
+    private fun registerGateway() {
+        if (mode == Mode.Test) return
+        ioScope.launch {
+            registerGateway.registerIfNeeded()
+        }
     }
 
     private fun enqueuePublicSyncWorker() {

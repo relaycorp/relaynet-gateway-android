@@ -1,6 +1,5 @@
 package tech.relaycorp.gateway.domain.courier
 
-import kotlinx.coroutines.flow.first
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.messages.CargoCollectionAuthorization
@@ -15,7 +14,7 @@ class GenerateCCA
 
     suspend fun generate() =
         CargoCollectionAuthorization(
-            recipientAddress = publicGatewayPreferences.getAddress().first(),
+            recipientAddress = publicGatewayPreferences.getCogRPCAddress(),
             payload = "".toByteArray(),
             senderCertificate = localConfig.getCertificate(),
             ttl = TTL.inSeconds.toInt()

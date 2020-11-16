@@ -4,7 +4,6 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -50,8 +49,8 @@ class GenerateCargoTest {
         )
         whenever(localConfig.getKeyPair()).thenReturn(keyPair)
         whenever(localConfig.getCertificate()).thenReturn(certificate)
-        whenever(publicGatewayPreferences.getAddress()).thenReturn(flowOf("https://example.org"))
-        whenever(publicGatewayPreferences.getCertificate()).thenReturn(flowOf(certificate))
+        whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn("https://example.org")
+        whenever(publicGatewayPreferences.getCertificate()).thenReturn(certificate)
     }
 
     @Test
@@ -80,7 +79,7 @@ class GenerateCargoTest {
 
         val cargo = Cargo.deserialize(cargoes.first().readBytes())
         assertEquals(
-            publicGatewayPreferences.getAddress().first(),
+            publicGatewayPreferences.getCogRPCAddress(),
             cargo.recipientAddress
         )
         assertTrue(Duration.between(parcel.expirationTimeUtc, cargo.expiryDate).abs().seconds <= 2)
