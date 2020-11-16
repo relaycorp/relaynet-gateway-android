@@ -38,8 +38,10 @@ class RegisterGateway
             val poWeb = poWebClientBuilder.invoke(hostName)
             val keyPair = localConfig.getKeyPair()
 
-            val pnrr = poWeb.preRegisterNode(keyPair.public)
-            poWeb.registerNode(pnrr.serialize(keyPair.private))
+            poWeb.use {
+                val pnrr = poWeb.preRegisterNode(keyPair.public)
+                poWeb.registerNode(pnrr.serialize(keyPair.private))
+            }
         } catch (e: ServerException) {
             logger.log(Level.INFO, "Could not register gateway due to server error", e)
             null
