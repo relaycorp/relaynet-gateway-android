@@ -94,7 +94,7 @@ android {
 
 dependencies {
     // Java 8
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.0'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
 
     // Kotlin
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
@@ -122,7 +122,7 @@ dependencies {
     androidTestImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
 
     // Android TLS support for Netty
-    implementation "io.netty:netty-handler:4.1.53.Final"
+    implementation "io.netty:netty-handler:4.1.54.Final"
     implementation 'org.conscrypt:conscrypt-android:2.5.1'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
@@ -146,7 +146,7 @@ dependencies {
     implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
 
     // Display open-source licenses
-    implementation "com.mikepenz:aboutlibraries:8.4.5"
+    implementation "com.mikepenz:aboutlibraries:8.5.0"
 
     // Testing
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
