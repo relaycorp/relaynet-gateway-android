@@ -5,9 +5,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import tech.relaycorp.gateway.background.ForegroundAppMonitor
 import tech.relaycorp.gateway.common.Logging.logger
+import tech.relaycorp.gateway.data.model.RegistrationState
+import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.seconds
@@ -16,6 +19,7 @@ import kotlin.time.seconds
 class PublicSync
 @Inject constructor(
     private val foregroundAppMonitor: ForegroundAppMonitor,
+    private val publicGatewayPreferences: PublicGatewayPreferences,
     private val deliverParcelsToGateway: DeliverParcelsToGateway,
     private val collectParcelsFromGateway: CollectParcelsFromGateway
 ) {
@@ -24,18 +28,26 @@ class PublicSync
     private val isSyncing get() = syncJob?.isActive == true
 
     suspend fun syncOnAppForeground() {
-        foregroundAppMonitor
-            .observe()
-            .collect { state ->
-                when (state) {
-                    ForegroundAppMonitor.State.Foreground -> startSync()
-                    ForegroundAppMonitor.State.Background -> stopSync()
-                }
+        combine(
+            foregroundAppMonitor.observe(),
+            publicGatewayPreferences.observeRegistrationState()
+        ) { foregroundState, registrationState ->
+            if (
+                foregroundState == ForegroundAppMonitor.State.Foreground &&
+                registrationState == RegistrationState.Done
+            ) {
+                startSync()
+            } else {
+                stopSync()
             }
+        }
+            .collect()
     }
 
     suspend fun syncOneOff() {
-        if (isSyncing) return // If the app is on the foreground it's already syncing
+        // If the app is on the foreground, it's already syncing
+        // If it's not registered yet, we don't want to sync
+        if (isSyncing || !isRegistered()) return
 
         logger.info("Starting Public Gateway Sync (one-off)")
         deliverParcelsToGateway.deliver(false)
@@ -56,4 +68,7 @@ class PublicSync
         logger.info("App on background, stopping public sync")
         syncJob?.cancel()
     }
+
+    private suspend fun isRegistered() =
+        publicGatewayPreferences.getRegistrationState() == RegistrationState.Done
 }
