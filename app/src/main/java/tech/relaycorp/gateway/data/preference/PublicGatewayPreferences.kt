@@ -58,7 +58,7 @@ class PublicGatewayPreferences
     }
 
     suspend fun getRegistrationState() = observeRegistrationState().first()
-    private fun observeRegistrationState() = { registrationState }.toFlow()
+    fun observeRegistrationState() = { registrationState }.toFlow()
     suspend fun setRegistrationState(value: RegistrationState) =
         registrationState.setAndCommit(value)
 

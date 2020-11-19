@@ -8,8 +8,11 @@ import dagger.Module
 import dagger.Provides
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.database.AppDatabase
+import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
+import java.net.URL
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -72,7 +75,14 @@ class DataModule {
     // PoWeb
 
     @Provides
-    fun poWebClientBuilder(): ((String) -> PoWebClient) = { hostName ->
-        PoWebClient.initRemote(hostName)
-    }
+    fun poWebClientBuilder(publicGatewayPreferences: PublicGatewayPreferences) =
+        object : PoWebClientBuilder {
+            override suspend fun build(): PoWebClient {
+                val url = URL(publicGatewayPreferences.getAddress())
+                return PoWebClient.initRemote(
+                    hostName = url.host,
+                    port = if (url.port != -1) url.port else 443
+                )
+            }
+        }
 }
