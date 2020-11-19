@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.MessageId
@@ -26,6 +27,11 @@ interface StoredParcelDao {
     @Query("SELECT * FROM Parcel")
     fun observeAll(): Flow<List<StoredParcel>>
 
+    suspend fun listForRecipientLocation(
+        recipientLocation: RecipientLocation,
+        expiresSince: ZonedDateTime = nowInUtc()
+    ) = observeForRecipientLocation(recipientLocation, expiresSince).first()
+
     @Query(
         """
         SELECT * FROM Parcel
@@ -33,10 +39,10 @@ interface StoredParcelDao {
         ORDER BY creationTimeUtc ASC
         """
     )
-    suspend fun listForRecipientLocation(
+    fun observeForRecipientLocation(
         recipientLocation: RecipientLocation,
         expiresSince: ZonedDateTime = nowInUtc()
-    ): List<StoredParcel>
+    ): Flow<List<StoredParcel>>
 
     @Query(
         """

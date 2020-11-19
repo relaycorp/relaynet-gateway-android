@@ -12,4 +12,12 @@ open class TestApp : App() {
         super.onCreate()
         component.inject(this)
     }
+
+    override fun triggerPublicSyncOnForeground() {
+        // Disable automatic public sync start
+    }
+
+    override fun enqueuePublicSyncWorker() {
+        // Disable public sync worker
+    }
 }
