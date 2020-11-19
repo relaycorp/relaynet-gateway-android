@@ -123,13 +123,13 @@ open class App : Application() {
         }
     }
 
-    private fun triggerPublicSyncOnForeground() {
+    protected open fun triggerPublicSyncOnForeground() {
         ioScope.launch {
             publicSync.sync()
         }
     }
 
-    private fun enqueuePublicSyncWorker() {
+    protected open fun enqueuePublicSyncWorker() {
         ioScope.launch {
             WorkManager.initialize(
                 this@App,
