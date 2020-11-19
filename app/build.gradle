@@ -146,7 +146,7 @@ dependencies {
     implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
 
     // Display open-source licenses
-    implementation "com.mikepenz:aboutlibraries:8.5.0"
+    implementation "com.mikepenz:aboutlibraries:8.6.0"
 
     // Testing
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
