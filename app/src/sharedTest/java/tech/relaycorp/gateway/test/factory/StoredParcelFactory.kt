@@ -18,7 +18,7 @@ object StoredParcelFactory {
             recipientLocation = recipientLocations[Random().nextInt(recipientLocations.size)],
             creationTimeUtc = nowInUtc(),
             expirationTimeUtc = nowInUtc().plusDays(1),
-            storagePath = "",
+            storagePath = "file",
             size = StorageSizeFactory.build()
         )
     }

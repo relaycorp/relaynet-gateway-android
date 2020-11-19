@@ -125,7 +125,7 @@ open class App : Application() {
 
     private fun triggerPublicSyncOnForeground() {
         ioScope.launch {
-            publicSync.syncOnAppForeground()
+            publicSync.sync()
         }
     }
 

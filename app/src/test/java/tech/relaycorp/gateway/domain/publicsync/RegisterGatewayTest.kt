@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
+import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
@@ -28,7 +29,9 @@ class RegisterGatewayTest {
     private val pgwPreferences = mock<PublicGatewayPreferences>()
     private val localConfig = mock<LocalConfig>()
     private val poWebClient = mock<PoWebClient>()
-    private val poWebClientBuilder = suspend { poWebClient }
+    private val poWebClientBuilder = object : PoWebClientBuilder {
+        override suspend fun build() = poWebClient
+    }
     private val registerGateway = RegisterGateway(pgwPreferences, localConfig, poWebClientBuilder)
 
     @BeforeEach

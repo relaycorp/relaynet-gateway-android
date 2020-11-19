@@ -1,5 +1,6 @@
 package tech.relaycorp.gateway.domain.publicsync
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -11,6 +12,7 @@ import tech.relaycorp.gateway.background.ForegroundAppMonitor
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.pdc.local.PDCServer
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.seconds
@@ -19,22 +21,29 @@ import kotlin.time.seconds
 class PublicSync
 @Inject constructor(
     private val foregroundAppMonitor: ForegroundAppMonitor,
+    private val pdcServer: PDCServer,
     private val publicGatewayPreferences: PublicGatewayPreferences,
     private val deliverParcelsToGateway: DeliverParcelsToGateway,
     private val collectParcelsFromGateway: CollectParcelsFromGateway
 ) {
 
     private var syncJob: Job? = null
-    private val isSyncing get() = syncJob?.isActive == true
 
-    suspend fun syncOnAppForeground() {
+    @VisibleForTesting
+    val isSyncing
+        get() = syncJob?.isActive == true
+
+    suspend fun sync() {
         combine(
             foregroundAppMonitor.observe(),
+            pdcServer.observeState(),
             publicGatewayPreferences.observeRegistrationState()
-        ) { foregroundState, registrationState ->
+        ) { foregroundState, pdcState, registrationState ->
             if (
-                foregroundState == ForegroundAppMonitor.State.Foreground &&
-                registrationState == RegistrationState.Done
+                registrationState == RegistrationState.Done && (
+                    foregroundState == ForegroundAppMonitor.State.Foreground ||
+                        pdcState == PDCServer.State.Started
+                    )
             ) {
                 startSync()
             } else {
@@ -56,7 +65,9 @@ class PublicSync
     }
 
     private fun startSync() {
-        logger.info("App on foreground, starting public sync")
+        if (isSyncing) return
+
+        logger.info("Starting public sync")
         val syncJob = Job()
         this.syncJob = syncJob
         val syncScope = CoroutineScope(syncJob + Dispatchers.IO)
@@ -65,7 +76,7 @@ class PublicSync
     }
 
     private fun stopSync() {
-        logger.info("App on background, stopping public sync")
+        logger.info("Stopping public sync")
         syncJob?.cancel()
     }
 

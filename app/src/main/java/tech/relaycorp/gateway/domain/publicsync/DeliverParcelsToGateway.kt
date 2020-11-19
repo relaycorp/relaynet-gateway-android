@@ -66,6 +66,7 @@ class DeliverParcelsToGateway
 
         try {
             poWebClient.deliverParcel(parcelStream.readBytesAndClose(), getSigner())
+            deleteParcel.delete(parcel)
         } catch (e: RejectedParcelException) {
             logger.log(Level.WARNING, "Could not deliver rejected parcel (will be deleted)", e)
             deleteParcel.delete(parcel)
@@ -79,6 +80,7 @@ class DeliverParcelsToGateway
             diskMessageOperations.readMessage(StoredParcel.STORAGE_FOLDER, storagePath)()
         } catch (e: MessageDataNotFoundException) {
             logger.log(Level.WARNING, "Could not read parcel", e)
+            deleteParcel.delete(this)
             null
         }
 
@@ -92,4 +94,3 @@ class DeliverParcelsToGateway
             }
         }
 }
-
