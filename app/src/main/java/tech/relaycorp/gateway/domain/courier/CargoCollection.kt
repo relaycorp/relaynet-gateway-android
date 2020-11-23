@@ -9,6 +9,7 @@ import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.background.ConnectionStateObserver
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.disk.CargoStorage
+import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
 import java.util.logging.Level
 import javax.inject.Inject
@@ -20,7 +21,7 @@ class CargoCollection
     private val generateCCA: GenerateCCA,
     private val cargoStorage: CargoStorage,
     private val processCargo: ProcessCargo,
-    private val processParcels: ProcessParcels
+    private val notifyEndpoints: NotifyEndpoints
 ) {
 
     @Throws(Disconnected::class)
@@ -41,7 +42,7 @@ class CargoCollection
         }
 
         processCargo.process()
-        processParcels.process()
+        notifyEndpoints.notifyAllPending()
     }
 
     private fun generateCCAInputStream() = runBlocking {

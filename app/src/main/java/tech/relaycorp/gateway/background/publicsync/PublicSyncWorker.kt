@@ -13,12 +13,12 @@ import javax.inject.Provider
 class PublicSyncWorker(
     appContext: Context,
     workerParams: WorkerParameters,
-    private val PublicSync: PublicSync
+    private val publicSync: PublicSync
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         return try {
-            PublicSync.sync()
+            publicSync.syncOneOff()
             Result.success()
         } catch (exception: Exception) {
             logger.log(Level.SEVERE, "PublicSyncWorker", exception)

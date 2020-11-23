@@ -4,11 +4,10 @@ import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
-import tech.relaycorp.poweb.PoWebClient
+import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.bindings.pdc.ServerException
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
-import java.net.URL
 import java.util.logging.Level
 import javax.inject.Inject
 
@@ -17,7 +16,7 @@ class RegisterGateway
 @Inject constructor(
     private val publicGatewayPreferences: PublicGatewayPreferences,
     private val localConfig: LocalConfig,
-    private val poWebClientBuilder: ((String) -> PoWebClient)
+    private val poWebClientBuilder: PoWebClientBuilder
 ) {
 
     suspend fun registerIfNeeded() {
@@ -33,9 +32,7 @@ class RegisterGateway
 
     private suspend fun register(): PrivateNodeRegistration? =
         try {
-            val address = publicGatewayPreferences.getAddress()
-            val hostName = URL(address).host
-            val poWeb = poWebClientBuilder.invoke(hostName)
+            val poWeb = poWebClientBuilder.build()
             val keyPair = localConfig.getKeyPair()
 
             poWeb.use {
