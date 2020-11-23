@@ -3,7 +3,7 @@
 buildscript {
     ext {
         kotlinVersion = '1.4.10'
-        kotlinCoroutinesVersion = '1.4.1'
+        kotlinCoroutinesVersion = '1.4.1-native-mt'
     }
     repositories {
         google()
