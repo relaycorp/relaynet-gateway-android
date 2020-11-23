@@ -65,6 +65,7 @@ class DeliverParcelsToGateway
         val parcelStream = parcel.getInputStream() ?: return
 
         try {
+            logger.info("Delivering parcel to Gateway ${parcel.messageId.value}")
             poWebClient.deliverParcel(parcelStream.readBytesAndClose(), getSigner())
             deleteParcel.delete(parcel)
         } catch (e: RejectedParcelException) {

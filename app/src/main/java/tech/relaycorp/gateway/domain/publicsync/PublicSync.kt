@@ -13,6 +13,7 @@ import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.pdc.local.PDCServer
+import tech.relaycorp.gateway.pdc.local.PDCServerStateManager
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.seconds
@@ -21,7 +22,7 @@ import kotlin.time.seconds
 class PublicSync
 @Inject constructor(
     private val foregroundAppMonitor: ForegroundAppMonitor,
-    private val pdcServer: PDCServer,
+    private val pdcServerStateManager: PDCServerStateManager,
     private val publicGatewayPreferences: PublicGatewayPreferences,
     private val deliverParcelsToGateway: DeliverParcelsToGateway,
     private val collectParcelsFromGateway: CollectParcelsFromGateway
@@ -36,7 +37,7 @@ class PublicSync
     suspend fun sync() {
         combine(
             foregroundAppMonitor.observe(),
-            pdcServer.observeState(),
+            pdcServerStateManager.observe(),
             publicGatewayPreferences.observeRegistrationState()
         ) { foregroundState, pdcState, registrationState ->
             if (
