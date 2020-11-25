@@ -12,6 +12,8 @@ import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import tech.relaycorp.gateway.background.ConnectionState
+import tech.relaycorp.gateway.background.ConnectionStateObserver
 import tech.relaycorp.gateway.background.ForegroundAppMonitor
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
@@ -24,12 +26,14 @@ class PublicSyncTest {
     private val foregroundAppMonitor = mock<ForegroundAppMonitor>()
     private val pdcServerStateManager = mock<PDCServerStateManager>()
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
+    private val connectionStateObserver = mock<ConnectionStateObserver>()
     private val deliverParcelsToGateway = mock<DeliverParcelsToGateway>()
     private val collectParcelsFromGateway = mock<CollectParcelsFromGateway>()
     private val publicSync = PublicSync(
         foregroundAppMonitor,
         pdcServerStateManager,
         publicGatewayPreferences,
+        connectionStateObserver,
         deliverParcelsToGateway,
         collectParcelsFromGateway
     )
@@ -39,7 +43,22 @@ class PublicSyncTest {
         setState(
             ForegroundAppMonitor.State.Foreground,
             PDCServer.State.Started,
-            RegistrationState.ToDo
+            RegistrationState.ToDo,
+            ConnectionState.InternetAndPublicGateway
+        )
+
+        sync()
+
+        assertFalse(publicSync.isSyncing)
+    }
+
+    @Test
+    internal fun `does not sync if there is no internet`() = testSuspend {
+        setState(
+            ForegroundAppMonitor.State.Foreground,
+            PDCServer.State.Started,
+            RegistrationState.ToDo,
+            ConnectionState.Disconnected
         )
 
         sync()
@@ -52,7 +71,8 @@ class PublicSyncTest {
         setState(
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Stopped,
-            RegistrationState.Done
+            RegistrationState.Done,
+            ConnectionState.InternetAndPublicGateway
         )
 
         sync()
@@ -65,7 +85,8 @@ class PublicSyncTest {
         setState(
             ForegroundAppMonitor.State.Foreground,
             PDCServer.State.Stopped,
-            RegistrationState.Done
+            RegistrationState.Done,
+            ConnectionState.InternetAndPublicGateway
         )
 
         sync()
@@ -78,7 +99,8 @@ class PublicSyncTest {
         setState(
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Started,
-            RegistrationState.Done
+            RegistrationState.Done,
+            ConnectionState.InternetAndPublicGateway
         )
 
         sync()
@@ -91,7 +113,8 @@ class PublicSyncTest {
         setState(
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Stopped,
-            RegistrationState.Done
+            RegistrationState.Done,
+            ConnectionState.InternetAndPublicGateway
         )
         val appStateFlow = MutableStateFlow(ForegroundAppMonitor.State.Background)
         whenever(foregroundAppMonitor.observe()).thenReturn(appStateFlow.asSharedFlow())
@@ -108,7 +131,8 @@ class PublicSyncTest {
     private fun setState(
         appState: ForegroundAppMonitor.State,
         pdcState: PDCServer.State,
-        registrationState: RegistrationState
+        registrationState: RegistrationState,
+        connectionState: ConnectionState
     ) {
         whenever(foregroundAppMonitor.observe())
             .thenReturn(flowOf(appState))
@@ -116,6 +140,8 @@ class PublicSyncTest {
             .thenReturn(flowOf(pdcState))
         whenever(publicGatewayPreferences.observeRegistrationState())
             .thenReturn(flowOf(registrationState))
+        whenever(connectionStateObserver.observe())
+            .thenReturn(flowOf(connectionState))
     }
 
     private fun sync() {

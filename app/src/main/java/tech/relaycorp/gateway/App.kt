@@ -67,7 +67,7 @@ open class App : Application() {
         registerActivityLifecycleCallbacks(foregroundAppMonitor)
 
         registerGateway()
-        triggerPublicSyncOnForeground()
+        startPublicSyncWhenPossible()
         enqueuePublicSyncWorker()
     }
 
@@ -123,7 +123,7 @@ open class App : Application() {
         }
     }
 
-    protected open fun triggerPublicSyncOnForeground() {
+    protected open fun startPublicSyncWhenPossible() {
         ioScope.launch {
             publicSync.sync()
         }
