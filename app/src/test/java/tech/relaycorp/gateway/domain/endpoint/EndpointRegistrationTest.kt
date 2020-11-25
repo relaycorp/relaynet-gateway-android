@@ -56,7 +56,7 @@ class EndpointRegistrationTest {
         }
 
         @Test
-        fun `Authorization should be valid for 10 seconds`() = runBlockingTest {
+        fun `Authorization should be valid for 15 seconds`() = runBlockingTest {
             val authorizationSerialized = endpointRegistration.authorize(dummyApplicationId)
 
             val authorization = PrivateNodeRegistrationAuthorization.deserialize(
@@ -65,7 +65,7 @@ class EndpointRegistrationTest {
             )
 
             val ttl = ChronoUnit.SECONDS.between(ZonedDateTime.now(), authorization.expiryDate)
-            assertTrue(ttl in 8..10) // Give some wiggle room
+            assertTrue(ttl in 14..16) // Give some wiggle room
         }
     }
 
