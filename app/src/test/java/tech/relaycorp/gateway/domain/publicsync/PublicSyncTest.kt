@@ -16,17 +16,21 @@ import tech.relaycorp.gateway.background.ForegroundAppMonitor
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.pdc.local.PDCServer
+import tech.relaycorp.gateway.pdc.local.PDCServerStateManager
 import tech.relaycorp.gateway.test.WaitAssertions.waitForAssertEquals
 
 class PublicSyncTest {
 
     private val foregroundAppMonitor = mock<ForegroundAppMonitor>()
-    private val pdcServer = mock<PDCServer>()
+    private val pdcServerStateManager = mock<PDCServerStateManager>()
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
     private val deliverParcelsToGateway = mock<DeliverParcelsToGateway>()
     private val collectParcelsFromGateway = mock<CollectParcelsFromGateway>()
     private val publicSync = PublicSync(
-        foregroundAppMonitor, pdcServer, publicGatewayPreferences, deliverParcelsToGateway,
+        foregroundAppMonitor,
+        pdcServerStateManager,
+        publicGatewayPreferences,
+        deliverParcelsToGateway,
         collectParcelsFromGateway
     )
 
@@ -108,7 +112,7 @@ class PublicSyncTest {
     ) {
         whenever(foregroundAppMonitor.observe())
             .thenReturn(flowOf(appState))
-        whenever(pdcServer.observeState())
+        whenever(pdcServerStateManager.observe())
             .thenReturn(flowOf(pdcState))
         whenever(publicGatewayPreferences.observeRegistrationState())
             .thenReturn(flowOf(registrationState))
