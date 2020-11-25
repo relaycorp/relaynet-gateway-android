@@ -1,5 +1,6 @@
 package tech.relaycorp.gateway.data.preference
 
+import android.util.Base64
 import androidx.annotation.VisibleForTesting
 import com.tfcporciuncula.flow.FlowSharedPreferences
 import kotlinx.coroutines.flow.first
@@ -8,7 +9,6 @@ import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.data.disk.ReadRawFile
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
-import java.nio.charset.Charset
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -43,13 +43,13 @@ class PublicGatewayPreferences
             val certificateBytes = if (it.isEmpty()) {
                 readRawFile.read(R.raw.public_gateway_cert)
             } else {
-                it.toByteArray(Charset.defaultCharset())
+                Base64.decode(it, Base64.DEFAULT)
             }
             Certificate.deserialize(certificateBytes)
         }
 
     suspend fun setCertificate(value: Certificate) =
-        certificate.setAndCommit(value.serialize().toString(Charset.defaultCharset()))
+        certificate.setAndCommit(Base64.encodeToString(value.serialize(), Base64.DEFAULT))
 
     // Registration State
 
