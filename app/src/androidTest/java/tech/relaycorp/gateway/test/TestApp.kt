@@ -13,7 +13,7 @@ open class TestApp : App() {
         component.inject(this)
     }
 
-    override fun triggerPublicSyncOnForeground() {
+    override fun startPublicSyncWhenPossible() {
         // Disable automatic public sync start
     }
 
