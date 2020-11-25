@@ -77,8 +77,10 @@ class PublicSync
     }
 
     private fun stopSync() {
-        logger.info("Stopping public sync")
-        syncJob?.cancel()
+        if (isSyncing) {
+            logger.info("Stopping public sync")
+            syncJob?.cancel()
+        }
     }
 
     private suspend fun isRegistered() =
