@@ -54,7 +54,9 @@ class DeliverParcelsToGateway
                 try {
                     deliverParcel(poWebClient, parcel)
                 } catch (e: ServerException) {
-                    logger.log(Level.INFO, "Could not deliver parcels due to server error", e)
+                    logger.log(Level.INFO, "Could not deliver parcel due to server error", e)
+                } catch (e: Exception) {
+                    logger.log(Level.SEVERE, "Could not deliver parcel due to unexpected error", e)
                 }
             }
         }
