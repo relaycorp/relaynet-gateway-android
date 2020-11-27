@@ -1,6 +1,7 @@
 package tech.relaycorp.gateway.domain.publicsync
 
 import androidx.annotation.VisibleForTesting
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.retry
@@ -13,7 +14,9 @@ import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.bindings.pdc.NonceSignerException
+import tech.relaycorp.relaynet.bindings.pdc.PDCException
 import tech.relaycorp.relaynet.bindings.pdc.ParcelCollection
+import tech.relaycorp.relaynet.bindings.pdc.ServerConnectionException
 import tech.relaycorp.relaynet.bindings.pdc.ServerException
 import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
@@ -42,7 +45,7 @@ class CollectParcelsFromGateway
                 poWebClient
                     .collectParcels(arrayOf(signer), streamingMode)
                     .retry(Long.MAX_VALUE) { e ->
-                        if (keepAlive && e is ServerException) {
+                        if (keepAlive && e is ServerConnectionException) {
                             logger.log(
                                 Level.WARNING,
                                 "Could not collect parcels due to server error, will retry.",
@@ -55,7 +58,7 @@ class CollectParcelsFromGateway
                     .collect { collectParcel(it, keepAlive) }
             }
         } catch (e: ServerException) {
-            logger.log(Level.SEVERE, "Could not collect parcels due to server error", e)
+            logger.log(Level.WARNING, "Could not collect parcels due to server error", e)
             return
         } catch (e: ClientBindingException) {
             logger.log(Level.SEVERE, "Could not collect parcels due to client error", e)
@@ -63,8 +66,11 @@ class CollectParcelsFromGateway
         } catch (e: NonceSignerException) {
             logger.log(Level.SEVERE, "Could not collect parcels due to signing error", e)
             return
-        } catch (e: Exception) {
+        } catch (e: PDCException) {
             logger.log(Level.SEVERE, "Could not collect parcel due to unexpected error", e)
+            return
+        } catch (e: CancellationException) {
+            logger.log(Level.INFO, "Parcel collection stopped", e)
             return
         }
 

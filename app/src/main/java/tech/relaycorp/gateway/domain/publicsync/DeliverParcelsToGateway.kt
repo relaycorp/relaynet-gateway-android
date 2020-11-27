@@ -1,5 +1,6 @@
 package tech.relaycorp.gateway.domain.publicsync
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
@@ -17,7 +18,9 @@ import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
+import tech.relaycorp.relaynet.bindings.pdc.PDCException
 import tech.relaycorp.relaynet.bindings.pdc.RejectedParcelException
+import tech.relaycorp.relaynet.bindings.pdc.ServerConnectionException
 import tech.relaycorp.relaynet.bindings.pdc.ServerException
 import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
@@ -35,30 +38,40 @@ class DeliverParcelsToGateway
 ) {
 
     suspend fun deliver(keepAlive: Boolean) {
-        logger.info("Delivering parcels to Public Gateway (keepAlive=$keepAlive)")
+        try {
+            logger.info("Delivering parcels to Public Gateway (keepAlive=$keepAlive)")
 
-        val poWebClient = poWebClientBuilder.build()
-        val parcelsQuery =
-            storedParcelDao.observeForRecipientLocation(RecipientLocation.ExternalGateway)
-        val parcelsFlow =
-            if (keepAlive) {
-                // one at a time
-                parcelsQuery.filter { it.any() }.map { it.first() }
-            } else {
-                // just one batch, but one at a time
-                parcelsQuery.take(1).flatMapLatest { it.asFlow() }
-            }
+            val poWebClient = poWebClientBuilder.build()
+            val parcelsQuery =
+                storedParcelDao.observeForRecipientLocation(RecipientLocation.ExternalGateway)
+            val parcelsFlow =
+                if (keepAlive) {
+                    // one at a time
+                    parcelsQuery.filter { it.any() }.map { it.first() }
+                } else {
+                    // just one batch, but one at a time
+                    parcelsQuery.take(1).flatMapLatest { it.asFlow() }
+                }
 
-        poWebClient.use {
-            parcelsFlow.collect { parcel ->
-                try {
-                    deliverParcel(poWebClient, parcel)
-                } catch (e: ServerException) {
-                    logger.log(Level.INFO, "Could not deliver parcel due to server error", e)
-                } catch (e: Exception) {
-                    logger.log(Level.SEVERE, "Could not deliver parcel due to unexpected error", e)
+            poWebClient.use {
+                parcelsFlow.collect { parcel ->
+                    try {
+                        deliverParcel(poWebClient, parcel)
+                    } catch (e: ClientBindingException) {
+                        logger.log(Level.SEVERE, "Could not deliver parcel due to client error", e)
+                    } catch (e: ServerConnectionException) {
+                        logger.log(Level.INFO, "Could not deliver parcel due to server error", e)
+                    } catch (e: PDCException) {
+                        logger.log(
+                            Level.SEVERE,
+                            "Could not deliver parcel due to unexpected error",
+                            e
+                        )
+                    }
                 }
             }
+        } catch (e: CancellationException) {
+            logger.log(Level.INFO, "Parcel delivery stopped", e)
         }
     }
 
@@ -69,13 +82,11 @@ class DeliverParcelsToGateway
         try {
             logger.info("Delivering parcel to Gateway ${parcel.messageId.value}")
             poWebClient.deliverParcel(parcelStream.readBytesAndClose(), getSigner())
-            deleteParcel.delete(parcel)
         } catch (e: RejectedParcelException) {
             logger.log(Level.WARNING, "Could not deliver rejected parcel (will be deleted)", e)
-            deleteParcel.delete(parcel)
-        } catch (e: ClientBindingException) {
-            logger.log(Level.SEVERE, "Could not deliver parcel due to client error", e)
         }
+
+        deleteParcel.delete(parcel)
     }
 
     private suspend fun StoredParcel.getInputStream() =
