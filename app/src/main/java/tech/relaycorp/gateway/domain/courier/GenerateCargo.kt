@@ -22,6 +22,7 @@ import tech.relaycorp.relaynet.messages.payloads.CargoMessageWithExpiry
 import tech.relaycorp.relaynet.messages.payloads.batch
 import java.io.InputStream
 import java.time.Duration
+import java.util.Collections.max
 import java.util.logging.Level
 import javax.inject.Inject
 
@@ -91,8 +92,7 @@ class GenerateCargo
         }
 
         val recipientAddress = getPublicGatewayAddress()
-        // Allow for some clock-drift
-        val creationDate = nowInUtc().minusMinutes(5)
+        val creationDate = calculateCargoCreationDate()
 
         logger.info("Generating cargo for $recipientAddress")
         return Cargo(
@@ -103,4 +103,12 @@ class GenerateCargo
             ttl = Duration.between(creationDate, latestMessageExpiryDate).seconds.toInt()
         )
     }
+
+    private suspend fun calculateCargoCreationDate() =
+        max(
+            listOf(
+                nowInUtc().minusMinutes(5), // Allow for some clock-drift
+                localConfig.getCertificate().startDate // Never before the GW registration
+            )
+        )
 }
