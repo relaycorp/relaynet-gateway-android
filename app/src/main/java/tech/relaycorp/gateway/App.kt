@@ -63,12 +63,13 @@ open class App : Application() {
         component.inject(this)
         setupTLSProvider()
         setupLogger()
-        setupStrictMode()
-        registerActivityLifecycleCallbacks(foregroundAppMonitor)
 
+        enqueuePublicSyncWorker()
+
+        setupStrictMode()
         registerGateway()
         startPublicSyncWhenPossible()
-        enqueuePublicSyncWorker()
+        registerActivityLifecycleCallbacks(foregroundAppMonitor)
     }
 
     private fun setupLogger() {
@@ -130,26 +131,24 @@ open class App : Application() {
     }
 
     protected open fun enqueuePublicSyncWorker() {
-        ioScope.launch {
-            WorkManager.initialize(
-                this@App,
-                Configuration.Builder()
-                    .setWorkerFactory(publicSyncWorkerFactory)
+        WorkManager.initialize(
+            this@App,
+            Configuration.Builder()
+                .setWorkerFactory(publicSyncWorkerFactory)
+                .build()
+        )
+        WorkManager.getInstance(this@App)
+            .enqueueUniquePeriodicWork(
+                "public-sync",
+                ExistingPeriodicWorkPolicy.REPLACE,
+                PeriodicWorkRequestBuilder<PublicSyncWorker>(PUBLIC_SYNC_WORKER_PERIOD)
+                    .setConstraints(
+                        Constraints.Builder()
+                            .setRequiredNetworkType(NetworkType.CONNECTED)
+                            .build()
+                    )
                     .build()
             )
-            WorkManager.getInstance(this@App)
-                .enqueueUniquePeriodicWork(
-                    "public-sync",
-                    ExistingPeriodicWorkPolicy.REPLACE,
-                    PeriodicWorkRequestBuilder<PublicSyncWorker>(PUBLIC_SYNC_WORKER_PERIOD)
-                        .setConstraints(
-                            Constraints.Builder()
-                                .setRequiredNetworkType(NetworkType.CONNECTED)
-                                .build()
-                        )
-                        .build()
-                )
-        }
     }
 
     enum class Mode { Normal, Test }
