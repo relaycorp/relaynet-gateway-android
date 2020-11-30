@@ -1,6 +1,10 @@
 package tech.relaycorp.gateway.domain.publicsync
 
+import androidx.annotation.VisibleForTesting
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.retry
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
@@ -10,12 +14,15 @@ import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.bindings.pdc.NonceSignerException
+import tech.relaycorp.relaynet.bindings.pdc.PDCException
 import tech.relaycorp.relaynet.bindings.pdc.ParcelCollection
+import tech.relaycorp.relaynet.bindings.pdc.ServerConnectionException
 import tech.relaycorp.relaynet.bindings.pdc.ServerException
 import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import java.util.logging.Level
 import javax.inject.Inject
+import kotlin.time.seconds
 
 class CollectParcelsFromGateway
 @Inject constructor(
@@ -37,16 +44,33 @@ class CollectParcelsFromGateway
             poWebClient.use {
                 poWebClient
                     .collectParcels(arrayOf(signer), streamingMode)
+                    .retry(Long.MAX_VALUE) { e ->
+                        if (keepAlive && e is ServerConnectionException) {
+                            logger.log(
+                                Level.WARNING,
+                                "Could not collect parcels due to server error, will retry.",
+                                e
+                            )
+                            delay(RETRY_AFTER_PERIOD)
+                            true
+                        } else false
+                    }
                     .collect { collectParcel(it, keepAlive) }
             }
         } catch (e: ServerException) {
-            logger.log(Level.INFO, "Could not collect parcels due to server error", e)
+            logger.log(Level.WARNING, "Could not collect parcels due to server error", e)
             return
         } catch (e: ClientBindingException) {
             logger.log(Level.SEVERE, "Could not collect parcels due to client error", e)
             return
         } catch (e: NonceSignerException) {
             logger.log(Level.SEVERE, "Could not collect parcels due to signing error", e)
+            return
+        } catch (e: PDCException) {
+            logger.log(Level.SEVERE, "Could not collect parcel due to unexpected error", e)
+            return
+        } catch (e: CancellationException) {
+            logger.log(Level.INFO, "Parcel collection stopped", e)
             return
         }
 
@@ -74,5 +98,10 @@ class CollectParcelsFromGateway
         }
 
         parcelCollection.ack()
+    }
+
+    companion object {
+        @VisibleForTesting
+        var RETRY_AFTER_PERIOD = 5.seconds
     }
 }
