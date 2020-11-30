@@ -9,7 +9,13 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.ktor.test.dispatcher.testSuspend
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,6 +34,9 @@ import tech.relaycorp.relaynet.bindings.pdc.ServerConnectionException
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.testing.KeyPairSet
+import java.lang.Thread.sleep
+import kotlin.math.roundToLong
+import kotlin.time.milliseconds
 
 class CollectParcelsFromGatewayTest {
 
@@ -111,12 +120,6 @@ class CollectParcelsFromGatewayTest {
         }
 
     @Test
-    internal fun `poWebClient server issues are handled`() = testSuspend {
-        whenever(poWebClient.collectParcels(any(), any())).thenThrow(ServerConnectionException(""))
-        subject.collect(false)
-    }
-
-    @Test
     internal fun `poWebClient client binding issues are handled`() = testSuspend {
         whenever(poWebClient.collectParcels(any(), any())).thenThrow(ClientBindingException(""))
         subject.collect(false)
@@ -126,5 +129,32 @@ class CollectParcelsFromGatewayTest {
     internal fun `poWebClient signer issues are handled`() = testSuspend {
         whenever(poWebClient.collectParcels(any(), any())).thenThrow(NonceSignerException(""))
         subject.collect(false)
+    }
+
+    @Test
+    internal fun `poWebClient with keepAlive false, server issues are handled`() = testSuspend {
+        whenever(poWebClient.collectParcels(any(), any())).thenThrow(ServerConnectionException(""))
+        subject.collect(false)
+    }
+
+    @Test
+    internal fun `poWebClient with keepAlive true, retries after server issue`() {
+        val retryPeriod = 100.milliseconds
+        CollectParcelsFromGateway.RETRY_AFTER_PERIOD = retryPeriod
+        runBlockingTest {
+            var tries = 0
+            whenever(poWebClient.collectParcels(any(), any()))
+                .thenReturn(
+                    flow<ParcelCollection> {
+                        throw ServerConnectionException("")
+                    }.onCompletion { tries++ }
+                )
+
+            CoroutineScope(Dispatchers.Unconfined).launch {
+                subject.collect(true)
+            }
+            sleep((retryPeriod.toLongMilliseconds() * 1.1).roundToLong())
+            assertEquals(2, tries)
+        }
     }
 }
