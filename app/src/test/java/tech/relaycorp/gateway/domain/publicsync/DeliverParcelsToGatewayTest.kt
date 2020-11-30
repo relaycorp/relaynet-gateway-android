@@ -1,17 +1,18 @@
 package tech.relaycorp.gateway.domain.publicsync
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.check
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.nhaarman.mockitokotlin2.check
 import io.ktor.test.dispatcher.testSuspend
 import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
@@ -22,8 +23,9 @@ import tech.relaycorp.gateway.test.CargoDeliveryCertPath
 import tech.relaycorp.gateway.test.factory.StoredParcelFactory
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.bindings.pdc.RejectedParcelException
-import tech.relaycorp.relaynet.bindings.pdc.ServerBindingException
+import tech.relaycorp.relaynet.bindings.pdc.ServerConnectionException
 import tech.relaycorp.relaynet.testing.KeyPairSet
+import java.lang.IllegalArgumentException
 import kotlin.test.assertEquals
 
 class DeliverParcelsToGatewayTest {
@@ -121,8 +123,20 @@ class DeliverParcelsToGatewayTest {
         val parcel = StoredParcelFactory.build()
         whenever(storedParcelDao.observeForRecipientLocation(any(), any()))
             .thenReturn(flowOf(listOf(parcel)))
-        whenever(poWebClient.deliverParcel(any(), any())).thenThrow(ServerBindingException(""))
+        whenever(poWebClient.deliverParcel(any(), any())).thenThrow(ServerConnectionException(""))
 
         subject.deliver(false)
+    }
+
+    @Test
+    internal fun `unexpected non-PDC exceptions are not handled`() = testSuspend {
+        val parcel = StoredParcelFactory.build()
+        whenever(storedParcelDao.observeForRecipientLocation(any(), any()))
+            .thenReturn(flowOf(listOf(parcel)))
+        whenever(poWebClient.deliverParcel(any(), any())).thenThrow(IllegalArgumentException(""))
+
+        assertThrows<IllegalArgumentException> {
+            subject.deliver(false)
+        }
     }
 }

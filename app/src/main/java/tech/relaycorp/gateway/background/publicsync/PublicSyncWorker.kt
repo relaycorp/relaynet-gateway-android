@@ -6,6 +6,7 @@ import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.domain.publicsync.PublicSync
+import java.util.concurrent.CancellationException
 import java.util.logging.Level
 import javax.inject.Inject
 import javax.inject.Provider
@@ -20,8 +21,11 @@ class PublicSyncWorker(
         return try {
             publicSync.syncOneOff()
             Result.success()
+        } catch (exception: CancellationException) {
+            logger.log(Level.INFO, "Cancellation", exception)
+            Result.failure()
         } catch (exception: Exception) {
-            logger.log(Level.SEVERE, "PublicSyncWorker", exception)
+            logger.log(Level.SEVERE, "Unexpected issue", exception)
             Result.failure()
         }
     }
