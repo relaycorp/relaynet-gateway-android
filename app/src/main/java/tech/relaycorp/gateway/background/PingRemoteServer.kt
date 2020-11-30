@@ -1,6 +1,7 @@
 package tech.relaycorp.gateway.background
 
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
 import io.ktor.client.request.head
 import io.ktor.network.selector.ActorSelectorManager
 import io.ktor.network.sockets.aSocket
@@ -13,7 +14,9 @@ import javax.inject.Inject
 class PingRemoteServer
 @Inject constructor() {
 
-    private val ktorClient by lazy { HttpClient() }
+    private val ktorClient by lazy {
+        HttpClient(Android)
+    }
 
     suspend fun pingSocket(address: String, port: Int) =
         try {

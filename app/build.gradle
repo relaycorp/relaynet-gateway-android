@@ -148,6 +148,9 @@ dependencies {
     // Display open-source licenses
     implementation "com.mikepenz:aboutlibraries:8.6.2"
 
+    // One-off network requests
+    implementation "io.ktor:ktor-client-android:$ktorVersion"
+
     // Testing
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
