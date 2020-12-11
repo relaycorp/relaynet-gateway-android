@@ -148,6 +148,9 @@ dependencies {
     // Display open-source licenses
     implementation "com.mikepenz:aboutlibraries:8.6.3"
 
+    // One-off network requests
+    implementation "io.ktor:ktor-client-android:$ktorVersion"
+
     // Testing
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
@@ -183,6 +186,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     kotlinOptions.freeCompilerArgs += [
             '-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi',
             '-Xuse-experimental=kotlinx.coroutines.FlowPreview',
-            '-Xuse-experimental=kotlin.time.ExperimentalTime'
+            '-Xuse-experimental=kotlin.time.ExperimentalTime',
+            '-Xuse-experimental=io.ktor.util.KtorExperimentalAPI'
     ]
 }
