@@ -104,12 +104,12 @@ class OnboardingActivity : BaseActivity() {
             OnboardingPage(
                 R.string.onboarding_title_2,
                 R.string.onboarding_text_2,
-                R.drawable.onboarding_image_1
+                R.drawable.onboarding_image_2
             ),
             OnboardingPage(
                 R.string.onboarding_title_3,
                 R.string.onboarding_text_3,
-                R.drawable.onboarding_image_1,
+                R.drawable.onboarding_image_3,
                 true
             )
         )

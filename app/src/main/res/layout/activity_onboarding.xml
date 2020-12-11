@@ -27,6 +27,7 @@
             app:tabBackground="@drawable/tab_dot_default"
             app:tabGravity="center"
             app:tabIndicator="@drawable/tab_dot_selected"
+            app:tabIndicatorColor="@color/black"
             app:tabIndicatorGravity="center"
             app:tabIndicatorHeight="8dp" />
 
