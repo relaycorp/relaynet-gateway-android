@@ -153,7 +153,7 @@ class CollectParcelsFromGatewayTest {
             CoroutineScope(Dispatchers.Unconfined).launch {
                 subject.collect(true)
             }
-            sleep((retryPeriod.toLongMilliseconds() * 1.1).roundToLong())
+            sleep((retryPeriod.toLongMilliseconds() * 1.5).roundToLong())
             assertEquals(2, tries)
         }
     }
