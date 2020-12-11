@@ -30,12 +30,14 @@ class GenerateCargoTest {
     private val diskMessageOperations = mock<DiskMessageOperations>()
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
     private val localConfig = mock<LocalConfig>()
+    private val calculateCRCMessageCreationDate = mock<CalculateCRCMessageCreationDate>()
     private val generateCargo = GenerateCargo(
         storedParcelDao,
         parcelCollectionDao,
         diskMessageOperations,
         publicGatewayPreferences,
-        localConfig
+        localConfig,
+        calculateCRCMessageCreationDate
     )
 
     @BeforeEach
@@ -50,6 +52,7 @@ class GenerateCargoTest {
         whenever(localConfig.getCertificate()).thenReturn(certificate)
         whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn("https://example.org")
         whenever(publicGatewayPreferences.getCertificate()).thenReturn(certificate)
+        whenever(calculateCRCMessageCreationDate.calculate()).thenReturn(nowInUtc())
 
         val messageStream: () -> InputStream = "ABC".toByteArray()::inputStream
         whenever(diskMessageOperations.readMessage(any(), any())).thenReturn(messageStream)
@@ -73,6 +76,8 @@ class GenerateCargoTest {
         val parcelCollection = ParcelCollectionFactory.build()
             .copy(expirationTimeUtc = nowInUtc())
         whenever(parcelCollectionDao.getAll()).thenReturn(listOf(parcelCollection))
+        val creationDate = nowInUtc()
+        whenever(calculateCRCMessageCreationDate.calculate()).thenReturn(creationDate)
 
         val cargoes = generateCargo.generate().toList()
         assertEquals(1, cargoes.size)
@@ -86,48 +91,6 @@ class GenerateCargoTest {
 
         val cargoMessages = cargo.unwrapPayload(localConfig.getKeyPair().private)
         assertEquals(2, cargoMessages.messages.size)
+        assertTrue(Duration.between(creationDate, cargo.creationDate).abs().seconds <= 1)
     }
-
-    @Test
-    internal fun `generate cargo creation date 5 minutes past if registration was before`() =
-        runBlockingTest {
-            whenever(storedParcelDao.listForRecipientLocation(any(), any()))
-                .thenReturn(listOf(StoredParcelFactory.build()))
-            whenever(parcelCollectionDao.getAll()).thenReturn(emptyList())
-
-            val certificate = issueGatewayCertificate(
-                localConfig.getKeyPair().public,
-                localConfig.getKeyPair().private,
-                nowInUtc().plusMinutes(1),
-                validityStartDate = nowInUtc().minusDays(1)
-            )
-            whenever(localConfig.getCertificate()).thenReturn(certificate)
-
-            val cargo = Cargo.deserialize(generateCargo.generate().toList().first().readBytes())
-
-            assertTrue(
-                cargo.creationDate.isBefore(nowInUtc().minusMinutes(4)) &&
-                    cargo.creationDate.isAfter(nowInUtc().minusMinutes(6))
-            )
-        }
-
-    @Test
-    internal fun `generate cargo creation date equal to registration if sooner than 5 minutes`() =
-        runBlockingTest {
-            whenever(storedParcelDao.listForRecipientLocation(any(), any()))
-                .thenReturn(listOf(StoredParcelFactory.build()))
-            whenever(parcelCollectionDao.getAll()).thenReturn(emptyList())
-
-            val certificate = issueGatewayCertificate(
-                localConfig.getKeyPair().public,
-                localConfig.getKeyPair().private,
-                nowInUtc().plusMinutes(1),
-                validityStartDate = nowInUtc()
-            )
-            whenever(localConfig.getCertificate()).thenReturn(certificate)
-
-            val cargo = Cargo.deserialize(generateCargo.generate().toList().first().readBytes())
-
-            assertTrue(certificate.startDate.isEqual(cargo.creationDate))
-        }
 }

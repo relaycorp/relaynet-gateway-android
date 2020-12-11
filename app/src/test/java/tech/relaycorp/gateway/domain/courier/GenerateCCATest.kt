@@ -14,12 +14,15 @@ import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.CargoCollectionAuthorization
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
+import java.time.Duration
 
 class GenerateCCATest {
 
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
     private val localConfig = mock<LocalConfig>()
-    private val generateCCA = GenerateCCA(publicGatewayPreferences, localConfig)
+    private val calculateCreationDate = mock<CalculateCRCMessageCreationDate>()
+    private val generateCCA =
+        GenerateCCA(publicGatewayPreferences, localConfig, calculateCreationDate)
 
     companion object {
         private const val ADDRESS = "http://example.org"
@@ -44,50 +47,15 @@ class GenerateCCATest {
 
     @Test
     internal fun `generate in ByteArray`() = runBlockingTest {
+        val creationDate = nowInUtc()
+        whenever(calculateCreationDate.calculate()).thenReturn(creationDate)
+
         val ccaBytes = generateCCA.generateByteArray()
         val cca = CargoCollectionAuthorization.deserialize(ccaBytes)
 
         cca.validate(null)
         assertEquals(ADDRESS, cca.recipientAddress)
         assertEquals(localConfig.getCertificate(), cca.senderCertificate)
+        assertTrue(Duration.between(creationDate, cca.creationDate).abs().seconds <= 1)
     }
-
-    @Test
-    internal fun `generate with creation date 5 minutes past if registration is before`() =
-        runBlockingTest {
-            val certificate = issueGatewayCertificate(
-                subjectPublicKey = localConfig.getKeyPair().public,
-                issuerPrivateKey = localConfig.getKeyPair().private,
-                validityEndDate = nowInUtc().plusMinutes(1),
-                validityStartDate = nowInUtc().minusDays(1)
-            )
-            whenever(localConfig.getCertificate()).thenReturn(certificate)
-
-            val ccaBytes = generateCCA.generateByteArray()
-            val cca = CargoCollectionAuthorization.deserialize(ccaBytes)
-
-            assertTrue(
-                cca.creationDate.isBefore(nowInUtc().minusMinutes(4)) &&
-                    cca.creationDate.isAfter(nowInUtc().minusMinutes(6))
-            )
-        }
-
-    @Test
-    internal fun `generate with creation date equal to registration if more recent`() =
-        runBlockingTest {
-            val certificate = issueGatewayCertificate(
-                subjectPublicKey = localConfig.getKeyPair().public,
-                issuerPrivateKey = localConfig.getKeyPair().private,
-                validityEndDate = nowInUtc().plusMinutes(1),
-                validityStartDate = nowInUtc()
-            )
-            whenever(localConfig.getCertificate()).thenReturn(certificate)
-
-            val ccaBytes = generateCCA.generateByteArray()
-            val cca = CargoCollectionAuthorization.deserialize(ccaBytes)
-
-            assertTrue(
-                certificate.startDate.isEqual(cca.creationDate)
-            )
-        }
 }
