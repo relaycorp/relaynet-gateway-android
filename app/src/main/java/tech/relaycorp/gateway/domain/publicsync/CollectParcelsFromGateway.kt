@@ -46,6 +46,8 @@ class CollectParcelsFromGateway
                     .collectParcels(arrayOf(signer), streamingMode)
                     .retry(Long.MAX_VALUE) { e ->
                         if (keepAlive && e is ServerConnectionException) {
+                            // The culprit is likely to be:
+                            // https://github.com/relaycorp/cloud-gateway/issues/53
                             logger.log(
                                 Level.WARNING,
                                 "Could not collect parcels due to server error, will retry.",
