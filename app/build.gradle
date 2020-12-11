@@ -126,7 +126,7 @@ dependencies {
     implementation 'org.conscrypt:conscrypt-android:2.5.1'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
-    implementation 'tech.relaycorp:poweb:1.5.10'
+    implementation 'tech.relaycorp:poweb:1.5.11'
     implementation "io.ktor:ktor-server-core:$ktorVersion"
     implementation "io.ktor:ktor-server-netty:$ktorVersion"
     implementation "io.ktor:ktor-websockets:$ktorVersion"
@@ -146,13 +146,16 @@ dependencies {
     implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
 
     // Display open-source licenses
-    implementation "com.mikepenz:aboutlibraries:8.6.2"
+    implementation "com.mikepenz:aboutlibraries:8.6.3"
+
+    // One-off network requests
+    implementation "io.ktor:ktor-client-android:$ktorVersion"
 
     // Testing
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
-    testImplementation 'org.mockito:mockito-inline:3.6.0'
+    testImplementation 'org.mockito:mockito-inline:3.6.28'
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
     testImplementation 'tech.relaycorp:relaynet-testing:1.0.0'
 
@@ -183,6 +186,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     kotlinOptions.freeCompilerArgs += [
             '-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi',
             '-Xuse-experimental=kotlinx.coroutines.FlowPreview',
-            '-Xuse-experimental=kotlin.time.ExperimentalTime'
+            '-Xuse-experimental=kotlin.time.ExperimentalTime',
+            '-Xuse-experimental=io.ktor.util.KtorExperimentalAPI'
     ]
 }
