@@ -77,7 +77,7 @@ class ConnectionStateObserver
     }
 
     private suspend fun pingCourierServer(serverAddress: String) =
-        pingRemoteServer.pingAddress(serverAddress, CogRPC.PORT)
+        pingRemoteServer.pingSocket(serverAddress, CogRPC.PORT)
 
     private val Network.isWifi
         get() =

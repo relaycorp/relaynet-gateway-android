@@ -9,5 +9,5 @@ class CheckPublicGatewayAccess
     private val pingRemoteServer: PingRemoteServer
 ) {
     suspend fun check() =
-        pingRemoteServer.pingHostname(publicGatewayPreferences.getAddress())
+        pingRemoteServer.pingURL(publicGatewayPreferences.getAddress())
 }
