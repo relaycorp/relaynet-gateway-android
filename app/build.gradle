@@ -117,7 +117,7 @@ dependencies {
     // Relaynet
     implementation 'tech.relaycorp:relaynet:1.39.1'
     implementation 'tech.relaycorp:cogrpc:1.1.6'
-    implementation 'tech.relaycorp:cogrpc-okhttp:1.1.5'
+    implementation 'tech.relaycorp:cogrpc-okhttp:1.1.6'
     testImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
     androidTestImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
 
