@@ -36,13 +36,23 @@ class LocalConfig
     // Private Gateway Certificate
 
     suspend fun getCertificate() =
-        sensitiveStore.read(CERTIFICATE_FILE_NAME)
+        sensitiveStore.read(PDA_CERTIFICATE_FILE_NAME)
             ?.let { Certificate.deserialize(it) }
             ?: generateCertificate()
                 .also { setCertificate(it) }
 
     suspend fun setCertificate(value: Certificate) {
-        sensitiveStore.store(CERTIFICATE_FILE_NAME, value.serialize())
+        sensitiveStore.store(PDA_CERTIFICATE_FILE_NAME, value.serialize())
+    }
+
+    suspend fun getCRCCertificate() =
+        sensitiveStore.read(CDA_CERTIFICATE_FILE_NAME)
+            ?.let { Certificate.deserialize(it) }
+            ?: generateCertificate()
+                .also { setCDACertificate(it) }
+
+    private suspend fun setCDACertificate(value: Certificate) {
+        sensitiveStore.store(CDA_CERTIFICATE_FILE_NAME, value.serialize())
     }
 
     // Helpers
@@ -76,6 +86,8 @@ class LocalConfig
         private const val KEY_ALGORITHM = "RSA"
 
         private const val PRIVATE_KEY_FILE_NAME = "local_gateway.key"
-        private const val CERTIFICATE_FILE_NAME = "local_gateway.certificate"
+
+        private const val PDA_CERTIFICATE_FILE_NAME = "local_gateway.certificate"
+        private const val CDA_CERTIFICATE_FILE_NAME = "cda_local_gateway.certificate"
     }
 }
