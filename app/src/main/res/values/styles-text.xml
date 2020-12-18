@@ -6,6 +6,7 @@
 
     <style name="TextAppearance.Gateway.Title" parent="TextAppearance.MaterialComponents.Headline6" tools:ignore="UnusedResources">
         <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.Gateway.Body" parent="">
@@ -17,13 +18,6 @@
     <style name="TextAppearance.Gateway.Body2" parent="TextAppearance.MaterialComponents.Body2" tools:ignore="UnusedResources">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">?android:textColorSecondary</item>
-    </style>
-
-    <style name="TextAppearance.Gateway.CardTitle" parent="TextAppearance.MaterialComponents.Caption">
-        <item name="android:textSize">12sp</item>
-        <item name="android:textColor">?android:textColorPrimary</item>
-        <item name="android:textAllCaps">true</item>
-        <item name="android:letterSpacing">0.15</item>
     </style>
 
     <style name="TextAppearance.Gateway.Heading1" parent="TextAppearance.MaterialComponents.Headline2">

@@ -14,6 +14,7 @@ import kotlinx.android.synthetic.main.activity_courier_sync.close
 import kotlinx.android.synthetic.main.activity_courier_sync.image
 import kotlinx.android.synthetic.main.activity_courier_sync.stateMessage
 import kotlinx.android.synthetic.main.activity_courier_sync.stop
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
@@ -48,6 +49,7 @@ class CourierSyncActivity : BaseActivity() {
             .state
             .onEach { stateMessage.setText(it.toStringRes()) }
             .map { it != CourierSync.State.Finished && it != CourierSync.State.Error }
+            .distinctUntilChanged()
             .onEach { isSyncing ->
                 stop.isVisible = isSyncing
                 close.isVisible = !isSyncing

@@ -13,7 +13,6 @@
         android:id="@+id/innerContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <ImageView
@@ -33,6 +32,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textIsSelectable="true"
+            android:layout_marginHorizontal="32dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_editor_absoluteX="16dp"

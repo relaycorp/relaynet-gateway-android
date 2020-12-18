@@ -10,16 +10,19 @@
 
     <!-- Main -->
     <string name="main_title">Relaynet Gateway</string>
-    <string name="main_status">Status</string>
-    <string name="main_status_disconnected">You’re disconnected from Relaynet</string>
     <string name="main_status_internet">You’re connect to Relaynet via Internet</string>
+    <string name="main_status_internet_text">All synced, nothing to do here!</string>
     <string name="main_status_courier">You’re connect to a Courier</string>
-    <string name="main_data">Data</string>
-    <string name="main_data_to_sync_none">No data is waiting to be synced, but there might be some incoming data.</string>
-    <string name="main_data_to_sync_some">Data waiting to be synced. Some data may be incoming too.</string>
-    <string name="main_apps">Apps</string>
-    <string name="main_apps_none">No Relaynet apps connected.</string>
-    <string name="main_apps_some">Some Relaynet apps connected.</string>
+    <string name="main_status_courier_text">Everything is ready, go ahead and sync with the courier!</string>
+    <string name="main_status_disconnected">You’re disconnected from Relaynet</string>
+    <string name="main_status_disconnected_text">
+        You can still send and receive data from the Internet via Relaynet couriers:
+        \n\nSimply connect to a courier’s device and we’ll synchronize the data for you.
+        \n\nIt’s impossible for anyone to see or change your data in transit, nor can anyone
+        see which apps you’re using.
+        \n\nAlso, any data lost in transit will be re-delivered as soon as possible.
+    </string>
+    <string name="main_courier_connection">Connect with a Courier</string>
 
     <!-- Sync -->
     <string name="sync_courier">Sync with Courier</string>

@@ -9,7 +9,6 @@
     <color name="gray_dark">#57605A</color>
     <color name="black">#031008</color>
     <color name="red">#F44336</color>
-    <color name="green_light">#EEF9F2</color>
 
     <color name="ic_launcher_background">@color/relaynet_primary</color>
 </resources>

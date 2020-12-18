@@ -48,7 +48,7 @@
     <!-- Dialog -->
 
     <style name="Widget.Gateway.DialogTitle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
-        <item name="android:textColor">?colorPrimary</item>
+        <item name="android:textColor">?colorOnSurface</item>
     </style>
 
     <style name="Widget.Gateway.DialogButton.Positive" parent="Widget.MaterialComponents.Button.UnelevatedButton">
@@ -56,8 +56,8 @@
     </style>
 
     <style name="Widget.Gateway.DialogButton.Negative" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="strokeColor">?colorPrimary</item>
-        <item name="android:textColor">?colorPrimary</item>
+        <item name="strokeColor">?colorOnSurface</item>
+        <item name="android:textColor">?colorOnSurface</item>
         <item name="android:layout_marginStart">8dp</item>
     </style>
 
