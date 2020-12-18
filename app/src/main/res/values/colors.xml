@@ -2,6 +2,7 @@
 <resources>
     <color name="relaynet_primary">#F2C94C</color>
     <color name="relaynet_secondary">#F2994A</color>
+    <color name="relaynet_tertiary">#735F24</color>
 
     <color name="white">#FFFFFF</color>
     <color name="gray_light">#F0F0F0</color>

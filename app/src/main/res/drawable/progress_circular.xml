@@ -7,7 +7,7 @@
             android:thickness="10dp"
             android:type="sweep"
             android:useLevel="false">
-            <solid android:color="@color/primary50" />
+            <solid android:color="?colorSecondary" />
         </shape>
 
     </item>

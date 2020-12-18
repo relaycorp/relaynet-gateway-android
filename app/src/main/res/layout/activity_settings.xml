@@ -50,7 +50,7 @@
                 android:textIsSelectable="true"
                 android:lineSpacingMultiplier="0.9"
                 android:padding="20dp"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="@id/dataChart"
                 app:layout_constraintEnd_toEndOf="@id/dataChart"
@@ -83,7 +83,7 @@
                 android:drawablePadding="8dp"
                 android:text="@string/settings_data_queued"
                 app:drawableStartCompat="@drawable/circle"
-                app:drawableTint="@color/primary50"
+                app:drawableTint="?colorSecondary"
                 app:layout_constraintBottom_toBottomOf="@id/dataChart"
                 app:layout_constraintStart_toEndOf="@id/dataChart"
                 app:layout_constraintTop_toBottomOf="@id/inTransitLabel"
@@ -133,7 +133,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/learnMore"
-                    style="@style/Widget.Gateway.Button.Text"
+                    style="@style/Widget.Gateway.Button.Text.Tertiary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="-8dp"
@@ -143,7 +143,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/libraries"
-                    style="@style/Widget.Gateway.Button.Text"
+                    style="@style/Widget.Gateway.Button.Text.Tertiary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="-8dp"

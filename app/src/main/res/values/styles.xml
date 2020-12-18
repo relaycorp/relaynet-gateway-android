@@ -37,6 +37,11 @@
         <item name="android:textColor">?colorOnBackground</item>
     </style>
 
+    <style name="Widget.Gateway.Button.Text.Tertiary" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="textAllCaps">true</item>
+        <item name="android:textColor">@color/relaynet_tertiary</item>
+    </style>
+
     <!-- Dialog -->
 
     <style name="Widget.Gateway.DialogTitle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
