@@ -45,13 +45,13 @@ class LocalConfig
         sensitiveStore.store(PDA_CERTIFICATE_FILE_NAME, value.serialize())
     }
 
-    suspend fun getCRCCertificate() =
+    suspend fun getCargoDeliveryAuth() =
         sensitiveStore.read(CDA_CERTIFICATE_FILE_NAME)
             ?.let { Certificate.deserialize(it) }
             ?: generateCertificate()
-                .also { setCDACertificate(it) }
+                .also { setCargoDeliveryAuth(it) }
 
-    private suspend fun setCDACertificate(value: Certificate) {
+    private suspend fun setCargoDeliveryAuth(value: Certificate) {
         sensitiveStore.store(CDA_CERTIFICATE_FILE_NAME, value.serialize())
     }
 

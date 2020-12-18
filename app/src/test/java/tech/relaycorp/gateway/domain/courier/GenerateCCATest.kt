@@ -13,6 +13,7 @@ import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.CargoCollectionAuthorization
+import tech.relaycorp.relaynet.testing.CertificationPath
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import java.time.Duration
 
@@ -40,8 +41,10 @@ class GenerateCCATest {
             )
 
             whenever(localConfig.getKeyPair()).thenReturn(keyPair)
-            whenever(localConfig.getCertificate()).thenReturn(certificate)
+            whenever(localConfig.getCargoDeliveryAuth()).thenReturn(certificate)
             whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn(ADDRESS)
+            whenever(publicGatewayPreferences.getCertificate())
+                .thenReturn(CertificationPath.PUBLIC_GW)
         }
     }
 
@@ -55,7 +58,7 @@ class GenerateCCATest {
 
         cca.validate(null)
         assertEquals(ADDRESS, cca.recipientAddress)
-        assertEquals(localConfig.getCertificate(), cca.senderCertificate)
+        assertEquals(localConfig.getCargoDeliveryAuth(), cca.senderCertificate)
         assertTrue(Duration.between(creationDate, cca.creationDate).abs().seconds <= 1)
     }
 }

@@ -27,7 +27,7 @@ class CargoStorage
         }
 
         try {
-            cargo.validate(RecipientAddressType.PRIVATE, setOf(localConfig.getCRCCertificate()))
+            cargo.validate(RecipientAddressType.PRIVATE, setOf(localConfig.getCargoDeliveryAuth()))
         } catch (exc: RelaynetException) {
             logger.warning("Invalid cargo received: ${exc.message}")
             throw Exception.InvalidCargo(null, exc)

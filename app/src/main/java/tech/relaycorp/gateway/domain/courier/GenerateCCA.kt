@@ -17,7 +17,7 @@ class GenerateCCA
 ) {
 
     suspend fun generate(): CargoCollectionAuthorization {
-        val senderCertificate = localConfig.getCRCCertificate()
+        val senderCertificate = localConfig.getCargoDeliveryAuth()
         val cda = issueDeliveryAuthorization(
             publicGatewayPreferences.getCertificate().subjectPublicKey,
             localConfig.getKeyPair().private,
