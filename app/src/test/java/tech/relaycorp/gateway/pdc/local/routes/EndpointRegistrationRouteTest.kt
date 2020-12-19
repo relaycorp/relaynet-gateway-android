@@ -16,8 +16,8 @@ import tech.relaycorp.gateway.domain.endpoint.InvalidPNRAException
 import tech.relaycorp.gateway.pdc.local.utils.ContentType
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
-import tech.relaycorp.relaynet.testing.CertificationPath
-import tech.relaycorp.relaynet.testing.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import kotlin.test.assertEquals
 import io.ktor.http.ContentType as KtorContentType
 
@@ -90,8 +90,8 @@ class EndpointRegistrationRouteTest {
     @Test
     fun `Valid CRR should complete the registration`() = runBlockingTest {
         val privateNodeRegistration = PrivateNodeRegistration(
-            CertificationPath.PRIVATE_ENDPOINT,
-            CertificationPath.PRIVATE_GW
+            PDACertPath.PRIVATE_ENDPOINT,
+            PDACertPath.PRIVATE_GW
         )
         val privateNodeRegistrationSerialized = privateNodeRegistration.serialize()
         whenever(endpointRegistration.register(any())).thenReturn(privateNodeRegistrationSerialized)

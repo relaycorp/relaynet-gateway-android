@@ -1,7 +1,7 @@
 package tech.relaycorp.gateway.test
 
 import tech.relaycorp.relaynet.issueGatewayCertificate
-import tech.relaycorp.relaynet.testing.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import java.time.ZonedDateTime
 
 /**

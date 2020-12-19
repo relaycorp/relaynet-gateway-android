@@ -24,7 +24,7 @@ import tech.relaycorp.gateway.test.factory.StoredParcelFactory
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.bindings.pdc.RejectedParcelException
 import tech.relaycorp.relaynet.bindings.pdc.ServerConnectionException
-import tech.relaycorp.relaynet.testing.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import java.lang.IllegalArgumentException
 import kotlin.test.assertEquals
 

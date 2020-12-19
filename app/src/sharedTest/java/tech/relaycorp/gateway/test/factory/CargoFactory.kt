@@ -2,7 +2,7 @@ package tech.relaycorp.gateway.test.factory
 
 import tech.relaycorp.gateway.test.CargoDeliveryCertPath
 import tech.relaycorp.relaynet.messages.Cargo
-import tech.relaycorp.relaynet.testing.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 
 object CargoFactory {
 

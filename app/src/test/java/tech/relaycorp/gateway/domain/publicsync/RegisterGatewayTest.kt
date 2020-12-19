@@ -19,8 +19,8 @@ import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
-import tech.relaycorp.relaynet.testing.CertificationPath
-import tech.relaycorp.relaynet.testing.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import java.time.ZonedDateTime
 
@@ -88,7 +88,7 @@ class RegisterGatewayTest {
     }
 
     private fun buildPNR() = PrivateNodeRegistration(
-        CertificationPath.PRIVATE_ENDPOINT,
-        CertificationPath.PRIVATE_GW
+        PDACertPath.PRIVATE_ENDPOINT,
+        PDACertPath.PRIVATE_GW
     )
 }

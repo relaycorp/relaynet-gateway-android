@@ -20,8 +20,8 @@ import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.bindings.pdc.RejectedParcelException
 import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.messages.Parcel
-import tech.relaycorp.relaynet.testing.CertificationPath
-import tech.relaycorp.relaynet.testing.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import javax.inject.Inject
 
@@ -31,7 +31,7 @@ class GatewaySyncServiceParcelDeliveryTest {
     val serviceRule = ServiceTestRule()
 
     private val endpointSigner =
-        Signer(CertificationPath.PRIVATE_ENDPOINT, KeyPairSet.PRIVATE_ENDPOINT.private)
+        Signer(PDACertPath.PRIVATE_ENDPOINT, KeyPairSet.PRIVATE_ENDPOINT.private)
 
     @Inject
     lateinit var sensitiveStore: SensitiveStore
@@ -52,14 +52,14 @@ class GatewaySyncServiceParcelDeliveryTest {
 
     @Test
     fun parcelDelivery_validParcel() = runBlocking {
-        setGatewayCertificate(CertificationPath.PRIVATE_GW)
+        setGatewayCertificate(PDACertPath.PRIVATE_GW)
         val recipient = "https://example.org"
 
         val parcel = Parcel(
             recipient,
             ByteArray(0),
-            CertificationPath.PRIVATE_ENDPOINT,
-            senderCertificateChain = setOf(CertificationPath.PRIVATE_GW)
+            PDACertPath.PRIVATE_ENDPOINT,
+            senderCertificateChain = setOf(PDACertPath.PRIVATE_GW)
         ).serialize(KeyPairSet.PRIVATE_ENDPOINT.private)
 
         PoWebClient.initLocal(PDCServer.PORT).deliverParcel(parcel, endpointSigner)
@@ -76,7 +76,7 @@ class GatewaySyncServiceParcelDeliveryTest {
         val parcel = Parcel(
             "https://example.org",
             ByteArray(0),
-            CertificationPath.PUBLIC_GW // Wrong certificate to make this parcel invalid
+            PDACertPath.PUBLIC_GW // Wrong certificate to make this parcel invalid
         ).serialize(KeyPairSet.PUBLIC_GW.private)
 
         PoWebClient.initLocal(PDCServer.PORT).deliverParcel(parcel, endpointSigner)
