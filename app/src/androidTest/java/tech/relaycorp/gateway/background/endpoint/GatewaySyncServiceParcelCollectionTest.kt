@@ -23,8 +23,8 @@ import tech.relaycorp.relaynet.bindings.pdc.ServerConnectionException
 import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.messages.Parcel
-import tech.relaycorp.relaynet.testing.CertificationPath
-import tech.relaycorp.relaynet.testing.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import javax.inject.Inject
 
@@ -52,7 +52,7 @@ class GatewaySyncServiceParcelCollectionTest {
 
     @Test
     fun parcelCollection_receiveParcel() = runBlocking {
-        setGatewayCertificate(CertificationPath.PRIVATE_GW)
+        setGatewayCertificate(PDACertPath.PRIVATE_GW)
         val parcel = ParcelFactory.buildSerialized()
         val storeResult = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
         assertTrue(storeResult is StoreParcel.Result.Success)
@@ -62,7 +62,7 @@ class GatewaySyncServiceParcelCollectionTest {
                 .collectParcels(
                     arrayOf(
                         Signer(
-                            CertificationPath.PRIVATE_ENDPOINT,
+                            PDACertPath.PRIVATE_ENDPOINT,
                             KeyPairSet.PRIVATE_ENDPOINT.private
                         )
                     ),
@@ -78,7 +78,7 @@ class GatewaySyncServiceParcelCollectionTest {
 
     @Test(expected = ServerConnectionException::class)
     fun parcelCollection_invalidHandshake() = runBlocking {
-        setGatewayCertificate(CertificationPath.PRIVATE_GW)
+        setGatewayCertificate(PDACertPath.PRIVATE_GW)
         val parcel = ParcelFactory.buildSerialized()
         val storeResult = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
         assertTrue(storeResult is StoreParcel.Result.Success)
@@ -87,7 +87,7 @@ class GatewaySyncServiceParcelCollectionTest {
             .collectParcels(
                 arrayOf(
                     Signer(
-                        CertificationPath.PRIVATE_ENDPOINT,
+                        PDACertPath.PRIVATE_ENDPOINT,
                         KeyPairSet.PUBLIC_GW.private // Invalid key to trigger invalid handshake
                     )
                 ),
