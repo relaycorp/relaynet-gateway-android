@@ -122,11 +122,11 @@ dependencies {
     androidTestImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
 
     // Android TLS support for Netty
-    implementation "io.netty:netty-handler:4.1.54.Final"
+    implementation "io.netty:netty-handler:4.1.55.Final"
     implementation 'org.conscrypt:conscrypt-android:2.5.1'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
-    implementation 'tech.relaycorp:poweb:1.5.11'
+    implementation 'tech.relaycorp:poweb:1.5.12'
     implementation "io.ktor:ktor-server-core:$ktorVersion"
     implementation "io.ktor:ktor-server-netty:$ktorVersion"
     implementation "io.ktor:ktor-websockets:$ktorVersion"
