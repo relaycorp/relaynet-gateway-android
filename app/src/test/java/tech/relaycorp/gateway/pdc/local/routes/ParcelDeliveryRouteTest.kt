@@ -15,8 +15,8 @@ import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.pdc.local.utils.ContentType
 import tech.relaycorp.relaynet.messages.Parcel
-import tech.relaycorp.relaynet.testing.CertificationPath
-import tech.relaycorp.relaynet.testing.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import kotlin.test.assertEquals
 import io.ktor.http.ContentType as KtorContentType
 
@@ -28,7 +28,7 @@ class ParcelDeliveryRouteTest {
     private val route = ParcelDeliveryRoute(storeParcel)
 
     private val parcel =
-        Parcel("https://example.com", byteArrayOf(), CertificationPath.PRIVATE_ENDPOINT)
+        Parcel("https://example.com", byteArrayOf(), PDACertPath.PRIVATE_ENDPOINT)
     private val parcelSerialized = parcel.serialize(KeyPairSet.PRIVATE_ENDPOINT.private)
 
     @Test

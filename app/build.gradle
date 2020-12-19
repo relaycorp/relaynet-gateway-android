@@ -9,7 +9,7 @@ buildscript {
     ext {
         ktorVersion = '1.4.1'
         junitVersion = '5.7.0'
-        relaynetTestingVersion = '1.0.0'
+        relaynetTestingVersion = '1.2.0'
     }
 }
 
