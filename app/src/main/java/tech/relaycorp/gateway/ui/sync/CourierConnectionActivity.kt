@@ -31,7 +31,6 @@ class CourierConnectionActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         component.inject(this)
-        setTitle(R.string.main_title)
         setContentView(R.layout.activity_courier_connection)
         setupNavigation()
 

@@ -22,13 +22,13 @@
             android:padding="32dp">
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="64dp"
-                android:layout_marginBottom="32dp"
+                android:layout_margin="8dp"
+                android:layout_marginVertical="32dp"
                 android:importantForAccessibility="no"
-                android:src="@drawable/onboarding_image_1" />
+                android:src="@drawable/courier_connection_image" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/disconnectedLayout"
@@ -138,8 +138,8 @@
                 android:id="@+id/connectedLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:gravity="center_horizontal"
+                android:orientation="vertical"
                 android:visibility="gone"
                 tools:visibility="visible">
 
@@ -155,8 +155,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:gravity="center"
                     android:layout_marginTop="32dp"
+                    android:gravity="center"
                     android:text="@string/courier_connected_text"
                     app:layout_constraintTop_toTopOf="parent" />
 

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     tools:context=".ui.sync.CourierSyncActivity">
 
     <include layout="@layout/common_app_bar" />
@@ -12,8 +13,18 @@
         android:id="@+id/innerContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/sync_image"
+            app:layout_constraintBottom_toTopOf="@+id/stateMessage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/stateMessage"
@@ -21,10 +32,23 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textIsSelectable="true"
+            android:layout_marginHorizontal="32dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_editor_absoluteX="16dp"
             tools:text="@string/courier_connected" />
+
+        <ImageView
+            android:id="@+id/animation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:contentDescription="@null"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/stateMessage"
+            app:srcCompat="@drawable/sync_animation"
+            app:tint="?colorOnBackground" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/stop"
