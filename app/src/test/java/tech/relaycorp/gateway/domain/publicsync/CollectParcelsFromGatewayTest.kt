@@ -33,7 +33,7 @@ import tech.relaycorp.relaynet.bindings.pdc.ParcelCollection
 import tech.relaycorp.relaynet.bindings.pdc.ServerConnectionException
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.messages.Parcel
-import tech.relaycorp.relaynet.testing.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import java.lang.Thread.sleep
 import kotlin.math.roundToLong
 import kotlin.time.milliseconds

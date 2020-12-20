@@ -1,16 +1,16 @@
 package tech.relaycorp.gateway.test.factory
 
 import tech.relaycorp.relaynet.messages.Parcel
-import tech.relaycorp.relaynet.testing.CertificationPath
-import tech.relaycorp.relaynet.testing.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 
 object ParcelFactory {
 
     fun build() = Parcel(
-        CertificationPath.PRIVATE_ENDPOINT.subjectPrivateAddress,
+        PDACertPath.PRIVATE_ENDPOINT.subjectPrivateAddress,
         "".toByteArray(),
-        CertificationPath.PDA,
-        senderCertificateChain = setOf(CertificationPath.PRIVATE_ENDPOINT)
+        PDACertPath.PDA,
+        senderCertificateChain = setOf(PDACertPath.PRIVATE_ENDPOINT)
     )
 
     fun buildSerialized() =

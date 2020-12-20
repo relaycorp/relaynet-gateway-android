@@ -9,7 +9,8 @@ import kotlin.time.days
 class GenerateCCA
 @Inject constructor(
     private val publicGatewayPreferences: PublicGatewayPreferences,
-    private val localConfig: LocalConfig
+    private val localConfig: LocalConfig,
+    private val calculateCreationDate: CalculateCRCMessageCreationDate
 ) {
 
     suspend fun generate() =
@@ -17,6 +18,7 @@ class GenerateCCA
             recipientAddress = publicGatewayPreferences.getCogRPCAddress(),
             payload = "".toByteArray(),
             senderCertificate = localConfig.getCertificate(),
+            creationDate = calculateCreationDate.calculate(),
             ttl = TTL.inSeconds.toInt()
         )
 

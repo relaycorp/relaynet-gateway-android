@@ -23,8 +23,8 @@ import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.messages.control.HandshakeChallenge
 import tech.relaycorp.relaynet.messages.control.HandshakeResponse
-import tech.relaycorp.relaynet.testing.CertificationPath
-import tech.relaycorp.relaynet.testing.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import java.nio.charset.Charset
 import javax.inject.Provider
 import kotlin.test.assertEquals
@@ -37,7 +37,7 @@ class ParcelCollectionHandshakeTest {
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
-        whenever(localConfig.getCertificate()).thenReturn(CertificationPath.PRIVATE_GW)
+        whenever(localConfig.getCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
     }
 
     @Test
@@ -67,7 +67,7 @@ class ParcelCollectionHandshakeTest {
     @Nested
     inner class Handshake {
         private val endpointSigner =
-            Signer(CertificationPath.PRIVATE_ENDPOINT, KeyPairSet.PRIVATE_ENDPOINT.private)
+            Signer(PDACertPath.PRIVATE_ENDPOINT, KeyPairSet.PRIVATE_ENDPOINT.private)
 
         @Test
         fun `Challenge should be sent as soon as client connects`() {
@@ -183,7 +183,7 @@ class ParcelCollectionHandshakeTest {
                             HandshakeChallenge.deserialize(incoming.receive().readBytes())
 
                         val untrustedSigner =
-                            Signer(CertificationPath.PDA, KeyPairSet.PDA_GRANTEE.private)
+                            Signer(PDACertPath.PDA, KeyPairSet.PDA_GRANTEE.private)
                         val signature =
                             untrustedSigner.sign(challenge.nonce, DetachedSignatureType.NONCE)
                         val response = HandshakeResponse(listOf(signature))
