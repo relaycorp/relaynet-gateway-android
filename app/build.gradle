@@ -136,7 +136,7 @@ dependencies {
     testImplementation "io.ktor:ktor-server-test-host:$ktorVersion"
 
     // ORM
-    def room_version = "2.2.5"
+    def room_version = "2.2.6"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
