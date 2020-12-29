@@ -65,6 +65,6 @@ class PublicGatewayPreferences
     companion object {
         @VisibleForTesting
         internal const val DEFAULT_ADDRESS = "https://poweb-frankfurt.relaycorp.cloud"
-        private const val COGRPC_ADDRESS = "https://cogrpc-frankfurt.relaycorp.cloud"
+        private const val COGRPC_ADDRESS = "https://frankfurt.relaycorp.cloud"
     }
 }
