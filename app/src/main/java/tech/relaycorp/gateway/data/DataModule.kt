@@ -77,7 +77,7 @@ class DataModule {
 
     @Provides
     fun dohClient() =
-        // TODO: Remove custom DNS resolver once we can use CloudFlare
+        // TODO: Remove custom DNS resolver once we can use CloudFlare's (which is the default)
         // https://github.com/cloudflare/cloudflare-docs/issues/565
         DoHClient("https://dns.google/dns-query")
 
