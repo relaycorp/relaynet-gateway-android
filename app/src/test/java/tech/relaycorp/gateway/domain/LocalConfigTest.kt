@@ -41,4 +41,11 @@ internal class LocalConfigTest {
         val certificate2 = localConfig.getCertificate().serialize()
         assertTrue(certificate1.contentEquals(certificate2))
     }
+
+    @Test
+    internal fun `get CDA stores and recovers the same certificate`() = runBlockingTest {
+        val certificate1 = localConfig.getCargoDeliveryAuth().serialize()
+        val certificate2 = localConfig.getCargoDeliveryAuth().serialize()
+        assertTrue(certificate1.contentEquals(certificate2))
+    }
 }
