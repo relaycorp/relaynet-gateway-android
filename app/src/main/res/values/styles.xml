@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <style name="Widget.Gateway.AppBar" parent="Widget.MaterialComponents.AppBarLayout.Surface">
         <item name="elevation">0dp</item>
@@ -30,14 +30,25 @@
         <item name="android:letterSpacing">0.025</item>
     </style>
 
-    <style name="Widget.Gateway.Button.Outline" parent="Widget.MaterialComponents.Button.OutlinedButton"/>
+    <style name="Widget.Gateway.Button.Outline" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">?colorOnSurface</item>
+        <item name="android:textColor">?colorOnSurface</item>
+    </style>
 
-    <style name="Widget.Gateway.Button.Text" parent="Widget.MaterialComponents.Button.TextButton" tools:ignore="UnusedResources" />
+    <style name="Widget.Gateway.Button.Text" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="textAllCaps">true</item>
+        <item name="android:textColor">?colorOnBackground</item>
+    </style>
+
+    <style name="Widget.Gateway.Button.Text.Tertiary" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="textAllCaps">true</item>
+        <item name="android:textColor">@color/relaynet_tertiary</item>
+    </style>
 
     <!-- Dialog -->
 
     <style name="Widget.Gateway.DialogTitle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
-        <item name="android:textColor">?colorPrimary</item>
+        <item name="android:textColor">?colorOnSurface</item>
     </style>
 
     <style name="Widget.Gateway.DialogButton.Positive" parent="Widget.MaterialComponents.Button.UnelevatedButton">
@@ -45,8 +56,8 @@
     </style>
 
     <style name="Widget.Gateway.DialogButton.Negative" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="strokeColor">?colorPrimary</item>
-        <item name="android:textColor">?colorPrimary</item>
+        <item name="strokeColor">?colorOnSurface</item>
+        <item name="android:textColor">?colorOnSurface</item>
         <item name="android:layout_marginStart">8dp</item>
     </style>
 
