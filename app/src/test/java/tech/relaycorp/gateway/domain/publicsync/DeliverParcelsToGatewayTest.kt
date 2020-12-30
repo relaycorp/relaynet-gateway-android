@@ -10,12 +10,14 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.ktor.test.dispatcher.testSuspend
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
+import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
 import tech.relaycorp.gateway.domain.DeleteParcel
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
@@ -48,6 +50,24 @@ class DeliverParcelsToGatewayTest {
         whenever(localConfig.getKeyPair()).thenReturn(KeyPairSet.PRIVATE_GW)
         whenever(diskMessageOperations.readMessage(any(), any()))
             .thenReturn { "".byteInputStream() }
+    }
+
+    @Test
+    fun `Failure to resolve PoWeb address should be ignored`() = runBlockingTest {
+        val failingPoWebClientBuilder = object : PoWebClientBuilder {
+            override suspend fun build() = throw PublicAddressResolutionException("Whoops")
+        }
+        val subject = DeliverParcelsToGateway(
+            storedParcelDao,
+            diskMessageOperations,
+            failingPoWebClientBuilder,
+            localConfig,
+            deleteParcel
+        )
+
+        subject.deliver(false)
+
+        verify(poWebClient, never()).deliverParcel(any(), any())
     }
 
     @Test

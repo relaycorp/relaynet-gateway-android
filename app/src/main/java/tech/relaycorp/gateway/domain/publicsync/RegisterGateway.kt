@@ -2,6 +2,7 @@ package tech.relaycorp.gateway.domain.publicsync
 
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.model.RegistrationState
+import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
@@ -44,6 +45,13 @@ class RegisterGateway
             null
         } catch (e: ClientBindingException) {
             logger.log(Level.SEVERE, "Could not register gateway due to client error", e)
+            null
+        } catch (e: PublicAddressResolutionException) {
+            logger.log(
+                Level.WARNING,
+                "Could not register gateway due to failure to resolve PoWeb address",
+                e
+            )
             null
         }
 }

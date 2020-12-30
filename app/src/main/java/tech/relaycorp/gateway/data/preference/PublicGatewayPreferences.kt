@@ -5,6 +5,8 @@ import androidx.annotation.VisibleForTesting
 import com.tfcporciuncula.flow.FlowSharedPreferences
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import tech.relaycorp.doh.DoHClient
+import tech.relaycorp.doh.LookupFailureException
 import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.data.disk.ReadRawFile
 import tech.relaycorp.gateway.data.model.RegistrationState
@@ -15,7 +17,8 @@ import javax.inject.Provider
 class PublicGatewayPreferences
 @Inject constructor(
     private val preferences: Provider<FlowSharedPreferences>,
-    private val readRawFile: ReadRawFile
+    private val readRawFile: ReadRawFile,
+    private val doHClient: DoHClient
 ) {
 
     // Address
@@ -24,11 +27,34 @@ class PublicGatewayPreferences
         preferences.get().getString("address", DEFAULT_ADDRESS)
     }
 
-    suspend fun getAddress() = observeAddress().first()
-    private fun observeAddress() = { address }.toFlow()
+    private fun getAddress(): String = address.get()
     suspend fun setAddress(value: String) = address.setAndCommit(value)
 
-    suspend fun getCogRPCAddress() = COGRPC_ADDRESS
+    fun getCogRPCAddress() = "https://$DEFAULT_ADDRESS"
+
+    @Throws(PublicAddressResolutionException::class)
+    suspend fun resolvePoWebAddress(): ServiceAddress {
+        val publicGatewayAddress = getAddress()
+        val srvRecordName = "_rgsc._tcp.$publicGatewayAddress"
+        val answer = try {
+            doHClient.lookUp(srvRecordName, "SRV")
+        } catch (exc: LookupFailureException) {
+            throw PublicAddressResolutionException(
+                "Failed to resolve DNS for PoWeb address",
+                exc
+            )
+        }
+        val srvRecordData = answer.data.first()
+        val srvRecordDataFields = srvRecordData.split(" ")
+        if (srvRecordDataFields.size < 4) {
+            throw PublicAddressResolutionException(
+                "Malformed SRV for $publicGatewayAddress ($srvRecordData)"
+            )
+        }
+        val targetHost = srvRecordDataFields[3]
+        val targetPort = srvRecordDataFields[2]
+        return ServiceAddress(targetHost.trimEnd('.'), targetPort.toInt())
+    }
 
     // Certificate
 
@@ -64,7 +90,6 @@ class PublicGatewayPreferences
 
     companion object {
         @VisibleForTesting
-        internal const val DEFAULT_ADDRESS = "https://poweb-frankfurt.relaycorp.cloud"
-        private const val COGRPC_ADDRESS = "https://frankfurt.relaycorp.cloud"
+        internal const val DEFAULT_ADDRESS = "frankfurt.relaycorp.cloud"
     }
 }

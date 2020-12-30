@@ -4,6 +4,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.check
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
+import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
@@ -57,6 +59,20 @@ class CollectParcelsFromGatewayTest {
         whenever(localConfig.getKeyPair()).thenReturn(KeyPairSet.PRIVATE_GW)
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.Success(mock()))
+    }
+
+    @Test
+    fun `Failure to resolve PoWeb address should be ignored`() = runBlockingTest {
+        val failingPoWebClientBuilder = object : PoWebClientBuilder {
+            override suspend fun build() = throw PublicAddressResolutionException("Whoops")
+        }
+        val subject = CollectParcelsFromGateway(
+            storeParcel, failingPoWebClientBuilder, localConfig, notifyEndpoints
+        )
+
+        subject.collect(false)
+
+        verify(poWebClient, never()).collectParcels(any(), any())
     }
 
     @Test
