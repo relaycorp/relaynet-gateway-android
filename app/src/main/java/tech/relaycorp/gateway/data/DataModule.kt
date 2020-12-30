@@ -76,7 +76,10 @@ class DataModule {
     // PoWeb
 
     @Provides
-    fun dohClient() = DoHClient()
+    fun dohClient() =
+        // TODO: Remove this once we can use CloudFlare
+        // https://github.com/cloudflare/cloudflare-docs/issues/565
+        DoHClient("https://dns.google/dns-query")
 
     @Provides
     fun poWebClientBuilder(publicGatewayPreferences: PublicGatewayPreferences) =
