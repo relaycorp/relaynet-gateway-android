@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Common -->
-    <string name="app_name">Gateway</string>
+    <string name="app_name">Relaynet</string>
     <string name="close">Close</string>
     <string name="stop">Stop</string>
     <string name="continue_">Continue</string>
@@ -9,7 +9,6 @@
     <string name="back">Back</string>
 
     <!-- Main -->
-    <string name="main_title">Relaynet Gateway</string>
     <string name="main_status_internet">You’re connect to Relaynet via Internet</string>
     <string name="main_status_internet_text">All synced, nothing to do here!</string>
     <string name="main_status_courier">You’re connect to a Courier</string>

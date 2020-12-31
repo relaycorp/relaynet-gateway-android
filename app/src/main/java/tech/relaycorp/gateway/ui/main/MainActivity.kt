@@ -37,7 +37,7 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         component.inject(this)
-        setTitle(R.string.main_title)
+        setTitle(R.string.app_name)
         setContentView(R.layout.activity_main)
 
         settings.setOnClickListener {

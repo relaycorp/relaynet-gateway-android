@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
@@ -76,7 +77,7 @@ class OnboardingActivity : BaseActivity() {
                 findViewById<TextView>(R.id.text).setText(page.text)
                 findViewById<ImageView>(R.id.image).setImageResource(page.image)
                 findViewById<TextView>(R.id.getStarted).run {
-                    isVisible = page.getStarted
+                    isInvisible = !page.getStarted
                     setOnClickListener { getStarted() }
                 }
             }

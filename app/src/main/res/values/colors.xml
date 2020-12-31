@@ -7,8 +7,8 @@
     <color name="white">#FFFFFF</color>
     <color name="gray_light">#F0F0F0</color>
     <color name="gray_dark">#57605A</color>
-    <color name="black">#031008</color>
+    <color name="black">#27302B</color>
     <color name="red">#F44336</color>
 
-    <color name="ic_launcher_background">@color/relaynet_primary</color>
+    <color name="ic_launcher_background">@color/white</color>
 </resources>
