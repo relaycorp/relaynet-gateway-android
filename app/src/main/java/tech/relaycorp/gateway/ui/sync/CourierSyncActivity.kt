@@ -71,6 +71,19 @@ class CourierSyncActivity : BaseActivity() {
             .launchIn(lifecycleScope)
 
         viewModel
+            .state
+            .onEach { state ->
+                image.setImageResource(
+                    when (state) {
+                        CourierSync.State.Finished -> R.drawable.sync_done_image
+                        CourierSync.State.Error -> 0
+                        else -> R.drawable.sync_image
+                    }
+                )
+            }
+            .launchIn(lifecycleScope)
+
+        viewModel
             .finish
             .onEach { finish() }
             .launchIn(lifecycleScope)

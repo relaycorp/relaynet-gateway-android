@@ -30,13 +30,14 @@
             android:id="@+id/stateMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textIsSelectable="true"
             android:layout_marginHorizontal="32dp"
+            android:gravity="center"
+            android:minHeight="56dp"
+            android:textIsSelectable="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_editor_absoluteX="16dp"
-            tools:text="@string/courier_connected" />
+            tools:text="@string/sync_waiting" />
 
         <ImageView
             android:id="@+id/animation"

@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".ui.sync.CourierConnectionActivity">
 
     <FrameLayout
-        android:id="@+id/innerContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
@@ -40,6 +40,7 @@
             android:layout_marginHorizontal="@dimen/onboarding_padding"
             android:layout_marginVertical="16dp"
             android:text="@string/back"
+            android:textSize="13sp"
             android:visibility="gone"
             tools:visibility="visible" />
 
@@ -52,6 +53,7 @@
             android:layout_marginHorizontal="@dimen/onboarding_padding"
             android:layout_marginVertical="16dp"
             android:text="@string/next"
+            android:textSize="13sp"
             android:visibility="visible" />
     </FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
