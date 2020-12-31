@@ -85,5 +85,19 @@
     <string name="settings_data">Outgoing Data</string>
     <string name="settings_data_in_transit">In transit</string>
     <string name="settings_data_queued">Queued</string>
+    <string name="settings_advanced">Advanced Settings</string>
+    <string name="settings_pgw">Public Gateway</string>
+    <string name="settings_pgw_migrate">Migrate</string>
+    <string name="settings_pgw_warning">
+        Warning: migrating to a new public gateway will make you lose all pending incoming and
+        outgoing data.
+    </string>
+    <string name="settings_pgw_migration_successful">Public gateway migration successful.</string>
+    <string name="settings_pgw_migration_failed_to_resolve">
+        Could not resolve public gateway address. Please confirm it is correct.
+    </string>
+    <string name="settings_pgw_migration_failed_to_register">
+        Could not register with public gateway. Please try again later.
+    </string>
 
 </resources>

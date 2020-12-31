@@ -20,38 +20,50 @@ class RegisterGateway
     private val poWebClientBuilder: PoWebClientBuilder
 ) {
 
-    suspend fun registerIfNeeded() {
+    suspend fun registerIfNeeded(): Result {
         if (publicGatewayPreferences.getRegistrationState() != RegistrationState.ToDo) {
-            return
+            return Result.AlreadyRegistered
         }
 
-        val pnr = register() ?: return
-        localConfig.setCertificate(pnr.privateNodeCertificate)
-        publicGatewayPreferences.setCertificate(pnr.gatewayCertificate)
-        publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
+        val result = register()
+        if (result is Result.Registered) {
+            localConfig.setCertificate(result.pnr.privateNodeCertificate)
+            publicGatewayPreferences.setCertificate(result.pnr.gatewayCertificate)
+            publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
+        }
+        return result
     }
 
-    private suspend fun register(): PrivateNodeRegistration? =
-        try {
+    private suspend fun register(): Result {
+        return try {
             val poWeb = poWebClientBuilder.build()
             val keyPair = localConfig.getKeyPair()
 
             poWeb.use {
                 val pnrr = poWeb.preRegisterNode(keyPair.public)
-                poWeb.registerNode(pnrr.serialize(keyPair.private))
+                val pnr = poWeb.registerNode(pnrr.serialize(keyPair.private))
+                Result.Registered(pnr)
             }
         } catch (e: ServerException) {
             logger.log(Level.INFO, "Could not register gateway due to server error", e)
-            null
+            Result.FailedToRegister
         } catch (e: ClientBindingException) {
             logger.log(Level.SEVERE, "Could not register gateway due to client error", e)
-            null
+            Result.FailedToRegister
         } catch (e: PublicAddressResolutionException) {
             logger.log(
                 Level.WARNING,
                 "Could not register gateway due to failure to resolve PoWeb address",
                 e
             )
-            null
+            Result.FailedToResolve
         }
+    }
+
+    sealed class Result {
+        object FailedToResolve : Result()
+        object FailedToRegister : Result()
+        data class Registered(val pnr: PrivateNodeRegistration) : Result()
+        object AlreadyRegistered : Result()
+    }
 }

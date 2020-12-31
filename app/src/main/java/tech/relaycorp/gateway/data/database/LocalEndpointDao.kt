@@ -18,6 +18,9 @@ interface LocalEndpointDao {
     @Delete
     suspend fun delete(endpoint: LocalEndpoint)
 
+    @Query("DELETE FROM Endpoint")
+    suspend fun deleteAll()
+
     @Query("SELECT COUNT(DISTINCT Endpoint.applicationId) FROM Endpoint")
     fun countApplicationIds(): Flow<Int>
 

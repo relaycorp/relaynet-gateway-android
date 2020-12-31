@@ -24,6 +24,9 @@ interface StoredParcelDao {
     @Delete
     suspend fun delete(message: StoredParcel)
 
+    @Query("DELETE FROM ParcelCollection")
+    suspend fun deleteAll()
+
     @Query("SELECT * FROM Parcel")
     fun observeAll(): Flow<List<StoredParcel>>
 

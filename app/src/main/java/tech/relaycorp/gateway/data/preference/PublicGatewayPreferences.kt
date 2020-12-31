@@ -10,6 +10,7 @@ import tech.relaycorp.doh.LookupFailureException
 import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.data.disk.ReadRawFile
 import tech.relaycorp.gateway.data.model.RegistrationState
+import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import javax.inject.Inject
 import javax.inject.Provider
@@ -21,13 +22,19 @@ class PublicGatewayPreferences
     private val doHClient: DoHClient
 ) {
 
+    suspend fun clear() {
+        address.deleteAndCommit()
+        certificate.deleteAndCommit()
+        registrationState.deleteAndCommit()
+    }
+
     // Address
 
     private val address by lazy {
         preferences.get().getString("address", DEFAULT_ADDRESS)
     }
 
-    private fun getAddress(): String = address.get()
+    suspend fun getAddress(): String = address.get()
     suspend fun setAddress(value: String) = address.setAndCommit(value)
 
     fun getCogRPCAddress() = "https://$DEFAULT_ADDRESS"

@@ -20,6 +20,12 @@ class LocalConfig
     private val sensitiveStore: SensitiveStore
 ) {
 
+    suspend fun clear() {
+        sensitiveStore.delete(PRIVATE_KEY_FILE_NAME)
+        sensitiveStore.delete(PDA_CERTIFICATE_FILE_NAME)
+        sensitiveStore.delete(CDA_CERTIFICATE_FILE_NAME)
+    }
+
     // Private Gateway Key Pair
 
     suspend fun getKeyPair() =
