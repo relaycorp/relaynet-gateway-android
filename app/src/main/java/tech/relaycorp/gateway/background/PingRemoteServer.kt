@@ -2,6 +2,7 @@ package tech.relaycorp.gateway.background
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
+import io.ktor.client.features.ResponseException
 import io.ktor.client.features.UserAgent
 import io.ktor.client.request.head
 import io.ktor.network.selector.ActorSelectorManager
@@ -42,5 +43,8 @@ class PingRemoteServer
         } catch (e: IOException) {
             logger.log(Level.INFO, "Could not ping $url", e)
             false
+        } catch (e: ResponseException) {
+            logger.log(Level.INFO, "Successfully pinged $url but got a response exception", e)
+            true
         }
 }
