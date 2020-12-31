@@ -78,9 +78,6 @@ class GenerateCargo
             null
         }
 
-    private suspend fun getPublicGatewayAddress() =
-        publicGatewayPreferences.getCogRPCAddress()
-
     private suspend fun getPublicGatewayCertificate() =
         publicGatewayPreferences.getCertificate()
 
@@ -91,7 +88,7 @@ class GenerateCargo
             )
         }
 
-        val recipientAddress = getPublicGatewayAddress()
+        val recipientAddress = publicGatewayPreferences.getCogRPCAddress()
         val creationDate = calculateCreationDate.calculate()
 
         logger.info("Generating cargo for $recipientAddress")

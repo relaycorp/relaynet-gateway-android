@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.retry
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
+import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
@@ -35,7 +36,16 @@ class CollectParcelsFromGateway
     suspend fun collect(keepAlive: Boolean) {
         logger.info("Collecting parcels from Public Gateway (keepAlive=$keepAlive)")
 
-        val poWebClient = poWebClientBuilder.build()
+        val poWebClient = try {
+            poWebClientBuilder.build()
+        } catch (exc: PublicAddressResolutionException) {
+            logger.log(
+                Level.WARNING,
+                "Failed to collect parcels due to PoWeb address resolution error",
+                exc
+            )
+            return
+        }
         val signer = Signer(localConfig.getCertificate(), localConfig.getKeyPair().private)
         val streamingMode =
             if (keepAlive) StreamingMode.KeepAlive else StreamingMode.CloseUponCompletion

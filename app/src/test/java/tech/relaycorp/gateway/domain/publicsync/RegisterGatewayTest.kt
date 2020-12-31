@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.data.model.RegistrationState
+import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
@@ -37,6 +38,20 @@ class RegisterGatewayTest {
     @BeforeEach
     internal fun setUp() = runBlockingTest {
         whenever(localConfig.getKeyPair()).thenReturn(generateRSAKeyPair())
+    }
+
+    @Test
+    fun `Failure to resolve PoWeb address should be ignored`() = runBlockingTest {
+        whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.ToDo)
+        val failingPoWebClientBuilder = object : PoWebClientBuilder {
+            override suspend fun build() = throw PublicAddressResolutionException("Whoops")
+        }
+        val registerGateway =
+            RegisterGateway(pgwPreferences, localConfig, failingPoWebClientBuilder)
+
+        registerGateway.registerIfNeeded()
+
+        verify(poWebClient, never()).collectParcels(any(), any())
     }
 
     @Test

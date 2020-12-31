@@ -13,6 +13,7 @@ import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StoredParcel
+import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
 import tech.relaycorp.gateway.domain.DeleteParcel
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
@@ -41,7 +42,16 @@ class DeliverParcelsToGateway
         try {
             logger.info("Delivering parcels to Public Gateway (keepAlive=$keepAlive)")
 
-            val poWebClient = poWebClientBuilder.build()
+            val poWebClient = try {
+                poWebClientBuilder.build()
+            } catch (exc: PublicAddressResolutionException) {
+                logger.log(
+                    Level.WARNING,
+                    "Failed to deliver parcels due to PoWeb address resolution error",
+                    exc
+                )
+                return
+            }
             val parcelsQuery =
                 storedParcelDao.observeForRecipientLocation(RecipientLocation.ExternalGateway)
             val parcelsFlow =
