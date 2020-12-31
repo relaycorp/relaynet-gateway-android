@@ -1,60 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/onboarding_padding">
+    android:padding="@dimen/onboarding_padding">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.Gateway.Heading1"
+        android:textIsSelectable="true"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/onboarding_title_1" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintBottom_toTopOf="@+id/image"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintVertical_bias="0">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="@dimen/onboarding_padding">
-
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/onboarding_padding"
-                android:layout_marginBottom="@dimen/onboarding_padding"
-                android:textAppearance="@style/TextAppearance.Gateway.Heading1"
-                android:textIsSelectable="true"
-                tools:text="@string/onboarding_title_1" />
-
-            <TextView
-                android:id="@+id/text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:lineSpacingExtra="1dp"
-                android:textAppearance="@style/TextAppearance.Gateway.Body"
-                android:textIsSelectable="true"
-                android:textSize="18sp"
-                tools:text="@string/onboarding_text_1" />
-
-            <ImageView
-                android:id="@+id/image"
-                android:layout_width="wrap_content"
-                android:layout_height="180dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="@dimen/onboarding_padding"
-                android:importantForAccessibility="no"
-                tools:src="@drawable/onboarding_image_1" />
-
-        </LinearLayout>
+            android:lineSpacingExtra="1dp"
+            android:textAppearance="@style/TextAppearance.Gateway.Body"
+            android:textIsSelectable="true"
+            android:textSize="18sp"
+            tools:text="@string/onboarding_text_1" />
     </androidx.core.widget.NestedScrollView>
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="wrap_content"
+        android:layout_height="160dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="36dp"
+        android:importantForAccessibility="no"
+        app:layout_constraintBottom_toTopOf="@+id/getStarted"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:src="@drawable/onboarding_image_1" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/getStarted"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/onboarding_padding"
-        android:layout_marginBottom="56dp"
-        android:text="@string/onboarding_action" />
+        android:layout_marginBottom="48dp"
+        android:text="@string/onboarding_action"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
