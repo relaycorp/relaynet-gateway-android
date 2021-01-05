@@ -28,7 +28,7 @@
         see which apps you’re using.
         \n\nAlso, any data lost in transit will be re-delivered at the earliest opportunity.
     </string>
-    <string name="main_courier_connection">Sync with courier</string>
+    <string name="main_courier_connection">Sync with a courier</string>
 
     <!-- Courier Connection -->
     <string name="courier_instructions_title">
@@ -48,7 +48,7 @@
 
     <!-- Courier Sync -->
     <string name="sync_courier_title">Syncing with a courier</string>
-    <string name="sync_courier_action">Sync with a courier</string>
+    <string name="sync_courier_action">Sync with the courier</string>
     <string name="sync_delivering_cargo">Delivering data…</string>
     <string name="sync_waiting">Waiting for the incoming data to become available…</string>
     <string name="sync_collecting_cargo">Collecting data…</string>
