@@ -9,41 +9,46 @@
     <string name="back">Back</string>
 
     <!-- Main -->
-    <string name="main_status_internet">You’re connect to Relaynet via Internet</string>
-    <string name="main_status_internet_text">All synced, nothing to do here!</string>
-    <string name="main_status_courier">You’re connect to a Courier</string>
-    <string name="main_status_courier_text">Everything is ready, go ahead and sync with the courier!</string>
+    <string name="main_status_internet">You’re connected to Relaynet via the Internet</string>
+    <string name="main_status_internet_text">
+        So there’s not much to do here. Feel free to close this app and enjoy your Relaynet apps.
+        \n\nCome back if you’re cut off from the Internet.
+    </string>
+    <string name="main_status_courier">You’re connected to a courier</string>
+    <string name="main_status_courier_text">
+        So you’re good to go!
+        \n\nRemember: Your data is safe while it’s in transit and if it gets lost
+        we’ll try to deliver it again.
+    </string>
     <string name="main_status_disconnected">You’re disconnected from Relaynet</string>
     <string name="main_status_disconnected_text">
         You can still send and receive data from the Internet via Relaynet couriers:
-        \n\nSimply connect to a courier’s device and we’ll synchronize the data for you.
-        \n\nIt’s impossible for anyone to see or change your data in transit, nor can anyone
+        Simply connect to a nearby courier and we’ll do the rest.
+        \n\nRemember: It’s impossible for anyone to see or change your data in transit, nor can anyone
         see which apps you’re using.
-        \n\nAlso, any data lost in transit will be re-delivered as soon as possible.
+        \n\nAlso, any data lost in transit will be re-delivered at the earliest opportunity.
     </string>
-    <string name="main_courier_connection">Connect with a Courier</string>
-
-    <!-- Sync -->
-    <string name="sync_courier">Sync with Courier</string>
+    <string name="main_courier_connection">Sync with a courier</string>
 
     <!-- Courier Connection -->
     <string name="courier_instructions_title">
-        If there is a Courier near you, connect to their Wi-Fi network to sync the data.
+        If there’s a courier near you, connect to their Wi-Fi network to sync data.
     </string>
-    <string name="courier_instructions_list_title">You will need to:</string>
+    <string name="courier_instructions_list_title">You will have to:</string>
     <string name="courier_instructions_1_bullet">1</string>
     <string name="courier_instructions_2_bullet">2</string>
     <string name="courier_instructions_3_bullet">3</string>
-    <string name="courier_instructions_1">Turn on the Wi-Fi</string>
-    <string name="courier_instructions_2">Connected to the Courier Wi-Fi network</string>
-    <string name="courier_instructions_3">Wait until the Courier is ready to sync</string>
-    <string name="courier_configure_wifi">Open Wi-Fi Settings</string>
-    <string name="courier_connected">You’re Connected</string>
-    <string name="courier_connected_text">You’re connect to the Courier</string>
-    <string name="courier_sync_start">Start Sync</string>
+    <string name="courier_instructions_1">Turn on your Wi-Fi if it’s off.</string>
+    <string name="courier_instructions_2">Connect to the courier’s network.</string>
+    <string name="courier_instructions_3">Wait until their device is ready.</string>
+    <string name="courier_configure_wifi">Open Wi-Fi settings</string>
+    <string name="courier_connected">You’re now connected!</string>
+    <string name="courier_connected_text">We’re ready to exchange data with the courier.</string>
+    <string name="courier_sync_start">Start sync</string>
 
     <!-- Courier Sync -->
-    <string name="sync_courier_title">Syncing with Courier</string>
+    <string name="sync_courier_title">Syncing with a courier</string>
+    <string name="sync_courier_action">Sync with the courier</string>
     <string name="sync_delivering_cargo">Delivering data…</string>
     <string name="sync_waiting">Waiting for the incoming data to become available…</string>
     <string name="sync_collecting_cargo">Collecting data…</string>
@@ -62,18 +67,18 @@
     </string>
     <string name="onboarding_title_2">Using Relaynet is easy</string>
     <string name="onboarding_text_2">
-        When you’re connected to the Internet, it’ll be used seamlessly and you won’t have to do a
-        thing.
-        \n\nWhen you’re cut off from the Internet, Relaynet will connect you to couriers who will
-        transport your data securely to and from the Internet.
+        When you’re connected to the Internet, your apps will simply use it seamlessly.
+        \n\nWhen you’re cut off from the Internet, Relaynet couriers will transport your apps’ data
+        securely to and from the Internet.
     </string>
     <string name="onboarding_title_3">Relaynet keeps you safe</string>
     <string name="onboarding_text_3">
-        Your apps will use end-to-end encryption, so it’s impossible for this app or couriers to see
-        the contents of such data. Nor can couriers see which apps you’re using, besides Relaynet.
-        \n\nAnd needless to say we aren’t tracking you or your apps!
+        Relaynet apps use end-to-end encryption, so it’s impossible for this app or couriers to see
+        their data.
+        \n\nIt’s also impossible for couriers to find out which apps you’re using. And needless to
+        say we aren’t tracking you or your apps!
     </string>
-    <string name="onboarding_action">Get Started</string>
+    <string name="onboarding_action">Get started!</string>
 
     <!-- Settings -->
     <string name="settings">Settings</string>
