@@ -75,8 +75,8 @@
     <string name="onboarding_text_3">
         Relaynet apps use end-to-end encryption, so it’s impossible for this app or couriers to see
         their data.
-        \n\nIt’s also impossible for couriers to find out which apps you’re using.
-        \n\nAnd needless to say we aren’t tracking you or your apps!
+        \n\nIt’s also impossible for couriers to find out which apps you’re using. And needless to
+        say we aren’t tracking you or your apps!
     </string>
     <string name="onboarding_action">Get started!</string>
 
