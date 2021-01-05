@@ -17,17 +17,16 @@ import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
-import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.domain.DeleteParcel
 import tech.relaycorp.gateway.domain.LocalConfig
-import tech.relaycorp.gateway.pdc.PoWebClientBuilder
+import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.gateway.test.CargoDeliveryCertPath
 import tech.relaycorp.gateway.test.factory.StoredParcelFactory
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.bindings.pdc.RejectedParcelException
 import tech.relaycorp.relaynet.bindings.pdc.ServerConnectionException
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
-import java.lang.IllegalArgumentException
 import kotlin.test.assertEquals
 
 class DeliverParcelsToGatewayTest {
@@ -35,13 +34,13 @@ class DeliverParcelsToGatewayTest {
     private val storedParcelDao = mock<StoredParcelDao>()
     private val diskMessageOperations = mock<DiskMessageOperations>()
     private val poWebClient = mock<PoWebClient>()
-    private val poWebClientBuilder = object : PoWebClientBuilder {
-        override suspend fun build() = poWebClient
+    private val poWebClientProvider = object : PoWebClientProvider {
+        override suspend fun get() = poWebClient
     }
     private val localConfig = mock<LocalConfig>()
     private val deleteParcel = mock<DeleteParcel>()
     private val subject = DeliverParcelsToGateway(
-        storedParcelDao, diskMessageOperations, poWebClientBuilder, localConfig, deleteParcel
+        storedParcelDao, diskMessageOperations, poWebClientProvider, localConfig, deleteParcel
     )
 
     @BeforeEach
@@ -54,13 +53,13 @@ class DeliverParcelsToGatewayTest {
 
     @Test
     fun `Failure to resolve PoWeb address should be ignored`() = runBlockingTest {
-        val failingPoWebClientBuilder = object : PoWebClientBuilder {
-            override suspend fun build() = throw PublicAddressResolutionException("Whoops")
+        val failingPoWebClientProvider = object : PoWebClientProvider {
+            override suspend fun get() = throw PublicAddressResolutionException("Whoops")
         }
         val subject = DeliverParcelsToGateway(
             storedParcelDao,
             diskMessageOperations,
-            failingPoWebClientBuilder,
+            failingPoWebClientProvider,
             localConfig,
             deleteParcel
         )

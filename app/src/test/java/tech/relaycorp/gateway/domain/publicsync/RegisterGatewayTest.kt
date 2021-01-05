@@ -10,8 +10,10 @@ import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
-import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.model.ServiceAddress
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
@@ -20,8 +22,8 @@ import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
-import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import java.time.ZonedDateTime
 
@@ -31,9 +33,11 @@ class RegisterGatewayTest {
     private val localConfig = mock<LocalConfig>()
     private val poWebClient = mock<PoWebClient>()
     private val poWebClientBuilder = object : PoWebClientBuilder {
-        override suspend fun build() = poWebClient
+        override suspend fun build(address: ServiceAddress) = poWebClient
     }
-    private val registerGateway = RegisterGateway(pgwPreferences, localConfig, poWebClientBuilder)
+    private val resolveServiceAddress = mock<ResolveServiceAddress>()
+    private val registerGateway =
+        RegisterGateway(pgwPreferences, localConfig, poWebClientBuilder, resolveServiceAddress)
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
@@ -44,10 +48,12 @@ class RegisterGatewayTest {
     fun `Failure to resolve PoWeb address should be ignored`() = runBlockingTest {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.ToDo)
         val failingPoWebClientBuilder = object : PoWebClientBuilder {
-            override suspend fun build() = throw PublicAddressResolutionException("Whoops")
+            override suspend fun build(address: ServiceAddress) =
+                throw PublicAddressResolutionException("Whoops")
         }
-        val registerGateway =
-            RegisterGateway(pgwPreferences, localConfig, failingPoWebClientBuilder)
+        val registerGateway = RegisterGateway(
+            pgwPreferences, localConfig, failingPoWebClientBuilder, resolveServiceAddress
+        )
 
         registerGateway.registerIfNeeded()
 

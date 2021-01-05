@@ -19,13 +19,6 @@ class LocalConfig
 @Inject constructor(
     private val sensitiveStore: SensitiveStore
 ) {
-
-    suspend fun clear() {
-        sensitiveStore.delete(PRIVATE_KEY_FILE_NAME)
-        sensitiveStore.delete(PDA_CERTIFICATE_FILE_NAME)
-        sensitiveStore.delete(CDA_CERTIFICATE_FILE_NAME)
-    }
-
     // Private Gateway Key Pair
 
     suspend fun getKeyPair() =
@@ -49,6 +42,10 @@ class LocalConfig
 
     suspend fun setCertificate(value: Certificate) {
         sensitiveStore.store(PDA_CERTIFICATE_FILE_NAME, value.serialize())
+    }
+
+    suspend fun deleteCertificate() {
+        sensitiveStore.delete(PDA_CERTIFICATE_FILE_NAME)
     }
 
     suspend fun getCargoDeliveryAuth() =

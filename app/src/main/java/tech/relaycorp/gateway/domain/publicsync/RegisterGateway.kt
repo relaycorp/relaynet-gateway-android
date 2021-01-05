@@ -1,8 +1,9 @@
 package tech.relaycorp.gateway.domain.publicsync
 
 import tech.relaycorp.gateway.common.Logging.logger
+import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
-import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
@@ -17,7 +18,8 @@ class RegisterGateway
 @Inject constructor(
     private val publicGatewayPreferences: PublicGatewayPreferences,
     private val localConfig: LocalConfig,
-    private val poWebClientBuilder: PoWebClientBuilder
+    private val poWebClientBuilder: PoWebClientBuilder,
+    private val resolveServiceAddress: ResolveServiceAddress
 ) {
 
     suspend fun registerIfNeeded(): Result {
@@ -25,18 +27,26 @@ class RegisterGateway
             return Result.AlreadyRegistered
         }
 
-        val result = register()
+        val address = publicGatewayPreferences.getAddress()
+        val result = register(address)
         if (result is Result.Registered) {
-            localConfig.setCertificate(result.pnr.privateNodeCertificate)
-            publicGatewayPreferences.setCertificate(result.pnr.gatewayCertificate)
-            publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
+            saveSuccessfulResult(address, result)
         }
         return result
     }
 
-    private suspend fun register(): Result {
+    suspend fun registerNewAddress(newAddress: String): Result {
+        val result = register(newAddress)
+        if (result is Result.Registered) {
+            saveSuccessfulResult(newAddress, result)
+        }
+        return result
+    }
+
+    private suspend fun register(address: String): Result {
         return try {
-            val poWeb = poWebClientBuilder.build()
+            val poWebAddress = resolveServiceAddress.resolvePoWeb(address)
+            val poWeb = poWebClientBuilder.build(poWebAddress)
             val keyPair = localConfig.getKeyPair()
 
             poWeb.use {
@@ -58,6 +68,14 @@ class RegisterGateway
             )
             Result.FailedToResolve
         }
+    }
+
+    private suspend fun saveSuccessfulResult(address: String, result: Result.Registered) {
+        publicGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
+        publicGatewayPreferences.setAddress(address)
+        publicGatewayPreferences.setCertificate(result.pnr.gatewayCertificate)
+        localConfig.setCertificate(result.pnr.privateNodeCertificate)
+        publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
     }
 
     sealed class Result {

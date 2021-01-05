@@ -5,12 +5,11 @@ import androidx.annotation.VisibleForTesting
 import com.tfcporciuncula.flow.FlowSharedPreferences
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import tech.relaycorp.doh.DoHClient
-import tech.relaycorp.doh.LookupFailureException
 import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.data.disk.ReadRawFile
+import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
-import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import javax.inject.Inject
 import javax.inject.Provider
@@ -19,15 +18,8 @@ class PublicGatewayPreferences
 @Inject constructor(
     private val preferences: Provider<FlowSharedPreferences>,
     private val readRawFile: ReadRawFile,
-    private val doHClient: DoHClient
+    private val resolveServiceAddress: ResolveServiceAddress
 ) {
-
-    suspend fun clear() {
-        address.deleteAndCommit()
-        certificate.deleteAndCommit()
-        registrationState.deleteAndCommit()
-    }
-
     // Address
 
     private val address by lazy {
@@ -40,28 +32,7 @@ class PublicGatewayPreferences
     fun getCogRPCAddress() = "https://$DEFAULT_ADDRESS"
 
     @Throws(PublicAddressResolutionException::class)
-    suspend fun resolvePoWebAddress(): ServiceAddress {
-        val publicGatewayAddress = getAddress()
-        val srvRecordName = "_rgsc._tcp.$publicGatewayAddress"
-        val answer = try {
-            doHClient.lookUp(srvRecordName, "SRV")
-        } catch (exc: LookupFailureException) {
-            throw PublicAddressResolutionException(
-                "Failed to resolve DNS for PoWeb address",
-                exc
-            )
-        }
-        val srvRecordData = answer.data.first()
-        val srvRecordDataFields = srvRecordData.split(" ")
-        if (srvRecordDataFields.size < 4) {
-            throw PublicAddressResolutionException(
-                "Malformed SRV for $publicGatewayAddress ($srvRecordData)"
-            )
-        }
-        val targetHost = srvRecordDataFields[3]
-        val targetPort = srvRecordDataFields[2]
-        return ServiceAddress(targetHost.trimEnd('.'), targetPort.toInt())
-    }
+    suspend fun getPoWebAddress() = resolveServiceAddress.resolvePoWeb(getAddress())
 
     // Certificate
 

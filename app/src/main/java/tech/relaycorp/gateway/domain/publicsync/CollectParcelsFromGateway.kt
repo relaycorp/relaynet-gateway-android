@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.retry
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
-import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
-import tech.relaycorp.gateway.pdc.PoWebClientBuilder
+import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.bindings.pdc.NonceSignerException
 import tech.relaycorp.relaynet.bindings.pdc.PDCException
@@ -28,7 +28,7 @@ import kotlin.time.seconds
 class CollectParcelsFromGateway
 @Inject constructor(
     private val storeParcel: StoreParcel,
-    private val poWebClientBuilder: PoWebClientBuilder,
+    private val poWebClientProvider: PoWebClientProvider,
     private val localConfig: LocalConfig,
     private val notifyEndpoints: NotifyEndpoints
 ) {
@@ -37,7 +37,7 @@ class CollectParcelsFromGateway
         logger.info("Collecting parcels from Public Gateway (keepAlive=$keepAlive)")
 
         val poWebClient = try {
-            poWebClientBuilder.build()
+            poWebClientProvider.get()
         } catch (exc: PublicAddressResolutionException) {
             logger.log(
                 Level.WARNING,

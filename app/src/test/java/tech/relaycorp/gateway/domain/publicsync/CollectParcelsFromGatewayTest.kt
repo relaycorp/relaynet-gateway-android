@@ -22,11 +22,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
-import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
-import tech.relaycorp.gateway.pdc.PoWebClientBuilder
+import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.gateway.test.CargoDeliveryCertPath
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
@@ -44,8 +44,8 @@ class CollectParcelsFromGatewayTest {
 
     private val storeParcel = mock<StoreParcel>()
     private val poWebClient = mock<PoWebClient>()
-    private val poWebClientBuilder = object : PoWebClientBuilder {
-        override suspend fun build() = poWebClient
+    private val poWebClientBuilder = object : PoWebClientProvider {
+        override suspend fun get() = poWebClient
     }
     private val localConfig = mock<LocalConfig>()
     private val notifyEndpoints = mock<NotifyEndpoints>()
@@ -63,11 +63,11 @@ class CollectParcelsFromGatewayTest {
 
     @Test
     fun `Failure to resolve PoWeb address should be ignored`() = runBlockingTest {
-        val failingPoWebClientBuilder = object : PoWebClientBuilder {
-            override suspend fun build() = throw PublicAddressResolutionException("Whoops")
+        val failingPoWebClientProvider = object : PoWebClientProvider {
+            override suspend fun get() = throw PublicAddressResolutionException("Whoops")
         }
         val subject = CollectParcelsFromGateway(
-            storeParcel, failingPoWebClientBuilder, localConfig, notifyEndpoints
+            storeParcel, failingPoWebClientProvider, localConfig, notifyEndpoints
         )
 
         subject.collect(false)

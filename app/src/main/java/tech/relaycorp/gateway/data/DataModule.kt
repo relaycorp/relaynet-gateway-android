@@ -9,9 +9,11 @@ import dagger.Provides
 import tech.relaycorp.doh.DoHClient
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.database.AppDatabase
-import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.model.ServiceAddress
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
+import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
 import javax.inject.Named
@@ -78,17 +80,25 @@ class DataModule {
     @Provides
     @Singleton
     fun dohClient() =
-        // TODO: Remove custom DNS resolver once we can use CloudFlare's (which is the default)
+    // TODO: Remove custom DNS resolver once we can use CloudFlare's (which is the default)
         // https://github.com/cloudflare/cloudflare-docs/issues/565
         DoHClient("https://dns.google/dns-query")
 
     @Provides
-    fun poWebClientBuilder(publicGatewayPreferences: PublicGatewayPreferences) =
-        object : PoWebClientBuilder {
-            @Throws(PublicAddressResolutionException::class)
-            override suspend fun build(): PoWebClient {
-                val address = publicGatewayPreferences.resolvePoWebAddress()
-                return PoWebClient.initRemote(address.host, address.port)
-            }
-        }
+    fun poWebClientBuilder() = object : PoWebClientBuilder {
+        @Throws(PublicAddressResolutionException::class)
+        override suspend fun build(address: ServiceAddress) =
+            PoWebClient.initRemote(address.host, address.port)
+    }
+
+    @Provides
+    fun poWebClientProvider(
+        publicGatewayPreferences: PublicGatewayPreferences,
+        poWebClientBuilder: PoWebClientBuilder
+    ) = object : PoWebClientProvider {
+        override suspend fun get() =
+            poWebClientBuilder.build(
+                publicGatewayPreferences.getPoWebAddress()
+            )
+    }
 }
