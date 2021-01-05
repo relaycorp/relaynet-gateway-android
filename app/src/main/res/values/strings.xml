@@ -42,8 +42,8 @@
     <string name="courier_instructions_2">Connect to the courier’s network.</string>
     <string name="courier_instructions_3">Wait until their device is ready.</string>
     <string name="courier_configure_wifi">Open Wi-Fi settings</string>
-    <string name="courier_connected">You’re connected</string>
-    <string name="courier_connected_text">You’re connected to a courier</string>
+    <string name="courier_connected">You’re now connected!</string>
+    <string name="courier_connected_text">We’re ready to exchange data with the courier.</string>
     <string name="courier_sync_start">Start sync</string>
 
     <!-- Courier Sync -->
