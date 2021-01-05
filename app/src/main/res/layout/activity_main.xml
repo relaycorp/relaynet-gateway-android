@@ -88,7 +88,7 @@
                     android:id="@+id/courierConnection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/main_courier_connection"
+                    android:text="@string/sync_courier_action"
                     android:visibility="gone"
                     tools:visibility="visible" />
 

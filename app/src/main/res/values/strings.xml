@@ -28,7 +28,6 @@
         see which apps you’re using.
         \n\nAlso, any data lost in transit will be re-delivered at the earliest opportunity.
     </string>
-    <string name="main_courier_connection">Sync with a courier</string>
 
     <!-- Courier Connection -->
     <string name="courier_instructions_title">
