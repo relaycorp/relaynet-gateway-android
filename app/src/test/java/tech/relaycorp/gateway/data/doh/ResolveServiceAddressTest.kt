@@ -24,7 +24,9 @@ class ResolveServiceAddressTest {
         @Test
         fun `Target host and port should be returned`() = runBlockingTest {
             whenever(mockDoHClient.lookUp("_rgsc._tcp.$publicGatewayAddress", "SRV"))
-                .thenReturn(Answer(listOf("0 1 $publicGatewayTargetPort $publicGatewayTargetHost.")))
+                .thenReturn(
+                    Answer(listOf("0 1 $publicGatewayTargetPort $publicGatewayTargetHost."))
+                )
             val address = subject.resolvePoWeb(publicGatewayAddress)
 
             kotlin.test.assertEquals(publicGatewayTargetHost, address.host)

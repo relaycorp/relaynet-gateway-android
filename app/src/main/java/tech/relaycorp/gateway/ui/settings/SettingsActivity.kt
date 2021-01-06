@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.core.view.isVisible
-import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.mikepenz.aboutlibraries.LibsBuilder
@@ -17,7 +16,6 @@ import kotlinx.android.synthetic.main.activity_settings.libraries
 import kotlinx.android.synthetic.main.activity_settings.outgoingDataLayout
 import kotlinx.android.synthetic.main.activity_settings.outgoingDataTitle
 import kotlinx.android.synthetic.main.activity_settings.publicGateway
-import kotlinx.android.synthetic.main.activity_settings.publicGatewaySubmit
 import kotlinx.android.synthetic.main.activity_settings.version
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -47,12 +45,19 @@ class SettingsActivity : BaseActivity() {
             BuildConfig.VERSION_NAME,
             BuildConfig.VERSION_CODE.toString()
         )
-        publicGateway.doOnTextChanged { text, _, _, _ ->
-            viewModel.publicGwAddressChanged(text.toString().trim())
-        }
-        publicGatewaySubmit.setOnClickListener { viewModel.publicGwSubmitted() }
+        publicGateway.setOnClickListener { openMigrateGateway() }
         learnMore.setOnClickListener { openKnowMore() }
         libraries.setOnClickListener { openLicenses() }
+
+        results
+            .onEach {
+                if (it.requestCode == REQUEST_MIGRATE_GATEWAY &&
+                    it.resultCode == MigrateGatewayActivity.RESULT_MIGRATION_SUCCESSFUL
+                ) {
+                    messageManager.showMessage(R.string.settings_pgw_migration_successful)
+                }
+            }
+            .launchIn(lifecycleScope)
 
         viewModel
             .showOutgoingData
@@ -72,48 +77,12 @@ class SettingsActivity : BaseActivity() {
 
         viewModel
             .publicGwAddress
-            .onEach { publicGateway.setText(it) }
-            .launchIn(lifecycleScope)
-
-        viewModel
-            .publicGwAddressEnabled
-            .onEach { publicGateway.isEnabled = it }
-            .launchIn(lifecycleScope)
-
-        viewModel
-            .publicGwSubmitEnabled
-            .onEach { publicGatewaySubmit.isEnabled = it }
-            .launchIn(lifecycleScope)
-
-        viewModel
-            .messages
-            .onEach { showMessage(it) }
-            .launchIn(lifecycleScope)
-
-        viewModel
-            .errors
-            .onEach { showError(it) }
+            .onEach { publicGateway.text = it }
             .launchIn(lifecycleScope)
     }
 
-    private fun showMessage(message: SettingsViewModel.Message) {
-        messageManager.showMessage(
-            when (message) {
-                SettingsViewModel.Message.MigrationSuccessful ->
-                    R.string.settings_pgw_migration_successful
-            }
-        )
-    }
-
-    private fun showError(error: SettingsViewModel.Error) {
-        messageManager.showError(
-            when (error) {
-                SettingsViewModel.Error.MigrationFailedToResolve ->
-                    R.string.settings_pgw_migration_failed_to_resolve
-                SettingsViewModel.Error.MigrationFailedToRegister ->
-                    R.string.settings_pgw_migration_failed_to_register
-            }
-        )
+    private fun openMigrateGateway() {
+        startActivityForResult(MigrateGatewayActivity.getIntent(this), REQUEST_MIGRATE_GATEWAY)
     }
 
     private fun openKnowMore() {
@@ -132,6 +101,8 @@ class SettingsActivity : BaseActivity() {
     }
 
     companion object {
+        private const val REQUEST_MIGRATE_GATEWAY = 101
+
         fun getIntent(context: Context) = Intent(context, SettingsActivity::class.java)
     }
 }

@@ -7,196 +7,185 @@
 
     <include layout="@layout/common_app_bar" />
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/innerContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-        <TextView
-            android:id="@+id/outgoingDataTitle"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/settings_data"
-            android:textAppearance="@style/TextAppearance.Gateway.SubTitle" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/outgoingDataLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="32dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="32dp">
-
-            <ProgressBar
-                android:id="@+id/dataChart"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
-                android:indeterminate="false"
-                android:max="100"
-                android:progressDrawable="@drawable/progress_circular"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:progress="50" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <TextView
-                android:id="@+id/dataTotal"
-                android:layout_width="0dp"
+                android:id="@+id/outgoingDataTitle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:lineSpacingMultiplier="0.9"
-                android:padding="20dp"
-                android:textIsSelectable="true"
-                android:textSize="16sp"
-                app:layout_constrainedWidth="true"
-                app:layout_constraintBottom_toBottomOf="@id/dataChart"
-                app:layout_constraintEnd_toEndOf="@id/dataChart"
-                app:layout_constraintStart_toStartOf="@id/dataChart"
-                app:layout_constraintTop_toTopOf="@id/dataChart"
-                tools:text="200 MB" />
+                android:text="@string/settings_data"
+                android:textAppearance="@style/TextAppearance.Gateway.SubTitle" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/outgoingDataLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="32dp">
+
+                <ProgressBar
+                    android:id="@+id/dataChart"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/progress_circular"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:progress="50" />
+
+                <TextView
+                    android:id="@+id/dataTotal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:lineSpacingMultiplier="0.9"
+                    android:padding="20dp"
+                    android:textIsSelectable="true"
+                    android:textSize="16sp"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintBottom_toBottomOf="@id/dataChart"
+                    app:layout_constraintEnd_toEndOf="@id/dataChart"
+                    app:layout_constraintStart_toStartOf="@id/dataChart"
+                    app:layout_constraintTop_toTopOf="@id/dataChart"
+                    tools:text="200 MB" />
+
+                <TextView
+                    android:id="@+id/inTransitLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="40dp"
+                    android:layout_marginBottom="4dp"
+                    android:drawablePadding="8dp"
+                    android:text="@string/settings_data_in_transit"
+                    app:drawableStartCompat="@drawable/circle"
+                    app:drawableTint="?colorPrimary"
+                    app:layout_constraintBottom_toTopOf="@+id/queuedLabel"
+                    app:layout_constraintStart_toEndOf="@id/dataChart"
+                    app:layout_constraintTop_toTopOf="@id/dataChart"
+
+                    app:layout_constraintVertical_chainStyle="packed" />
+
+                <TextView
+                    android:id="@+id/queuedLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="40dp"
+                    android:layout_marginTop="4dp"
+                    android:drawablePadding="8dp"
+                    android:text="@string/settings_data_queued"
+                    app:drawableStartCompat="@drawable/circle"
+                    app:drawableTint="?colorSecondary"
+                    app:layout_constraintBottom_toBottomOf="@id/dataChart"
+                    app:layout_constraintStart_toEndOf="@id/dataChart"
+                    app:layout_constraintTop_toBottomOf="@id/inTransitLabel"
+                    app:layout_constraintVertical_chainStyle="packed" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
-                android:id="@+id/inTransitLabel"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="40dp"
-                android:layout_marginBottom="4dp"
-                android:drawablePadding="8dp"
-                android:text="@string/settings_data_in_transit"
-                app:drawableStartCompat="@drawable/circle"
-                app:drawableTint="?colorPrimary"
-                app:layout_constraintBottom_toTopOf="@+id/queuedLabel"
-                app:layout_constraintStart_toEndOf="@id/dataChart"
-                app:layout_constraintTop_toTopOf="@id/dataChart"
-
-                app:layout_constraintVertical_chainStyle="packed" />
+                android:layout_marginBottom="16dp"
+                android:text="@string/settings_advanced"
+                android:textAppearance="@style/TextAppearance.Gateway.SubTitle" />
 
             <TextView
-                android:id="@+id/queuedLabel"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="40dp"
-                android:layout_marginTop="4dp"
-                android:drawablePadding="8dp"
-                android:text="@string/settings_data_queued"
-                app:drawableStartCompat="@drawable/circle"
-                app:drawableTint="?colorSecondary"
-                app:layout_constraintBottom_toBottomOf="@id/dataChart"
-                app:layout_constraintStart_toEndOf="@id/dataChart"
-                app:layout_constraintTop_toBottomOf="@id/inTransitLabel"
-                app:layout_constraintVertical_chainStyle="packed" />
+                android:layout_marginBottom="8dp"
+                android:text="@string/settings_pgw"
+                android:textAppearance="@style/TextAppearance.Gateway.Body2"
+                android:textIsSelectable="true" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/publicGateway"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/field_background"
+                android:gravity="start|center_vertical"
+                android:paddingHorizontal="16dp"
+                app:drawableEndCompat="@drawable/ic_edit"
+                tools:ignore="SelectableText"
+                tools:text="frankfurt.relaynet.cloud" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="@string/settings_advanced"
-            android:textAppearance="@style/TextAppearance.Gateway.SubTitle" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/settings_about"
+                android:textAppearance="@style/TextAppearance.Gateway.SubTitle" />
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp">
-
-            <com.google.android.material.textfield.TextInputLayout
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/publicGateway"
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_info"
+                    app:tint="?iconTint" />
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/settings_pgw"
-                    android:paddingEnd="56dp"
-                    tools:ignore="RtlSymmetry"
-                    tools:text="frankfurt.relaynet.cloud" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_marginStart="40dp"
+                    android:layout_marginTop="2dp"
+                    android:orientation="vertical">
 
-            <ImageButton
-                android:id="@+id/publicGatewaySubmit"
-                style="@style/Widget.Gateway.ImageButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:contentDescription="@string/settings_pgw_migrate"
-                android:src="@drawable/ic_edit" />
-        </FrameLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="2dp"
+                        android:text="@string/app_name" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_pgw_warning"
-            android:textAppearance="@style/TextAppearance.Gateway.Body2"
-            android:textIsSelectable="true" />
+                    <TextView
+                        android:id="@+id/version"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:textAppearance="@style/TextAppearance.Gateway.Body2"
+                        android:textIsSelectable="true"
+                        tools:text="@string/settings_version" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="16dp"
-            android:text="@string/settings_about"
-            android:textAppearance="@style/TextAppearance.Gateway.SubTitle" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/learnMore"
+                        style="@style/Widget.Gateway.Button.Text.Tertiary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="-8dp"
+                        android:layout_marginBottom="4dp"
+                        android:text="@string/settings_learn_more"
+                        tools:ignore="NegativeMargin" />
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/libraries"
+                        style="@style/Widget.Gateway.Button.Text.Tertiary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="-8dp"
+                        android:layout_marginBottom="4dp"
+                        android:text="@string/settings_open_libraries"
+                        tools:ignore="NegativeMargin" />
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:importantForAccessibility="no"
-                android:src="@drawable/ic_info"
-                app:tint="?iconTint" />
+                </LinearLayout>
+            </FrameLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="40dp"
-                android:layout_marginTop="2dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="2dp"
-                    android:text="@string/app_name" />
-
-                <TextView
-                    android:id="@+id/version"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:textAppearance="@style/TextAppearance.Gateway.Body2"
-                    android:textIsSelectable="true"
-                    tools:text="@string/settings_version" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/learnMore"
-                    style="@style/Widget.Gateway.Button.Text.Tertiary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="-8dp"
-                    android:layout_marginBottom="4dp"
-                    android:text="@string/settings_learn_more"
-                    tools:ignore="NegativeMargin" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/libraries"
-                    style="@style/Widget.Gateway.Button.Text.Tertiary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="-8dp"
-                    android:layout_marginBottom="4dp"
-                    android:text="@string/settings_open_libraries"
-                    tools:ignore="NegativeMargin" />
-
-            </LinearLayout>
-        </FrameLayout>
-
-    </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

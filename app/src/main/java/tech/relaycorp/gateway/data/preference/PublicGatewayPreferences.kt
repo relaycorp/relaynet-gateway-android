@@ -3,6 +3,7 @@ package tech.relaycorp.gateway.data.preference
 import android.util.Base64
 import androidx.annotation.VisibleForTesting
 import com.tfcporciuncula.flow.FlowSharedPreferences
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import tech.relaycorp.gateway.R
@@ -27,9 +28,10 @@ class PublicGatewayPreferences
     }
 
     suspend fun getAddress(): String = address.get()
+    fun observeAddress(): Flow<String> = { address }.toFlow()
     suspend fun setAddress(value: String) = address.setAndCommit(value)
 
-    fun getCogRPCAddress() = "https://$DEFAULT_ADDRESS"
+    suspend fun getCogRPCAddress() = "https://${getAddress()}"
 
     @Throws(PublicAddressResolutionException::class)
     suspend fun getPoWebAddress() = resolveServiceAddress.resolvePoWeb(getAddress())

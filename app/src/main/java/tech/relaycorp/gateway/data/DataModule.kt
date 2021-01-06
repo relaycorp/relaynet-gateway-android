@@ -2,6 +2,7 @@ package tech.relaycorp.gateway.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Patterns
 import androidx.room.Room
 import com.tfcporciuncula.flow.FlowSharedPreferences
 import dagger.Module
@@ -10,8 +11,8 @@ import tech.relaycorp.doh.DoHClient
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.database.AppDatabase
 import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.data.model.ServiceAddress
+import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.poweb.PoWebClient
@@ -70,6 +71,14 @@ class DataModule {
     fun flowSharedPreferences(sharedPreferences: SharedPreferences) =
         FlowSharedPreferences(sharedPreferences)
 
+    // Android Validators
+
+    @Provides
+    @Named("validator_hostname")
+    fun hostnameValidator() = { hostname: String ->
+        Patterns.DOMAIN_NAME.matcher(hostname).matches()
+    }
+
     // CogRPC
 
     @Provides
@@ -80,7 +89,7 @@ class DataModule {
     @Provides
     @Singleton
     fun dohClient() =
-    // TODO: Remove custom DNS resolver once we can use CloudFlare's (which is the default)
+        // TODO: Remove custom DNS resolver once we can use CloudFlare's (which is the default)
         // https://github.com/cloudflare/cloudflare-docs/issues/565
         DoHClient("https://dns.google/dns-query")
 
