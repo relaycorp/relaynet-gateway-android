@@ -1,3 +1,5 @@
+<img src="./relaynet-logo.png" align="right"/>
+
 # Relaynet Gateway for Android
 
 This repository contains the source code for the Relaynet Gateway for Android, which is all Relaynet users need on their Android devices. To learn more about using Relaynet, visit [relaynet.network](https://relaynet.network/users).
