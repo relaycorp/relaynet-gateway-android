@@ -25,9 +25,15 @@ The minimum Android OS version supported is Android 5 (Lollipop, API 21), but An
 
 In addition to communicating with its public gateway, this app communicates with the following:
 
-- `https://dns.google/dns-query` as the DNS-over-HTTPS resolver, which [we plan to replace with Cloudflare](https://github.com/relaycorp/relaynet-gateway-android/issues/249).
+- `https://dns.google/dns-query` as the DNS-over-HTTPS resolver, which [we plan to replace with Cloudflare's](https://github.com/relaycorp/relaynet-gateway-android/issues/249).
 - `https://google.com`. When the public gateway can't be reached, this app will make periodic GET requests to Google to check if the device is connected to the Internet and thus provide the user with a more helpful message about the reason why things aren't working. We chose `google.com` because of its likelihood to be available and uncensored.
-- The DHCP server on the local network, when the device is connected to a WiFi network but disconnected from the Internet. [This is the least unreliable way to get the default internet gateway on Android](https://stackoverflow.com/questions/61615270/how-to-get-the-ip-address-of-the-default-gateway-reliably-on-android-5), which we need to discover the IP address of the courier. Consequently, we assume that the courier's IP address in its hotspot network is the same as the DHCP server's, and we initiate a [CogRPC](https://specs.relaynet.network/RS-008) connection with that server on port `21473` in order to ensure it is indeed a courier.
+- The host running the DHCP server on port `21473`, when the device is connected to a WiFi network but disconnected from the Internet. We do this to check whether the device is connected to the WiFi hotspot of a courier.
+
+## Limitations
+
+### Courier synchronization over non-DHCP WiFi connections is unsupported
+
+Unfortunately, [Android doesn't offer a reliable way to get the default internet gateway in the local network](https://stackoverflow.com/questions/61615270/how-to-get-the-ip-address-of-the-default-gateway-reliably-on-android-5), so we have to rely on DHCP and assume the DHCP server has the same IP address as the courier. This should be fine 99.99% of the time, but it means that advanced users won't be able to skip DHCP when connecting to their couriers over WiFi.
 
 ## Security considerations
 
