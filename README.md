@@ -2,13 +2,13 @@
 
 # Relaynet Gateway for Android
 
-This repository contains the source code for the [Relaynet Gateway for Android](https://play.google.com/store/apps/details?id=tech.relaycorp.gateway), which is all Relaynet users need on their Android devices. To learn more about _using_ Relaynet, visit [relaynet.network](https://relaynet.network/users).
+This repository contains the source code for the [Relaynet Gateway for Android](https://play.google.com/store/apps/details?id=tech.relaycorp.gateway), which is all Relaynet users need on their Android devices. To learn more about _using_ Relaynet, visit [relaynet.network/users](https://relaynet.network/users).
 
 This document is aimed at advanced users and (prospective) contributors. We aim to make the app as simple and intuitive as possible, and we're therefore not planning on publishing end-user documentation at this point.
 
 ## Overview
 
-As a private gateway, the primary responsibility of this app is to enable the private endpoints on the device to communicate with endpoints on other devices, whether the Internet is available or not. It does so by collaborating with a public gateway such as Relaycorp's [Relaynet-Internet Gateway](https://docs.relaycorp.tech/relaynet-internet-gateway/).
+As a [private gateway](https://specs.relaynet.network/RS-000#concepts), the primary responsibility of this app is to enable the private endpoints on the device to communicate with endpoints on other devices, whether the Internet is available or not. It does so by collaborating with a public gateway such as Relaycorp's [Relaynet-Internet Gateway](https://docs.relaycorp.tech/relaynet-internet-gateway/). By default, it connects to [Relaycorp's Frankfurt gateway](https://github.com/relaycorp/cloud-gateway/tree/main/environments/frankfurt).
 
 The minimum Android OS version supported is Android 5 (Lollipop, API 21), but Android 6+ is recommended for security reasons.
 
@@ -33,7 +33,7 @@ In addition to communicating with its public gateway, this app communicates with
 
 ### Courier synchronization over non-DHCP WiFi connections is unsupported
 
-Unfortunately, [Android doesn't offer a reliable way to get the default internet gateway in the local network](https://stackoverflow.com/questions/61615270/how-to-get-the-ip-address-of-the-default-gateway-reliably-on-android-5), so we have to rely on DHCP and assume the DHCP server has the same IP address as the courier. This should be fine 99.99% of the time, but it means that advanced users won't be able to skip DHCP when connecting to their couriers over WiFi.
+Unfortunately, [Android doesn't offer a reliable way to get the default internet gateway in the local network](https://stackoverflow.com/questions/61615270/how-to-get-the-ip-address-of-the-default-gateway-reliably-on-android-5), so we have to rely on DHCP and assume the DHCP server has the same IP address as the courier. This is reliable enough for the average user, but it means that advanced users won't be able to skip DHCP when connecting to their couriers over WiFi.
 
 ## Security considerations
 
