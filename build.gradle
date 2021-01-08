@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        kotlinVersion = '1.4.21'
+        kotlinVersion = '1.4.21-2'
         kotlinCoroutinesVersion = '1.4.2-native-mt'
     }
     repositories {
@@ -12,7 +12,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.8.2'
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.9.0'
         classpath "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin:8.3.1"
     }
 }

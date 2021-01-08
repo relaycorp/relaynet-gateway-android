@@ -42,7 +42,7 @@
 
         <activity
             android:name=".ui.sync.CourierConnectionActivity"
-            android:label="@string/sync_courier"
+            android:label="@string/sync_courier_title"
             android:screenOrientation="portrait" />
 
         <activity

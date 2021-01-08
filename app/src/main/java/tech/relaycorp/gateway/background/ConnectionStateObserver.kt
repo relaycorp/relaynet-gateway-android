@@ -57,12 +57,10 @@ class ConnectionStateObserver
     fun observe(): Flow<ConnectionState> = state
 
     private suspend fun checkNetworkState(network: Network): ConnectionState {
-        return if (checkInternetAccess.check()) {
-            if (checkPublicGatewayAccess.check()) {
-                ConnectionState.InternetAndPublicGateway
-            } else {
-                ConnectionState.InternetWithoutPublicGateway
-            }
+        return if (checkPublicGatewayAccess.check()) {
+            ConnectionState.InternetAndPublicGateway
+        } else if (checkInternetAccess.check()) {
+            ConnectionState.InternetWithoutPublicGateway
         } else if (network.isWifi) {
             val serverAddress = hotspotSourceIpAddress
                 ?: return ConnectionState.WiFiWithUnknown
