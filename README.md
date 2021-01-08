@@ -49,6 +49,12 @@ This app [may be available on F-Droid in the future](https://github.com/relaycor
 
 Unfortunately, [Android doesn't offer a reliable way to get the default internet gateway in the local network](https://stackoverflow.com/questions/61615270/how-to-get-the-ip-address-of-the-default-gateway-reliably-on-android-5), so we have to rely on DHCP and assume the DHCP server has the same IP address as the courier. This is reliable enough for the average user, but it means that advanced users won't be able to skip DHCP when connecting to their couriers over WiFi.
 
+## Naming rationale
+
+We're referring to this app as "Relaynet" in the user interface, even though this is obviously one of the components that make up the network, in order to hide technical details from the end user. The terms "private gateway" or "gateway" may be more accurate, but we don't think they sound user-friendly.
+
+However, we do use the terms "private gateway" or "gateway" in the code base because we absolutely need accuracy there.
+
 ## Development
 
 The project requires [Android Studio](https://developer.android.com/studio/) 4+.
