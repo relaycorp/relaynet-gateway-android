@@ -39,7 +39,7 @@ This app doesn't track usage (for example, using Google Analytics), nor does it 
 
 ### App signing
 
-We use [app signing by Google Play](https://support.google.com/googleplay/android-developer/answer/9842756) to distribute this app on Google Play. We use [gradle-play-publisher](https://github.com/Triple-T/gradle-play-publisher) as part of our [automated release process](.github/workflows/ci-cd.yml) to upload an Android App Bundle to the Play Store using an upload key stored on this GitHub project secret.
+We use [app signing by Google Play](https://support.google.com/googleplay/android-developer/answer/9842756) to distribute this app on Google Play. We use [gradle-play-publisher](https://github.com/Triple-T/gradle-play-publisher) as part of our [automated release process](.github/workflows/ci-cd.yml) to upload an Android App Bundle to the Play Store using an upload key stored as a GitHub project secret.
 
 This app [may be available on F-Droid in the future](https://github.com/relaycorp/relayverse/issues/21).
 
