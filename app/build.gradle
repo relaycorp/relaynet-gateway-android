@@ -9,7 +9,7 @@ buildscript {
     ext {
         ktorVersion = '1.4.1'
         junitVersion = '5.7.0'
-        relaynetTestingVersion = '1.2.0'
+        relaynetTestingVersion = '1.2.1'
     }
 }
 
@@ -115,9 +115,9 @@ dependencies {
     kapt 'com.google.dagger:dagger-compiler:2.30.1'
 
     // Relaynet
-    implementation 'tech.relaycorp:relaynet:1.40.0'
+    implementation 'tech.relaycorp:relaynet:1.41.0'
     implementation 'tech.relaycorp:cogrpc:1.1.6'
-    implementation 'tech.relaycorp:cogrpc-okhttp:1.1.6'
+    implementation 'tech.relaycorp:cogrpc-okhttp:1.1.7'
     testImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
     androidTestImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
 
@@ -158,7 +158,7 @@ dependencies {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
     testImplementation 'org.mockito:mockito-inline:3.6.28'
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
-    testImplementation 'tech.relaycorp:relaynet-testing:1.0.0'
+    testImplementation 'tech.relaycorp:relaynet-testing:1.2.1'
 
     // Instrumentation Testing
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
