@@ -95,12 +95,16 @@
     <string name="settings_pgw">Public Gateway</string>
     <string name="settings_pgw_new">New Public Gateway</string>
     <string name="settings_pgw_warning">
-        Warning: migrating to a new public gateway will make you lose all pending incoming and
-        outgoing data.
+        Migrating to a new gateway should only be done by advanced users who understand the
+        consequences.
+        \n\nAt present, changing this gateway will most likely prevent your existing Relaynet apps
+        from receiving data for a while.
+        \n\nGateways ending with “.relaycorp.cloud” are provided by Relaycorp, and we don’t spy on
+        or censor our users. If you switch to another provider, make sure they don’t either.
     </string>
     <string name="settings_pgw_migrate">Migrate</string>
     <string name="settings_pgw_migrating">Migrating…</string>
-    <string name="settings_pgw_insert">Insert here the address</string>
+    <string name="settings_pgw_insert">Enter the new address</string>
     <string name="settings_pgw_valid">Address is valid</string>
     <string name="settings_pgw_migrate_confirm">
         Are you sure you want to migrate to this public gateway?
