@@ -147,7 +147,7 @@ dependencies {
     implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
 
     // Display open-source licenses
-    implementation "com.mikepenz:aboutlibraries:8.6.3"
+    implementation "com.mikepenz:aboutlibraries:8.6.5"
 
     // One-off network requests
     implementation "io.ktor:ktor-client-android:$ktorVersion"
