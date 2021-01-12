@@ -55,6 +55,21 @@ We're referring to this app as "Relaynet" in the user interface, even though thi
 
 However, we do use the terms "private gateway" or "gateway" in the code base because we absolutely need accuracy there.
 
+## Architecture
+
+The app follows clean architecture principles. Domain logic is separated from external elements
+such as UI and data. The main components / layers / packages are:
+
+ - `domain` - Domain logic, with one class per use-case
+ - `ui` - Presentation logic, organized per screen, and following an [MVVM](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel) pattern
+ - `data` - Data persistence logic using preferences, database and disk
+ - `background` - Background services and state listeners
+ - `pdc` - Implementation of the Parcel Delivery Connection between endpoints and the gateway
+
+Components are tied by dependency injection using [Dagger](https://dagger.dev).
+Kotlin coroutines and flow are used for threading and reactive design.
+For the views, material components were preferred whenever possible.
+
 ## Development
 
 The project requires [Android Studio](https://developer.android.com/studio/) 4+.
