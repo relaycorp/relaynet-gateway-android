@@ -59,7 +59,8 @@
         <activity
             android:name=".ui.settings.MigrateGatewayActivity"
             android:label="@string/settings_pgw_new"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.settings.LicensesActivity"

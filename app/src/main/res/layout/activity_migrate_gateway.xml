@@ -7,63 +7,68 @@
 
     <include layout="@layout/common_app_bar" />
 
-    <LinearLayout
-        android:id="@+id/innerContainer"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-        <TextView
+        <LinearLayout
+            android:id="@+id/innerContainer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:layout_marginBottom="16dp"
-            android:text="@string/settings_pgw_new"
-            android:textAppearance="@style/TextAppearance.Gateway.SubTitle" />
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="40dp">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="40dp"
-            android:text="@string/settings_pgw_warning" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/addressLayout"
-            style="@style/Widget.Gateway.TextInputLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            app:endIconMode="custom">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/address"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/settings_pgw_new"
-                android:inputType="textUri" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginBottom="16dp"
+                android:text="@string/settings_pgw_new"
+                android:textAppearance="@style/TextAppearance.Gateway.SubTitle" />
 
-        <TextView
-            android:id="@+id/info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="32dp"
-            android:layout_marginTop="8dp"
-            android:textAppearance="@style/TextAppearance.Gateway.Body2"
-            android:textIsSelectable="true"
-            android:textSize="12sp"
-            tools:text="@string/settings_pgw_insert" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:text="@string/settings_pgw_warning" />
 
-        <Button
-            android:id="@+id/submit"
-            style="@style/Widget.Gateway.Button.Outline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginHorizontal="16dp"
-            android:text="@string/settings_pgw_migrate" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/addressLayout"
+                style="@style/Widget.Gateway.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                app:endIconMode="custom">
 
-    </LinearLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/settings_pgw_new"
+                    android:inputType="textUri" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="8dp"
+                android:textAppearance="@style/TextAppearance.Gateway.Body2"
+                android:textIsSelectable="true"
+                android:textSize="12sp"
+                tools:text="@string/settings_pgw_insert" />
+
+            <Button
+                android:id="@+id/submit"
+                style="@style/Widget.Gateway.Button.Outline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginHorizontal="16dp"
+                android:text="@string/settings_pgw_migrate" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
