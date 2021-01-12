@@ -13,10 +13,10 @@ class MigrateGateway
 
     suspend fun migrate(address: String) =
         when (registerGateway.registerNewAddress(address)) {
-            is RegisterGateway.Result.Registered -> Result.Successful
             RegisterGateway.Result.FailedToRegister -> Result.FailedToRegister
             RegisterGateway.Result.FailedToResolve -> Result.FailedToResolve
-            RegisterGateway.Result.AlreadyRegistered -> {
+            RegisterGateway.Result.AlreadyRegistered -> Result.Successful
+            is RegisterGateway.Result.Registered -> {
                 deleteInvalidatedData()
                 Result.Successful
             }

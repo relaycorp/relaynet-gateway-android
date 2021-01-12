@@ -10,7 +10,6 @@ import dagger.Provides
 import tech.relaycorp.doh.DoHClient
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.database.AppDatabase
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.model.ServiceAddress
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
@@ -95,7 +94,6 @@ class DataModule {
 
     @Provides
     fun poWebClientBuilder() = object : PoWebClientBuilder {
-        @Throws(PublicAddressResolutionException::class)
         override suspend fun build(address: ServiceAddress) =
             PoWebClient.initRemote(address.host, address.port)
     }
