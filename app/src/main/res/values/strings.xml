@@ -105,7 +105,7 @@
     <string name="settings_pgw_migrate">Migrate</string>
     <string name="settings_pgw_migrating">Migrating…</string>
     <string name="settings_pgw_insert">Enter the new address</string>
-    <string name="settings_pgw_valid">Address is valid</string>
+    <string name="settings_pgw_valid">Address looks valid</string>
     <string name="settings_pgw_migrate_confirm">
         Are you sure you want to migrate to this public gateway?
     </string>
