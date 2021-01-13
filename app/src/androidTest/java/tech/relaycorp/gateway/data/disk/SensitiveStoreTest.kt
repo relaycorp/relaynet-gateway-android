@@ -1,10 +1,11 @@
 package tech.relaycorp.gateway.data.disk
 
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import tech.relaycorp.gateway.App
@@ -13,7 +14,7 @@ import java.nio.charset.Charset
 
 class SensitiveStoreTest {
 
-    private lateinit var sensitiveStore: SensitiveStore
+    private lateinit var store: SensitiveStore
 
     private val folder by lazy {
         File(ApplicationProvider.getApplicationContext<App>().filesDir, "test").also { it.mkdirs() }
@@ -21,7 +22,7 @@ class SensitiveStoreTest {
 
     @Before
     fun setUp() {
-        sensitiveStore = SensitiveStore(ApplicationProvider.getApplicationContext<App>())
+        store = SensitiveStore(ApplicationProvider.getApplicationContext<App>())
     }
 
     @After
@@ -32,7 +33,6 @@ class SensitiveStoreTest {
     @Test
     fun storeAndRead() {
         runBlocking {
-            val store = SensitiveStore(InstrumentationRegistry.getInstrumentation().targetContext)
             val message = "ABC123"
             val fileName = "${folder.name}/file"
             store.store(fileName, message.toByteArray(Charset.defaultCharset()))
@@ -47,7 +47,6 @@ class SensitiveStoreTest {
     @Test
     fun storeAndUpdate() {
         runBlocking {
-            val store = SensitiveStore(InstrumentationRegistry.getInstrumentation().targetContext)
             val message1 = "1"
             val message2 = "2"
             val fileName = "${folder.name}/file"
@@ -58,6 +57,18 @@ class SensitiveStoreTest {
                 message2,
                 readData!!.toString(Charset.defaultCharset())
             )
+        }
+    }
+
+    @Test
+    fun delete() {
+        runBlocking {
+            val fileName = "${folder.name}/file"
+            assertNull(store.read(fileName))
+            store.store(fileName, "1234".toByteArray())
+            assertNotNull(store.read(fileName))
+            store.delete(fileName)
+            assertNull(store.read(fileName))
         }
     }
 }

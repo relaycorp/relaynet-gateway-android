@@ -1,7 +1,7 @@
 package tech.relaycorp.gateway.background
 
 import tech.relaycorp.gateway.common.Logging.logger
-import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import java.util.logging.Level
 import javax.inject.Inject
@@ -13,7 +13,7 @@ class CheckPublicGatewayAccess
 ) {
     suspend fun check(): Boolean {
         val address = try {
-            publicGatewayPreferences.resolvePoWebAddress()
+            publicGatewayPreferences.getPoWebAddress()
         } catch (exc: PublicAddressResolutionException) {
             logger.log(Level.WARNING, "Failed to resolve PoWeb address", exc)
             return false

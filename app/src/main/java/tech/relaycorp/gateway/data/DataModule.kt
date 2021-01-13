@@ -2,6 +2,7 @@ package tech.relaycorp.gateway.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Patterns
 import androidx.room.Room
 import com.tfcporciuncula.flow.FlowSharedPreferences
 import dagger.Module
@@ -9,9 +10,10 @@ import dagger.Provides
 import tech.relaycorp.doh.DoHClient
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.database.AppDatabase
-import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.model.ServiceAddress
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
+import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
 import javax.inject.Named
@@ -68,6 +70,14 @@ class DataModule {
     fun flowSharedPreferences(sharedPreferences: SharedPreferences) =
         FlowSharedPreferences(sharedPreferences)
 
+    // Android Validators
+
+    @Provides
+    @Named("validator_hostname")
+    fun hostnameValidator() = { hostname: String ->
+        Patterns.DOMAIN_NAME.matcher(hostname).matches()
+    }
+
     // CogRPC
 
     @Provides
@@ -83,12 +93,19 @@ class DataModule {
         DoHClient("https://dns.google/dns-query")
 
     @Provides
-    fun poWebClientBuilder(publicGatewayPreferences: PublicGatewayPreferences) =
-        object : PoWebClientBuilder {
-            @Throws(PublicAddressResolutionException::class)
-            override suspend fun build(): PoWebClient {
-                val address = publicGatewayPreferences.resolvePoWebAddress()
-                return PoWebClient.initRemote(address.host, address.port)
-            }
-        }
+    fun poWebClientBuilder() = object : PoWebClientBuilder {
+        override suspend fun build(address: ServiceAddress) =
+            PoWebClient.initRemote(address.host, address.port)
+    }
+
+    @Provides
+    fun poWebClientProvider(
+        publicGatewayPreferences: PublicGatewayPreferences,
+        poWebClientBuilder: PoWebClientBuilder
+    ) = object : PoWebClientProvider {
+        override suspend fun get() =
+            poWebClientBuilder.build(
+                publicGatewayPreferences.getPoWebAddress()
+            )
+    }
 }

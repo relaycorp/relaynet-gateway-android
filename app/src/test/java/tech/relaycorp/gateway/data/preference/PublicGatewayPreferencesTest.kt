@@ -10,23 +10,21 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import tech.relaycorp.doh.Answer
-import tech.relaycorp.doh.DoHClient
-import tech.relaycorp.doh.LookupFailureException
 import tech.relaycorp.gateway.data.disk.ReadRawFile
+import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
+import tech.relaycorp.gateway.data.model.ServiceAddress
 import javax.inject.Provider
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 class PublicGatewayPreferencesTest {
     private val mockSharedPreferences = mock<FlowSharedPreferences>()
     private val mockReadRawFile = mock<ReadRawFile>()
-    private val mockDoHClient = mock<DoHClient>()
+    private val mockResolveServiceAddress = mock<ResolveServiceAddress>()
     private val gwPreferences = PublicGatewayPreferences(
         Provider { mockSharedPreferences },
         mockReadRawFile,
-        mockDoHClient
+        mockResolveServiceAddress
     )
 
     private val publicGatewayAddress = "example.com"
@@ -39,54 +37,33 @@ class PublicGatewayPreferencesTest {
         runBlockingTest {
             whenever(mockPublicGatewayAddressPreference.get()).thenReturn(publicGatewayAddress)
             whenever(
-                mockSharedPreferences.getString("address", PublicGatewayPreferences.DEFAULT_ADDRESS)
+                mockSharedPreferences
+                    .getString("address", PublicGatewayPreferences.DEFAULT_ADDRESS)
             ).thenReturn(mockPublicGatewayAddressPreference)
-
-            whenever(mockDoHClient.lookUp("_rgsc._tcp.$publicGatewayAddress", "SRV"))
-                .thenReturn(
-                    Answer(listOf("0 1 $publicGatewayTargetPort $publicGatewayTargetHost."))
-                )
         }
     }
 
     @Nested
-    inner class ResolvePoWebURL {
+    inner class GetPoWebURL {
         @Test
-        fun `Target host and port should be returned`() = runBlockingTest {
-            val address = gwPreferences.resolvePoWebAddress()
+        fun `PoWebAddress should be resolved and returned`() = runBlockingTest {
+            whenever(mockResolveServiceAddress.resolvePoWeb(any()))
+                .thenReturn(ServiceAddress(publicGatewayTargetHost, publicGatewayTargetPort))
+
+            val address = gwPreferences.getPoWebAddress()
 
             assertEquals(publicGatewayTargetHost, address.host)
             assertEquals(publicGatewayTargetPort, address.port)
         }
 
         @Test
-        fun `SRV data with fewer than four fields should be refused`() = runBlockingTest {
-            val malformedSRVData = "0 1 3"
-            whenever(mockDoHClient.lookUp("_rgsc._tcp.$publicGatewayAddress", "SRV"))
-                .thenReturn(Answer(listOf(malformedSRVData)))
+        fun `PoWebAddress exception should be thrown as well`() = runBlockingTest {
+            whenever(mockResolveServiceAddress.resolvePoWeb(any()))
+                .thenThrow(PublicAddressResolutionException(""))
 
-            val exception = assertThrows<PublicAddressResolutionException> {
-                gwPreferences.resolvePoWebAddress()
+            assertThrows<PublicAddressResolutionException> {
+                gwPreferences.getPoWebAddress()
             }
-
-            assertEquals(
-                "Malformed SRV for $publicGatewayAddress ($malformedSRVData)",
-                exception.message
-            )
-            assertNull(exception.cause)
-        }
-
-        @Test
-        fun `Lookup errors should be wrapped`() = runBlockingTest {
-            val lookupException = LookupFailureException("Whoops")
-            whenever(mockDoHClient.lookUp(any(), any())).thenThrow(lookupException)
-
-            val exception = assertThrows<PublicAddressResolutionException> {
-                gwPreferences.resolvePoWebAddress()
-            }
-
-            assertEquals("Failed to resolve DNS for PoWeb address", exception.message)
-            assertTrue(exception.cause is LookupFailureException)
         }
     }
 }

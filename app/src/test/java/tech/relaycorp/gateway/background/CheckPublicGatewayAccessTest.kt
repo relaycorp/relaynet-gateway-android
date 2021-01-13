@@ -7,9 +7,9 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
-import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
-import tech.relaycorp.gateway.data.preference.ServiceAddress
+import tech.relaycorp.gateway.data.model.ServiceAddress
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -23,7 +23,7 @@ class CheckPublicGatewayAccessTest {
 
     @Test
     fun `False should be returned if the address could not be resolved`() = runBlockingTest {
-        whenever(mockGatewayPreferences.resolvePoWebAddress())
+        whenever(mockGatewayPreferences.getPoWebAddress())
             .thenThrow(PublicAddressResolutionException("Whoops"))
 
         assertFalse(checkAccess.check())
@@ -32,7 +32,7 @@ class CheckPublicGatewayAccessTest {
 
     @Test
     fun `False should be returned if the ping failed`() = runBlockingTest {
-        whenever(mockGatewayPreferences.resolvePoWebAddress()).thenReturn(powebAddress)
+        whenever(mockGatewayPreferences.getPoWebAddress()).thenReturn(powebAddress)
         whenever(mockPingRemoteServer.pingURL(powebURL)).thenReturn(false)
 
         assertFalse(checkAccess.check())
@@ -40,7 +40,7 @@ class CheckPublicGatewayAccessTest {
 
     @Test
     fun `True should be returned if the ping succeeded`() = runBlockingTest {
-        whenever(mockGatewayPreferences.resolvePoWebAddress()).thenReturn(powebAddress)
+        whenever(mockGatewayPreferences.getPoWebAddress()).thenReturn(powebAddress)
         whenever(mockPingRemoteServer.pingURL(powebURL)).thenReturn(true)
 
         assertTrue(checkAccess.check())

@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.activity_settings.learnMore
 import kotlinx.android.synthetic.main.activity_settings.libraries
 import kotlinx.android.synthetic.main.activity_settings.outgoingDataLayout
 import kotlinx.android.synthetic.main.activity_settings.outgoingDataTitle
+import kotlinx.android.synthetic.main.activity_settings.publicGateway
 import kotlinx.android.synthetic.main.activity_settings.version
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -44,8 +45,19 @@ class SettingsActivity : BaseActivity() {
             BuildConfig.VERSION_NAME,
             BuildConfig.VERSION_CODE.toString()
         )
+        publicGateway.setOnClickListener { openMigrateGateway() }
         learnMore.setOnClickListener { openKnowMore() }
         libraries.setOnClickListener { openLicenses() }
+
+        results
+            .onEach {
+                if (it.requestCode == REQUEST_MIGRATE_GATEWAY &&
+                    it.resultCode == MigrateGatewayActivity.RESULT_MIGRATION_SUCCESSFUL
+                ) {
+                    messageManager.showMessage(R.string.settings_pgw_migration_successful)
+                }
+            }
+            .launchIn(lifecycleScope)
 
         viewModel
             .showOutgoingData
@@ -62,6 +74,15 @@ class SettingsActivity : BaseActivity() {
                 dataTotal.text = it.total.format(this)
             }
             .launchIn(lifecycleScope)
+
+        viewModel
+            .publicGwAddress
+            .onEach { publicGateway.text = it }
+            .launchIn(lifecycleScope)
+    }
+
+    private fun openMigrateGateway() {
+        startActivityForResult(MigrateGatewayActivity.getIntent(this), REQUEST_MIGRATE_GATEWAY)
     }
 
     private fun openKnowMore() {
@@ -80,6 +101,8 @@ class SettingsActivity : BaseActivity() {
     }
 
     companion object {
+        private const val REQUEST_MIGRATE_GATEWAY = 101
+
         fun getIntent(context: Context) = Intent(context, SettingsActivity::class.java)
     }
 }

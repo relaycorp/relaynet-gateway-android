@@ -7,6 +7,7 @@
     <string name="continue_">Continue</string>
     <string name="next">Next</string>
     <string name="back">Back</string>
+    <string name="cancel">Cancel</string>
 
     <!-- Main -->
     <string name="main_status_internet">You’re connected to Relaynet via the Internet</string>
@@ -90,5 +91,33 @@
     <string name="settings_data">Outgoing Data</string>
     <string name="settings_data_in_transit">In transit</string>
     <string name="settings_data_queued">Queued</string>
+    <string name="settings_advanced">Advanced Settings</string>
+    <string name="settings_pgw">Public Gateway</string>
+    <string name="settings_pgw_new">New Public Gateway</string>
+    <string name="settings_pgw_warning">
+        Migrating to a new gateway should only be done by advanced users who understand the
+        consequences.
+        \n\nAt present, changing this gateway will most likely prevent your existing Relaynet apps
+        from receiving data for a while.
+        \n\nGateways ending with “.relaycorp.cloud” are provided by Relaycorp, and we don’t spy on
+        or censor our users. If you switch to another provider, make sure they don’t either.
+    </string>
+    <string name="settings_pgw_migrate">Migrate</string>
+    <string name="settings_pgw_migrating">Migrating…</string>
+    <string name="settings_pgw_insert">Enter the new address</string>
+    <string name="settings_pgw_valid">Address looks valid</string>
+    <string name="settings_pgw_migrate_confirm">
+        Are you sure you want to migrate to this public gateway?
+    </string>
+    <string name="settings_pgw_migration_successful">Public gateway migration successful</string>
+    <string name="settings_pgw_migration_same_address">
+        Same as current address
+    </string>
+    <string name="settings_pgw_migration_failed_to_resolve">
+        Could not resolve public gateway address. Please confirm it is correct.
+    </string>
+    <string name="settings_pgw_migration_failed_to_register">
+        Could not register with public gateway. Please try again later.
+    </string>
 
 </resources>

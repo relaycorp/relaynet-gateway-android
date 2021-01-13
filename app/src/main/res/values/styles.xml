@@ -45,6 +45,11 @@
         <item name="android:textColor">@color/relaynet_tertiary</item>
     </style>
 
+    <style name="Widget.Gateway.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">?android:textColorSecondary</item>
+        <item name="hintTextColor">?android:textColorSecondary</item>
+    </style>
+
     <!-- Dialog -->
 
     <style name="Widget.Gateway.DialogTitle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">

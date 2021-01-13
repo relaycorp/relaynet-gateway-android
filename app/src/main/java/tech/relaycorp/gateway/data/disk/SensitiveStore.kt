@@ -24,7 +24,7 @@ class SensitiveStore
 
     suspend fun store(location: String, data: ByteArray) {
         withContext(Dispatchers.IO) {
-            buildFile(location).delete()
+            delete(location)
             buildEncryptedFile(location)
                 .openFileOutput()
                 .use { it.write(data) }
@@ -39,6 +39,12 @@ class SensitiveStore
         } catch (exception: IOException) {
             logger.log(Level.INFO, "SensitiveStore read", exception)
             null
+        }
+    }
+
+    suspend fun delete(location: String) {
+        withContext(Dispatchers.IO) {
+            buildFile(location).delete()
         }
     }
 

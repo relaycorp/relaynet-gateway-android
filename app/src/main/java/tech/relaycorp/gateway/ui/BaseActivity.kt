@@ -1,5 +1,6 @@
 package tech.relaycorp.gateway.ui
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -9,10 +10,14 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.common_app_bar.appBar
 import kotlinx.android.synthetic.main.common_app_bar.toolbar
 import kotlinx.android.synthetic.main.common_app_bar.toolbarTitle
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.asFlow
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.R
+import tech.relaycorp.gateway.ui.common.ActivityResult
 import tech.relaycorp.gateway.ui.common.Insets.addSystemWindowInsetToPadding
 import tech.relaycorp.gateway.ui.common.MessageManager
+import tech.relaycorp.gateway.ui.main.PublishFlow
 
 abstract class BaseActivity : AppCompatActivity() {
 
@@ -20,6 +25,9 @@ abstract class BaseActivity : AppCompatActivity() {
     val component by lazy { app.component.activityComponent() }
 
     protected val messageManager by lazy { MessageManager(this) }
+
+    protected val results get() = _results.asFlow()
+    private val _results = PublishFlow<ActivityResult>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +52,11 @@ abstract class BaseActivity : AppCompatActivity() {
         toolbarTitle?.text = title
         appBar?.addSystemWindowInsetToPadding(top = true)
         findViewById<View>(R.id.innerContainer)?.addSystemWindowInsetToPadding(bottom = true)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        _results.sendBlocking(ActivityResult(requestCode, resultCode, data))
     }
 
     protected fun setupNavigation(

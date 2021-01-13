@@ -13,10 +13,10 @@ import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StoredParcel
-import tech.relaycorp.gateway.data.preference.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.domain.DeleteParcel
 import tech.relaycorp.gateway.domain.LocalConfig
-import tech.relaycorp.gateway.pdc.PoWebClientBuilder
+import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.bindings.pdc.PDCException
@@ -33,7 +33,7 @@ class DeliverParcelsToGateway
 @Inject constructor(
     private val storedParcelDao: StoredParcelDao,
     private val diskMessageOperations: DiskMessageOperations,
-    private val poWebClientBuilder: PoWebClientBuilder,
+    private val poWebClientProvider: PoWebClientProvider,
     private val localConfig: LocalConfig,
     private val deleteParcel: DeleteParcel
 ) {
@@ -43,7 +43,7 @@ class DeliverParcelsToGateway
             logger.info("Delivering parcels to Public Gateway (keepAlive=$keepAlive)")
 
             val poWebClient = try {
-                poWebClientBuilder.build()
+                poWebClientProvider.get()
             } catch (exc: PublicAddressResolutionException) {
                 logger.log(
                     Level.WARNING,
