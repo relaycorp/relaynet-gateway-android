@@ -94,9 +94,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:text="@string/courier_instructions_2"
-                    app:layout_constrainedWidth="true"
                     app:layout_constraintBottom_toBottomOf="@id/instruction2Bullet"
-                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/instruction2Bullet"
                     app:layout_constraintTop_toTopOf="@id/instruction2Bullet" />
 
