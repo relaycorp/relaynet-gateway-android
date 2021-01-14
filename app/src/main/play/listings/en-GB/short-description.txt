@@ -1,0 +1,1 @@
+Remain connected when the Internet has been cut off
