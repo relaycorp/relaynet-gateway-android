@@ -39,7 +39,7 @@ jobs:
         with:
           arg-spec: '.github/data/firebase-test-lab.yml:spec'
         env:
-          SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          SERVICE_ACCOUNT: ${{ secrets.CI_GCP_SERVICE_ACCOUNT }}
 
   release:
     name: "Deploy to Google Play Store"
