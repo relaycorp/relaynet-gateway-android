@@ -1,8 +1,11 @@
+import com.github.triplet.gradle.androidpublisher.ResolutionStrategy as GPPResolutionStrategy
+
 buildscript {
     repositories {
         maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
+        classpath 'com.github.triplet.gradle:play-publisher:3.0.0'
         classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.9.0'
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.7.0.0'
     }
@@ -18,6 +21,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.diffplug.spotless'
+apply plugin: 'com.github.triplet.play'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 apply plugin: 'de.mannodermaus.android-junit5'
 
@@ -37,7 +41,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
-        versionName "0.1"
+        versionName project.findProperty("versionName") ?: "0.1"
 
         testInstrumentationRunner "tech.relaycorp.gateway.test.TestAndroidJUnitRunner"
 
@@ -49,6 +53,19 @@ android {
         }
     }
 
+    signingConfigs {
+        debug {}
+
+        if (project.hasProperty('signingKeystorePath')) {
+            release {
+                storeFile file(signingKeystorePath)
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("ANDROID_KEYSTORE_KEY_ALIAS")
+                keyPassword System.getenv("ANDROID_KEYSTORE_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             testCoverageEnabled true
@@ -56,6 +73,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            if (project.hasProperty('signingKeystorePath')) {
+                signingConfig signingConfigs.release
+            }
         }
     }
     compileOptions {
@@ -190,4 +211,11 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
             '-Xuse-experimental=kotlin.time.ExperimentalTime',
             '-Xuse-experimental=io.ktor.util.KtorExperimentalAPI'
     ]
+}
+
+play {
+    enabled.set(project.findProperty("enableGpp") == "true")
+    track.set("beta")
+    defaultToAppBundles.set(true)
+    resolutionStrategy.set(GPPResolutionStrategy.AUTO)
 }

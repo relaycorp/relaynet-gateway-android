@@ -40,3 +40,46 @@ jobs:
           arg-spec: '.github/data/firebase-test-lab.yml:spec'
         env:
           SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+  release:
+    name: "Deploy to Google Play Store"
+    needs: ci
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Cache Grade dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: build
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install Node.js dependencies
+        run: npm install
+      - name: Release
+        run: npx semantic-release
+        env:
+          ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEYSTORE_KEY_ALIAS: ${{ secrets.ANDROID_KEYSTORE_KEY_ALIAS }}
+          ANDROID_KEYSTORE_KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_KEY_PASSWORD }}
+          ANDROID_PUBLISHER_CREDENTIALS: ${{ secrets.PUBLISHER_GCP_SERVICE_ACCOUNT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
