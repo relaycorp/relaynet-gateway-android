@@ -7,7 +7,6 @@ plugins:
   - - "@semantic-release/npm"
     - npmPublish: false
   - - "@semantic-release/exec"
-    - prepareCmd: 'echo "Initial release" > app/src/main/play/release-notes/en-GB/beta.txt'
-#    - prepareCmd: 'echo "${nextRelease.notes}" > app/src/main/play/release-notes/en-GB/beta.txt'
+    - prepareCmd: 'echo "${nextRelease.notes}" > app/src/main/play/release-notes/en-GB/beta.txt'
       publishCmd: "./.github/scripts/publish-to-play-store.sh ${nextRelease.version}"
   - "@semantic-release/github"
