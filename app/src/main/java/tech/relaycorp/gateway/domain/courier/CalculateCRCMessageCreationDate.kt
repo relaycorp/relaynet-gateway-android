@@ -5,6 +5,8 @@ import tech.relaycorp.gateway.domain.LocalConfig
 import java.time.ZonedDateTime
 import java.util.Collections.max
 import javax.inject.Inject
+import kotlin.time.minutes
+import kotlin.time.toJavaDuration
 
 class CalculateCRCMessageCreationDate
 @Inject constructor(
@@ -13,8 +15,12 @@ class CalculateCRCMessageCreationDate
     suspend fun calculate(): ZonedDateTime =
         max(
             listOf(
-                nowInUtc().minusMinutes(5), // Allow for some clock-drift
+                nowInUtc().minus(CLOCK_DRIFT_TOLERANCE.toJavaDuration()),
                 localConfig.getCertificate().startDate // Never before the GW registration
             )
         )
+
+    companion object {
+        private val CLOCK_DRIFT_TOLERANCE = 90.minutes
+    }
 }
