@@ -122,10 +122,10 @@ open class App : Application() {
     }
 
     private fun bootstrapGateway() {
+        if (mode == Mode.Test) return
         ioScope.launch {
             localConfig.generateKeyPair()
             localConfig.generateCargoDeliveryAuth()
-            if (mode == Mode.Test) return@launch
             registerGateway.registerIfNeeded()
         }
     }
