@@ -54,7 +54,7 @@ class LocalConfig
     suspend fun getCargoDeliveryAuth() =
         sensitiveStore.read(CDA_CERTIFICATE_FILE_NAME)
             ?.let { Certificate.deserialize(it) }
-            ?: throw RuntimeException("No CDA was found")
+            ?: throw RuntimeException("No CDA issuer was found")
 
     suspend fun generateCargoDeliveryAuth() =
         generateCertificate().also { setCargoDeliveryAuth(it) }
