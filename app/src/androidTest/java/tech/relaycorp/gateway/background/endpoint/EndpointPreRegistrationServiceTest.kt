@@ -43,6 +43,7 @@ class EndpointPreRegistrationServiceTest {
     fun setUp() {
         AppTestProvider.component.inject(this)
         runBlocking {
+            localConfig.generateKeyPair()
             publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
         }
     }
