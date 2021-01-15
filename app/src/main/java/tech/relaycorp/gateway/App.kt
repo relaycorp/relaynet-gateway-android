@@ -19,6 +19,7 @@ import tech.relaycorp.gateway.background.publicsync.PublicSyncWorkerFactory
 import tech.relaycorp.gateway.common.Logging
 import tech.relaycorp.gateway.common.di.AppComponent
 import tech.relaycorp.gateway.common.di.DaggerAppComponent
+import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.publicsync.PublicSync
 import tech.relaycorp.gateway.domain.publicsync.RegisterGateway
 import java.security.Security
@@ -50,6 +51,9 @@ open class App : Application() {
     lateinit var foregroundAppMonitor: ForegroundAppMonitor
 
     @Inject
+    lateinit var localConfig: LocalConfig
+
+    @Inject
     lateinit var registerGateway: RegisterGateway
 
     @Inject
@@ -67,7 +71,7 @@ open class App : Application() {
         enqueuePublicSyncWorker()
 
         setupStrictMode()
-        registerGateway()
+        bootstrapGateway()
         startPublicSyncWhenPossible()
         registerActivityLifecycleCallbacks(foregroundAppMonitor)
     }
@@ -117,9 +121,11 @@ open class App : Application() {
         Security.insertProviderAt(Conscrypt.newProvider(), 1)
     }
 
-    private fun registerGateway() {
-        if (mode == Mode.Test) return
+    private fun bootstrapGateway() {
         ioScope.launch {
+            localConfig.generateKeyPair()
+            localConfig.generateCargoDeliveryAuth()
+            if (mode == Mode.Test) return@launch
             registerGateway.registerIfNeeded()
         }
     }

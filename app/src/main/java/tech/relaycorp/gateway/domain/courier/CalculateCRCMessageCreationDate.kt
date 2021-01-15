@@ -21,6 +21,6 @@ class CalculateCRCMessageCreationDate
         )
 
     companion object {
-        private val CLOCK_DRIFT_TOLERANCE = 90.minutes
+        val CLOCK_DRIFT_TOLERANCE = 90.minutes
     }
 }
