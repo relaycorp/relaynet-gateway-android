@@ -15,7 +15,7 @@ class CheckPublicGatewayAccess
         val address = try {
             publicGatewayPreferences.getPoWebAddress()
         } catch (exc: PublicAddressResolutionException) {
-            logger.log(Level.WARNING, "Failed to resolve PoWeb address", exc)
+            logger.log(Level.WARNING, "Failed to resolve PoWeb address (${exc.message})")
             return false
         }
         return pingRemoteServer.pingURL("https://${address.host}:${address.port}")
