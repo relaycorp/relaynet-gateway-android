@@ -1,5 +1,6 @@
 package tech.relaycorp.gateway.domain
 
+import androidx.annotation.VisibleForTesting
 import tech.relaycorp.gateway.common.CryptoUtils.BC_PROVIDER
 import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.disk.SensitiveStore
@@ -29,6 +30,7 @@ class LocalConfig
             ?.toKeyPair()
             ?: throw RuntimeException("No key pair was found")
 
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     suspend fun generateKeyPair() = generateRSAKeyPair().also { setKeyPair(it) }
 
     private suspend fun setKeyPair(value: KeyPair) {
@@ -56,11 +58,22 @@ class LocalConfig
             ?.let { Certificate.deserialize(it) }
             ?: throw RuntimeException("No CDA issuer was found")
 
-    suspend fun generateCargoDeliveryAuth() =
-        generateCertificate().also { setCargoDeliveryAuth(it) }
+    private suspend fun generateCargoDeliveryAuth() = generateCertificate().also {
+        sensitiveStore.store(CDA_CERTIFICATE_FILE_NAME, it.serialize())
+    }
 
-    private suspend fun setCargoDeliveryAuth(value: Certificate) {
-        sensitiveStore.store(CDA_CERTIFICATE_FILE_NAME, value.serialize())
+    suspend fun bootstrap() {
+        try {
+            getKeyPair()
+        } catch (_: RuntimeException) {
+            generateKeyPair()
+        }
+
+        try {
+            getCargoDeliveryAuth()
+        } catch (_: RuntimeException) {
+            generateCargoDeliveryAuth()
+        }
     }
 
     // Helpers

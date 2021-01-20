@@ -19,7 +19,7 @@ class LocalConfigTest {
     private val localConfig = LocalConfig(sensitiveStore)
 
     @BeforeEach
-    internal fun setUp() {
+    fun setUp() {
         runBlocking {
             val memoryStore = mutableMapOf<String, ByteArray>()
             whenever(sensitiveStore.store(any(), any())).then {
@@ -72,8 +72,7 @@ class LocalConfigTest {
     inner class GetCargoDeliveryAuth {
         @Test
         fun `Certificate should be returned if it exists`() = runBlockingTest {
-            localConfig.generateKeyPair()
-            localConfig.generateCargoDeliveryAuth()
+            localConfig.bootstrap()
 
             val certificate1 = localConfig.getCargoDeliveryAuth().serialize()
             val certificate2 = localConfig.getCargoDeliveryAuth().serialize()
@@ -87,6 +86,45 @@ class LocalConfigTest {
             }
 
             assertEquals("No CDA issuer was found", exception.message)
+        }
+    }
+
+    @Nested
+    inner class Bootstrap {
+        @Test
+        fun `Key pair should be created if it doesn't already exist`() = runBlockingTest {
+            localConfig.bootstrap()
+
+            localConfig.getKeyPair()
+        }
+
+        @Test
+        fun `Key pair should not be created if it already exists`() = runBlockingTest {
+            localConfig.bootstrap()
+            val originalKeyPair = localConfig.getKeyPair()
+
+            localConfig.bootstrap()
+            val keyPair = localConfig.getKeyPair()
+
+            assertEquals(originalKeyPair.private.encoded.asList(), keyPair.private.encoded.asList())
+        }
+
+        @Test
+        fun `CDA issuer should be created if it doesn't already exist`() = runBlockingTest {
+            localConfig.bootstrap()
+
+            localConfig.getCargoDeliveryAuth()
+        }
+
+        @Test
+        fun `CDA issuer should not be created if it already exists`() = runBlockingTest {
+            localConfig.bootstrap()
+            val originalCDAIssuer = localConfig.getCargoDeliveryAuth()
+
+            localConfig.bootstrap()
+            val cdaIssuer = localConfig.getCargoDeliveryAuth()
+
+            assertEquals(originalCDAIssuer, cdaIssuer)
         }
     }
 }
