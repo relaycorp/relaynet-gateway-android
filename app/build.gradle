@@ -129,14 +129,14 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.2.0'
     implementation 'androidx.security:security-crypto:1.1.0-alpha03'
-    implementation 'androidx.work:work-runtime-ktx:2.4.0'
+    implementation 'androidx.work:work-runtime-ktx:2.5.0'
 
     // Dependency Injection
     api 'com.google.dagger:dagger:2.31.2'
     kapt 'com.google.dagger:dagger-compiler:2.31'
 
     // Relaynet
-    implementation 'tech.relaycorp:relaynet:1.42.0'
+    implementation 'tech.relaycorp:relaynet:1.42.1'
     implementation 'tech.relaycorp:cogrpc:1.1.7'
     implementation 'tech.relaycorp:cogrpc-okhttp:1.1.7'
     testImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
