@@ -21,6 +21,7 @@ import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.AppTestProvider
+import tech.relaycorp.gateway.test.WaitAssertions.suspendWaitFor
 import tech.relaycorp.gateway.test.WaitAssertions.waitFor
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
 import java.nio.charset.Charset
@@ -43,7 +44,7 @@ class EndpointPreRegistrationServiceTest {
     fun setUp() {
         AppTestProvider.component.inject(this)
         runBlocking {
-            localConfig.bootstrap()
+            suspendWaitFor { localConfig.getKeyPair() }
             publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
         }
     }
