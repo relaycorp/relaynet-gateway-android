@@ -11,7 +11,7 @@ buildscript {
     }
     ext {
         ktorVersion = '1.4.1'
-        junitVersion = '5.7.0'
+        junitVersion = '5.7.1'
         relaynetTestingVersion = '1.2.1'
     }
 }
@@ -133,7 +133,7 @@ dependencies {
 
     // Dependency Injection
     api 'com.google.dagger:dagger:2.31.2'
-    kapt 'com.google.dagger:dagger-compiler:2.31'
+    kapt 'com.google.dagger:dagger-compiler:2.31.2'
 
     // Relaynet
     implementation 'tech.relaycorp:relaynet:1.42.1'
@@ -194,7 +194,7 @@ dependencies {
         // https://github.com/mockito/mockito/pull/2024
         exclude group: "org.mockito", module: "mockito-core"
     }
-    kaptAndroidTest 'com.google.dagger:dagger-compiler:2.30.1'
+    kaptAndroidTest 'com.google.dagger:dagger-compiler:2.31.2'
 }
 
 spotless {
