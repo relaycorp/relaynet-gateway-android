@@ -132,7 +132,7 @@ dependencies {
     implementation 'androidx.work:work-runtime-ktx:2.5.0'
 
     // Dependency Injection
-    api 'com.google.dagger:dagger:2.31.2'
+    api 'com.google.dagger:dagger:2.32'
     kapt 'com.google.dagger:dagger-compiler:2.31.2'
 
     // Relaynet
@@ -168,7 +168,7 @@ dependencies {
     implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
 
     // Display open-source licenses
-    implementation "com.mikepenz:aboutlibraries:8.6.5"
+    implementation "com.mikepenz:aboutlibraries:8.8.0"
 
     // One-off network requests
     implementation "io.ktor:ktor-client-android:$ktorVersion"
