@@ -127,12 +127,12 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0'
     implementation 'androidx.security:security-crypto:1.1.0-alpha03'
     implementation 'androidx.work:work-runtime-ktx:2.5.0'
 
     // Dependency Injection
-    api 'com.google.dagger:dagger:2.31.2'
+    api 'com.google.dagger:dagger:2.32'
     kapt 'com.google.dagger:dagger-compiler:2.31.2'
 
     // Relaynet
@@ -168,7 +168,7 @@ dependencies {
     implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
 
     // Display open-source licenses
-    implementation "com.mikepenz:aboutlibraries:8.6.5"
+    implementation "com.mikepenz:aboutlibraries:8.8.0"
 
     // One-off network requests
     implementation "io.ktor:ktor-client-android:$ktorVersion"
