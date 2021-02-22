@@ -3,6 +3,7 @@ package tech.relaycorp.gateway
 import android.app.Application
 import android.os.Build
 import android.os.StrictMode
+import androidx.annotation.VisibleForTesting
 import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -45,7 +46,8 @@ open class App : Application() {
         }
     }
 
-    private val ioScope = CoroutineScope(Dispatchers.IO)
+    @VisibleForTesting
+    val backgroundScope = CoroutineScope(Dispatchers.IO)
 
     @Inject
     lateinit var foregroundAppMonitor: ForegroundAppMonitor
@@ -122,7 +124,7 @@ open class App : Application() {
     }
 
     private fun bootstrapGateway() {
-        ioScope.launch {
+        backgroundScope.launch {
             localConfig.bootstrap()
             if (mode != Mode.Test) {
                 registerGateway.registerIfNeeded()
@@ -131,7 +133,7 @@ open class App : Application() {
     }
 
     protected open fun startPublicSyncWhenPossible() {
-        ioScope.launch {
+        backgroundScope.launch {
             publicSync.sync()
         }
     }
