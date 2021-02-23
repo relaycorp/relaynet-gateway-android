@@ -62,6 +62,7 @@ class LocalConfig
         sensitiveStore.store(CDA_CERTIFICATE_FILE_NAME, it.serialize())
     }
 
+    @Synchronized
     suspend fun bootstrap() {
         try {
             getKeyPair()
