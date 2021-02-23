@@ -8,19 +8,19 @@ import android.os.Message
 import android.os.Messenger
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.rule.ServiceTestRule
-import com.schibsted.spain.barista.rule.cleardata.ClearPreferencesRule
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.AppTestProvider
+import tech.relaycorp.gateway.test.WaitAssertions.suspendWaitFor
 import tech.relaycorp.gateway.test.WaitAssertions.waitFor
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
 import java.nio.charset.Charset
@@ -30,8 +30,9 @@ class EndpointPreRegistrationServiceTest {
 
     @get:Rule
     val serviceRule = ServiceTestRule()
-    @get:Rule
-    val clearPreferencesRule = ClearPreferencesRule()
+
+    @Inject
+    lateinit var app: App
 
     @Inject
     lateinit var localConfig: LocalConfig
@@ -39,20 +40,19 @@ class EndpointPreRegistrationServiceTest {
     @Inject
     lateinit var publicGatewayPreferences: PublicGatewayPreferences
 
+    private val coroutineContext get() = app.backgroundScope.coroutineContext
+
     @Before
     fun setUp() {
         AppTestProvider.component.inject(this)
-        runBlocking {
+        runBlocking(coroutineContext) {
+            suspendWaitFor { localConfig.getKeyPair() }
             publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
         }
     }
 
-    @After
-    fun tearDown() {
-    }
-
     @Test
-    fun requestPreRegistration() = runBlocking {
+    fun requestPreRegistration() = runBlocking(coroutineContext) {
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
             EndpointPreRegistrationService::class.java
@@ -109,10 +109,8 @@ class EndpointPreRegistrationServiceTest {
     }
 
     @Test
-    fun errorReturnedWhenGatewayIsNotRegisteredYet() {
-        runBlocking {
-            publicGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
-        }
+    fun errorReturnedWhenGatewayIsNotRegisteredYet() = runBlocking(coroutineContext) {
+        publicGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
 
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
