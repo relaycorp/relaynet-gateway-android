@@ -45,6 +45,7 @@ class EndpointPreRegistrationServiceTest {
     fun setUp() {
         AppTestProvider.component.inject(this)
         runBlocking(coroutineContext) {
+            localConfig.bootstrap()
             publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
         }
     }
