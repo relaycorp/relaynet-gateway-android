@@ -22,6 +22,7 @@ class SensitiveStore
             .build()
     }
 
+    @Synchronized
     suspend fun store(location: String, data: ByteArray) {
         withContext(Dispatchers.IO) {
             delete(location)
