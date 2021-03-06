@@ -23,6 +23,7 @@ import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 class GatewaySyncServiceParcelDeliveryTest {
@@ -73,11 +74,14 @@ class GatewaySyncServiceParcelDeliveryTest {
 
     @Test(expected = RejectedParcelException::class)
     fun parcelDelivery_invalidParcel() = runBlocking {
+        val fiveMinutesAgo = ZonedDateTime.now().minusMinutes(5)
         val parcel = Parcel(
             "https://example.org",
             ByteArray(0),
-            PDACertPath.PUBLIC_GW // Wrong certificate to make this parcel invalid
-        ).serialize(KeyPairSet.PUBLIC_GW.private)
+            PDACertPath.PRIVATE_ENDPOINT,
+            creationDate = fiveMinutesAgo,
+            ttl = 1
+        ).serialize(KeyPairSet.PRIVATE_ENDPOINT.private)
 
         PoWebClient.initLocal(PDCServer.PORT).deliverParcel(parcel, endpointSigner)
     }
