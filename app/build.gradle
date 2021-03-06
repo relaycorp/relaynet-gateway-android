@@ -136,7 +136,7 @@ dependencies {
     kapt 'com.google.dagger:dagger-compiler:2.32'
 
     // Relaynet
-    implementation 'tech.relaycorp:relaynet:1.42.1'
+    implementation 'tech.relaycorp:relaynet:1.47.0'
     implementation 'tech.relaycorp:cogrpc:1.1.7'
     implementation 'tech.relaycorp:cogrpc-okhttp:1.1.7'
     testImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
