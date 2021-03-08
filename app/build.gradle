@@ -115,7 +115,7 @@ android {
 
 dependencies {
     // Java 8
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     // Kotlin
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
@@ -132,18 +132,18 @@ dependencies {
     implementation 'androidx.work:work-runtime-ktx:2.5.0'
 
     // Dependency Injection
-    api 'com.google.dagger:dagger:2.32'
+    api 'com.google.dagger:dagger:2.33'
     kapt 'com.google.dagger:dagger-compiler:2.32'
 
     // Relaynet
-    implementation 'tech.relaycorp:relaynet:1.42.1'
+    implementation 'tech.relaycorp:relaynet:1.47.0'
     implementation 'tech.relaycorp:cogrpc:1.1.7'
     implementation 'tech.relaycorp:cogrpc-okhttp:1.1.7'
     testImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
     androidTestImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
 
     // Android TLS support for Netty
-    implementation "io.netty:netty-handler:4.1.58.Final"
+    implementation "io.netty:netty-handler:4.1.59.Final"
     implementation 'org.conscrypt:conscrypt-android:2.5.1'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
@@ -177,7 +177,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
-    testImplementation 'org.mockito:mockito-inline:3.7.7'
+    testImplementation 'org.mockito:mockito-inline:3.8.0'
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
     testImplementation 'tech.relaycorp:relaynet-testing:1.2.1'
 
@@ -188,7 +188,7 @@ dependencies {
     androidTestImplementation('com.schibsted.spain:barista:3.7.0') {
         exclude group: 'org.jetbrains.kotlin'
     }
-    androidTestImplementation "org.mockito:mockito-android:3.7.7"
+    androidTestImplementation "org.mockito:mockito-android:3.8.0"
     androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0") {
         // Workaround for Android API < 26:
         // https://github.com/mockito/mockito/pull/2024
