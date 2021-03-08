@@ -46,8 +46,14 @@ class StoreParcel
             } else {
                 null
             }
+        val requiredCertificateAuthorities =
+            if (recipientLocation == RecipientLocation.ExternalGateway) {
+                null
+            } else {
+                setOf(localConfig.getCertificate())
+            }
         try {
-            parcel.validate(requiredRecipientAddressType, setOf(localConfig.getCertificate()))
+            parcel.validate(requiredRecipientAddressType, requiredCertificateAuthorities)
         } catch (exc: RelaynetException) {
             return Result.InvalidParcel(parcel, exc)
         }
