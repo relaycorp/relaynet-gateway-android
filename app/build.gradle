@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.triplet.gradle:play-publisher:3.0.0'
-        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.10.2'
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.11.0'
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.7.0.0'
     }
     ext {
@@ -177,7 +177,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
-    testImplementation 'org.mockito:mockito-inline:3.7.7'
+    testImplementation 'org.mockito:mockito-inline:3.8.0'
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
     testImplementation 'tech.relaycorp:relaynet-testing:1.2.1'
 
@@ -185,10 +185,10 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    androidTestImplementation('com.schibsted.spain:barista:3.7.0') {
+    androidTestImplementation('com.schibsted.spain:barista:3.8.0') {
         exclude group: 'org.jetbrains.kotlin'
     }
-    androidTestImplementation "org.mockito:mockito-android:3.7.7"
+    androidTestImplementation "org.mockito:mockito-android:3.8.0"
     androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0") {
         // Workaround for Android API < 26:
         // https://github.com/mockito/mockito/pull/2024
