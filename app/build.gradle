@@ -133,7 +133,7 @@ dependencies {
 
     // Dependency Injection
     api 'com.google.dagger:dagger:2.33'
-    kapt 'com.google.dagger:dagger-compiler:2.32'
+    kapt 'com.google.dagger:dagger-compiler:2.33'
 
     // Relaynet
     implementation 'tech.relaycorp:relaynet:1.47.0'
@@ -194,7 +194,7 @@ dependencies {
         // https://github.com/mockito/mockito/pull/2024
         exclude group: "org.mockito", module: "mockito-core"
     }
-    kaptAndroidTest 'com.google.dagger:dagger-compiler:2.31.2'
+    kaptAndroidTest 'com.google.dagger:dagger-compiler:2.33'
 }
 
 spotless {
