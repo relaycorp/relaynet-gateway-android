@@ -136,7 +136,7 @@ dependencies {
     kapt 'com.google.dagger:dagger-compiler:2.33'
 
     // Relaynet
-    implementation 'tech.relaycorp:relaynet:1.48.0'
+    implementation 'tech.relaycorp:relaynet:1.48.1'
     implementation 'tech.relaycorp:cogrpc:1.1.7'
     implementation 'tech.relaycorp:cogrpc-okhttp:1.1.7'
     testImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
@@ -147,7 +147,7 @@ dependencies {
     implementation 'org.conscrypt:conscrypt-android:2.5.1'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
-    implementation 'tech.relaycorp:poweb:1.5.15'
+    implementation 'tech.relaycorp:poweb:1.5.16'
     implementation "io.ktor:ktor-server-core:$ktorVersion"
     implementation "io.ktor:ktor-server-netty:$ktorVersion"
     implementation "io.ktor:ktor-websockets:$ktorVersion"
