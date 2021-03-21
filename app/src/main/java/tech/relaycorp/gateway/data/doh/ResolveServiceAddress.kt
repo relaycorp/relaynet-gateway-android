@@ -11,7 +11,7 @@ class ResolveServiceAddress
 ) {
     @Throws(PublicAddressResolutionException::class)
     suspend fun resolvePoWeb(address: String): ServiceAddress {
-        val srvRecordName = "_rgsc._tcp.$address"
+        val srvRecordName = "_awala-gsc._tcp.$address"
         val answer = try {
             doHClient.lookUp(srvRecordName, "SRV")
         } catch (exc: LookupFailureException) {

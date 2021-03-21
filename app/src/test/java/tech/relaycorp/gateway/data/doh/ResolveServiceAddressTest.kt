@@ -23,7 +23,7 @@ class ResolveServiceAddressTest {
     inner class ResolvePoWebAddress {
         @Test
         fun `Target host and port should be returned`() = runBlockingTest {
-            whenever(mockDoHClient.lookUp("_rgsc._tcp.$publicGatewayAddress", "SRV"))
+            whenever(mockDoHClient.lookUp("_awala-gsc._tcp.$publicGatewayAddress", "SRV"))
                 .thenReturn(
                     Answer(listOf("0 1 $publicGatewayTargetPort $publicGatewayTargetHost."))
                 )
@@ -36,7 +36,7 @@ class ResolveServiceAddressTest {
         @Test
         fun `SRV data with fewer than four fields should be refused`() = runBlockingTest {
             val malformedSRVData = "0 1 3"
-            whenever(mockDoHClient.lookUp("_rgsc._tcp.$publicGatewayAddress", "SRV"))
+            whenever(mockDoHClient.lookUp("_awala-gsc._tcp.$publicGatewayAddress", "SRV"))
                 .thenReturn(Answer(listOf(malformedSRVData)))
 
             val exception = assertThrows<PublicAddressResolutionException> {
