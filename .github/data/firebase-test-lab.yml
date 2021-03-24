@@ -2,10 +2,10 @@ spec:
   type: instrumentation
   app: app/build/outputs/apk/debug/app-debug.apk
   test: app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+  timeout: 30m
   device:
-    # Huawei P8 lite (physical). The oldest device we're testing and it's important not to use
-    # a Google phone just so we also make sure the manufacturer's ROM doesn't break the app.
-    - model: hwALE-H
+    # Asus Nexus 7 (physical). The oldest device we're testing.
+    - model: flo
       version: 21   # Android 5.0
       locale: en
       orientation: portrait
