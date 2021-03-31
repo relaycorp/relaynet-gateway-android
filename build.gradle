@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        kotlinVersion = '1.4.31'
+        kotlinVersion = '1.4.32'
         kotlinCoroutinesVersion = '1.4.2-native-mt'
     }
     repositories {
