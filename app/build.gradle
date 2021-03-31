@@ -126,7 +126,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0'
     implementation 'androidx.security:security-crypto:1.1.0-alpha03'
     implementation 'androidx.work:work-runtime-ktx:2.5.0'
@@ -168,7 +168,7 @@ dependencies {
     implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
 
     // Display open-source licenses
-    implementation "com.mikepenz:aboutlibraries:8.8.0"
+    implementation "com.mikepenz:aboutlibraries:8.8.4"
 
     // One-off network requests
     implementation "io.ktor:ktor-client-android:$ktorVersion"
