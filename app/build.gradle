@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.triplet.gradle:play-publisher:3.0.0'
-        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.11.0'
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.11.1'
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.7.0.0'
     }
     ext {
@@ -168,7 +168,7 @@ dependencies {
     implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
 
     // Display open-source licenses
-    implementation "com.mikepenz:aboutlibraries:8.8.0"
+    implementation "com.mikepenz:aboutlibraries:8.8.4"
 
     // One-off network requests
     implementation "io.ktor:ktor-client-android:$ktorVersion"
