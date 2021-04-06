@@ -1,4 +1,4 @@
-<img src="./relaynet-logo.png" align="right"/>
+<img src="./awala-logo.png" align="right"/>
 
 # Awala Gateway for Android
 
