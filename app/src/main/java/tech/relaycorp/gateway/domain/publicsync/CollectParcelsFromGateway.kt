@@ -114,6 +114,6 @@ class CollectParcelsFromGateway
 
     companion object {
         @VisibleForTesting
-        var RETRY_AFTER_PERIOD = 5.seconds
+        var RETRY_AFTER_PERIOD = 1.seconds
     }
 }
