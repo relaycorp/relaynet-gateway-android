@@ -3,7 +3,7 @@ package tech.relaycorp.gateway.domain.endpoint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import tech.relaycorp.gateway.background.RelaynetAndroid
+import tech.relaycorp.gateway.background.AwalaAndroid
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.database.LocalEndpointDao
 import tech.relaycorp.gateway.data.database.StoredParcelDao
@@ -49,7 +49,7 @@ class NotifyEndpoints
         }
 
         context.sendBroadcast(
-            Intent(RelaynetAndroid.ENDPOINT_NOTIFY_ACTION)
+            Intent(AwalaAndroid.ENDPOINT_NOTIFY_ACTION)
                 .setComponent(
                     ComponentName(
                         applicationId,

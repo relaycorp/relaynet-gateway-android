@@ -1,18 +1,18 @@
 <img src="./relaynet-logo.png" align="right"/>
 
-# Relaynet Gateway for Android
+# Awala Gateway for Android
 
-The [Relaynet Gateway for Android](https://play.google.com/store/apps/details?id=tech.relaycorp.gateway) is a _[private gateway](https://specs.relaynet.network/RS-000#concepts)_ for Android 5+ devices. This repository contains the source code for the app, which is also a reference implementation of a private gateway in the Relaynet protocol suite.
+The [Awala Gateway for Android](https://play.google.com/store/apps/details?id=tech.relaycorp.gateway) is a _[private gateway](https://specs.awala.network/RS-000#concepts)_ for Android 5+ devices. This repository contains the source code for the app, which is also a reference implementation of a private gateway in the Awala protocol suite.
 
-This document is aimed at advanced users and (prospective) contributors. We aim to make the app as simple and intuitive as possible, and we're therefore not planning on publishing end-user documentation at this point. To learn more about _using_ Relaynet, visit [relaynet.network/users](https://relaynet.network/users).
+This document is aimed at advanced users and (prospective) contributors. We aim to make the app as simple and intuitive as possible, and we're therefore not planning on publishing end-user documentation at this point. To learn more about _using_ Awala, visit [awala.network/users](https://awala.network/users).
 
-## Relaynet bindings
+## Awala bindings
 
-This private gateway implements [Relaynet bindings](https://specs.relaynet.network/RS-000#message-transport-bindings) as follows:
+This private gateway implements [Awala bindings](https://specs.awala.network/RS-000#message-transport-bindings) as follows:
 
-- Local endpoints communicate with the private gateway via a [PoWeb](https://specs.relaynet.network/RS-016) server on `127.0.0.1:13276`. This server is implemented with the PoWeb binding and [ktor](https://ktor.io).
+- Local endpoints communicate with the private gateway via a [PoWeb](https://specs.awala.network/RS-016) server on `127.0.0.1:13276`. This server is implemented with the PoWeb binding and [ktor](https://ktor.io).
 - When the Internet is available and the public gateway is reachable, this private gateway will communicate with its public counterpart using [Relaycorp's PoWeb client](https://docs.relaycorp.tech/relaynet-poweb-jvm/).
-- When communicating with couriers over WiFi, this private gateway uses the [CogRPC binding](https://specs.relaynet.network/RS-008) through [Relaycorp's CogRPC client](https://docs.relaycorp.tech/relaynet-cogrpc-jvm/).
+- When communicating with couriers over WiFi, this private gateway uses the [CogRPC binding](https://specs.awala.network/RS-008) through [Relaycorp's CogRPC client](https://docs.relaycorp.tech/relaynet-cogrpc-jvm/).
 
 The local communication with endpoints does not use TLS, but all other connections are external and therefore require TLS.
 
@@ -20,7 +20,7 @@ By default, instances of this gateway are paired to [Relaycorp's Frankfurt gatew
 
 ## Security and privacy considerations
 
-The items below summarize the security and privacy considerations specific to this app. For a more general overview of the security considerations in Relaynet, please refer to [RS-019](https://specs.relaynet.network/RS-019).
+The items below summarize the security and privacy considerations specific to this app. For a more general overview of the security considerations in Awala, please refer to [RS-019](https://specs.awala.network/RS-019).
 
 ### No encryption at rest on Android 5
 
@@ -51,7 +51,7 @@ Unfortunately, [Android doesn't offer a reliable way to get the default internet
 
 ## Naming rationale
 
-We're referring to this app as "Relaynet" in the user interface, even though this is obviously one of the components that make up the network, in order to hide technical details from the end user. The terms "private gateway" or "gateway" may be more accurate, but we don't think they sound user-friendly.
+We're referring to this app as "Awala" in the user interface, even though this is obviously one of the components that make up the network, in order to hide technical details from the end user. The terms "private gateway" or "gateway" may be more accurate, but we don't think they sound user-friendly.
 
 However, we do use the terms "private gateway" or "gateway" in the code base because we absolutely need accuracy there.
 
