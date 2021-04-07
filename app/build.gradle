@@ -143,8 +143,8 @@ dependencies {
     androidTestImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
 
     // Android TLS support for Netty
-    implementation "io.netty:netty-handler:4.1.60.Final"
-    implementation 'org.conscrypt:conscrypt-android:2.5.1'
+    implementation "io.netty:netty-handler:4.1.63.Final"
+    implementation 'org.conscrypt:conscrypt-android:2.5.2'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
     implementation 'tech.relaycorp:poweb:1.5.16'
