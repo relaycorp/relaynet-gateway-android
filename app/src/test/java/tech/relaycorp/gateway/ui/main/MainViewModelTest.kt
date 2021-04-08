@@ -2,9 +2,9 @@ package tech.relaycorp.gateway.ui.main
 
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.launch
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.background.ConnectionState
@@ -16,33 +16,37 @@ class MainViewModelTest {
 
     private val appPreferences = mock<AppPreferences>()
     private val connectionStateObserver = mock<ConnectionStateObserver>()
+    private val onboardingDoneFlow = PublishFlow<Boolean>()
+    private val connectionStateObserve = PublishFlow<ConnectionState>()
+    private lateinit var viewModel: MainViewModel
 
     @BeforeEach
     internal fun setUp() {
-        whenever(appPreferences.isOnboardingDone()).thenReturn(flowOf(true))
-        whenever(connectionStateObserver.observe())
-            .thenReturn(flowOf(ConnectionState.InternetAndPublicGateway))
+        whenever(appPreferences.isOnboardingDone()).thenReturn(onboardingDoneFlow.asFlow())
+        whenever(connectionStateObserver.observe()).thenReturn(connectionStateObserve.asFlow())
+        viewModel = buildViewModel()
     }
 
     @Test
-    internal fun `open onboarding if not done`() = runBlockingTest {
-        whenever(appPreferences.isOnboardingDone()).thenReturn(flowOf(false))
-
-        waitForAssertEquals(
-            Unit,
-            buildViewModel().openOnboarding::first
-        )
+    internal fun `open onboarding if not done`() {
+        viewModel.ioScope.launch {
+            onboardingDoneFlow.send(false)
+            waitForAssertEquals(
+                ConnectionState.InternetAndPublicGateway,
+                viewModel.openOnboarding::first
+            )
+        }
     }
 
     @Test
-    internal fun `connection state is passed through`() = runBlockingTest {
-        whenever(connectionStateObserver.observe())
-            .thenReturn(flowOf(ConnectionState.InternetAndPublicGateway))
-
-        waitForAssertEquals(
-            ConnectionState.InternetAndPublicGateway,
-            buildViewModel().connectionState::first
-        )
+    internal fun `connection state is passed through`() {
+        viewModel.ioScope.launch {
+            connectionStateObserve.send(ConnectionState.InternetAndPublicGateway)
+            waitForAssertEquals(
+                ConnectionState.InternetAndPublicGateway,
+                viewModel.connectionState::first
+            )
+        }
     }
 
     private fun buildViewModel() =
