@@ -7,10 +7,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
-    <permission
-        android:name="tech.relaycorp.gateway.SYNC"
-        android:label="Gateway Sync" />
-
     <application
         android:name=".App"
         android:allowBackup="false"
@@ -69,15 +65,18 @@
 
         <!-- Services -->
 
+        <!-- no custom permission because we can't guarantee the Gateway is installed first -->
         <service
             android:name=".background.endpoint.GatewaySyncService"
             android:exported="true"
-            android:permission="tech.relaycorp.gateway.SYNC" />
+            tools:ignore="ExportedService"
+            />
 
         <service
             android:name=".background.endpoint.EndpointPreRegistrationService"
             android:exported="true"
-            android:permission="tech.relaycorp.gateway.SYNC" />
+            tools:ignore="ExportedService"
+            />
 
         <!-- Disable WorkManager auto-initialization -->
         <provider
