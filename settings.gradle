@@ -3,4 +3,4 @@ plugins {
 }
 
 include ':app'
-rootProject.name = "Relaynet Gateway"
+rootProject.name = "Awala Gateway"
