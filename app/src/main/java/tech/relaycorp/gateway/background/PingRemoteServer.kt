@@ -20,7 +20,7 @@ class PingRemoteServer
     private val ktorClient by lazy {
         HttpClient(Android) {
             install(UserAgent) {
-                agent = "Relaynet Private Gateway/${BuildConfig.VERSION_NAME} (Android)"
+                agent = "Awala Private Gateway/${BuildConfig.VERSION_NAME} (Android)"
             }
         }
     }

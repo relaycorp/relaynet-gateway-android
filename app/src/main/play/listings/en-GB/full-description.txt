@@ -1,9 +1,9 @@
-Relaynet enables compatible apps on your device to remain connected when the Internet has been cut off by repressive regimes, natural disasters, etc.
+Awala enables compatible apps on your device to remain connected when the Internet has been cut off by repressive regimes, natural disasters, etc.
 
-When the Internet is available, Relaynet-compatible apps will just use it seamlessly and you won't have to interact with this app (though your apps will still use it behind the scenes).
+When the Internet is available, Awala-compatible apps will just use it seamlessly and you won't have to interact with this app (though your apps will still use it behind the scenes).
 
-When the Internet has been cut off, you'll rely on Relaynet couriers to send and receive data from the Internet. A courier is someone who transports data between a region disconnected from the Internet and a location connected to the Internet.
+When the Internet has been cut off, you'll rely on Awala couriers to send and receive data from the Internet. A courier is someone who transports data between a region disconnected from the Internet and a location connected to the Internet.
 
-Once you've located a courier who's willing to transport your data, this app will guide you through the process of exchanging data with them. Fortunately, it's a very simple process: You just have to connect to the courier's WiFi network and Relaynet will do the rest. (Note that WiFi is only used to exchange data at a location disconnected to the Internet; you won't be able to reach the Internet through the courier's device)
+Once you've located a courier who's willing to transport your data, this app will guide you through the process of exchanging data with them. Fortunately, it's a very simple process: You just have to connect to the courier's WiFi network and Awala will do the rest. (Note that WiFi is only used to exchange data at a location disconnected to the Internet; you won't be able to reach the Internet through the courier's device)
 
-Relaynet keeps your data safe: Couriers, or anyone who intercepts them, can't see or change your apps' data. Nor can anyone see which apps you're using, besides Relaynet itself.
+Awala keeps your data safe: Couriers, or anyone who intercepts them, can't see or change your apps' data. Nor can anyone see which apps you're using, besides Awala itself.
