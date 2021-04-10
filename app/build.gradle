@@ -12,7 +12,7 @@ buildscript {
     ext {
         ktorVersion = '1.4.1'
         junitVersion = '5.7.1'
-        relaynetTestingVersion = '1.2.1'
+        awalaTestingVersion = '1.2.2'
     }
 }
 
@@ -29,6 +29,7 @@ apply from: 'jacoco.gradle'
 
 repositories {
     maven { url 'https://jitpack.io' }
+    mavenCentral()
 }
 
 android {
@@ -136,18 +137,18 @@ dependencies {
     kapt 'com.google.dagger:dagger-compiler:2.33'
 
     // Awala
-    implementation 'tech.relaycorp:relaynet:1.48.1'
-    implementation 'tech.relaycorp:cogrpc:1.1.7'
-    implementation 'tech.relaycorp:cogrpc-okhttp:1.1.7'
-    testImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
-    androidTestImplementation "tech.relaycorp:relaynet-testing:$relaynetTestingVersion"
+    implementation 'tech.relaycorp:awala:1.48.5'
+    implementation 'tech.relaycorp:cogrpc:1.1.11'
+    implementation 'tech.relaycorp:cogrpc-okhttp:1.1.10'
+    testImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
+    androidTestImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
 
     // Android TLS support for Netty
     implementation "io.netty:netty-handler:4.1.63.Final"
     implementation 'org.conscrypt:conscrypt-android:2.5.2'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
-    implementation 'tech.relaycorp:poweb:1.5.16'
+    implementation 'tech.relaycorp:poweb:1.5.17'
     implementation "io.ktor:ktor-server-core:$ktorVersion"
     implementation "io.ktor:ktor-server-netty:$ktorVersion"
     implementation "io.ktor:ktor-websockets:$ktorVersion"
