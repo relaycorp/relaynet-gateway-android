@@ -134,7 +134,7 @@ dependencies {
 
     // Dependency Injection
     api 'com.google.dagger:dagger:2.34'
-    kapt 'com.google.dagger:dagger-compiler:2.33'
+    kapt 'com.google.dagger:dagger-compiler:2.34.1'
 
     // Awala
     implementation 'tech.relaycorp:awala:1.48.5'
