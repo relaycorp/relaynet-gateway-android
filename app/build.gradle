@@ -133,7 +133,7 @@ dependencies {
     implementation 'androidx.work:work-runtime-ktx:2.5.0'
 
     // Dependency Injection
-    api 'com.google.dagger:dagger:2.33'
+    api 'com.google.dagger:dagger:2.34'
     kapt 'com.google.dagger:dagger-compiler:2.33'
 
     // Awala
