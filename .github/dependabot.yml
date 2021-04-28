@@ -1,0 +1,41 @@
+version: 2
+updates:
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "08:00"
+    timezone: Etc/UCT
+  open-pull-requests-limit: 99
+  ignore:
+  - dependency-name: com.google.dagger:dagger
+    versions:
+    - 2.34.1
+  - dependency-name: com.diffplug.spotless:spotless-plugin-gradle
+    versions:
+    - 5.10.1
+    - 5.12.0
+    - 5.12.1
+  - dependency-name: org.jetbrains.kotlinx:kotlinx-coroutines-test
+    versions:
+    - 1.4.3-native-mt
+  - dependency-name: org.jetbrains.kotlinx:kotlinx-coroutines-core
+    versions:
+    - 1.4.3-native-mt
+  - dependency-name: com.google.dagger:dagger-compiler
+    versions:
+    - "2.34"
+  - dependency-name: tech.relaycorp:relaynet
+    versions:
+    - 1.44.0
+  - dependency-name: com.mikepenz:aboutlibraries
+    versions:
+    - 8.6.6
+    - 8.7.0
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "08:00"
+    timezone: Etc/UCT
+  open-pull-requests-limit: 99
