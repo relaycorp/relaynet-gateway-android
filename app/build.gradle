@@ -134,10 +134,10 @@ dependencies {
 
     // Dependency Injection
     api 'com.google.dagger:dagger:2.34'
-    kapt 'com.google.dagger:dagger-compiler:2.33'
+    kapt 'com.google.dagger:dagger-compiler:2.34.1'
 
     // Awala
-    implementation 'tech.relaycorp:awala:1.48.5'
+    implementation 'tech.relaycorp:awala:1.48.7'
     implementation 'tech.relaycorp:cogrpc:1.1.11'
     implementation 'tech.relaycorp:cogrpc-okhttp:1.1.10'
     testImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
@@ -169,7 +169,7 @@ dependencies {
     implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
 
     // Display open-source licenses
-    implementation "com.mikepenz:aboutlibraries:8.8.4"
+    implementation "com.mikepenz:aboutlibraries:8.8.5"
 
     // One-off network requests
     implementation "io.ktor:ktor-client-android:$ktorVersion"
@@ -178,7 +178,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
-    testImplementation 'org.mockito:mockito-inline:3.8.0'
+    testImplementation 'org.mockito:mockito-inline:3.9.0'
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
     testImplementation 'tech.relaycorp:relaynet-testing:1.2.1'
 
