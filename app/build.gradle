@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.triplet.gradle:play-publisher:3.4.0'
-        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.11.1'
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.12.4'
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.7.1.1'
     }
     ext {
@@ -159,7 +159,7 @@ dependencies {
     testImplementation "io.ktor:ktor-server-test-host:$ktorVersion"
 
     // ORM
-    def room_version = "2.2.6"
+    def room_version = "2.3.0"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
