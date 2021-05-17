@@ -34,7 +34,7 @@ class ParcelDeliveryRoute
                 )
                 is StoreParcel.Result.InvalidParcel -> call.respondText(
                     "Parcel is invalid",
-                    status = HttpStatusCode.Forbidden
+                    status = HttpStatusCode.UnprocessableEntity
                 )
                 else -> call.respond(HttpStatusCode.Accepted)
             }

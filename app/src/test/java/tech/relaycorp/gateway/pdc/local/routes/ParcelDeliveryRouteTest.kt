@@ -66,7 +66,7 @@ class ParcelDeliveryRouteTest {
     }
 
     @Test
-    fun `Unauthorized parcels should be refused with an HTTP 403 response`() = runBlockingTest {
+    fun `Invalid parcels should be refused with an HTTP 422 response`() = runBlockingTest {
         whenever(storeParcel.store(any<ByteArray>(), eq(RecipientLocation.ExternalGateway)))
             .thenReturn(StoreParcel.Result.InvalidParcel(parcel, Exception()))
 
@@ -75,7 +75,7 @@ class ParcelDeliveryRouteTest {
                 addHeader("Content-Type", ContentType.PARCEL.toString())
             }
             with(call) {
-                assertEquals(HttpStatusCode.Forbidden, response.status())
+                assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals(KtorContentType.Text.Plain, response.contentType().withoutParameters())
                 assertEquals("Parcel is invalid", response.content)
             }
