@@ -10,7 +10,7 @@ buildscript {
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.7.1.1'
     }
     ext {
-        ktorVersion = '1.4.1'
+        ktorVersion = '1.6.0'
         junitVersion = '5.7.1'
         awalaTestingVersion = '1.2.2'
     }
