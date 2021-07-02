@@ -154,22 +154,24 @@ class CollectParcelsFromGatewayTest {
     }
 
     @Test
-    internal fun `poWebClient with keepAlive true, retries after server issue`() {
-        val retryPeriod = 100.milliseconds
-        CollectParcelsFromGateway.RETRY_AFTER_PERIOD = retryPeriod
+    fun `poWebClient with keepAlive true, retries after server issue`() {
+        val retryPeriod = 0.1.toLong()
+        CollectParcelsFromGateway.RETRY_AFTER_SECONDS = retryPeriod
         runBlockingTest {
             var tries = 0
             whenever(poWebClient.collectParcels(any(), any()))
                 .thenReturn(
                     flow<ParcelCollection> {
-                        throw ServerConnectionException("")
+                        if (tries == 0) {
+                            throw ServerConnectionException("")
+                        }
                     }.onCompletion { tries++ }
                 )
 
             CoroutineScope(Dispatchers.Unconfined).launch {
                 subject.collect(true)
             }
-            sleep((retryPeriod.toLongMilliseconds() * 1.5).roundToLong())
+            sleep((retryPeriod * 1.5).roundToLong())
             assertEquals(2, tries)
         }
     }

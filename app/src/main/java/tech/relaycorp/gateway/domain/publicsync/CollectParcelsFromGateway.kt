@@ -63,7 +63,7 @@ class CollectParcelsFromGateway
                                 "Could not collect parcels due to server error, will retry.",
                                 e
                             )
-                            delay(RETRY_AFTER_PERIOD)
+                            delay(RETRY_AFTER_SECONDS)
                             true
                         } else false
                     }
@@ -114,6 +114,6 @@ class CollectParcelsFromGateway
 
     companion object {
         @VisibleForTesting
-        var RETRY_AFTER_PERIOD = 1.seconds
+        var RETRY_AFTER_SECONDS = 1.toLong()
     }
 }
