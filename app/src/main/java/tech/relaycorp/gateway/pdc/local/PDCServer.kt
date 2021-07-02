@@ -66,7 +66,7 @@ object PDCServerConfiguration {
             install(WebSockets)
 
             routing {
-                routes.forEach { it.register(this) }
+                routes.iterator().forEach { it.register(this) }
             }
         }
     }
