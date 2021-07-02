@@ -120,7 +120,7 @@ class ParcelCollectionRoute
     ) =
         collectParcels.getNewParcelsForEndpoints(addresses)
             .onEach { parcels ->
-                parcels.forEach { (localId, parcelStream) ->
+                parcels.iterator().forEach { (localId, parcelStream) ->
                     val parcelDelivery =
                         ParcelDelivery(localId, parcelStream.readBytesAndClose())
                     outgoing.send(

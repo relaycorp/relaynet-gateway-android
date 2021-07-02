@@ -26,7 +26,7 @@ class ProcessCargo
 
     suspend fun process() {
         val cargoes = cargoStorage.list()
-        cargoes.forEach { cargoStream ->
+        cargoes.iterator().forEach { cargoStream ->
             val cargo = Cargo.deserialize(cargoStream().readBytesAndClose())
             readMessagesFromCargo.read(cargo)
                 .forEach { message -> handleMessage(message) }
