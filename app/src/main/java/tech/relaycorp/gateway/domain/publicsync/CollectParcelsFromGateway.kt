@@ -23,7 +23,6 @@ import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import java.util.logging.Level
 import javax.inject.Inject
-import kotlin.time.seconds
 
 class CollectParcelsFromGateway
 @Inject constructor(
