@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.triplet.gradle:play-publisher:3.4.0'
-        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.12.4'
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.14.0'
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.7.1.1'
     }
     ext {
@@ -148,13 +148,13 @@ dependencies {
     implementation 'org.conscrypt:conscrypt-android:2.5.2'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
-    implementation 'tech.relaycorp:poweb:1.5.19'
+    implementation 'tech.relaycorp:poweb:1.5.20'
     implementation "io.ktor:ktor-server-core:$ktorVersion"
     implementation "io.ktor:ktor-server-netty:$ktorVersion"
     implementation "io.ktor:ktor-websockets:$ktorVersion"
     implementation "io.ktor:ktor-client-websockets:$ktorVersion"
     implementation "io.ktor:ktor-client-cio:$ktorVersion"
-    implementation "org.bouncycastle:bcpkix-jdk15on:1.68"
+    implementation "org.bouncycastle:bcpkix-jdk15on:1.69"
     implementation "tech.relaycorp:doh:1.0.1"
     testImplementation "io.ktor:ktor-server-test-host:$ktorVersion"
 
