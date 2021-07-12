@@ -157,6 +157,7 @@ dependencies {
     implementation "org.bouncycastle:bcpkix-jdk15on:1.69"
     implementation "tech.relaycorp:doh:1.0.4"
     testImplementation "io.ktor:ktor-server-test-host:$ktorVersion"
+    testImplementation "io.ktor:ktor-test-dispatcher:$ktorVersion"
 
     // ORM
     def room_version = "2.3.0"
