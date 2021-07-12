@@ -123,8 +123,8 @@ dependencies {
 
     // Android
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.core:core-ktx:1.3.2'
-    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
@@ -138,13 +138,13 @@ dependencies {
 
     // Awala
     implementation 'tech.relaycorp:awala:1.48.7'
-    implementation 'tech.relaycorp:cogrpc:1.1.11'
+    implementation 'tech.relaycorp:cogrpc:1.1.17'
     implementation 'tech.relaycorp:cogrpc-okhttp:1.1.10'
     testImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
     androidTestImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
 
     // Android TLS support for Netty
-    implementation "io.netty:netty-handler:4.1.63.Final"
+    implementation "io.netty:netty-handler:4.1.65.Final"
     implementation 'org.conscrypt:conscrypt-android:2.5.2'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
@@ -185,7 +185,7 @@ dependencies {
     // Instrumentation Testing
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation('com.schibsted.spain:barista:3.9.0') {
         exclude group: 'org.jetbrains.kotlin'
     }
