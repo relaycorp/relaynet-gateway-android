@@ -139,7 +139,7 @@ dependencies {
     // Awala
     implementation 'tech.relaycorp:awala:1.48.11'
     implementation 'tech.relaycorp:cogrpc:1.1.18'
-    implementation 'tech.relaycorp:cogrpc-okhttp:1.1.10'
+    implementation 'tech.relaycorp:cogrpc-okhttp:1.1.11'
     testImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
     androidTestImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
 
