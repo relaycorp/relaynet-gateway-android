@@ -3,8 +3,8 @@ package tech.relaycorp.gateway.data.preference
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import com.tfcporciuncula.flow.FlowSharedPreferences
-import com.tfcporciuncula.flow.StringPreference
+import com.fredporciuncula.flow.preferences.FlowSharedPreferences
+import com.fredporciuncula.flow.preferences.StringPreference
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
