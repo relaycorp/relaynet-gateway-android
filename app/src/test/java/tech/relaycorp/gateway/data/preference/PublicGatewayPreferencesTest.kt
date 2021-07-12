@@ -4,7 +4,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.fredporciuncula.flow.preferences.FlowSharedPreferences
-import com.fredporciuncula.flow.preferences.StringPreference
+import com.fredporciuncula.flow.preferences.Preference
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -30,7 +30,7 @@ class PublicGatewayPreferencesTest {
     private val publicGatewayAddress = "example.com"
     private val publicGatewayTargetHost = "poweb.example.com"
     private val publicGatewayTargetPort = 135
-    private val mockPublicGatewayAddressPreference = mock<StringPreference>()
+    private val mockPublicGatewayAddressPreference = mock<Preference<String>>()
 
     @BeforeEach
     internal fun setUp() {
