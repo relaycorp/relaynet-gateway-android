@@ -2,7 +2,7 @@ package tech.relaycorp.gateway.data.preference
 
 import android.util.Base64
 import androidx.annotation.VisibleForTesting
-import com.tfcporciuncula.flow.FlowSharedPreferences
+import com.fredporciuncula.flow.preferences.FlowSharedPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map

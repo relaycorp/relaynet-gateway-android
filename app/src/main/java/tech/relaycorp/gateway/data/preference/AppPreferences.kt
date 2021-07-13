@@ -1,6 +1,6 @@
 package tech.relaycorp.gateway.data.preference
 
-import com.tfcporciuncula.flow.FlowSharedPreferences
+import com.fredporciuncula.flow.preferences.FlowSharedPreferences
 import javax.inject.Inject
 import javax.inject.Provider
 

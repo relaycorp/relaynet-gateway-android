@@ -10,7 +10,7 @@ buildscript {
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.7.1.1'
     }
     ext {
-        ktorVersion = '1.4.1'
+        ktorVersion = '1.6.1'
         junitVersion = '5.7.2'
         awalaTestingVersion = '1.2.3'
     }
@@ -39,7 +39,10 @@ android {
 
     defaultConfig {
         applicationId "tech.relaycorp.gateway"
-        minSdkVersion 21
+
+        // TODO: Support 21+. See https://github.com/relaycorp/relaynet-gateway-android/issues/409
+        minSdkVersion 26
+
         targetSdkVersion 30
         versionCode 1
         versionName project.findProperty("versionName") ?: "0.1"
@@ -148,15 +151,16 @@ dependencies {
     implementation 'org.conscrypt:conscrypt-android:2.5.2'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
-    implementation 'tech.relaycorp:poweb:1.5.20'
+    implementation 'tech.relaycorp:poweb:1.5.22'
     implementation "io.ktor:ktor-server-core:$ktorVersion"
     implementation "io.ktor:ktor-server-netty:$ktorVersion"
     implementation "io.ktor:ktor-websockets:$ktorVersion"
     implementation "io.ktor:ktor-client-websockets:$ktorVersion"
     implementation "io.ktor:ktor-client-cio:$ktorVersion"
     implementation "org.bouncycastle:bcpkix-jdk15on:1.69"
-    implementation "tech.relaycorp:doh:1.0.1"
+    implementation "tech.relaycorp:doh:1.0.4"
     testImplementation "io.ktor:ktor-server-test-host:$ktorVersion"
+    testImplementation "io.ktor:ktor-test-dispatcher:$ktorVersion"
 
     // ORM
     def room_version = "2.3.0"
@@ -166,15 +170,16 @@ dependencies {
 
     // Preferences
     implementation 'androidx.preference:preference-ktx:1.1.1'
-    implementation 'com.github.tfcporciuncula:flow-preferences:1.1.0'
+    implementation 'com.fredporciuncula:flow-preferences:1.5.0'
 
     // Display open-source licenses
-    implementation "com.mikepenz:aboutlibraries:8.8.5"
+    implementation "com.mikepenz:aboutlibraries:$aboutLibrariesVersion"
 
     // One-off network requests
     implementation "io.ktor:ktor-client-android:$ktorVersion"
 
     // Testing
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
@@ -209,8 +214,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     kotlinOptions.freeCompilerArgs += [
             '-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi',
             '-Xuse-experimental=kotlinx.coroutines.FlowPreview',
-            '-Xuse-experimental=kotlin.time.ExperimentalTime',
-            '-Xuse-experimental=io.ktor.util.KtorExperimentalAPI'
+            '-Xuse-experimental=kotlin.time.ExperimentalTime'
     ]
 }
 
