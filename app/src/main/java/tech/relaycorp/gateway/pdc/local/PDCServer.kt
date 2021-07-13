@@ -24,7 +24,7 @@ class PDCServer
 ) {
 
     private val server by lazy {
-        embeddedServer(Netty, PORT) {
+        embeddedServer(Netty, PORT, watchPaths = emptyList()) {
             PDCServerConfiguration.configure(
                 this,
                 listOf(
