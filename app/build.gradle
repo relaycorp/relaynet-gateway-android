@@ -39,7 +39,10 @@ android {
 
     defaultConfig {
         applicationId "tech.relaycorp.gateway"
-        minSdkVersion 21
+
+        // TODO: Support 21+. See https://github.com/relaycorp/relaynet-gateway-android/issues/409
+        minSdkVersion 26
+
         targetSdkVersion 30
         versionCode 1
         versionName project.findProperty("versionName") ?: "0.1"
