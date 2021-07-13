@@ -59,8 +59,7 @@ class CollectParcelsFromGateway
                             // https://github.com/relaycorp/cloud-gateway/issues/53
                             logger.log(
                                 Level.WARNING,
-                                "Could not collect parcels due to server error, will retry.",
-                                e
+                                "Could not collect parcels due to server error, will retry."
                             )
                             delay(RETRY_AFTER_SECONDS)
                             true
@@ -101,7 +100,9 @@ class CollectParcelsFromGateway
             is StoreParcel.Result.CollectedParcel ->
                 logger.info("Parcel already received")
             is StoreParcel.Result.Success -> {
-                logger.info("Collected parcel from Gateway ${storeResult.parcel.id}")
+                logger.info(
+                    "Collected parcel from Gateway ${storeResult.parcel.id}, KA? $keepAlive"
+                )
                 if (keepAlive) {
                     notifyEndpoints.notify(MessageAddress.of(storeResult.parcel.recipientAddress))
                 }

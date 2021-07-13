@@ -48,6 +48,7 @@ class NotifyEndpoints
             return@notifyApp
         }
 
+        logger.info("Notifying app $applicationId, $receiverName")
         context.sendBroadcast(
             Intent(AwalaAndroid.ENDPOINT_NOTIFY_ACTION)
                 .setComponent(

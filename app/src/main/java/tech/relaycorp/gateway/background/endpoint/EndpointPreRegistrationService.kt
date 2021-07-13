@@ -30,10 +30,12 @@ class EndpointPreRegistrationService : Service() {
     lateinit var endpointRegistration: EndpointRegistration
 
     override fun onBind(intent: Intent): IBinder? {
+        logger.info("BIND: onBind")
         component.inject(this)
         val messenger = Messenger(
             object : Handler(Looper.getMainLooper()) {
                 override fun handleMessage(msg: Message) {
+                    logger.info("BIND: onBind, handleMessage")
                     onMessageReceived(msg)
                 }
             }
@@ -47,6 +49,7 @@ class EndpointPreRegistrationService : Service() {
     }
 
     internal fun onMessageReceived(message: Message) {
+        logger.info("BIND: onMessageReceived")
         // The original message will be recycled when the scope changes
         val localMessage = Message.obtain(message)
         scope.launch {
@@ -60,16 +63,19 @@ class EndpointPreRegistrationService : Service() {
         val endpointApplicationId = getApplicationNameForUID(requestMessage.sendingUid)
         val replyMessage = when {
             endpointApplicationId == null -> {
+                logger.info("BIND: onMessageReceived, reply, no applicationId")
                 logger.log(Level.WARNING, "Could not get applicationId from caller")
                 Message.obtain(null, PRE_REGISTRATION_ERROR)
             }
 
             publicGatewayPreferences.getRegistrationState() != RegistrationState.Done -> {
+                logger.info("BIND: onMessageReceived, reply, NOT_REGISTERED")
                 logger.log(Level.WARNING, "Gateway not ready for registration")
                 Message.obtain(null, GATEWAY_NOT_REGISTERED)
             }
 
             else -> {
+                logger.info("BIND: onMessageReceived, reply, all good")
                 val authorizationSerialized = endpointRegistration.authorize(endpointApplicationId)
                 Message.obtain(null, REGISTRATION_AUTHORIZATION).also {
                     it.data = Bundle().apply { putByteArray("auth", authorizationSerialized) }

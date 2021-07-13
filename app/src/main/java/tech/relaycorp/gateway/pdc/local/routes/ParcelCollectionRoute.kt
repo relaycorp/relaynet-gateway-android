@@ -5,6 +5,7 @@ import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.close
 import io.ktor.http.cio.websocket.readText
+import io.ktor.http.cio.websocket.send
 import io.ktor.request.header
 import io.ktor.routing.Routing
 import io.ktor.websocket.DefaultWebSocketServerSession
@@ -41,6 +42,7 @@ class ParcelCollectionRoute
 
     override fun register(routing: Routing) {
         routing.webSocket(URL_PATH) {
+            logger.info("Starting parcel collection")
             try {
                 handle()
             } catch (exc: ClosedReceiveChannelException) {
@@ -74,6 +76,7 @@ class ParcelCollectionRoute
             return
         }
 
+        logger.info("CollectionRoute: After handshake")
         val collectParcels = collectParcelsProvider.get()
         val sendJob = sendParcels(collectParcels, certificates.toAddresses())
         val receiveJob = receiveAcks(collectParcels)
@@ -121,7 +124,9 @@ class ParcelCollectionRoute
     ) =
         collectParcels.getNewParcelsForEndpoints(addresses)
             .onEach { parcels ->
+                logger.info("CollectionRoute: onEach ${parcels.size}")
                 parcels.iterator().forEach { (localId, parcelStream) ->
+                    logger.info("CollectionRoute: onEach, forEach $localId")
                     val parcelDelivery =
                         ParcelDelivery(localId, parcelStream.readBytesAndClose())
                     outgoing.send(

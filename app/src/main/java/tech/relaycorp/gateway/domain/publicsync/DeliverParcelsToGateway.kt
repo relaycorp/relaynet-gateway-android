@@ -92,6 +92,7 @@ class DeliverParcelsToGateway
         try {
             logger.info("Delivering parcel to Gateway ${parcel.messageId.value}")
             poWebClient.deliverParcel(parcelStream.readBytesAndClose(), getSigner())
+            logger.info("Delivered")
         } catch (e: RejectedParcelException) {
             logger.log(Level.WARNING, "Could not deliver rejected parcel (will be deleted)", e)
         }
@@ -113,7 +114,9 @@ class DeliverParcelsToGateway
         if (this::_signer.isInitialized) {
             _signer
         } else {
-            Signer(localConfig.getCertificate(), localConfig.getKeyPair().private).also {
+            val certificate = localConfig.getCertificate()
+            logger.info("GW cert: " + certificate.subjectPrivateAddress)
+            Signer(certificate, localConfig.getKeyPair().private).also {
                 _signer = it
             }
         }
