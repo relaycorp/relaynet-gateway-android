@@ -24,7 +24,7 @@ class PDCServer
 ) {
 
     private val server by lazy {
-        embeddedServer(Netty, PORT) {
+        embeddedServer(Netty, PORT, watchPaths = emptyList()) {
             PDCServerConfiguration.configure(
                 this,
                 listOf(
@@ -66,7 +66,7 @@ object PDCServerConfiguration {
             install(WebSockets)
 
             routing {
-                routes.forEach { it.register(this) }
+                routes.iterator().forEach { it.register(this) }
             }
         }
     }

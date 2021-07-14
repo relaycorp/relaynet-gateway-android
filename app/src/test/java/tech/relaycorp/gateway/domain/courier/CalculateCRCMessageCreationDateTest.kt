@@ -16,7 +16,7 @@ class CalculateCRCMessageCreationDateTest {
     private val subject = CalculateCRCMessageCreationDate(localConfig)
 
     @Test
-    internal fun `creation date 5 minutes past if registration was before`() = runBlockingTest {
+    internal fun `creation date 90 minutes past if registration was before`() = runBlockingTest {
         val keyPair = generateRSAKeyPair()
         val certificate = issueGatewayCertificate(
             keyPair.public,
@@ -29,13 +29,13 @@ class CalculateCRCMessageCreationDateTest {
         val result = subject.calculate()
 
         assertTrue(
-            result.isBefore(nowInUtc().minusMinutes(4)) &&
-                result.isAfter(nowInUtc().minusMinutes(6))
+            result.isBefore(nowInUtc().minusMinutes(89)) &&
+                result.isAfter(nowInUtc().minusMinutes(91))
         )
     }
 
     @Test
-    internal fun `creation date equal to registration if sooner than 5 minutes`() =
+    internal fun `creation date equal to registration if sooner than 90 minutes`() =
         runBlockingTest {
             val keyPair = generateRSAKeyPair()
             val certificate = issueGatewayCertificate(

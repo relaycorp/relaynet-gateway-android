@@ -23,7 +23,6 @@ import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import java.util.logging.Level
 import javax.inject.Inject
-import kotlin.time.seconds
 
 class CollectParcelsFromGateway
 @Inject constructor(
@@ -63,7 +62,7 @@ class CollectParcelsFromGateway
                                 "Could not collect parcels due to server error, will retry.",
                                 e
                             )
-                            delay(RETRY_AFTER_PERIOD)
+                            delay(RETRY_AFTER_SECONDS)
                             true
                         } else false
                     }
@@ -114,6 +113,6 @@ class CollectParcelsFromGateway
 
     companion object {
         @VisibleForTesting
-        var RETRY_AFTER_PERIOD = 5.seconds
+        var RETRY_AFTER_SECONDS = 1.toLong()
     }
 }

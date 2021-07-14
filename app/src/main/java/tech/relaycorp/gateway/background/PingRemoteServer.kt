@@ -20,7 +20,7 @@ class PingRemoteServer
     private val ktorClient by lazy {
         HttpClient(Android) {
             install(UserAgent) {
-                agent = "Relaynet Private Gateway/${BuildConfig.VERSION_NAME} (Android)"
+                agent = "Awala Private Gateway/${BuildConfig.VERSION_NAME} (Android)"
             }
         }
     }
@@ -41,10 +41,13 @@ class PingRemoteServer
             ktorClient.head<Unit>(url)
             true
         } catch (e: IOException) {
-            logger.log(Level.INFO, "Could not ping $url", e)
+            logger.log(Level.INFO, "Could not ping $url (${e.message})")
             false
         } catch (e: ResponseException) {
-            logger.log(Level.INFO, "Successfully pinged $url but got a response exception", e)
+            logger.log(
+                Level.INFO,
+                "Successfully pinged $url but got a response exception (${e.message})"
+            )
             true
         }
 }

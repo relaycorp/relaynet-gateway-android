@@ -52,6 +52,7 @@ class RegisterGateway
             poWeb.use {
                 val pnrr = poWeb.preRegisterNode(keyPair.public)
                 val pnr = poWeb.registerNode(pnrr.serialize(keyPair.private))
+                logger.info("Successfully registered with $address")
                 Result.Registered(pnr)
             }
         } catch (e: ServerException) {

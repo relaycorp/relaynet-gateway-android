@@ -34,7 +34,7 @@
                 android:contentDescription="@string/settings"
                 android:padding="8dp"
                 android:src="@drawable/ic_settings"
-                android:tint="?colorOnSurface" />
+                app:tint="?colorOnSurface" />
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 

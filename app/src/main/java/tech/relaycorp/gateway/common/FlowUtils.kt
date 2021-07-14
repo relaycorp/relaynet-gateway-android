@@ -7,6 +7,6 @@ import kotlin.time.Duration
 fun interval(duration: Duration) = flow {
     while (true) {
         emit(Unit)
-        delay(duration)
+        delay(duration.toLongMilliseconds())
     }
 }

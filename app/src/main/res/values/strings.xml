@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Common -->
-    <string name="app_name">Relaynet</string>
+    <string name="app_name">Awala</string>
     <string name="close">Close</string>
     <string name="stop">Stop</string>
     <string name="continue_">Continue</string>
@@ -10,9 +10,9 @@
     <string name="cancel">Cancel</string>
 
     <!-- Main -->
-    <string name="main_status_internet">You’re connected to Relaynet via the Internet</string>
+    <string name="main_status_internet">You’re connected to Awala via the Internet</string>
     <string name="main_status_internet_text">
-        So there’s not much to do here. Feel free to close this app and enjoy your Relaynet apps.
+        So there’s not much to do here. Feel free to close this app and enjoy your Awala apps.
         \n\nCome back if you’re cut off from the Internet.
     </string>
     <string name="main_status_courier">You’re connected to a courier</string>
@@ -21,9 +21,9 @@
         \n\nRemember: Your data is safe while it’s in transit and if it gets lost
         we’ll try to deliver it again.
     </string>
-    <string name="main_status_disconnected">You’re disconnected from Relaynet</string>
+    <string name="main_status_disconnected">You’re disconnected from Awala</string>
     <string name="main_status_disconnected_text">
-        You can still send and receive data from the Internet via Relaynet couriers:
+        You can still send and receive data from the Internet via Awala couriers:
         Simply connect to a nearby courier and we’ll do the rest.
         \n\nRemember: It’s impossible for anyone to see or change your data in transit, nor can anyone
         see which apps you’re using.
@@ -61,20 +61,20 @@
     <string name="sync_internet_stop_confirm_message">The sync hasn’t finished yet.</string>
 
     <!-- Onboarding -->
-    <string name="onboarding_title_1">Welcome to Relaynet!</string>
+    <string name="onboarding_title_1">Welcome to Awala!</string>
     <string name="onboarding_text_1">
-        Relaynet enables compatible apps on your device to send and receive data from the Internet
+        Awala enables compatible apps on your device to send and receive data from the Internet
         securely, even when you’re disconnected from the Internet.
     </string>
-    <string name="onboarding_title_2">Using Relaynet is easy</string>
+    <string name="onboarding_title_2">Using Awala is easy</string>
     <string name="onboarding_text_2">
         When you’re connected to the Internet, your apps will simply use it seamlessly.
-        \n\nWhen you’re cut off from the Internet, Relaynet couriers will transport your apps’ data
+        \n\nWhen you’re cut off from the Internet, Awala couriers will transport your apps’ data
         securely to and from the Internet.
     </string>
-    <string name="onboarding_title_3">Relaynet keeps you safe</string>
+    <string name="onboarding_title_3">Awala keeps you safe</string>
     <string name="onboarding_text_3">
-        Relaynet apps use end-to-end encryption, so it’s impossible for this app or couriers to see
+        Awala apps use end-to-end encryption, so it’s impossible for this app or couriers to see
         their data.
         \n\nIt’s also impossible for couriers to find out which apps you’re using. And needless to
         say we aren’t tracking you or your apps!
@@ -85,7 +85,7 @@
     <string name="settings">Settings</string>
     <string name="settings_about">About</string>
     <string name="settings_version">Version %1$s (%2$s)</string>
-    <string name="settings_learn_more">Learn more about Relaynet</string>
+    <string name="settings_learn_more">Learn more about Awala</string>
     <string name="settings_open_libraries">See open source libraries</string>
     <string name="settings_licenses">Open Source Libraries</string>
     <string name="settings_data">Outgoing Data</string>
@@ -97,7 +97,7 @@
     <string name="settings_pgw_warning">
         Migrating to a new gateway should only be done by advanced users who understand the
         consequences.
-        \n\nAt present, changing this gateway will most likely prevent your existing Relaynet apps
+        \n\nAt present, changing this gateway will most likely prevent your existing Awala apps
         from receiving data for a while.
         \n\nGateways ending with “.relaycorp.cloud” are provided by Relaycorp, and we don’t spy on
         or censor our users. If you switch to another provider, make sure they don’t either.

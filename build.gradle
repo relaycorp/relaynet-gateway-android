@@ -2,18 +2,22 @@
 
 buildscript {
     ext {
-        kotlinVersion = '1.4.21-2'
-        kotlinCoroutinesVersion = '1.4.2-native-mt'
+        kotlinVersion = '1.5.20'
+        kotlinCoroutinesVersion = '1.5.1'
+        aboutLibrariesVersion = '8.9.0'
     }
     repositories {
         google()
         jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.1'
+        classpath 'com.android.tools.build:gradle:4.2.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.9.0'
-        classpath "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin:8.3.1"
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.14.1'
+        classpath "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin:$aboutLibrariesVersion"
     }
 }
 

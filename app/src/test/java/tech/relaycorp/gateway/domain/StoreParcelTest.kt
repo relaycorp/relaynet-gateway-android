@@ -12,9 +12,12 @@ import tech.relaycorp.gateway.data.database.ParcelCollectionDao
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.model.RecipientLocation
+import tech.relaycorp.relaynet.issueEndpointCertificate
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
+import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
+import java.time.ZonedDateTime
 
 internal class StoreParcelTest {
 
@@ -95,13 +98,19 @@ internal class StoreParcelTest {
     }
 
     @Test
-    internal fun `store parcel bound for external gateway successfully`() = runBlockingTest {
+    fun `store parcel bound for external gateway successfully`() = runBlockingTest {
         whenever(diskOperations.writeMessage(any(), any(), any())).thenReturn("")
+        val untrustedKeyPair = generateRSAKeyPair()
+        val untrustedCertificate = issueEndpointCertificate(
+            untrustedKeyPair.public,
+            untrustedKeyPair.private,
+            ZonedDateTime.now().plusMinutes(2)
+        )
         val parcel = Parcel(
             publicEndpointAddress,
             ByteArray(0),
-            PDACertPath.PRIVATE_ENDPOINT
-        ).serialize(KeyPairSet.PRIVATE_ENDPOINT.private)
+            untrustedCertificate
+        ).serialize(untrustedKeyPair.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.ExternalGateway)
 
