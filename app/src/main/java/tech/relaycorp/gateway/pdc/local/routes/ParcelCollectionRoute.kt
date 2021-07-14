@@ -103,10 +103,11 @@ class ParcelCollectionRoute
         // The server must've closed the connection for us to get here, since we're consuming
         // all incoming messages indefinitely.
         val reason = closeReason.await()
-        if (reason?.code != CloseReason.Codes.NORMAL.code) {
+        val closeCode = reason?.code // Freeze reason.code value as it can change
+        if (closeCode != CloseReason.Codes.NORMAL.code) {
             throw ServerConnectionException(
                 "Server closed the connection unexpectedly " +
-                    "(code: ${reason?.code}, reason: ${reason?.message})"
+                    "(code: $closeCode, reason: ${reason?.message})"
             )
         }
     }

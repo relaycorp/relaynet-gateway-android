@@ -4,23 +4,25 @@ spec:
   test: app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
   timeout: 30m
   device:
-    # Asus Nexus 7 (physical). The oldest device we're testing.
-    - model: flo
-      version: 21   # Android 5.0
-      locale: en
-      orientation: portrait
-
-    # Nexus 5 (virtual)
-    - model: Nexus5
-      version: 23   # Android 6.0
-      locale: en
-      orientation: portrait
-
-    # Nexus 5X (virtual)
-    - model: Nexus5X
-      version: 24   # Android 7.0
-      locale: en
-      orientation: portrait
+# TODO: Reinstate testing on Android 5-7 when Ktor regression is fixed.
+# See: https://github.com/relaycorp/relaynet-gateway-android/issues/409
+#    # Asus Nexus 7 (physical). The oldest device we're testing.
+#    - model: flo
+#      version: 21   # Android 5.0
+#      locale: en
+#      orientation: portrait
+#
+#    # Nexus 5 (virtual)
+#    - model: Nexus5
+#      version: 23   # Android 6.0
+#      locale: en
+#      orientation: portrait
+#
+#    # Nexus 5X (virtual)
+#    - model: Nexus5X
+#      version: 24   # Android 7.0
+#      locale: en
+#      orientation: portrait
 
     # Nexus 5X (virtual)
     - model: Nexus5X
