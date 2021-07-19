@@ -12,7 +12,7 @@ buildscript {
     ext {
         ktorVersion = '1.6.1'
         junitVersion = '5.7.2'
-        awalaTestingVersion = '1.2.3'
+        awalaTestingVersion = '1.2.4'
     }
 }
 
