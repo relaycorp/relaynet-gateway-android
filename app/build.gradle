@@ -140,7 +140,7 @@ dependencies {
     kapt 'com.google.dagger:dagger-compiler:2.37'
 
     // Awala
-    implementation 'tech.relaycorp:awala:1.48.11'
+    implementation 'tech.relaycorp:awala:1.48.12'
     implementation 'tech.relaycorp:cogrpc:1.1.18'
     implementation 'tech.relaycorp:cogrpc-okhttp:1.1.11'
     testImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
