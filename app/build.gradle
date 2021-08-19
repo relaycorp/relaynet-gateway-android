@@ -10,7 +10,7 @@ buildscript {
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.7.1.1'
     }
     ext {
-        ktorVersion = '1.6.1'
+        ktorVersion = '1.6.2'
         junitVersion = '5.7.2'
         awalaTestingVersion = '1.2.3'
     }
@@ -40,8 +40,7 @@ android {
     defaultConfig {
         applicationId "tech.relaycorp.gateway"
 
-        // TODO: Support 21+. See https://github.com/relaycorp/relaynet-gateway-android/issues/409
-        minSdkVersion 26
+        minSdkVersion 21
 
         targetSdkVersion 30
         versionCode 1
