@@ -1,7 +1,7 @@
 package tech.relaycorp.gateway.ui.main
 
-import com.schibsted.spain.barista.assertion.BaristaVisibilityAssertions.assertDisplayed
-import com.schibsted.spain.barista.assertion.BaristaVisibilityAssertions.assertNotContains
+import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertDisplayed
+import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertNotContains
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
