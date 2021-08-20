@@ -14,7 +14,4 @@
     <issue id="TrustAllX509TrustManager">
         <ignore path="org/bouncycastle/est/jcajce/*.class" />
     </issue>
-
-    <!-- TODO: Delete after fixing https://github.com/relaycorp/relaynet-gateway-android/issues/409 -->
-    <issue id="ObsoleteSdkInt" severity="informational"/>
 </lint>
