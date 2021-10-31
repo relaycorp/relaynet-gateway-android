@@ -22,7 +22,8 @@
         <activity
             android:name=".ui.main.MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Gateway.Splash">
+            android:theme="@style/Theme.Gateway.Splash"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -70,20 +71,33 @@
             android:name=".background.endpoint.GatewaySyncService"
             android:exported="true"
             tools:ignore="ExportedService"
-            />
+            >
+            <intent-filter>
+                <action android:name="tech.relaycorp.gateway.SYNC"/>
+            </intent-filter>
+        </service>
 
         <service
             android:name=".background.endpoint.EndpointPreRegistrationService"
             android:exported="true"
             tools:ignore="ExportedService"
-            />
+            >
+            <intent-filter>
+                <action android:name="tech.relaycorp.gateway.ENDPOINT_PRE_REGISTRATION"/>
+            </intent-filter>
+        </service>
 
         <!-- Disable WorkManager auto-initialization -->
         <provider
-            android:name="androidx.work.impl.WorkManagerInitializer"
-            android:authorities="${applicationId}.workmanager-init"
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
-            tools:node="remove" />
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
     </application>
 
     <queries>
