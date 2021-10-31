@@ -33,7 +33,7 @@ repositories {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion '30.0.2'
     ndkVersion '21.3.6528147'
 
@@ -42,7 +42,7 @@ android {
 
         minSdkVersion 21
 
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
         versionName project.findProperty("versionName") ?: "0.1"
 
@@ -162,10 +162,13 @@ dependencies {
     testImplementation "io.ktor:ktor-test-dispatcher:$ktorVersion"
 
     // ORM
-    def room_version = "2.3.0"
+    def room_version = '2.4.0-alpha04' // Mac M1 issue
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
+
+    // required to avoid crash on Android 12 API 31
+    implementation 'androidx.work:work-runtime-ktx:2.7.0-beta01'
 
     // Preferences
     implementation 'androidx.preference:preference-ktx:1.1.1'
