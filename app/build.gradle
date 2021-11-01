@@ -136,7 +136,7 @@ dependencies {
 
     // Dependency Injection
     api 'com.google.dagger:dagger:2.37'
-    kapt 'com.google.dagger:dagger-compiler:2.37'
+    kapt 'com.google.dagger:dagger-compiler:2.40'
 
     // Awala
     implementation 'tech.relaycorp:awala:1.48.11'
@@ -202,7 +202,7 @@ dependencies {
         // https://github.com/mockito/mockito/pull/2024
         exclude group: "org.mockito", module: "mockito-core"
     }
-    kaptAndroidTest 'com.google.dagger:dagger-compiler:2.35.1'
+    kaptAndroidTest 'com.google.dagger:dagger-compiler:2.40'
 }
 
 spotless {
