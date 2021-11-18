@@ -1,20 +1,14 @@
 package tech.relaycorp.gateway.domain
 
 import androidx.annotation.VisibleForTesting
-import tech.relaycorp.gateway.common.CryptoUtils.BC_PROVIDER
 import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.disk.SensitiveStore
 import tech.relaycorp.gateway.domain.courier.CalculateCRCMessageCreationDate
 import tech.relaycorp.relaynet.issueGatewayCertificate
+import tech.relaycorp.relaynet.wrappers.deserializeRSAKeyPair
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
-import java.security.KeyFactory
 import java.security.KeyPair
-import java.security.PrivateKey
-import java.security.interfaces.RSAPrivateCrtKey
-import java.security.spec.EncodedKeySpec
-import java.security.spec.PKCS8EncodedKeySpec
-import java.security.spec.RSAPublicKeySpec
 import javax.inject.Inject
 import kotlin.time.toJavaDuration
 
@@ -26,8 +20,7 @@ class LocalConfig
 
     suspend fun getKeyPair() =
         sensitiveStore.read(PRIVATE_KEY_FILE_NAME)
-            ?.toPrivateKey()
-            ?.toKeyPair()
+            ?.deserializeRSAKeyPair()
             ?: throw RuntimeException("No key pair was found")
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -79,20 +72,6 @@ class LocalConfig
 
     // Helpers
 
-    private fun ByteArray.toPrivateKey(): PrivateKey {
-        val privateKeySpec: EncodedKeySpec = PKCS8EncodedKeySpec(this)
-        val generator: KeyFactory = KeyFactory.getInstance(KEY_ALGORITHM, BC_PROVIDER)
-        return generator.generatePrivate(privateKeySpec)
-    }
-
-    private fun PrivateKey.toKeyPair(): KeyPair {
-        val publicKeySpec =
-            (this as RSAPrivateCrtKey).run { RSAPublicKeySpec(modulus, publicExponent) }
-        val keyFactory = KeyFactory.getInstance("RSA", BC_PROVIDER)
-        val publicKey = keyFactory.generatePublic(publicKeySpec)
-        return KeyPair(publicKey, this)
-    }
-
     private suspend fun generateCertificate(): Certificate {
         val keyPair = getKeyPair()
         return issueGatewayCertificate(
@@ -105,8 +84,6 @@ class LocalConfig
     }
 
     companion object {
-        private const val KEY_ALGORITHM = "RSA"
-
         private const val PRIVATE_KEY_FILE_NAME = "local_gateway.key"
 
         private const val PDA_CERTIFICATE_FILE_NAME = "local_gateway.certificate"
