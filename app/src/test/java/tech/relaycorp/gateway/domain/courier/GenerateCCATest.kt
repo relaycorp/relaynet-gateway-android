@@ -11,19 +11,26 @@ import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
+import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.CargoCollectionAuthorization
 import tech.relaycorp.relaynet.testing.pki.CDACertPath
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import java.time.Duration
 
-class GenerateCCATest {
+class GenerateCCATest : BaseDataTestCase() {
 
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
     private val localConfig = mock<LocalConfig>()
     private val calculateCreationDate = mock<CalculateCRCMessageCreationDate>()
-    private val generateCCA =
-        GenerateCCA(publicGatewayPreferences, localConfig, calculateCreationDate)
+
+    private val generateCCA = GenerateCCA(
+        publicGatewayPreferences,
+        localConfig,
+        calculateCreationDate,
+        gatewayManager
+    )
 
     companion object {
         private const val ADDRESS = "http://example.org"
@@ -45,6 +52,11 @@ class GenerateCCATest {
             whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn(ADDRESS)
             whenever(publicGatewayPreferences.getCertificate())
                 .thenReturn(CDACertPath.PUBLIC_GW)
+
+            publicKeyStore.save(
+                publicGatewaySessionKeyPair.sessionKey,
+                CDACertPath.PUBLIC_GW.subjectPrivateAddress
+            )
         }
     }
 
@@ -60,5 +72,12 @@ class GenerateCCATest {
         assertEquals(ADDRESS, cca.recipientAddress)
         assertEquals(localConfig.getCargoDeliveryAuth(), cca.senderCertificate)
         assertTrue(Duration.between(creationDate, cca.creationDate).abs().seconds <= 1)
+
+        // Check it was encrypted with the public gateway's session key
+        val ccr = cca.unwrapPayload(publicGatewaySessionKeyPair.privateKey).payload
+        assertEquals(
+            KeyPairSet.PUBLIC_GW.public,
+            ccr.cargoDeliveryAuthorization.subjectPublicKey
+        )
     }
 }

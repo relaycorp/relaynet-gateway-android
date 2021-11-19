@@ -42,10 +42,6 @@ class LocalConfig
         sensitiveStore.store(PDA_CERTIFICATE_FILE_NAME, value.serialize())
     }
 
-    suspend fun deleteCertificate() {
-        sensitiveStore.delete(PDA_CERTIFICATE_FILE_NAME)
-    }
-
     suspend fun getCargoDeliveryAuth() =
         sensitiveStore.read(CDA_CERTIFICATE_FILE_NAME)
             ?.let { Certificate.deserialize(it) }

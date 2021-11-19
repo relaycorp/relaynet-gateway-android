@@ -15,15 +15,16 @@ import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
+import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.gateway.test.factory.ParcelCollectionFactory
 import tech.relaycorp.gateway.test.factory.StoredParcelFactory
-import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.Cargo
-import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import java.io.InputStream
 import java.time.Duration
 
-class GenerateCargoTest {
+class GenerateCargoTest : BaseDataTestCase() {
 
     private val storedParcelDao = mock<StoredParcelDao>()
     private val parcelCollectionDao = mock<ParcelCollectionDao>()
@@ -37,21 +38,16 @@ class GenerateCargoTest {
         diskMessageOperations,
         publicGatewayPreferences,
         localConfig,
-        calculateCRCMessageCreationDate
+        calculateCRCMessageCreationDate,
+        gatewayManager
     )
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
-        val keyPair = generateRSAKeyPair()
-        val certificate = issueGatewayCertificate(
-            keyPair.public,
-            keyPair.private,
-            nowInUtc().plusMinutes(1)
-        )
-        whenever(localConfig.getKeyPair()).thenReturn(keyPair)
-        whenever(localConfig.getCertificate()).thenReturn(certificate)
+        whenever(localConfig.getKeyPair()).thenReturn(KeyPairSet.PRIVATE_GW)
+        whenever(localConfig.getCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
         whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn("https://example.org")
-        whenever(publicGatewayPreferences.getCertificate()).thenReturn(certificate)
+        whenever(publicGatewayPreferences.getCertificate()).thenReturn(PDACertPath.PUBLIC_GW)
         whenever(calculateCRCMessageCreationDate.calculate()).thenReturn(nowInUtc())
 
         val messageStream: () -> InputStream = "ABC".toByteArray()::inputStream
@@ -89,7 +85,7 @@ class GenerateCargoTest {
         )
         assertTrue(Duration.between(parcel.expirationTimeUtc, cargo.expiryDate).abs().seconds <= 2)
 
-        val cargoMessages = cargo.unwrapPayload(localConfig.getKeyPair().private)
+        val cargoMessages = cargo.unwrapPayload(localConfig.getKeyPair().private).payload
         assertEquals(2, cargoMessages.messages.size)
         assertTrue(Duration.between(creationDate, cargo.creationDate).abs().seconds <= 1)
     }

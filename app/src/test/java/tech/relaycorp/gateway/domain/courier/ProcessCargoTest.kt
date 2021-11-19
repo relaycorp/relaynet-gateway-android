@@ -15,20 +15,27 @@ import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.domain.DeleteParcel
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.domain.StoreParcelCollection
-import tech.relaycorp.gateway.test.factory.CargoFactory
+import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.gateway.test.factory.ParcelCollectionAckFactory
 import tech.relaycorp.gateway.test.factory.ParcelFactory
-import tech.relaycorp.relaynet.messages.payloads.CargoMessage
+import tech.relaycorp.relaynet.messages.Cargo
+import tech.relaycorp.relaynet.messages.payloads.CargoMessageSet
+import tech.relaycorp.relaynet.testing.pki.CDACertPath
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 
-class ProcessCargoTest {
+class ProcessCargoTest : BaseDataTestCase() {
 
     private val cargoStorage = mock<CargoStorage>()
-    private val readMessagesFromCargo = mock<ReadMessagesFromCargo>()
     private val storeParcel = mock<StoreParcel>()
     private val storeParcelCollection = mock<StoreParcelCollection>()
     private val deleteParcel = mock<DeleteParcel>()
+
     private val processCargo = ProcessCargo(
-        cargoStorage, readMessagesFromCargo, storeParcel, storeParcelCollection, deleteParcel
+        cargoStorage,
+        storeParcel,
+        storeParcelCollection,
+        deleteParcel,
+        gatewayManager
     )
 
     @Test
@@ -40,11 +47,9 @@ class ProcessCargoTest {
 
     @Test
     internal fun `deletes parcel when its ack is received`() = runBlockingTest {
-        val cargoBytes = CargoFactory.buildSerialized()
-        whenever(cargoStorage.list()).thenReturn(listOf(cargoBytes::inputStream))
         val pca = ParcelCollectionAckFactory.build()
-        val cargoMessage = mockCargoMessage(CargoMessage.Type.PCA, pca.serialize())
-        whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(cargoMessage))
+        val cargoSerialized = generateCargoFromMessages(listOf(pca.serialize()))
+        whenever(cargoStorage.list()).thenReturn(listOf(cargoSerialized::inputStream))
 
         processCargo.process()
 
@@ -57,11 +62,11 @@ class ProcessCargoTest {
 
     @Test
     fun `store received parcel with collection`() = runBlockingTest {
-        whenever(cargoStorage.list())
-            .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
         val parcel = ParcelFactory.build()
-        val cargoMessage = mockCargoMessage(CargoMessage.Type.PARCEL)
-        whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(cargoMessage))
+        val cargoSerialized = generateCargoFromMessages(
+            listOf(parcel.serialize(KeyPairSet.PDA_GRANTEE.private))
+        )
+        whenever(cargoStorage.list()).thenReturn(listOf(cargoSerialized::inputStream))
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.Success(parcel))
 
@@ -73,10 +78,11 @@ class ProcessCargoTest {
 
     @Test
     fun `received malformed parcel that does not get stored`() = runBlockingTest {
-        whenever(cargoStorage.list())
-            .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
-        val cargoMessage = mockCargoMessage(CargoMessage.Type.PARCEL)
-        whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(cargoMessage))
+        val parcel = ParcelFactory.build()
+        val cargoSerialized = generateCargoFromMessages(
+            listOf(parcel.serialize(KeyPairSet.PDA_GRANTEE.private))
+        )
+        whenever(cargoStorage.list()).thenReturn(listOf(cargoSerialized::inputStream))
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.MalformedParcel(Exception()))
 
@@ -88,10 +94,11 @@ class ProcessCargoTest {
 
     @Test
     fun `received duplicated parcel that does not get stored`() = runBlockingTest {
-        whenever(cargoStorage.list())
-            .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
-        val cargoMessage = mockCargoMessage(CargoMessage.Type.PARCEL)
-        whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(cargoMessage))
+        val parcel = ParcelFactory.build()
+        val cargoSerialized = generateCargoFromMessages(
+            listOf(parcel.serialize(KeyPairSet.PDA_GRANTEE.private))
+        )
+        whenever(cargoStorage.list()).thenReturn(listOf(cargoSerialized::inputStream))
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.CollectedParcel(ParcelFactory.build()))
 
@@ -103,10 +110,11 @@ class ProcessCargoTest {
 
     @Test
     fun `received invalid parcel but collection is stored`() = runBlockingTest {
-        whenever(cargoStorage.list())
-            .thenReturn(listOf(CargoFactory.buildSerialized()::inputStream))
-        val cargoMessage = mockCargoMessage(CargoMessage.Type.PARCEL)
-        whenever(readMessagesFromCargo.read(any())).thenReturn(sequenceOf(cargoMessage))
+        val parcel = ParcelFactory.build()
+        val cargoSerialized = generateCargoFromMessages(
+            listOf(parcel.serialize(KeyPairSet.PDA_GRANTEE.private))
+        )
+        whenever(cargoStorage.list()).thenReturn(listOf(cargoSerialized::inputStream))
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.InvalidParcel(ParcelFactory.build(), Exception()))
 
@@ -116,13 +124,16 @@ class ProcessCargoTest {
         verify(storeParcelCollection).storeForParcel(any())
     }
 
-    private fun mockCargoMessage(
-        type: CargoMessage.Type,
-        messageSerialized: ByteArray = ByteArray(0)
-    ): CargoMessage {
-        val cargoMessage = mock<CargoMessage>()
-        whenever(cargoMessage.type).thenReturn(type)
-        whenever(cargoMessage.messageSerialized).thenReturn(messageSerialized)
-        return cargoMessage
+    private fun generateCargoFromMessages(messagesSerialized: List<ByteArray>): ByteArray {
+        val cargoMessageSet = CargoMessageSet(messagesSerialized.toTypedArray())
+        val cargoSerialized = Cargo(
+            CDACertPath.PRIVATE_GW.subjectPrivateAddress,
+            cargoMessageSet.encrypt(
+                privateGatewaySessionKeyPair.sessionKey,
+                publicGatewaySessionKeyPair
+            ),
+            CDACertPath.PUBLIC_GW
+        )
+        return cargoSerialized.serialize(KeyPairSet.PUBLIC_GW.private)
     }
 }

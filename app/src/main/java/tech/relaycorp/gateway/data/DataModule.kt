@@ -7,15 +7,22 @@ import androidx.room.Room
 import com.fredporciuncula.flow.preferences.FlowSharedPreferences
 import dagger.Module
 import dagger.Provides
+import tech.relaycorp.awala.keystores.file.FileKeystoreRoot
+import tech.relaycorp.awala.keystores.file.FileSessionPublicKeystore
 import tech.relaycorp.doh.DoHClient
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.database.AppDatabase
+import tech.relaycorp.gateway.data.disk.AndroidPrivateKeyStore
 import tech.relaycorp.gateway.data.model.ServiceAddress
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
+import tech.relaycorp.relaynet.keystores.PrivateKeyStore
+import tech.relaycorp.relaynet.keystores.SessionPublicKeyStore
+import tech.relaycorp.relaynet.nodes.GatewayManager
+import java.io.File
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -108,4 +115,21 @@ class DataModule {
                 publicGatewayPreferences.getPoWebAddress()
             )
     }
+
+    // Awala keystores
+
+    @Provides
+    fun keystoreRoot(context: Context) = FileKeystoreRoot(File(context.filesDir, "keystores"))
+
+    @Provides
+    fun privateKeyStore(context: Context, keystoreRoot: FileKeystoreRoot): PrivateKeyStore =
+        AndroidPrivateKeyStore(keystoreRoot, context)
+
+    @Provides
+    fun publicKeyStore(keystoreRoot: FileKeystoreRoot): SessionPublicKeyStore =
+        FileSessionPublicKeystore(keystoreRoot)
+
+    @Provides
+    fun gatewayManager(privateKeyStore: PrivateKeyStore, publicKeyStore: SessionPublicKeyStore) =
+        GatewayManager(privateKeyStore, publicKeyStore)
 }

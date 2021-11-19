@@ -5,6 +5,8 @@ import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.issueDeliveryAuthorization
 import tech.relaycorp.relaynet.messages.CargoCollectionAuthorization
 import tech.relaycorp.relaynet.messages.payloads.CargoCollectionRequest
+import tech.relaycorp.relaynet.nodes.GatewayManager
+import tech.relaycorp.relaynet.wrappers.privateAddress
 import java.time.ZonedDateTime
 import javax.inject.Inject
 import kotlin.time.days
@@ -13,21 +15,28 @@ class GenerateCCA
 @Inject constructor(
     private val publicGatewayPreferences: PublicGatewayPreferences,
     private val localConfig: LocalConfig,
-    private val calculateCreationDate: CalculateCRCMessageCreationDate
+    private val calculateCreationDate: CalculateCRCMessageCreationDate,
+    private val gatewayManager: GatewayManager
 ) {
 
     suspend fun generate(): CargoCollectionAuthorization {
         val senderCertificate = localConfig.getCargoDeliveryAuth()
+        val publicGatewayPublicKey = publicGatewayPreferences.getCertificate().subjectPublicKey
         val cda = issueDeliveryAuthorization(
-            publicGatewayPreferences.getCertificate().subjectPublicKey,
+            publicGatewayPublicKey,
             localConfig.getKeyPair().private,
             ZonedDateTime.now().plusSeconds(TTL.inSeconds.toLong()),
             senderCertificate
         )
         val ccr = CargoCollectionRequest(cda)
+        val ccrCiphertext = gatewayManager.wrapMessagePayload(
+            ccr,
+            publicGatewayPublicKey.privateAddress,
+            senderCertificate.subjectPrivateAddress
+        )
         return CargoCollectionAuthorization(
             recipientAddress = publicGatewayPreferences.getCogRPCAddress(),
-            payload = ccr.encrypt(publicGatewayPreferences.getCertificate()),
+            payload = ccrCiphertext,
             senderCertificate = senderCertificate,
             creationDate = calculateCreationDate.calculate(),
             ttl = TTL.inSeconds.toInt()

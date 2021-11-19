@@ -20,6 +20,7 @@ import tech.relaycorp.relaynet.messages.ParcelCollectionAck
 import tech.relaycorp.relaynet.messages.payloads.CargoMessageSetWithExpiry
 import tech.relaycorp.relaynet.messages.payloads.CargoMessageWithExpiry
 import tech.relaycorp.relaynet.messages.payloads.batch
+import tech.relaycorp.relaynet.nodes.GatewayManager
 import java.io.InputStream
 import java.time.Duration
 import java.util.logging.Level
@@ -32,7 +33,8 @@ class GenerateCargo
     private val diskMessageOperations: DiskMessageOperations,
     private val publicGatewayPreferences: PublicGatewayPreferences,
     private val localConfig: LocalConfig,
-    private val calculateCreationDate: CalculateCRCMessageCreationDate
+    private val calculateCreationDate: CalculateCRCMessageCreationDate,
+    private val gatewayManager: GatewayManager
 ) {
 
     suspend fun generate(): Flow<InputStream> =
@@ -78,9 +80,6 @@ class GenerateCargo
             null
         }
 
-    private suspend fun getPublicGatewayCertificate() =
-        publicGatewayPreferences.getCertificate()
-
     private suspend fun CargoMessageSetWithExpiry.toCargo(): Cargo {
         if (nowInUtc() > latestMessageExpiryDate) {
             logger.warning(
@@ -92,10 +91,16 @@ class GenerateCargo
         val creationDate = calculateCreationDate.calculate()
 
         logger.info("Generating cargo for $recipientAddress")
+        val senderCertificate = localConfig.getCertificate()
+        val cargoMessageSetCiphertext = gatewayManager.wrapMessagePayload(
+            cargoMessageSet,
+            publicGatewayPreferences.getCertificate().subjectPrivateAddress,
+            senderCertificate.subjectPrivateAddress
+        )
         return Cargo(
             recipientAddress = recipientAddress,
-            payload = cargoMessageSet.encrypt(getPublicGatewayCertificate()),
-            senderCertificate = localConfig.getCertificate(),
+            payload = cargoMessageSetCiphertext,
+            senderCertificate = senderCertificate,
             creationDate = creationDate,
             ttl = Duration.between(creationDate, latestMessageExpiryDate).seconds.toInt()
         )
