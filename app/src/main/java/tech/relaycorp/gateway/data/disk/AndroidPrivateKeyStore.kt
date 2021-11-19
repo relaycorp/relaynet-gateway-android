@@ -6,6 +6,7 @@ import androidx.security.crypto.MasterKey
 import tech.relaycorp.awala.keystores.file.FileKeystoreRoot
 import tech.relaycorp.awala.keystores.file.FilePrivateKeyStore
 import java.io.File
+import java.io.OutputStream
 
 internal class AndroidPrivateKeyStore(
     root: FileKeystoreRoot,
@@ -13,7 +14,12 @@ internal class AndroidPrivateKeyStore(
 ) : FilePrivateKeyStore(root) {
     override fun makeEncryptedInputStream(file: File) = buildEncryptedFile(file).openFileInput()
 
-    override fun makeEncryptedOutputStream(file: File) = buildEncryptedFile(file).openFileOutput()
+    override fun makeEncryptedOutputStream(file: File): OutputStream {
+        if (file.exists()) {
+            file.delete()
+        }
+        return buildEncryptedFile(file).openFileOutput()
+    }
 
     private fun buildEncryptedFile(file: File) =
         EncryptedFile.Builder(

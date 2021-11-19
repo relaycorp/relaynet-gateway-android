@@ -10,7 +10,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import tech.relaycorp.gateway.data.disk.SensitiveStore
+import tech.relaycorp.gateway.data.disk.FileStore
 import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
@@ -33,8 +33,8 @@ import kotlin.test.assertEquals
 class RegisterGatewayTest : BaseDataTestCase() {
 
     private val pgwPreferences = mock<PublicGatewayPreferences>()
-    private val mockSensitiveKeyStore = mock<SensitiveStore>()
-    private val localConfig = LocalConfig(mockSensitiveKeyStore, privateKeyStore)
+    private val mockFileStore = mock<FileStore>()
+    private val localConfig = LocalConfig(mockFileStore, privateKeyStore)
     private val poWebClient = mock<PoWebClient>()
     private val poWebClientBuilder = object : PoWebClientBuilder {
         override suspend fun build(address: ServiceAddress) = poWebClient

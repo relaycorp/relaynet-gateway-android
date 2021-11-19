@@ -17,7 +17,7 @@ import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
-import tech.relaycorp.gateway.data.disk.SensitiveStore
+import tech.relaycorp.gateway.data.disk.FileStore
 import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.domain.DeleteParcel
 import tech.relaycorp.gateway.domain.LocalConfig
@@ -38,8 +38,8 @@ class DeliverParcelsToGatewayTest : BaseDataTestCase() {
     private val poWebClientProvider = object : PoWebClientProvider {
         override suspend fun get() = poWebClient
     }
-    private val mockSensitiveKeyStore = mock<SensitiveStore>()
-    private val localConfig = LocalConfig(mockSensitiveKeyStore, privateKeyStore)
+    private val mockFileStore = mock<FileStore>()
+    private val localConfig = LocalConfig(mockFileStore, privateKeyStore)
     private val deleteParcel = mock<DeleteParcel>()
     private val subject = DeliverParcelsToGateway(
         storedParcelDao, diskMessageOperations, poWebClientProvider, localConfig, deleteParcel

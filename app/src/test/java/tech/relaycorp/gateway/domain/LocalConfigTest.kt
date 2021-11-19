@@ -10,26 +10,26 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import tech.relaycorp.gateway.data.disk.SensitiveStore
+import tech.relaycorp.gateway.data.disk.FileStore
 import tech.relaycorp.gateway.test.BaseDataTestCase
 import kotlin.test.assertEquals
 
 class LocalConfigTest : BaseDataTestCase() {
 
-    private val sensitiveStore = mock<SensitiveStore>()
-    private val localConfig = LocalConfig(sensitiveStore, privateKeyStore)
+    private val fileStore = mock<FileStore>()
+    private val localConfig = LocalConfig(fileStore, privateKeyStore)
 
     @BeforeEach
     fun setUp() {
         runBlocking {
             val memoryStore = mutableMapOf<String, ByteArray>()
-            whenever(sensitiveStore.store(any(), any())).then {
+            whenever(fileStore.store(any(), any())).then {
                 val key = it.getArgument<String>(0)
                 val value = it.getArgument(1) as ByteArray
                 memoryStore[key] = value
                 Unit
             }
-            whenever(sensitiveStore.read(any())).thenAnswer {
+            whenever(fileStore.read(any())).thenAnswer {
                 val key = it.getArgument<String>(0)
                 memoryStore[key]
             }

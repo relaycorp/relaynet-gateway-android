@@ -1,7 +1,7 @@
 package tech.relaycorp.gateway.domain
 
 import tech.relaycorp.gateway.common.nowInUtc
-import tech.relaycorp.gateway.data.disk.SensitiveStore
+import tech.relaycorp.gateway.data.disk.FileStore
 import tech.relaycorp.gateway.domain.courier.CalculateCRCMessageCreationDate
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.keystores.IdentityKeyPair
@@ -15,7 +15,7 @@ import kotlin.time.toJavaDuration
 
 class LocalConfig
 @Inject constructor(
-    private val sensitiveStore: SensitiveStore,
+    private val fileStore: FileStore,
     private val privateKeyStore: PrivateKeyStore
 ) {
     // Private Gateway Key Pair
@@ -56,7 +56,7 @@ class LocalConfig
     }
 
     suspend fun getCargoDeliveryAuth() =
-        sensitiveStore.read(CDA_CERTIFICATE_FILE_NAME)
+        fileStore.read(CDA_CERTIFICATE_FILE_NAME)
             ?.let { Certificate.deserialize(it) }
             ?: throw RuntimeException("No CDA issuer was found")
 
@@ -78,7 +78,7 @@ class LocalConfig
             idKeyPair.privateKey,
             idKeyPair.certificate.subjectPublicKey
         )
-        sensitiveStore.store(CDA_CERTIFICATE_FILE_NAME, cda.serialize())
+        fileStore.store(CDA_CERTIFICATE_FILE_NAME, cda.serialize())
     }
 
     // Helpers

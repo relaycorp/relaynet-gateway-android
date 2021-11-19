@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.gateway.data.database.LocalEndpointDao
-import tech.relaycorp.gateway.data.disk.SensitiveStore
+import tech.relaycorp.gateway.data.disk.FileStore
 import tech.relaycorp.gateway.data.model.LocalEndpoint
 import tech.relaycorp.gateway.data.model.PrivateMessageAddress
 import tech.relaycorp.gateway.domain.LocalConfig
@@ -28,8 +28,8 @@ import kotlin.test.assertTrue
 
 class EndpointRegistrationTest : BaseDataTestCase() {
     private val mockLocalEndpointDao = mock<LocalEndpointDao>()
-    private val mockSensitiveKeyStore = mock<SensitiveStore>()
-    private val mockLocalConfig = LocalConfig(mockSensitiveKeyStore, privateKeyStore)
+    private val mockFileStore = mock<FileStore>()
+    private val mockLocalConfig = LocalConfig(mockFileStore, privateKeyStore)
     private val endpointRegistration = EndpointRegistration(mockLocalEndpointDao, mockLocalConfig)
 
     private val dummyApplicationId = "tech.relaycorp.foo"

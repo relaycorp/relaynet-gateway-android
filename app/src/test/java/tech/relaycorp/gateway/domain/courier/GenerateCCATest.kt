@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.common.nowInUtc
-import tech.relaycorp.gateway.data.disk.SensitiveStore
+import tech.relaycorp.gateway.data.disk.FileStore
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.BaseDataTestCase
@@ -23,8 +23,8 @@ import java.time.Duration
 class GenerateCCATest : BaseDataTestCase() {
 
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
-    private val mockSensitiveKeyStore = mock<SensitiveStore>()
-    private val localConfig = LocalConfig(mockSensitiveKeyStore, privateKeyStore)
+    private val mockFileStore = mock<FileStore>()
+    private val localConfig = LocalConfig(mockFileStore, privateKeyStore)
     private val calculateCreationDate = mock<CalculateCRCMessageCreationDate>()
 
     private val generateCCA = GenerateCCA(
@@ -50,7 +50,7 @@ class GenerateCCATest : BaseDataTestCase() {
                 validityEndDate = nowInUtc().plusMinutes(1),
                 validityStartDate = nowInUtc().minusDays(1)
             )
-            whenever(mockSensitiveKeyStore.read(eq(LocalConfig.CDA_CERTIFICATE_FILE_NAME)))
+            whenever(mockFileStore.read(eq(LocalConfig.CDA_CERTIFICATE_FILE_NAME)))
                 .thenReturn(certificate.serialize())
 
             whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn(ADDRESS)
