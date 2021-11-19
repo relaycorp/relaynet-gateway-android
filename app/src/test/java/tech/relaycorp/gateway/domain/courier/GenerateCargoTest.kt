@@ -52,6 +52,8 @@ class GenerateCargoTest : BaseDataTestCase() {
 
         val messageStream: () -> InputStream = "ABC".toByteArray()::inputStream
         whenever(diskMessageOperations.readMessage(any(), any())).thenReturn(messageStream)
+
+        registerPublicGatewaySessionKey()
     }
 
     @Test

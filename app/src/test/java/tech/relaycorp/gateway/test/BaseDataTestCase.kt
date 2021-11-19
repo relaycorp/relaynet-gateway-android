@@ -1,6 +1,5 @@
 package tech.relaycorp.gateway.test
 
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import tech.relaycorp.relaynet.SessionKeyPair
@@ -19,25 +18,25 @@ abstract class BaseDataTestCase {
     protected val publicGatewaySessionKeyPair = SessionKeyPair.generate()
 
     @BeforeEach
-    fun registerSessionKeys() = runBlockingTest {
-        clearKeystores()
+    @AfterEach
+    fun clearKeystores() {
+        privateKeyStore.clear()
+        publicKeyStore.clear()
+    }
 
+    protected suspend fun registerPrivateGatewaySessionKey() {
         privateKeyStore.saveSessionKey(
             privateGatewaySessionKeyPair.privateKey,
             privateGatewaySessionKeyPair.sessionKey.keyId,
             KeyPairSet.PRIVATE_GW.public.privateAddress,
             KeyPairSet.PUBLIC_GW.public.privateAddress
         )
+    }
 
+    protected suspend fun registerPublicGatewaySessionKey() {
         publicKeyStore.save(
             publicGatewaySessionKeyPair.sessionKey,
             KeyPairSet.PUBLIC_GW.public.privateAddress
         )
-    }
-
-    @AfterEach
-    fun clearKeystores() {
-        privateKeyStore.clear()
-        publicKeyStore.clear()
     }
 }

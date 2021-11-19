@@ -7,6 +7,7 @@ import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.data.disk.CargoStorage
 import tech.relaycorp.gateway.data.model.MessageAddress
@@ -37,6 +38,9 @@ class ProcessCargoTest : BaseDataTestCase() {
         deleteParcel,
         gatewayManager
     )
+
+    @BeforeEach
+    fun setUp() = runBlockingTest { registerPrivateGatewaySessionKey() }
 
     @Test
     internal fun `deletes all cargo at the end`() = runBlockingTest {
