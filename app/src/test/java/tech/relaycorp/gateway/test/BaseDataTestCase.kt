@@ -28,6 +28,11 @@ abstract class BaseDataTestCase {
             KeyPairSet.PRIVATE_GW.public.privateAddress,
             KeyPairSet.PUBLIC_GW.public.privateAddress
         )
+
+        publicKeyStore.save(
+            publicGatewaySessionKeyPair.sessionKey,
+            KeyPairSet.PUBLIC_GW.public.privateAddress
+        )
     }
 
     @AfterEach

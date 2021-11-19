@@ -65,7 +65,7 @@ class GenerateCargoTest : BaseDataTestCase() {
     }
 
     @Test
-    internal fun `generate 1 cargo with 1 PCA and 1 parcel`() = runBlockingTest {
+    fun `generate 1 cargo with 1 PCA and 1 parcel`() = runBlockingTest {
         val parcel = StoredParcelFactory.build()
             .copy(expirationTimeUtc = nowInUtc().plusDays(1))
         whenever(storedParcelDao.listForRecipientLocation(any(), any())).thenReturn(listOf(parcel))
@@ -85,7 +85,7 @@ class GenerateCargoTest : BaseDataTestCase() {
         )
         assertTrue(Duration.between(parcel.expirationTimeUtc, cargo.expiryDate).abs().seconds <= 2)
 
-        val cargoMessages = cargo.unwrapPayload(localConfig.getKeyPair().private).payload
+        val cargoMessages = cargo.unwrapPayload(publicGatewaySessionKeyPair.privateKey).payload
         assertEquals(2, cargoMessages.messages.size)
         assertTrue(Duration.between(creationDate, cargo.creationDate).abs().seconds <= 1)
     }
