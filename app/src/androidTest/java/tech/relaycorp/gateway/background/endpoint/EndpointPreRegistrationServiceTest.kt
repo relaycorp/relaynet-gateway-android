@@ -46,7 +46,7 @@ class EndpointPreRegistrationServiceTest {
     fun setUp() {
         AppTestProvider.component.inject(this)
         runBlocking(coroutineContext) {
-            suspendWaitFor { localConfig.getKeyPair() }
+            suspendWaitFor { localConfig.getIdentityKeyPair() }
             publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
         }
     }
@@ -83,10 +83,10 @@ class EndpointPreRegistrationServiceTest {
         // Check we got a valid authorization
         val resultData = resultMessage!!.data
         assertTrue(resultData.containsKey("auth"))
-        val gatewayKeyPair = localConfig.getKeyPair()
+        val gatewayKeyPair = localConfig.getIdentityKeyPair()
         val authorization = PrivateNodeRegistrationAuthorization.deserialize(
             resultData.getByteArray("auth")!!,
-            gatewayKeyPair.public
+            gatewayKeyPair.certificate.subjectPublicKey
         )
         assertEquals(
             getApplicationContext<Context>().packageName,

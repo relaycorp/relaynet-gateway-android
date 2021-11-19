@@ -2,16 +2,17 @@ package tech.relaycorp.gateway.domain.endpoint
 
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.gateway.data.database.LocalEndpointDao
+import tech.relaycorp.gateway.data.disk.SensitiveStore
 import tech.relaycorp.gateway.data.model.LocalEndpoint
 import tech.relaycorp.gateway.data.model.PrivateMessageAddress
 import tech.relaycorp.gateway.domain.LocalConfig
+import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.relaynet.messages.InvalidMessageException
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
@@ -25,17 +26,17 @@ import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class EndpointRegistrationTest {
+class EndpointRegistrationTest : BaseDataTestCase() {
     private val mockLocalEndpointDao = mock<LocalEndpointDao>()
-    private val mockLocalConfig = mock<LocalConfig>()
+    private val mockSensitiveKeyStore = mock<SensitiveStore>()
+    private val mockLocalConfig = LocalConfig(mockSensitiveKeyStore, privateKeyStore)
     private val endpointRegistration = EndpointRegistration(mockLocalEndpointDao, mockLocalConfig)
 
     private val dummyApplicationId = "tech.relaycorp.foo"
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
-        whenever(mockLocalConfig.getKeyPair()).thenReturn(KeyPairSet.PRIVATE_GW)
-        whenever(mockLocalConfig.getCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
+        registerPrivateGatewayIdentityKeyPair()
     }
 
     @Nested

@@ -13,13 +13,13 @@ import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.database.ParcelCollectionDao
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
+import tech.relaycorp.gateway.data.disk.SensitiveStore
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.gateway.test.factory.ParcelCollectionFactory
 import tech.relaycorp.gateway.test.factory.StoredParcelFactory
 import tech.relaycorp.relaynet.messages.Cargo
-import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import java.io.InputStream
 import java.time.Duration
@@ -30,7 +30,8 @@ class GenerateCargoTest : BaseDataTestCase() {
     private val parcelCollectionDao = mock<ParcelCollectionDao>()
     private val diskMessageOperations = mock<DiskMessageOperations>()
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
-    private val localConfig = mock<LocalConfig>()
+    private val mockSensitiveKeyStore = mock<SensitiveStore>()
+    private val localConfig = LocalConfig(mockSensitiveKeyStore, privateKeyStore)
     private val calculateCRCMessageCreationDate = mock<CalculateCRCMessageCreationDate>()
     private val generateCargo = GenerateCargo(
         storedParcelDao,
@@ -44,8 +45,7 @@ class GenerateCargoTest : BaseDataTestCase() {
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
-        whenever(localConfig.getKeyPair()).thenReturn(KeyPairSet.PRIVATE_GW)
-        whenever(localConfig.getCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
+        registerPrivateGatewayIdentityKeyPair()
         whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn("https://example.org")
         whenever(publicGatewayPreferences.getCertificate()).thenReturn(PDACertPath.PUBLIC_GW)
         whenever(calculateCRCMessageCreationDate.calculate()).thenReturn(nowInUtc())

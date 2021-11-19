@@ -19,12 +19,13 @@ class GenerateCCA
     private val gatewayManager: GatewayManager
 ) {
 
-    suspend fun generate(): CargoCollectionAuthorization {
+    suspend fun generateSerialized(): ByteArray {
+        val identityPrivateKey = localConfig.getIdentityKeyPair().privateKey
         val senderCertificate = localConfig.getCargoDeliveryAuth()
         val publicGatewayPublicKey = publicGatewayPreferences.getCertificate().subjectPublicKey
         val cda = issueDeliveryAuthorization(
             publicGatewayPublicKey,
-            localConfig.getKeyPair().private,
+            identityPrivateKey,
             ZonedDateTime.now().plusSeconds(TTL.inSeconds.toLong()),
             senderCertificate
         )
@@ -34,17 +35,15 @@ class GenerateCCA
             publicGatewayPublicKey.privateAddress,
             senderCertificate.subjectPrivateAddress
         )
-        return CargoCollectionAuthorization(
+        val cca = CargoCollectionAuthorization(
             recipientAddress = publicGatewayPreferences.getCogRPCAddress(),
             payload = ccrCiphertext,
             senderCertificate = senderCertificate,
             creationDate = calculateCreationDate.calculate(),
             ttl = TTL.inSeconds.toInt()
         )
+        return cca.serialize(identityPrivateKey)
     }
-
-    suspend fun generateByteArray() =
-        generate().serialize(localConfig.getKeyPair().private)
 
     companion object {
         private val TTL = 14.days

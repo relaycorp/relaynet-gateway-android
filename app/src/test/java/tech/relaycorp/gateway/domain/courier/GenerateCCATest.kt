@@ -1,5 +1,6 @@
 package tech.relaycorp.gateway.domain.courier
 
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.common.nowInUtc
+import tech.relaycorp.gateway.data.disk.SensitiveStore
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.BaseDataTestCase
@@ -16,13 +18,13 @@ import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.CargoCollectionAuthorization
 import tech.relaycorp.relaynet.testing.pki.CDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
-import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import java.time.Duration
 
 class GenerateCCATest : BaseDataTestCase() {
 
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
-    private val localConfig = mock<LocalConfig>()
+    private val mockSensitiveKeyStore = mock<SensitiveStore>()
+    private val localConfig = LocalConfig(mockSensitiveKeyStore, privateKeyStore)
     private val calculateCreationDate = mock<CalculateCRCMessageCreationDate>()
 
     private val generateCCA = GenerateCCA(
@@ -39,24 +41,23 @@ class GenerateCCATest : BaseDataTestCase() {
     @BeforeEach
     internal fun setUp() {
         runBlocking {
-            val keyPair = generateRSAKeyPair()
+            registerPrivateGatewayIdentityKeyPair()
+
+            val keyPair = KeyPairSet.PRIVATE_GW
             val certificate = issueGatewayCertificate(
                 subjectPublicKey = keyPair.public,
                 issuerPrivateKey = keyPair.private,
                 validityEndDate = nowInUtc().plusMinutes(1),
                 validityStartDate = nowInUtc().minusDays(1)
             )
+            whenever(mockSensitiveKeyStore.read(eq(LocalConfig.CDA_CERTIFICATE_FILE_NAME)))
+                .thenReturn(certificate.serialize())
 
-            whenever(localConfig.getKeyPair()).thenReturn(keyPair)
-            whenever(localConfig.getCargoDeliveryAuth()).thenReturn(certificate)
             whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn(ADDRESS)
             whenever(publicGatewayPreferences.getCertificate())
                 .thenReturn(CDACertPath.PUBLIC_GW)
 
-            publicKeyStore.save(
-                publicGatewaySessionKeyPair.sessionKey,
-                CDACertPath.PUBLIC_GW.subjectPrivateAddress
-            )
+            registerPublicGatewaySessionKey()
         }
     }
 
@@ -65,7 +66,7 @@ class GenerateCCATest : BaseDataTestCase() {
         val creationDate = nowInUtc()
         whenever(calculateCreationDate.calculate()).thenReturn(creationDate)
 
-        val ccaBytes = generateCCA.generateByteArray()
+        val ccaBytes = generateCCA.generateSerialized()
         val cca = CargoCollectionAuthorization.deserialize(ccaBytes)
 
         cca.validate(null)

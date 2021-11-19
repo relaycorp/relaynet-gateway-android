@@ -113,7 +113,8 @@ class DeliverParcelsToGateway
         if (this::_signer.isInitialized) {
             _signer
         } else {
-            Signer(localConfig.getCertificate(), localConfig.getKeyPair().private).also {
+            val idKeyPair = localConfig.getIdentityKeyPair()
+            Signer(idKeyPair.certificate, idKeyPair.privateKey).also {
                 _signer = it
             }
         }

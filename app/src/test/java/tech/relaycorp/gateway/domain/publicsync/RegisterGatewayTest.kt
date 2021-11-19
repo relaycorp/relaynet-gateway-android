@@ -10,6 +10,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import tech.relaycorp.gateway.data.disk.SensitiveStore
 import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
@@ -32,7 +33,8 @@ import kotlin.test.assertEquals
 class RegisterGatewayTest : BaseDataTestCase() {
 
     private val pgwPreferences = mock<PublicGatewayPreferences>()
-    private val localConfig = mock<LocalConfig>()
+    private val mockSensitiveKeyStore = mock<SensitiveStore>()
+    private val localConfig = LocalConfig(mockSensitiveKeyStore, privateKeyStore)
     private val poWebClient = mock<PoWebClient>()
     private val poWebClientBuilder = object : PoWebClientBuilder {
         override suspend fun build(address: ServiceAddress) = poWebClient
@@ -48,7 +50,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
-        whenever(localConfig.getKeyPair()).thenReturn(KeyPairSet.PRIVATE_GW)
+        registerPrivateGatewayIdentityKeyPair()
     }
 
     @Test
@@ -81,7 +83,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
     }
 
     @Test
-    internal fun `successful registration stores new values`() = runBlockingTest {
+    fun `successful registration stores new values`() = runBlockingTest {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.ToDo)
         val pnrr = buildPNRR()
         whenever(poWebClient.preRegisterNode(any())).thenReturn(pnrr)
@@ -90,10 +92,10 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
         registerGateway.registerIfNeeded()
 
-        verify(localConfig).setCertificate(eq(pnr.privateNodeCertificate))
         verify(pgwPreferences).setCertificate(eq(pnr.gatewayCertificate))
         verify(pgwPreferences).setRegistrationState(eq(RegistrationState.Done))
         publicKeyStore.retrieve(pnr.gatewayCertificate.subjectPrivateAddress)
+        assertEquals(pnr.privateNodeCertificate, localConfig.getIdentityKeyPair().certificate)
     }
 
     @Test
@@ -104,7 +106,6 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
         assertEquals(RegisterGateway.Result.FailedToRegister, registerGateway.registerIfNeeded())
 
-        verify(localConfig, never()).setCertificate(any())
         verify(pgwPreferences, never()).setCertificate(any())
         verify(pgwPreferences, never()).setRegistrationState(any())
         assertEquals(0, publicKeyStore.keys.size)
@@ -120,7 +121,6 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
         assertEquals(RegisterGateway.Result.FailedToRegister, registerGateway.registerIfNeeded())
 
-        verify(localConfig, never()).setCertificate(any())
         verify(pgwPreferences, never()).setCertificate(any())
         verify(pgwPreferences, never()).setRegistrationState(any())
         assertEquals(0, publicKeyStore.keys.size)

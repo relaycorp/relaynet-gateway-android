@@ -40,7 +40,7 @@ class ParcelCollectionHandshake
             throw HandshakeUnsuccessful()
         }
 
-        val trustedCertificates = listOf(localConfig.getCertificate())
+        val trustedCertificates = listOf(localConfig.getIdentityCertificate())
 
         return response.nonceSignatures
             .map { nonceSignature ->

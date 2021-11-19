@@ -20,14 +20,15 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import tech.relaycorp.gateway.data.disk.SensitiveStore
+import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
-import tech.relaycorp.gateway.test.CargoDeliveryCertPath
+import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.bindings.pdc.NonceSignerException
@@ -35,27 +36,27 @@ import tech.relaycorp.relaynet.bindings.pdc.ParcelCollection
 import tech.relaycorp.relaynet.bindings.pdc.ServerConnectionException
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.messages.Parcel
-import tech.relaycorp.relaynet.testing.pki.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import java.lang.Thread.sleep
 import kotlin.math.roundToLong
 
-class CollectParcelsFromGatewayTest {
+class CollectParcelsFromGatewayTest : BaseDataTestCase() {
 
     private val storeParcel = mock<StoreParcel>()
     private val poWebClient = mock<PoWebClient>()
     private val poWebClientBuilder = object : PoWebClientProvider {
         override suspend fun get() = poWebClient
     }
-    private val localConfig = mock<LocalConfig>()
+    private val mockSensitiveKeyStore = mock<SensitiveStore>()
+    private val mockLocalConfig = LocalConfig(mockSensitiveKeyStore, privateKeyStore)
     private val notifyEndpoints = mock<NotifyEndpoints>()
     private val subject = CollectParcelsFromGateway(
-        storeParcel, poWebClientBuilder, localConfig, notifyEndpoints
+        storeParcel, poWebClientBuilder, mockLocalConfig, notifyEndpoints
     )
 
     @BeforeEach
-    internal fun setUp() = testSuspend {
-        whenever(localConfig.getCertificate()).thenReturn(CargoDeliveryCertPath.PRIVATE_GW)
-        whenever(localConfig.getKeyPair()).thenReturn(KeyPairSet.PRIVATE_GW)
+    fun setUp() = testSuspend {
+        registerPrivateGatewayIdentityKeyPair()
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.Success(mock()))
     }
@@ -66,7 +67,7 @@ class CollectParcelsFromGatewayTest {
             override suspend fun get() = throw PublicAddressResolutionException("Whoops")
         }
         val subject = CollectParcelsFromGateway(
-            storeParcel, failingPoWebClientProvider, localConfig, notifyEndpoints
+            storeParcel, failingPoWebClientProvider, mockLocalConfig, notifyEndpoints
         )
 
         subject.collect(false)
@@ -75,7 +76,7 @@ class CollectParcelsFromGatewayTest {
     }
 
     @Test
-    internal fun `collect parcels with keepAlive false`() = testSuspend {
+    fun `collect parcels with keepAlive false`() = testSuspend {
         val parcelCollection = mock<ParcelCollection>()
         whenever(parcelCollection.parcelSerialized).thenReturn(ByteArray(0))
         whenever(parcelCollection.ack).thenReturn {}
@@ -84,7 +85,7 @@ class CollectParcelsFromGatewayTest {
         subject.collect(false)
 
         verify(poWebClient).collectParcels(
-            check { assertEquals(CargoDeliveryCertPath.PRIVATE_GW, it.first().certificate) },
+            check { assertEquals(PDACertPath.PRIVATE_GW, it.first().certificate) },
             check { assertEquals(StreamingMode.CloseUponCompletion, it) }
         )
         verify(storeParcel)
@@ -94,7 +95,7 @@ class CollectParcelsFromGatewayTest {
     }
 
     @Test
-    internal fun `collect parcels with keepAlive true`() = testSuspend {
+    fun `collect parcels with keepAlive true`() = testSuspend {
         val parcelCollection = mock<ParcelCollection>()
         whenever(parcelCollection.parcelSerialized).thenReturn(ByteArray(0))
         whenever(parcelCollection.ack).thenReturn {}
@@ -109,7 +110,7 @@ class CollectParcelsFromGatewayTest {
         subject.collect(true)
 
         verify(poWebClient).collectParcels(
-            check { assertEquals(CargoDeliveryCertPath.PRIVATE_GW, it.first().certificate) },
+            check { assertEquals(PDACertPath.PRIVATE_GW, it.first().certificate) },
             check { assertEquals(StreamingMode.KeepAlive, it) }
         )
         verify(storeParcel, times(2))
@@ -119,7 +120,7 @@ class CollectParcelsFromGatewayTest {
     }
 
     @Test
-    internal fun `collect invalid parcel, with keepAlive true, acks but does not notify`() =
+    fun `collect invalid parcel, with keepAlive true, acks but does not notify`() =
         testSuspend {
             val parcelCollection = mock<ParcelCollection>()
             whenever(parcelCollection.parcelSerialized).thenReturn(ByteArray(0))
@@ -135,19 +136,19 @@ class CollectParcelsFromGatewayTest {
         }
 
     @Test
-    internal fun `poWebClient client binding issues are handled`() = testSuspend {
+    fun `poWebClient client binding issues are handled`() = testSuspend {
         whenever(poWebClient.collectParcels(any(), any())).thenThrow(ClientBindingException(""))
         subject.collect(false)
     }
 
     @Test
-    internal fun `poWebClient signer issues are handled`() = testSuspend {
+    fun `poWebClient signer issues are handled`() = testSuspend {
         whenever(poWebClient.collectParcels(any(), any())).thenThrow(NonceSignerException(""))
         subject.collect(false)
     }
 
     @Test
-    internal fun `poWebClient with keepAlive false, server issues are handled`() = testSuspend {
+    fun `poWebClient with keepAlive false, server issues are handled`() = testSuspend {
         whenever(poWebClient.collectParcels(any(), any())).thenThrow(ServerConnectionException(""))
         subject.collect(false)
     }

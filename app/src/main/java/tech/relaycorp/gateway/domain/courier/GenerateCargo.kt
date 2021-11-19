@@ -42,7 +42,7 @@ class GenerateCargo
             .asSequence()
             .batch()
             .asFlow()
-            .map { it.toCargo().serialize(localConfig.getKeyPair().private).inputStream() }
+            .map { it.toCargoSerialized().inputStream() }
 
     private suspend fun getPCAsMessages() =
         parcelCollectionDao.getAll().map { it.toCargoMessageWithExpiry() }
@@ -80,29 +80,31 @@ class GenerateCargo
             null
         }
 
-    private suspend fun CargoMessageSetWithExpiry.toCargo(): Cargo {
+    private suspend fun CargoMessageSetWithExpiry.toCargoSerialized(): ByteArray {
         if (nowInUtc() > latestMessageExpiryDate) {
             logger.warning(
                 "The latest expiration date $latestMessageExpiryDate has expired already"
             )
         }
 
+        val identityKeyPair = localConfig.getIdentityKeyPair()
+
         val recipientAddress = publicGatewayPreferences.getCogRPCAddress()
         val creationDate = calculateCreationDate.calculate()
 
         logger.info("Generating cargo for $recipientAddress")
-        val senderCertificate = localConfig.getCertificate()
         val cargoMessageSetCiphertext = gatewayManager.wrapMessagePayload(
             cargoMessageSet,
             publicGatewayPreferences.getCertificate().subjectPrivateAddress,
-            senderCertificate.subjectPrivateAddress
+            identityKeyPair.certificate.subjectPrivateAddress
         )
-        return Cargo(
+        val cargo = Cargo(
             recipientAddress = recipientAddress,
             payload = cargoMessageSetCiphertext,
-            senderCertificate = senderCertificate,
+            senderCertificate = identityKeyPair.certificate,
             creationDate = creationDate,
             ttl = Duration.between(creationDate, latestMessageExpiryDate).seconds.toInt()
         )
+        return cargo.serialize(identityKeyPair.privateKey)
     }
 }

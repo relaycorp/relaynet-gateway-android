@@ -7,10 +7,11 @@ import tech.relaycorp.relaynet.nodes.GatewayManager
 import tech.relaycorp.relaynet.testing.keystores.MockPrivateKeyStore
 import tech.relaycorp.relaynet.testing.keystores.MockSessionPublicKeyStore
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import tech.relaycorp.relaynet.wrappers.privateAddress
 
 abstract class BaseDataTestCase {
-    private val privateKeyStore = MockPrivateKeyStore()
+    protected val privateKeyStore = MockPrivateKeyStore()
     protected val publicKeyStore = MockSessionPublicKeyStore()
     protected val gatewayManager = GatewayManager(privateKeyStore, publicKeyStore)
 
@@ -23,6 +24,11 @@ abstract class BaseDataTestCase {
         privateKeyStore.clear()
         publicKeyStore.clear()
     }
+
+    protected suspend fun registerPrivateGatewayIdentityKeyPair() = privateKeyStore.saveIdentityKey(
+        KeyPairSet.PRIVATE_GW.private,
+        PDACertPath.PRIVATE_GW
+    )
 
     protected suspend fun registerPrivateGatewaySessionKey() {
         privateKeyStore.saveSessionKey(

@@ -1,60 +1,49 @@
 package tech.relaycorp.gateway.domain
 
-import androidx.annotation.VisibleForTesting
 import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.disk.SensitiveStore
 import tech.relaycorp.gateway.domain.courier.CalculateCRCMessageCreationDate
 import tech.relaycorp.relaynet.issueGatewayCertificate
-import tech.relaycorp.relaynet.wrappers.deserializeRSAKeyPair
+import tech.relaycorp.relaynet.keystores.IdentityKeyPair
+import tech.relaycorp.relaynet.keystores.PrivateKeyStore
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
-import java.security.KeyPair
+import java.security.PrivateKey
+import java.security.PublicKey
 import javax.inject.Inject
 import kotlin.time.toJavaDuration
 
 class LocalConfig
 @Inject constructor(
-    private val sensitiveStore: SensitiveStore
+    private val sensitiveStore: SensitiveStore,
+    private val privateKeyStore: PrivateKeyStore
 ) {
     // Private Gateway Key Pair
 
-    suspend fun getKeyPair() =
-        sensitiveStore.read(PRIVATE_KEY_FILE_NAME)
-            ?.deserializeRSAKeyPair()
+    suspend fun getIdentityKeyPair(): IdentityKeyPair =
+        privateKeyStore.retrieveAllIdentityKeys().firstOrNull()
             ?: throw RuntimeException("No key pair was found")
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    suspend fun generateKeyPair() = generateRSAKeyPair().also { setKeyPair(it) }
-
-    private suspend fun setKeyPair(value: KeyPair) {
-        sensitiveStore.store(PRIVATE_KEY_FILE_NAME, value.private.encoded)
+    private suspend fun generateKeyPair(): IdentityKeyPair {
+        val keyPair = generateRSAKeyPair()
+        val certificate = selfIssueCargoDeliveryAuth(keyPair.private, keyPair.public)
+        privateKeyStore.saveIdentityKey(keyPair.private, certificate)
+        return IdentityKeyPair(keyPair.private, certificate)
     }
 
     // Private Gateway Certificate
 
-    suspend fun getCertificate() =
-        sensitiveStore.read(PDA_CERTIFICATE_FILE_NAME)
-            ?.let { Certificate.deserialize(it) }
-            ?: generateCertificate()
-                .also { setCertificate(it) }
+    suspend fun getIdentityCertificate(): Certificate = getIdentityKeyPair().certificate
 
-    suspend fun setCertificate(value: Certificate) {
-        sensitiveStore.store(PDA_CERTIFICATE_FILE_NAME, value.serialize())
-    }
-
-    suspend fun getCargoDeliveryAuth() =
-        sensitiveStore.read(CDA_CERTIFICATE_FILE_NAME)
-            ?.let { Certificate.deserialize(it) }
-            ?: throw RuntimeException("No CDA issuer was found")
-
-    private suspend fun generateCargoDeliveryAuth() = generateCertificate().also {
-        sensitiveStore.store(CDA_CERTIFICATE_FILE_NAME, it.serialize())
+    suspend fun setIdentityCertificate(value: Certificate) {
+        val privateKey = getIdentityKeyPair().privateKey
+        privateKeyStore.saveIdentityKey(privateKey, value)
     }
 
     @Synchronized
     suspend fun bootstrap() {
-        try {
-            getKeyPair()
+        val idKeyPair = try {
+            getIdentityKeyPair()
         } catch (_: RuntimeException) {
             generateKeyPair()
         }
@@ -62,27 +51,39 @@ class LocalConfig
         try {
             getCargoDeliveryAuth()
         } catch (_: RuntimeException) {
-            generateCargoDeliveryAuth()
+            generateCargoDeliveryAuth(idKeyPair)
         }
     }
 
-    // Helpers
+    suspend fun getCargoDeliveryAuth() =
+        sensitiveStore.read(CDA_CERTIFICATE_FILE_NAME)
+            ?.let { Certificate.deserialize(it) }
+            ?: throw RuntimeException("No CDA issuer was found")
 
-    private suspend fun generateCertificate(): Certificate {
-        val keyPair = getKeyPair()
+    private fun selfIssueCargoDeliveryAuth(
+        privateKey: PrivateKey,
+        publicKey: PublicKey
+    ): Certificate {
         return issueGatewayCertificate(
-            subjectPublicKey = keyPair.public,
-            issuerPrivateKey = keyPair.private,
+            subjectPublicKey = publicKey,
+            issuerPrivateKey = privateKey,
             validityStartDate = nowInUtc()
                 .minus(CalculateCRCMessageCreationDate.CLOCK_DRIFT_TOLERANCE.toJavaDuration()),
             validityEndDate = nowInUtc().plusYears(1)
         )
     }
 
-    companion object {
-        private const val PRIVATE_KEY_FILE_NAME = "local_gateway.key"
+    private suspend fun generateCargoDeliveryAuth(idKeyPair: IdentityKeyPair) {
+        val cda = selfIssueCargoDeliveryAuth(
+            idKeyPair.privateKey,
+            idKeyPair.certificate.subjectPublicKey
+        )
+        sensitiveStore.store(CDA_CERTIFICATE_FILE_NAME, cda.serialize())
+    }
 
-        private const val PDA_CERTIFICATE_FILE_NAME = "local_gateway.certificate"
-        private const val CDA_CERTIFICATE_FILE_NAME = "cda_local_gateway.certificate"
+    // Helpers
+
+    companion object {
+        internal const val CDA_CERTIFICATE_FILE_NAME = "cda_local_gateway.certificate"
     }
 }
