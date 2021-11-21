@@ -19,6 +19,7 @@ interface AppTestComponent : AppComponent {
     // Tests
 
     fun inject(test: ClearTestDatabaseRule)
+    fun inject(test: KeystoreResetTestRule)
     fun inject(test: EndpointPreRegistrationServiceTest)
     fun inject(test: GatewaySyncServiceParcelDeliveryTest)
     fun inject(test: GatewaySyncServiceParcelCollectionTest)

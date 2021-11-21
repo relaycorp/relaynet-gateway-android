@@ -125,8 +125,8 @@ open class App : Application() {
 
     private fun bootstrapGateway() {
         backgroundScope.launch {
-            localConfig.bootstrap()
             if (mode != Mode.Test) {
+                localConfig.bootstrap()
                 registerGateway.registerIfNeeded()
             }
         }
