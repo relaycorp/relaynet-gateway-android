@@ -34,7 +34,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
     private val pgwPreferences = mock<PublicGatewayPreferences>()
     private val mockFileStore = mock<FileStore>()
-    private val localConfig = LocalConfig(mockFileStore, privateKeyStore)
+    private val localConfig = LocalConfig(mockFileStore, privateKeyStoreProvider)
     private val poWebClient = mock<PoWebClient>()
     private val poWebClientBuilder = object : PoWebClientBuilder {
         override suspend fun build(address: ServiceAddress) = poWebClient

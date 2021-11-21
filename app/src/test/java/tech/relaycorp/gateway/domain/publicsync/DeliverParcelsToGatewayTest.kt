@@ -39,7 +39,7 @@ class DeliverParcelsToGatewayTest : BaseDataTestCase() {
         override suspend fun get() = poWebClient
     }
     private val mockFileStore = mock<FileStore>()
-    private val localConfig = LocalConfig(mockFileStore, privateKeyStore)
+    private val localConfig = LocalConfig(mockFileStore, privateKeyStoreProvider)
     private val deleteParcel = mock<DeleteParcel>()
     private val subject = DeliverParcelsToGateway(
         storedParcelDao, diskMessageOperations, poWebClientProvider, localConfig, deleteParcel

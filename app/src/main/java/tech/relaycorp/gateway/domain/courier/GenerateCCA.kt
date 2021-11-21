@@ -9,6 +9,7 @@ import tech.relaycorp.relaynet.nodes.GatewayManager
 import tech.relaycorp.relaynet.wrappers.privateAddress
 import java.time.ZonedDateTime
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlin.time.days
 
 class GenerateCCA
@@ -16,7 +17,7 @@ class GenerateCCA
     private val publicGatewayPreferences: PublicGatewayPreferences,
     private val localConfig: LocalConfig,
     private val calculateCreationDate: CalculateCRCMessageCreationDate,
-    private val gatewayManager: GatewayManager
+    private val gatewayManager: Provider<GatewayManager>
 ) {
 
     suspend fun generateSerialized(): ByteArray {
@@ -30,7 +31,7 @@ class GenerateCCA
             senderCertificate
         )
         val ccr = CargoCollectionRequest(cda)
-        val ccrCiphertext = gatewayManager.wrapMessagePayload(
+        val ccrCiphertext = gatewayManager.get().wrapMessagePayload(
             ccr,
             publicGatewayPublicKey.privateAddress,
             senderCertificate.subjectPrivateAddress

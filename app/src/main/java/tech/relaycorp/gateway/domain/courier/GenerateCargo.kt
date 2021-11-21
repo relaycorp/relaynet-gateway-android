@@ -25,6 +25,7 @@ import java.io.InputStream
 import java.time.Duration
 import java.util.logging.Level
 import javax.inject.Inject
+import javax.inject.Provider
 
 class GenerateCargo
 @Inject constructor(
@@ -34,7 +35,7 @@ class GenerateCargo
     private val publicGatewayPreferences: PublicGatewayPreferences,
     private val localConfig: LocalConfig,
     private val calculateCreationDate: CalculateCRCMessageCreationDate,
-    private val gatewayManager: GatewayManager
+    private val gatewayManager: Provider<GatewayManager>
 ) {
 
     suspend fun generate(): Flow<InputStream> =
@@ -93,7 +94,7 @@ class GenerateCargo
         val creationDate = calculateCreationDate.calculate()
 
         logger.info("Generating cargo for $recipientAddress")
-        val cargoMessageSetCiphertext = gatewayManager.wrapMessagePayload(
+        val cargoMessageSetCiphertext = gatewayManager.get().wrapMessagePayload(
             cargoMessageSet,
             publicGatewayPreferences.getCertificate().subjectPrivateAddress,
             identityKeyPair.certificate.subjectPrivateAddress

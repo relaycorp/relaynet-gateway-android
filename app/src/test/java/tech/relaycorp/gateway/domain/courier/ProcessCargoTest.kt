@@ -36,7 +36,7 @@ class ProcessCargoTest : BaseDataTestCase() {
         storeParcel,
         storeParcelCollection,
         deleteParcel,
-        gatewayManager
+        gatewayManagerProvider
     )
 
     @BeforeEach

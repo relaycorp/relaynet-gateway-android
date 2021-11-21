@@ -24,6 +24,7 @@ import tech.relaycorp.relaynet.keystores.SessionPublicKeyStore
 import tech.relaycorp.relaynet.nodes.GatewayManager
 import java.io.File
 import javax.inject.Named
+import javax.inject.Provider
 import javax.inject.Singleton
 
 @Module
@@ -119,17 +120,27 @@ class DataModule {
     // Awala keystores
 
     @Provides
+    @Singleton
     fun keystoreRoot(context: Context) = FileKeystoreRoot(File(context.filesDir, "keystores"))
 
     @Provides
-    fun privateKeyStore(context: Context, keystoreRoot: FileKeystoreRoot): PrivateKeyStore =
-        AndroidPrivateKeyStore(keystoreRoot, context)
+    @Singleton
+    fun privateKeyStore(
+        context: Context,
+        keystoreRoot: Provider<FileKeystoreRoot>
+    ): PrivateKeyStore =
+        AndroidPrivateKeyStore(keystoreRoot.get(), context)
 
     @Provides
-    fun publicKeyStore(keystoreRoot: FileKeystoreRoot): SessionPublicKeyStore =
-        FileSessionPublicKeystore(keystoreRoot)
+    @Singleton
+    fun publicKeyStore(keystoreRoot: Provider<FileKeystoreRoot>): SessionPublicKeyStore =
+        FileSessionPublicKeystore(keystoreRoot.get())
 
     @Provides
-    fun gatewayManager(privateKeyStore: PrivateKeyStore, publicKeyStore: SessionPublicKeyStore) =
-        GatewayManager(privateKeyStore, publicKeyStore)
+    @Singleton
+    fun gatewayManager(
+        privateKeyStore: Provider<PrivateKeyStore>,
+        publicKeyStore: Provider<SessionPublicKeyStore>
+    ) =
+        GatewayManager(privateKeyStore.get(), publicKeyStore.get())
 }

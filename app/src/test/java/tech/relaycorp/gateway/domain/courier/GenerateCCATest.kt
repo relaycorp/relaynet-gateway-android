@@ -24,14 +24,14 @@ class GenerateCCATest : BaseDataTestCase() {
 
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
     private val mockFileStore = mock<FileStore>()
-    private val localConfig = LocalConfig(mockFileStore, privateKeyStore)
+    private val localConfig = LocalConfig(mockFileStore, privateKeyStoreProvider)
     private val calculateCreationDate = mock<CalculateCRCMessageCreationDate>()
 
     private val generateCCA = GenerateCCA(
         publicGatewayPreferences,
         localConfig,
         calculateCreationDate,
-        gatewayManager
+        gatewayManagerProvider
     )
 
     companion object {

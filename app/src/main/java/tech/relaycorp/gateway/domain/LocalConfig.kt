@@ -11,23 +11,24 @@ import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.security.PrivateKey
 import java.security.PublicKey
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlin.time.toJavaDuration
 
 class LocalConfig
 @Inject constructor(
     private val fileStore: FileStore,
-    private val privateKeyStore: PrivateKeyStore
+    private val privateKeyStore: Provider<PrivateKeyStore>
 ) {
     // Private Gateway Key Pair
 
     suspend fun getIdentityKeyPair(): IdentityKeyPair =
-        privateKeyStore.retrieveAllIdentityKeys().firstOrNull()
+        privateKeyStore.get().retrieveAllIdentityKeys().firstOrNull()
             ?: throw RuntimeException("No key pair was found")
 
     private suspend fun generateKeyPair(): IdentityKeyPair {
         val keyPair = generateRSAKeyPair()
         val certificate = selfIssueCargoDeliveryAuth(keyPair.private, keyPair.public)
-        privateKeyStore.saveIdentityKey(keyPair.private, certificate)
+        privateKeyStore.get().saveIdentityKey(keyPair.private, certificate)
         return IdentityKeyPair(keyPair.private, certificate)
     }
 
@@ -37,7 +38,7 @@ class LocalConfig
 
     suspend fun setIdentityCertificate(value: Certificate) {
         val privateKey = getIdentityKeyPair().privateKey
-        privateKeyStore.saveIdentityKey(privateKey, value)
+        privateKeyStore.get().saveIdentityKey(privateKey, value)
     }
 
     @Synchronized

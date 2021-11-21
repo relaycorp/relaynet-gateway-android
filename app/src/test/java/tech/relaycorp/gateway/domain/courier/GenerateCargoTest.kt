@@ -31,7 +31,7 @@ class GenerateCargoTest : BaseDataTestCase() {
     private val diskMessageOperations = mock<DiskMessageOperations>()
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
     private val mockFileStore = mock<FileStore>()
-    private val localConfig = LocalConfig(mockFileStore, privateKeyStore)
+    private val localConfig = LocalConfig(mockFileStore, privateKeyStoreProvider)
     private val calculateCRCMessageCreationDate = mock<CalculateCRCMessageCreationDate>()
     private val generateCargo = GenerateCargo(
         storedParcelDao,
@@ -40,7 +40,7 @@ class GenerateCargoTest : BaseDataTestCase() {
         publicGatewayPreferences,
         localConfig,
         calculateCRCMessageCreationDate,
-        gatewayManager
+        gatewayManagerProvider
     )
 
     @BeforeEach

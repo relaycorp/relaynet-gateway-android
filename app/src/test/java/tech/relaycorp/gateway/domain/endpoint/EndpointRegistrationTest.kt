@@ -29,7 +29,7 @@ import kotlin.test.assertTrue
 class EndpointRegistrationTest : BaseDataTestCase() {
     private val mockLocalEndpointDao = mock<LocalEndpointDao>()
     private val mockFileStore = mock<FileStore>()
-    private val mockLocalConfig = LocalConfig(mockFileStore, privateKeyStore)
+    private val mockLocalConfig = LocalConfig(mockFileStore, privateKeyStoreProvider)
     private val endpointRegistration = EndpointRegistration(mockLocalEndpointDao, mockLocalConfig)
 
     private val dummyApplicationId = "tech.relaycorp.foo"

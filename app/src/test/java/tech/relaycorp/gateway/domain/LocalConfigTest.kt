@@ -17,7 +17,7 @@ import kotlin.test.assertEquals
 class LocalConfigTest : BaseDataTestCase() {
 
     private val fileStore = mock<FileStore>()
-    private val localConfig = LocalConfig(fileStore, privateKeyStore)
+    private val localConfig = LocalConfig(fileStore, privateKeyStoreProvider)
 
     @BeforeEach
     fun setUp() {

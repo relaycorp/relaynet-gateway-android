@@ -3,17 +3,23 @@ package tech.relaycorp.gateway.test
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import tech.relaycorp.relaynet.SessionKeyPair
+import tech.relaycorp.relaynet.keystores.PrivateKeyStore
 import tech.relaycorp.relaynet.nodes.GatewayManager
 import tech.relaycorp.relaynet.testing.keystores.MockPrivateKeyStore
 import tech.relaycorp.relaynet.testing.keystores.MockSessionPublicKeyStore
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import tech.relaycorp.relaynet.wrappers.privateAddress
+import javax.inject.Provider
 
 abstract class BaseDataTestCase {
     protected val privateKeyStore = MockPrivateKeyStore()
+    protected val privateKeyStoreProvider = Provider<PrivateKeyStore> { privateKeyStore }
+
     protected val publicKeyStore = MockSessionPublicKeyStore()
-    protected val gatewayManager = GatewayManager(privateKeyStore, publicKeyStore)
+
+    private val gatewayManager = GatewayManager(privateKeyStore, publicKeyStore)
+    protected val gatewayManagerProvider = Provider<GatewayManager> { gatewayManager }
 
     protected val privateGatewaySessionKeyPair = SessionKeyPair.generate()
     protected val publicGatewaySessionKeyPair = SessionKeyPair.generate()

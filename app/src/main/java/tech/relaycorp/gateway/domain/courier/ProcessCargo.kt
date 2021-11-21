@@ -15,6 +15,7 @@ import tech.relaycorp.relaynet.messages.payloads.CargoMessage
 import tech.relaycorp.relaynet.nodes.GatewayManager
 import java.util.logging.Level
 import javax.inject.Inject
+import javax.inject.Provider
 
 class ProcessCargo
 @Inject constructor(
@@ -22,14 +23,14 @@ class ProcessCargo
     private val storeParcel: StoreParcel,
     private val storeParcelCollection: StoreParcelCollection,
     private val deleteParcel: DeleteParcel,
-    private val gatewayManager: GatewayManager
+    private val gatewayManager: Provider<GatewayManager>
 ) {
 
     suspend fun process() {
         val cargoes = cargoStorage.list()
         cargoes.iterator().forEach { cargoStream ->
             val cargo = Cargo.deserialize(cargoStream().readBytesAndClose())
-            val messageSet = gatewayManager.unwrapMessagePayload(cargo)
+            val messageSet = gatewayManager.get().unwrapMessagePayload(cargo)
             messageSet.classifyMessages().forEach { message -> handleMessage(message) }
         }
         cargoStorage.deleteAll()
