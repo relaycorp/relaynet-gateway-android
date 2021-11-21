@@ -20,7 +20,7 @@ import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.AppTestProvider
-import tech.relaycorp.gateway.test.WaitAssertions.suspendWaitFor
+import tech.relaycorp.gateway.test.KeystoreResetTestRule
 import tech.relaycorp.gateway.test.WaitAssertions.waitFor
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
 import java.nio.charset.Charset
@@ -30,6 +30,9 @@ class EndpointPreRegistrationServiceTest {
 
     @get:Rule
     val serviceRule = ServiceTestRule()
+
+    @get:Rule
+    val keystoreResetRule = KeystoreResetTestRule()
 
     @Inject
     lateinit var app: App
@@ -46,7 +49,6 @@ class EndpointPreRegistrationServiceTest {
     fun setUp() {
         AppTestProvider.component.inject(this)
         runBlocking(coroutineContext) {
-            suspendWaitFor { localConfig.getIdentityKeyPair() }
             publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
         }
     }
