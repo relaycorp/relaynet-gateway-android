@@ -50,7 +50,7 @@ class StoreParcel
             if (recipientLocation == RecipientLocation.ExternalGateway) {
                 null
             } else {
-                setOf(localConfig.getCertificate())
+                setOf(localConfig.getIdentityCertificate())
             }
         try {
             parcel.validate(requiredRecipientAddressType, requiredCertificateAuthorities)

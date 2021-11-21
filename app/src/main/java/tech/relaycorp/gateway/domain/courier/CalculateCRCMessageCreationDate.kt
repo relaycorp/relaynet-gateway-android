@@ -16,7 +16,7 @@ class CalculateCRCMessageCreationDate
         max(
             listOf(
                 nowInUtc().minus(CLOCK_DRIFT_TOLERANCE.toJavaDuration()),
-                localConfig.getCertificate().startDate // Never before the GW registration
+                localConfig.getIdentityCertificate().startDate // Never before the GW registration
             )
         )
 

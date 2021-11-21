@@ -20,10 +20,12 @@ import tech.relaycorp.relaynet.messages.ParcelCollectionAck
 import tech.relaycorp.relaynet.messages.payloads.CargoMessageSetWithExpiry
 import tech.relaycorp.relaynet.messages.payloads.CargoMessageWithExpiry
 import tech.relaycorp.relaynet.messages.payloads.batch
+import tech.relaycorp.relaynet.nodes.GatewayManager
 import java.io.InputStream
 import java.time.Duration
 import java.util.logging.Level
 import javax.inject.Inject
+import javax.inject.Provider
 
 class GenerateCargo
 @Inject constructor(
@@ -32,7 +34,8 @@ class GenerateCargo
     private val diskMessageOperations: DiskMessageOperations,
     private val publicGatewayPreferences: PublicGatewayPreferences,
     private val localConfig: LocalConfig,
-    private val calculateCreationDate: CalculateCRCMessageCreationDate
+    private val calculateCreationDate: CalculateCRCMessageCreationDate,
+    private val gatewayManager: Provider<GatewayManager>
 ) {
 
     suspend fun generate(): Flow<InputStream> =
@@ -40,7 +43,7 @@ class GenerateCargo
             .asSequence()
             .batch()
             .asFlow()
-            .map { it.toCargo().serialize(localConfig.getKeyPair().private).inputStream() }
+            .map { it.toCargoSerialized().inputStream() }
 
     private suspend fun getPCAsMessages() =
         parcelCollectionDao.getAll().map { it.toCargoMessageWithExpiry() }
@@ -78,26 +81,31 @@ class GenerateCargo
             null
         }
 
-    private suspend fun getPublicGatewayCertificate() =
-        publicGatewayPreferences.getCertificate()
-
-    private suspend fun CargoMessageSetWithExpiry.toCargo(): Cargo {
+    private suspend fun CargoMessageSetWithExpiry.toCargoSerialized(): ByteArray {
         if (nowInUtc() > latestMessageExpiryDate) {
             logger.warning(
                 "The latest expiration date $latestMessageExpiryDate has expired already"
             )
         }
 
+        val identityKeyPair = localConfig.getIdentityKeyPair()
+
         val recipientAddress = publicGatewayPreferences.getCogRPCAddress()
         val creationDate = calculateCreationDate.calculate()
 
         logger.info("Generating cargo for $recipientAddress")
-        return Cargo(
+        val cargoMessageSetCiphertext = gatewayManager.get().wrapMessagePayload(
+            cargoMessageSet,
+            publicGatewayPreferences.getCertificate().subjectPrivateAddress,
+            identityKeyPair.certificate.subjectPrivateAddress
+        )
+        val cargo = Cargo(
             recipientAddress = recipientAddress,
-            payload = cargoMessageSet.encrypt(getPublicGatewayCertificate()),
-            senderCertificate = localConfig.getCertificate(),
+            payload = cargoMessageSetCiphertext,
+            senderCertificate = identityKeyPair.certificate,
             creationDate = creationDate,
             ttl = Duration.between(creationDate, latestMessageExpiryDate).seconds.toInt()
         )
+        return cargo.serialize(identityKeyPair.privateKey)
     }
 }

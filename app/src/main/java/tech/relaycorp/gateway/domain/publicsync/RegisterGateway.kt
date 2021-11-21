@@ -9,6 +9,7 @@ import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.bindings.pdc.ServerException
+import tech.relaycorp.relaynet.keystores.SessionPublicKeyStore
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import java.util.logging.Level
 import javax.inject.Inject
@@ -19,7 +20,8 @@ class RegisterGateway
     private val publicGatewayPreferences: PublicGatewayPreferences,
     private val localConfig: LocalConfig,
     private val poWebClientBuilder: PoWebClientBuilder,
-    private val resolveServiceAddress: ResolveServiceAddress
+    private val resolveServiceAddress: ResolveServiceAddress,
+    private val publicKeyStore: SessionPublicKeyStore
 ) {
 
     suspend fun registerIfNeeded(): Result {
@@ -30,7 +32,7 @@ class RegisterGateway
         val address = publicGatewayPreferences.getAddress()
         val result = register(address)
         if (result is Result.Registered) {
-            saveSuccessfulResult(address, result)
+            saveSuccessfulResult(address, result.pnr)
         }
         return result
     }
@@ -38,7 +40,7 @@ class RegisterGateway
     suspend fun registerNewAddress(newAddress: String): Result {
         val result = register(newAddress)
         if (result is Result.Registered) {
-            saveSuccessfulResult(newAddress, result)
+            saveSuccessfulResult(newAddress, result.pnr)
         }
         return result
     }
@@ -47,11 +49,17 @@ class RegisterGateway
         return try {
             val poWebAddress = resolveServiceAddress.resolvePoWeb(address)
             val poWeb = poWebClientBuilder.build(poWebAddress)
-            val keyPair = localConfig.getKeyPair()
+            val keyPair = localConfig.getIdentityKeyPair()
 
             poWeb.use {
-                val pnrr = poWeb.preRegisterNode(keyPair.public)
-                val pnr = poWeb.registerNode(pnrr.serialize(keyPair.private))
+                val pnrr = poWeb.preRegisterNode(keyPair.certificate.subjectPublicKey)
+                val pnr = poWeb.registerNode(pnrr.serialize(keyPair.privateKey))
+
+                if (pnr.gatewaySessionKey == null) {
+                    logger.warning("Registration is missing public gateway's session key")
+                    return Result.FailedToRegister
+                }
+
                 logger.info("Successfully registered with $address")
                 Result.Registered(pnr)
             }
@@ -71,11 +79,18 @@ class RegisterGateway
         }
     }
 
-    private suspend fun saveSuccessfulResult(address: String, result: Result.Registered) {
+    private suspend fun saveSuccessfulResult(
+        publicGatewayPublicAddress: String,
+        registration: PrivateNodeRegistration
+    ) {
         publicGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
-        publicGatewayPreferences.setAddress(address)
-        publicGatewayPreferences.setCertificate(result.pnr.gatewayCertificate)
-        localConfig.setCertificate(result.pnr.privateNodeCertificate)
+        publicGatewayPreferences.setAddress(publicGatewayPublicAddress)
+        publicGatewayPreferences.setCertificate(registration.gatewayCertificate)
+        localConfig.setIdentityCertificate(registration.privateNodeCertificate)
+        publicKeyStore.save(
+            registration.gatewaySessionKey!!,
+            registration.gatewayCertificate.subjectPrivateAddress
+        )
         publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
     }
 

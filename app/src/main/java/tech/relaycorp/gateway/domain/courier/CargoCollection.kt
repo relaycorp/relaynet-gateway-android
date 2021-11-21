@@ -46,7 +46,7 @@ class CargoCollection
     }
 
     private fun generateCCAInputStream() = runBlocking {
-        generateCCA.generateByteArray().inputStream()
+        generateCCA.generateSerialized().inputStream()
     }
 
     private suspend fun getCourierAddress() =

@@ -10,25 +10,26 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import tech.relaycorp.gateway.data.disk.SensitiveStore
+import tech.relaycorp.gateway.data.disk.FileStore
+import tech.relaycorp.gateway.test.BaseDataTestCase
 import kotlin.test.assertEquals
 
-class LocalConfigTest {
+class LocalConfigTest : BaseDataTestCase() {
 
-    private val sensitiveStore = mock<SensitiveStore>()
-    private val localConfig = LocalConfig(sensitiveStore)
+    private val fileStore = mock<FileStore>()
+    private val localConfig = LocalConfig(fileStore, privateKeyStoreProvider)
 
     @BeforeEach
     fun setUp() {
         runBlocking {
             val memoryStore = mutableMapOf<String, ByteArray>()
-            whenever(sensitiveStore.store(any(), any())).then {
+            whenever(fileStore.store(any(), any())).then {
                 val key = it.getArgument<String>(0)
                 val value = it.getArgument(1) as ByteArray
                 memoryStore[key] = value
                 Unit
             }
-            whenever(sensitiveStore.read(any())).thenAnswer {
+            whenever(fileStore.read(any())).thenAnswer {
                 val key = it.getArgument<String>(0)
                 memoryStore[key]
             }
@@ -39,33 +40,22 @@ class LocalConfigTest {
     inner class GetKeyPair {
         @Test
         fun `Key pair should be returned if it exists`() = runBlockingTest {
-            val keyPair = localConfig.generateKeyPair()
+            localConfig.bootstrap()
 
-            val retrievedKeyPair = localConfig.getKeyPair()
+            val retrievedKeyPair = localConfig.getIdentityKeyPair()
 
-            assertEquals(
-                keyPair.private.encoded.asList(),
-                retrievedKeyPair.private.encoded.asList()
-            )
+            val storedKeyPair = privateKeyStore.retrieveAllIdentityKeys().first()
+            assertEquals(storedKeyPair, retrievedKeyPair)
         }
 
         @Test
         fun `Exception should be thrown if key pair does not exist`() = runBlockingTest {
             val exception = assertThrows<RuntimeException> {
-                localConfig.getKeyPair()
+                localConfig.getIdentityKeyPair()
             }
 
             assertEquals("No key pair was found", exception.message)
         }
-    }
-
-    @Test
-    fun `get certificate stores and recovers the same certificate`() = runBlockingTest {
-        localConfig.generateKeyPair()
-
-        val certificate1 = localConfig.getCertificate().serialize()
-        val certificate2 = localConfig.getCertificate().serialize()
-        assertTrue(certificate1.contentEquals(certificate2))
     }
 
     @Nested
@@ -95,18 +85,21 @@ class LocalConfigTest {
         fun `Key pair should be created if it doesn't already exist`() = runBlockingTest {
             localConfig.bootstrap()
 
-            localConfig.getKeyPair()
+            val keyPair = localConfig.getIdentityKeyPair()
+
+            val storedKeyPair = privateKeyStore.retrieveAllIdentityKeys().first()
+            assertEquals(keyPair, storedKeyPair)
         }
 
         @Test
         fun `Key pair should not be created if it already exists`() = runBlockingTest {
             localConfig.bootstrap()
-            val originalKeyPair = localConfig.getKeyPair()
+            val originalKeyPair = localConfig.getIdentityKeyPair()
 
             localConfig.bootstrap()
-            val keyPair = localConfig.getKeyPair()
+            val keyPair = localConfig.getIdentityKeyPair()
 
-            assertEquals(originalKeyPair.private.encoded.asList(), keyPair.private.encoded.asList())
+            assertEquals(originalKeyPair, keyPair)
         }
 
         @Test
