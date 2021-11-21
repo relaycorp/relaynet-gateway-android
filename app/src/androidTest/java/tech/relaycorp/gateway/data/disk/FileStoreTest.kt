@@ -61,6 +61,13 @@ class FileStoreTest {
     }
 
     @Test
+    fun readNonExisting() {
+        runBlocking {
+            assertNull(store.read("${folder.name}/non-existing.txt"))
+        }
+    }
+
+    @Test
     fun delete() {
         runBlocking {
             val fileName = "${folder.name}/file"

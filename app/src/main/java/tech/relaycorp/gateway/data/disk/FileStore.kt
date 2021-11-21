@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import tech.relaycorp.gateway.common.Logging.logger
 import java.io.File
-import java.io.IOException
+import java.io.FileNotFoundException
 import java.util.logging.Level
 import javax.inject.Inject
 
@@ -25,8 +25,8 @@ class FileStore
     suspend fun read(location: String) = withContext(Dispatchers.IO) {
         try {
             buildFile(location).readBytes()
-        } catch (exception: IOException) {
-            logger.log(Level.INFO, "FileStore read", exception)
+        } catch (exception: FileNotFoundException) {
+            logger.log(Level.INFO, "File $location does not exist")
             null
         }
     }
