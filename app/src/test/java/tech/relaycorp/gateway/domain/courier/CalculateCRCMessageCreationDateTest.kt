@@ -24,7 +24,7 @@ class CalculateCRCMessageCreationDateTest {
             nowInUtc().plusMinutes(1),
             validityStartDate = nowInUtc().minusDays(1)
         )
-        whenever(localConfig.getCertificate()).thenReturn(certificate)
+        whenever(localConfig.getIdentityCertificate()).thenReturn(certificate)
 
         val result = subject.calculate()
 
@@ -44,7 +44,7 @@ class CalculateCRCMessageCreationDateTest {
                 nowInUtc().plusMinutes(1),
                 validityStartDate = nowInUtc()
             )
-            whenever(localConfig.getCertificate()).thenReturn(certificate)
+            whenever(localConfig.getIdentityCertificate()).thenReturn(certificate)
 
             val result = subject.calculate()
             assertTrue(certificate.startDate.isEqual(result))

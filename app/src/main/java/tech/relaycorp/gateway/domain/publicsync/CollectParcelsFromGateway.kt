@@ -45,7 +45,8 @@ class CollectParcelsFromGateway
             )
             return
         }
-        val signer = Signer(localConfig.getCertificate(), localConfig.getKeyPair().private)
+        val idKeyPair = localConfig.getIdentityKeyPair()
+        val signer = Signer(idKeyPair.certificate, idKeyPair.privateKey)
         val streamingMode =
             if (keepAlive) StreamingMode.KeepAlive else StreamingMode.CloseUponCompletion
 

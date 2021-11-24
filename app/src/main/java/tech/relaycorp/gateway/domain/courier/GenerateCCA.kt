@@ -5,37 +5,46 @@ import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.issueDeliveryAuthorization
 import tech.relaycorp.relaynet.messages.CargoCollectionAuthorization
 import tech.relaycorp.relaynet.messages.payloads.CargoCollectionRequest
+import tech.relaycorp.relaynet.nodes.GatewayManager
+import tech.relaycorp.relaynet.wrappers.privateAddress
 import java.time.ZonedDateTime
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlin.time.days
 
 class GenerateCCA
 @Inject constructor(
     private val publicGatewayPreferences: PublicGatewayPreferences,
     private val localConfig: LocalConfig,
-    private val calculateCreationDate: CalculateCRCMessageCreationDate
+    private val calculateCreationDate: CalculateCRCMessageCreationDate,
+    private val gatewayManager: Provider<GatewayManager>
 ) {
 
-    suspend fun generate(): CargoCollectionAuthorization {
+    suspend fun generateSerialized(): ByteArray {
+        val identityPrivateKey = localConfig.getIdentityKeyPair().privateKey
         val senderCertificate = localConfig.getCargoDeliveryAuth()
+        val publicGatewayPublicKey = publicGatewayPreferences.getCertificate().subjectPublicKey
         val cda = issueDeliveryAuthorization(
-            publicGatewayPreferences.getCertificate().subjectPublicKey,
-            localConfig.getKeyPair().private,
+            publicGatewayPublicKey,
+            identityPrivateKey,
             ZonedDateTime.now().plusSeconds(TTL.inSeconds.toLong()),
             senderCertificate
         )
         val ccr = CargoCollectionRequest(cda)
-        return CargoCollectionAuthorization(
+        val ccrCiphertext = gatewayManager.get().wrapMessagePayload(
+            ccr,
+            publicGatewayPublicKey.privateAddress,
+            senderCertificate.subjectPrivateAddress
+        )
+        val cca = CargoCollectionAuthorization(
             recipientAddress = publicGatewayPreferences.getCogRPCAddress(),
-            payload = ccr.encrypt(publicGatewayPreferences.getCertificate()),
+            payload = ccrCiphertext,
             senderCertificate = senderCertificate,
             creationDate = calculateCreationDate.calculate(),
             ttl = TTL.inSeconds.toInt()
         )
+        return cca.serialize(identityPrivateKey)
     }
-
-    suspend fun generateByteArray() =
-        generate().serialize(localConfig.getKeyPair().private)
 
     companion object {
         private val TTL = 14.days

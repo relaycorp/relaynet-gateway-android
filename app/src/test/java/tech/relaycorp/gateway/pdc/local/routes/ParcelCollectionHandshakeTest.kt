@@ -37,7 +37,7 @@ class ParcelCollectionHandshakeTest {
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
-        whenever(localConfig.getCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
+        whenever(localConfig.getIdentityCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
     }
 
     @Test

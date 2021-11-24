@@ -11,7 +11,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import tech.relaycorp.gateway.data.database.StoredParcelDao
-import tech.relaycorp.gateway.data.disk.SensitiveStore
+import tech.relaycorp.gateway.data.disk.FileStore
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.pdc.local.PDCServer
@@ -35,7 +35,7 @@ class GatewaySyncServiceParcelDeliveryTest {
         Signer(PDACertPath.PRIVATE_ENDPOINT, KeyPairSet.PRIVATE_ENDPOINT.private)
 
     @Inject
-    lateinit var sensitiveStore: SensitiveStore
+    lateinit var fileStore: FileStore
 
     @Inject
     lateinit var storedParcelDao: StoredParcelDao
@@ -87,6 +87,6 @@ class GatewaySyncServiceParcelDeliveryTest {
     }
 
     private suspend fun setGatewayCertificate(cert: Certificate) {
-        sensitiveStore.store("local_gateway.certificate", cert.serialize())
+        fileStore.store("local_gateway.certificate", cert.serialize())
     }
 }
