@@ -162,7 +162,7 @@ dependencies {
     testImplementation "io.ktor:ktor-test-dispatcher:$ktorVersion"
 
     // ORM
-    def room_version = '2.4.0-alpha04' // Mac M1 issue
+    def room_version = '2.4.0-rc01' // Mac M1 issue
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
