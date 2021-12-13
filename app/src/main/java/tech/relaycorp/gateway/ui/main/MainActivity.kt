@@ -79,8 +79,8 @@ class MainActivity : BaseActivity() {
                     state is ConnectionState.InternetWithoutPublicGateway
                 courierConnection.isVisible =
                     state !is ConnectionState.InternetAndPublicGateway &&
-                        state !is ConnectionState.WiFiWithCourier &&
-                        state !is ConnectionState.InternetWithoutPublicGateway
+                    state !is ConnectionState.WiFiWithCourier &&
+                    state !is ConnectionState.InternetWithoutPublicGateway
                 courierSync.isVisible = state is ConnectionState.WiFiWithCourier
             }
             .launchIn(lifecycleScope)

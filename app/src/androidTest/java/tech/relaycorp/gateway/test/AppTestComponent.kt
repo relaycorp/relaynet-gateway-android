@@ -1,7 +1,6 @@
 package tech.relaycorp.gateway.test
 
 import dagger.Component
-import tech.relaycorp.gateway.AppModule
 import tech.relaycorp.gateway.TestAppModule
 import tech.relaycorp.gateway.background.endpoint.EndpointPreRegistrationServiceTest
 import tech.relaycorp.gateway.background.endpoint.GatewaySyncServiceParcelCollectionTest

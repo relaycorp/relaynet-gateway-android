@@ -10,7 +10,6 @@ import tech.relaycorp.gateway.background.ConnectionStateObserver
 import tech.relaycorp.gateway.test.TestApp
 import javax.inject.Singleton
 
-
 @Module
 class TestAppModule(
     app: TestApp

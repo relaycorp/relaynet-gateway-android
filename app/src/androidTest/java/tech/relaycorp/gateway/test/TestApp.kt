@@ -1,7 +1,6 @@
 package tech.relaycorp.gateway.test
 
 import tech.relaycorp.gateway.App
-import tech.relaycorp.gateway.AppModule
 import tech.relaycorp.gateway.TestAppModule
 
 class TestApp : App() {
