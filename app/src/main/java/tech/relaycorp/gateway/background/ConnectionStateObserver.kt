@@ -20,7 +20,7 @@ import javax.inject.Singleton
 import kotlin.time.seconds
 
 @Singleton
-class ConnectionStateObserver
+open class ConnectionStateObserver
 @Inject constructor(
     private val connectivityManager: ConnectivityManager,
     private val wifiManager: WifiManager,
@@ -54,7 +54,7 @@ class ConnectionStateObserver
         connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
     }
 
-    fun observe(): Flow<ConnectionState> = state
+    open fun observe(): Flow<ConnectionState> = state
 
     private suspend fun checkNetworkState(network: Network): ConnectionState {
         return if (checkPublicGatewayAccess.check()) {

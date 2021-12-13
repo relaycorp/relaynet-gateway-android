@@ -2,6 +2,7 @@ package tech.relaycorp.gateway.test
 
 import dagger.Component
 import tech.relaycorp.gateway.AppModule
+import tech.relaycorp.gateway.TestAppModule
 import tech.relaycorp.gateway.background.endpoint.EndpointPreRegistrationServiceTest
 import tech.relaycorp.gateway.background.endpoint.GatewaySyncServiceParcelCollectionTest
 import tech.relaycorp.gateway.background.endpoint.GatewaySyncServiceParcelDeliveryTest
@@ -12,7 +13,7 @@ import tech.relaycorp.gateway.ui.settings.SettingsActivityTest
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AppModule::class, DataModule::class])
+@Component(modules = [TestAppModule::class, DataModule::class])
 interface AppTestComponent : AppComponent {
     fun inject(app: TestApp)
 

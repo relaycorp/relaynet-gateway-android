@@ -80,7 +80,7 @@ class MainActivity : BaseActivity() {
                 courierConnection.isVisible =
                     state !is ConnectionState.InternetAndPublicGateway &&
                         state !is ConnectionState.WiFiWithCourier &&
-                         state !is ConnectionState.InternetWithoutPublicGateway
+                        state !is ConnectionState.InternetWithoutPublicGateway
                 courierSync.isVisible = state is ConnectionState.WiFiWithCourier
             }
             .launchIn(lifecycleScope)
@@ -95,18 +95,26 @@ class MainActivity : BaseActivity() {
 
     private fun ConnectionState.toTitleRes() =
         when (this) {
-            is ConnectionState.InternetWithoutPublicGateway -> R.string.main_status_internet_no_gateway
-            ConnectionState.InternetAndPublicGateway -> R.string.main_status_internet
-            is ConnectionState.WiFiWithCourier -> R.string.main_status_courier
-            else -> R.string.main_status_disconnected
+            is ConnectionState.InternetWithoutPublicGateway ->
+                R.string.main_status_internet_no_gateway
+            ConnectionState.InternetAndPublicGateway ->
+                R.string.main_status_internet
+            is ConnectionState.WiFiWithCourier ->
+                R.string.main_status_courier
+            else ->
+                R.string.main_status_disconnected
         }
 
     private fun ConnectionState.toTextRes() =
         when (this) {
-            is ConnectionState.InternetWithoutPublicGateway -> R.string.main_status_internet_no_gateway_text
-            ConnectionState.InternetAndPublicGateway -> R.string.main_status_internet_text
-            is ConnectionState.WiFiWithCourier -> R.string.main_status_courier_text
-            else -> R.string.main_status_disconnected_text
+            is ConnectionState.InternetWithoutPublicGateway ->
+                R.string.main_status_internet_no_gateway_text
+            ConnectionState.InternetAndPublicGateway ->
+                R.string.main_status_internet_text
+            is ConnectionState.WiFiWithCourier ->
+                R.string.main_status_courier_text
+            else ->
+                R.string.main_status_disconnected_text
         }
 
     private fun ConnectionState.toTextGravity() =
