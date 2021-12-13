@@ -90,7 +90,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/main_courier_connection"
                     android:visibility="gone"
-                    tools:visibility="visible" />
+                    tools:visibility="gone" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/courierSync"
@@ -98,7 +98,28 @@
                     android:layout_height="wrap_content"
                     android:text="@string/sync_courier_action"
                     android:visibility="gone"
-                    tools:visibility="visible" />
+                    tools:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/internetWithoutGatewayButtonsLayout"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/vpn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/no_gateway_vpn_action" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/getHelp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/no_gateway_help_action" />
+                </LinearLayout>
             </FrameLayout>
 
         </LinearLayout>

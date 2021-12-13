@@ -1,3 +1,5 @@
 <resources>
     <string name="relaynet_website">https://awala.network/</string>
+    <string name="vpn_app">https://play.google.com/store/apps/details?id=com.tunnelbear.android</string>
+    <string name="gateway_help">https://community.awala.network/c/users/5</string>
 </resources>

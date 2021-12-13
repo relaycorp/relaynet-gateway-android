@@ -84,7 +84,7 @@ open class App : Application() {
     }
 
     private fun setupStrictMode() {
-        if (BuildConfig.DEBUG && mode != Mode.Test) {
+        if (BuildConfig.DEBUG && mode != Mode.Test && false) {
             StrictMode.setThreadPolicy(
                 StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().penaltyDeath().build()
             )

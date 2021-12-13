@@ -30,7 +30,10 @@
         \n\nAlso, any data lost in transit will be re-delivered at the earliest opportunity.
     </string>
     <string name="main_courier_connection">Sync with a courier</string>
-
+    <string name="main_status_internet_no_gateway">You\'re connected to the Internet but not Awala</string>
+    <string name="main_status_internet_no_gateway_text">This may be a transient issue that will fix itself soon or, if you live in a country where access to the Internet is censored, it may be that Awala is blocked. If you think it may be the latter, try using a VPN (we recommend TunnelBear).</string>
+    <string name="no_gateway_vpn_action">Install TunnelBear</string>
+    <string name="no_gateway_help_action">Get help online</string>
     <!-- Courier Connection -->
     <string name="courier_instructions_title">
         If there’s a courier near you, connect to their Wi-Fi network to sync data.
