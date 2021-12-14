@@ -3,7 +3,7 @@ package tech.relaycorp.gateway.test
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.TestAppModule
 
-class TestApp : App() {
+open class TestApp : App() {
     override val component: AppTestComponent = DaggerAppTestComponent.builder()
         .testAppModule(TestAppModule(this))
         .build() as AppTestComponent
