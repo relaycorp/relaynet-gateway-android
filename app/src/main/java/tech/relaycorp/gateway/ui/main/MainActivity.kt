@@ -2,6 +2,7 @@ package tech.relaycorp.gateway.ui.main
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
 import androidx.core.view.isVisible
@@ -10,10 +11,13 @@ import androidx.lifecycle.lifecycleScope
 import com.stationhead.android.shared.viewmodel.ViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.courierConnection
 import kotlinx.android.synthetic.main.activity_main.courierSync
+import kotlinx.android.synthetic.main.activity_main.getHelp
 import kotlinx.android.synthetic.main.activity_main.image
+import kotlinx.android.synthetic.main.activity_main.internetWithoutGatewayButtonsLayout
 import kotlinx.android.synthetic.main.activity_main.messageText
 import kotlinx.android.synthetic.main.activity_main.settings
 import kotlinx.android.synthetic.main.activity_main.titleText
+import kotlinx.android.synthetic.main.activity_main.vpn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import tech.relaycorp.gateway.R
@@ -49,6 +53,12 @@ class MainActivity : BaseActivity() {
         courierSync.setOnClickListener {
             startActivity(CourierSyncActivity.getIntent(this))
         }
+        vpn.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.vpn_app))))
+        }
+        getHelp.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.gateway_help))))
+        }
 
         viewModel
             .openOnboarding
@@ -65,9 +75,12 @@ class MainActivity : BaseActivity() {
                 titleText.setText(state.toTitleRes())
                 messageText.setText(state.toTextRes())
                 messageText.gravity = state.toTextGravity()
+                internetWithoutGatewayButtonsLayout.isVisible =
+                    state is ConnectionState.InternetWithoutPublicGateway
                 courierConnection.isVisible =
                     state !is ConnectionState.InternetAndPublicGateway &&
-                    state !is ConnectionState.WiFiWithCourier
+                    state !is ConnectionState.WiFiWithCourier &&
+                    state !is ConnectionState.InternetWithoutPublicGateway
                 courierSync.isVisible = state is ConnectionState.WiFiWithCourier
             }
             .launchIn(lifecycleScope)
@@ -82,16 +95,26 @@ class MainActivity : BaseActivity() {
 
     private fun ConnectionState.toTitleRes() =
         when (this) {
-            ConnectionState.InternetAndPublicGateway -> R.string.main_status_internet
-            is ConnectionState.WiFiWithCourier -> R.string.main_status_courier
-            else -> R.string.main_status_disconnected
+            is ConnectionState.InternetWithoutPublicGateway ->
+                R.string.main_status_internet_no_gateway
+            ConnectionState.InternetAndPublicGateway ->
+                R.string.main_status_internet
+            is ConnectionState.WiFiWithCourier ->
+                R.string.main_status_courier
+            else ->
+                R.string.main_status_disconnected
         }
 
     private fun ConnectionState.toTextRes() =
         when (this) {
-            ConnectionState.InternetAndPublicGateway -> R.string.main_status_internet_text
-            is ConnectionState.WiFiWithCourier -> R.string.main_status_courier_text
-            else -> R.string.main_status_disconnected_text
+            is ConnectionState.InternetWithoutPublicGateway ->
+                R.string.main_status_internet_no_gateway_text
+            ConnectionState.InternetAndPublicGateway ->
+                R.string.main_status_internet_text
+            is ConnectionState.WiFiWithCourier ->
+                R.string.main_status_courier_text
+            else ->
+                R.string.main_status_disconnected_text
         }
 
     private fun ConnectionState.toTextGravity() =
