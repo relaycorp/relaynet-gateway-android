@@ -147,7 +147,7 @@ dependencies {
     androidTestImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
 
     // Android TLS support for Netty
-    implementation "io.netty:netty-handler:4.1.65.Final"
+    implementation "io.netty:netty-handler:4.1.73.Final"
     implementation 'org.conscrypt:conscrypt-android:2.5.2'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
