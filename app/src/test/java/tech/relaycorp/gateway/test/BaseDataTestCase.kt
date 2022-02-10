@@ -3,8 +3,10 @@ package tech.relaycorp.gateway.test
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import tech.relaycorp.relaynet.SessionKeyPair
+import tech.relaycorp.relaynet.keystores.CertificateStore
 import tech.relaycorp.relaynet.keystores.PrivateKeyStore
 import tech.relaycorp.relaynet.nodes.GatewayManager
+import tech.relaycorp.relaynet.testing.keystores.MockCertificateStore
 import tech.relaycorp.relaynet.testing.keystores.MockPrivateKeyStore
 import tech.relaycorp.relaynet.testing.keystores.MockSessionPublicKeyStore
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
@@ -14,7 +16,9 @@ import javax.inject.Provider
 
 abstract class BaseDataTestCase {
     protected val privateKeyStore = MockPrivateKeyStore()
+    protected val certificateStore = MockCertificateStore()
     protected val privateKeyStoreProvider = Provider<PrivateKeyStore> { privateKeyStore }
+    protected val certificateStoreProvider = Provider<CertificateStore> { certificateStore }
 
     protected val publicKeyStore = MockSessionPublicKeyStore()
 
@@ -31,10 +35,10 @@ abstract class BaseDataTestCase {
         publicKeyStore.clear()
     }
 
-    protected suspend fun registerPrivateGatewayIdentityKeyPair() = privateKeyStore.saveIdentityKey(
-        KeyPairSet.PRIVATE_GW.private,
-        PDACertPath.PRIVATE_GW
-    )
+    protected suspend fun registerPrivateGatewayIdentity() {
+        privateKeyStore.saveIdentityKey(KeyPairSet.PRIVATE_GW.private)
+        certificateStore.save(PDACertPath.PRIVATE_GW)
+    }
 
     protected suspend fun registerPrivateGatewaySessionKey() {
         privateKeyStore.saveSessionKey(

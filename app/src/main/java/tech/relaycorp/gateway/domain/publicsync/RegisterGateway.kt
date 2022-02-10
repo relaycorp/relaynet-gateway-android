@@ -49,11 +49,12 @@ class RegisterGateway
         return try {
             val poWebAddress = resolveServiceAddress.resolvePoWeb(address)
             val poWeb = poWebClientBuilder.build(poWebAddress)
-            val keyPair = localConfig.getIdentityKeyPair()
+            val privateKey = localConfig.getIdentityKey()
+            val certificate = localConfig.getIdentityCertificate()
 
             poWeb.use {
-                val pnrr = poWeb.preRegisterNode(keyPair.certificate.subjectPublicKey)
-                val pnr = poWeb.registerNode(pnrr.serialize(keyPair.privateKey))
+                val pnrr = poWeb.preRegisterNode(certificate.subjectPublicKey)
+                val pnr = poWeb.registerNode(pnrr.serialize(privateKey))
 
                 if (pnr.gatewaySessionKey == null) {
                     logger.warning("Registration is missing public gateway's session key")

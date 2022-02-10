@@ -7,6 +7,7 @@ import androidx.room.Room
 import com.fredporciuncula.flow.preferences.FlowSharedPreferences
 import dagger.Module
 import dagger.Provides
+import tech.relaycorp.awala.keystores.file.FileCertificateStore
 import tech.relaycorp.awala.keystores.file.FileKeystoreRoot
 import tech.relaycorp.awala.keystores.file.FileSessionPublicKeystore
 import tech.relaycorp.doh.DoHClient
@@ -19,6 +20,7 @@ import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
+import tech.relaycorp.relaynet.keystores.CertificateStore
 import tech.relaycorp.relaynet.keystores.PrivateKeyStore
 import tech.relaycorp.relaynet.keystores.SessionPublicKeyStore
 import tech.relaycorp.relaynet.nodes.GatewayManager
@@ -135,6 +137,14 @@ class DataModule {
     @Singleton
     fun publicKeyStore(keystoreRoot: Provider<FileKeystoreRoot>): SessionPublicKeyStore =
         FileSessionPublicKeystore(keystoreRoot.get())
+
+    @Provides
+    @Singleton
+    fun certificateStore(
+        context: Context,
+        keystoreRoot: Provider<FileKeystoreRoot>
+    ): CertificateStore =
+        FileCertificateStore(keystoreRoot.get())
 
     @Provides
     @Singleton

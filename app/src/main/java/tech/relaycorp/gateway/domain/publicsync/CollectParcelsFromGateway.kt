@@ -6,9 +6,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.retry
 import tech.relaycorp.gateway.common.Logging.logger
+import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
@@ -45,8 +45,7 @@ class CollectParcelsFromGateway
             )
             return
         }
-        val idKeyPair = localConfig.getIdentityKeyPair()
-        val signer = Signer(idKeyPair.certificate, idKeyPair.privateKey)
+        val signer = Signer(localConfig.getIdentityCertificate(), localConfig.getIdentityKey())
         val streamingMode =
             if (keepAlive) StreamingMode.KeepAlive else StreamingMode.CloseUponCompletion
 

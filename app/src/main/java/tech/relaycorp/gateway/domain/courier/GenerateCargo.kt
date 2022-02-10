@@ -88,7 +88,8 @@ class GenerateCargo
             )
         }
 
-        val identityKeyPair = localConfig.getIdentityKeyPair()
+        val identityKey = localConfig.getIdentityKey()
+        val identityCert = localConfig.getIdentityCertificate()
 
         val recipientAddress = publicGatewayPreferences.getCogRPCAddress()
         val creationDate = calculateCreationDate.calculate()
@@ -97,15 +98,15 @@ class GenerateCargo
         val cargoMessageSetCiphertext = gatewayManager.get().wrapMessagePayload(
             cargoMessageSet,
             publicGatewayPreferences.getCertificate().subjectPrivateAddress,
-            identityKeyPair.certificate.subjectPrivateAddress
+            identityCert.subjectPrivateAddress
         )
         val cargo = Cargo(
             recipientAddress = recipientAddress,
             payload = cargoMessageSetCiphertext,
-            senderCertificate = identityKeyPair.certificate,
+            senderCertificate = identityCert,
             creationDate = creationDate,
             ttl = Duration.between(creationDate, latestMessageExpiryDate).seconds.toInt()
         )
-        return cargo.serialize(identityKeyPair.privateKey)
+        return cargo.serialize(identityKey)
     }
 }

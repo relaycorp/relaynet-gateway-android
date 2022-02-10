@@ -17,7 +17,8 @@ import kotlin.test.assertEquals
 class LocalConfigTest : BaseDataTestCase() {
 
     private val fileStore = mock<FileStore>()
-    private val localConfig = LocalConfig(fileStore, privateKeyStoreProvider)
+    private val localConfig =
+        LocalConfig(fileStore, privateKeyStoreProvider, certificateStoreProvider)
 
     @BeforeEach
     fun setUp() {
@@ -42,7 +43,7 @@ class LocalConfigTest : BaseDataTestCase() {
         fun `Key pair should be returned if it exists`() = runBlockingTest {
             localConfig.bootstrap()
 
-            val retrievedKeyPair = localConfig.getIdentityKeyPair()
+            val retrievedKeyPair = localConfig.getIdentityKey()
 
             val storedKeyPair = privateKeyStore.retrieveAllIdentityKeys().first()
             assertEquals(storedKeyPair, retrievedKeyPair)
@@ -51,7 +52,7 @@ class LocalConfigTest : BaseDataTestCase() {
         @Test
         fun `Exception should be thrown if key pair does not exist`() = runBlockingTest {
             val exception = assertThrows<RuntimeException> {
-                localConfig.getIdentityKeyPair()
+                localConfig.getIdentityKey()
             }
 
             assertEquals("No key pair was found", exception.message)
@@ -85,7 +86,7 @@ class LocalConfigTest : BaseDataTestCase() {
         fun `Key pair should be created if it doesn't already exist`() = runBlockingTest {
             localConfig.bootstrap()
 
-            val keyPair = localConfig.getIdentityKeyPair()
+            val keyPair = localConfig.getIdentityKey()
 
             val storedKeyPair = privateKeyStore.retrieveAllIdentityKeys().first()
             assertEquals(keyPair, storedKeyPair)
@@ -94,10 +95,10 @@ class LocalConfigTest : BaseDataTestCase() {
         @Test
         fun `Key pair should not be created if it already exists`() = runBlockingTest {
             localConfig.bootstrap()
-            val originalKeyPair = localConfig.getIdentityKeyPair()
+            val originalKeyPair = localConfig.getIdentityKey()
 
             localConfig.bootstrap()
-            val keyPair = localConfig.getIdentityKeyPair()
+            val keyPair = localConfig.getIdentityKey()
 
             assertEquals(originalKeyPair, keyPair)
         }
