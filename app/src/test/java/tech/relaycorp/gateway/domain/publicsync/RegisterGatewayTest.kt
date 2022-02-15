@@ -34,7 +34,8 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
     private val pgwPreferences = mock<PublicGatewayPreferences>()
     private val mockFileStore = mock<FileStore>()
-    private val localConfig = LocalConfig(mockFileStore, privateKeyStoreProvider)
+    private val localConfig =
+        LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
     private val poWebClient = mock<PoWebClient>()
     private val poWebClientBuilder = object : PoWebClientBuilder {
         override suspend fun build(address: ServiceAddress) = poWebClient
@@ -50,7 +51,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
-        registerPrivateGatewayIdentityKeyPair()
+        registerPrivateGatewayIdentity()
     }
 
     @Test
@@ -95,7 +96,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
         verify(pgwPreferences).setCertificate(eq(pnr.gatewayCertificate))
         verify(pgwPreferences).setRegistrationState(eq(RegistrationState.Done))
         publicKeyStore.retrieve(pnr.gatewayCertificate.subjectPrivateAddress)
-        assertEquals(pnr.privateNodeCertificate, localConfig.getIdentityKeyPair().certificate)
+        assertEquals(pnr.privateNodeCertificate, localConfig.getIdentityCertificate())
     }
 
     @Test

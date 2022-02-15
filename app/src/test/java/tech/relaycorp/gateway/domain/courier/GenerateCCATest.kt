@@ -24,7 +24,8 @@ class GenerateCCATest : BaseDataTestCase() {
 
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
     private val mockFileStore = mock<FileStore>()
-    private val localConfig = LocalConfig(mockFileStore, privateKeyStoreProvider)
+    private val localConfig =
+        LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
     private val calculateCreationDate = mock<CalculateCRCMessageCreationDate>()
 
     private val generateCCA = GenerateCCA(
@@ -41,7 +42,7 @@ class GenerateCCATest : BaseDataTestCase() {
     @BeforeEach
     internal fun setUp() {
         runBlocking {
-            registerPrivateGatewayIdentityKeyPair()
+            registerPrivateGatewayIdentity()
 
             val keyPair = KeyPairSet.PRIVATE_GW
             val certificate = issueGatewayCertificate(

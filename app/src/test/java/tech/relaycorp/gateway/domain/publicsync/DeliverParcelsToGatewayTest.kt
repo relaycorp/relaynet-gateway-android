@@ -39,7 +39,8 @@ class DeliverParcelsToGatewayTest : BaseDataTestCase() {
         override suspend fun get() = poWebClient
     }
     private val mockFileStore = mock<FileStore>()
-    private val localConfig = LocalConfig(mockFileStore, privateKeyStoreProvider)
+    private val localConfig =
+        LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
     private val deleteParcel = mock<DeleteParcel>()
     private val subject = DeliverParcelsToGateway(
         storedParcelDao, diskMessageOperations, poWebClientProvider, localConfig, deleteParcel
@@ -47,7 +48,7 @@ class DeliverParcelsToGatewayTest : BaseDataTestCase() {
 
     @BeforeEach
     internal fun setUp() = testSuspend {
-        registerPrivateGatewayIdentityKeyPair()
+        registerPrivateGatewayIdentity()
         whenever(diskMessageOperations.readMessage(any(), any()))
             .thenReturn { "".byteInputStream() }
     }

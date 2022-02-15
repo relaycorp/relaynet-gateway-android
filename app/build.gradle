@@ -12,7 +12,7 @@ buildscript {
     ext {
         ktorVersion = '1.6.2'
         junitVersion = '5.7.2'
-        awalaTestingVersion = '1.3.3'
+        awalaTestingVersion = '1.4.0'
     }
 }
 
@@ -139,8 +139,8 @@ dependencies {
     kapt 'com.google.dagger:dagger-compiler:2.37'
 
     // Awala
-    implementation 'tech.relaycorp:awala:1.60.1'
-    implementation 'tech.relaycorp:awala-keystore-file:1.3.3'
+    implementation 'tech.relaycorp:awala:1.61.0'
+    implementation 'tech.relaycorp:awala-keystore-file:1.5.0'
     implementation 'tech.relaycorp:cogrpc:1.1.18'
     implementation 'tech.relaycorp:cogrpc-okhttp:1.1.11'
     testImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
@@ -179,6 +179,9 @@ dependencies {
 
     // One-off network requests
     implementation "io.ktor:ktor-client-android:$ktorVersion"
+
+    // PrivateKey operations
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
 
     // Testing
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"

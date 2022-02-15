@@ -29,14 +29,15 @@ import kotlin.test.assertTrue
 class EndpointRegistrationTest : BaseDataTestCase() {
     private val mockLocalEndpointDao = mock<LocalEndpointDao>()
     private val mockFileStore = mock<FileStore>()
-    private val mockLocalConfig = LocalConfig(mockFileStore, privateKeyStoreProvider)
+    private val mockLocalConfig =
+        LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
     private val endpointRegistration = EndpointRegistration(mockLocalEndpointDao, mockLocalConfig)
 
     private val dummyApplicationId = "tech.relaycorp.foo"
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
-        registerPrivateGatewayIdentityKeyPair()
+        registerPrivateGatewayIdentity()
     }
 
     @Nested

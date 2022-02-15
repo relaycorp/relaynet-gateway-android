@@ -48,7 +48,8 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
         override suspend fun get() = poWebClient
     }
     private val mockFileStore = mock<FileStore>()
-    private val mockLocalConfig = LocalConfig(mockFileStore, privateKeyStoreProvider)
+    private val mockLocalConfig =
+        LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
     private val notifyEndpoints = mock<NotifyEndpoints>()
     private val subject = CollectParcelsFromGateway(
         storeParcel, poWebClientBuilder, mockLocalConfig, notifyEndpoints
@@ -56,7 +57,7 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
 
     @BeforeEach
     fun setUp() = testSuspend {
-        registerPrivateGatewayIdentityKeyPair()
+        registerPrivateGatewayIdentity()
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.Success(mock()))
     }

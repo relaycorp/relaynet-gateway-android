@@ -11,9 +11,9 @@ import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
+import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StoredParcel
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.domain.DeleteParcel
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
@@ -113,8 +113,7 @@ class DeliverParcelsToGateway
         if (this::_signer.isInitialized) {
             _signer
         } else {
-            val idKeyPair = localConfig.getIdentityKeyPair()
-            Signer(idKeyPair.certificate, idKeyPair.privateKey).also {
+            Signer(localConfig.getIdentityCertificate(), localConfig.getIdentityKey()).also {
                 _signer = it
             }
         }
