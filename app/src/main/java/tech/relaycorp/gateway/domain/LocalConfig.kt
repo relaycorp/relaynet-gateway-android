@@ -95,7 +95,7 @@ class LocalConfig
 
     private suspend fun generateCargoDeliveryAuth() {
         val key = getIdentityKey()
-        val certificate = getIdentityCertificate() ?: return
+        val certificate = getIdentityCertificate()
         val cda = selfIssueCargoDeliveryAuth(key, certificate.subjectPublicKey)
         fileStore.store(CDA_CERTIFICATE_FILE_NAME, cda.serialize())
     }
