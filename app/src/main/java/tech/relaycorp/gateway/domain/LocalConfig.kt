@@ -46,6 +46,12 @@ class LocalConfig
             ?: CertificationPath(generateIdentityCertificate(it), emptyList())
     }
 
+    suspend fun getAllValidIdentityCertificates(): List<Certificate> =
+        getAllValidIdentityCertificationPaths().map { it.leafCertificate }
+
+    private suspend fun getAllValidIdentityCertificationPaths(): List<CertificationPath> =
+        certificateStore.get().retrieveAll(getIdentityKey().privateAddress)
+
     suspend fun setIdentityCertificate(
         leafCertificate: Certificate,
         certificateChain: List<Certificate> = emptyList()

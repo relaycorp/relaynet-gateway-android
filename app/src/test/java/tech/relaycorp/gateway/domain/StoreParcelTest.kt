@@ -32,7 +32,8 @@ internal class StoreParcelTest {
 
     @BeforeEach
     fun setUp() = runBlockingTest {
-        whenever(mockLocalConfig.getIdentityCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
+        whenever(mockLocalConfig.getAllValidIdentityCertificates())
+            .thenReturn(listOf(PDACertPath.PRIVATE_GW))
         whenever(parcelCollectionDao.exists(any(), any(), any())).thenReturn(false)
     }
 

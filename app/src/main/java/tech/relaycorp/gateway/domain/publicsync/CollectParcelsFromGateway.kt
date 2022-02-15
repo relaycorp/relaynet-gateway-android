@@ -45,14 +45,17 @@ class CollectParcelsFromGateway
             )
             return
         }
-        val signer = Signer(localConfig.getIdentityCertificate(), localConfig.getIdentityKey())
+        val identityKey = localConfig.getIdentityKey()
+        val signers = localConfig.getAllValidIdentityCertificates().map {
+            Signer(it, identityKey)
+        }
         val streamingMode =
             if (keepAlive) StreamingMode.KeepAlive else StreamingMode.CloseUponCompletion
 
         try {
             poWebClient.use {
                 poWebClient
-                    .collectParcels(arrayOf(signer), streamingMode)
+                    .collectParcels(signers.toTypedArray(), streamingMode)
                     .retry(Long.MAX_VALUE) { e ->
                         if (keepAlive && e is ServerConnectionException) {
                             // The culprit is likely to be:
