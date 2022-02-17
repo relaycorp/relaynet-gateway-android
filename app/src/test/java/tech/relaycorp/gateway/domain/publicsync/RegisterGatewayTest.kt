@@ -22,6 +22,7 @@ import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.SessionKey
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
+import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
@@ -75,12 +76,44 @@ class RegisterGatewayTest : BaseDataTestCase() {
     }
 
     @Test
-    internal fun `does not register if not needed`() = runBlockingTest {
+    internal fun `does not register if already registered and not expiring`() = runBlockingTest {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.Done)
+        localConfig.setIdentityCertificate(
+            issueGatewayCertificate(
+                KeyPairSet.PRIVATE_GW.public,
+                KeyPairSet.PUBLIC_GW.private,
+                ZonedDateTime.now().plusYears(1), // not expiring soon
+                PDACertPath.PUBLIC_GW,
+                validityStartDate = ZonedDateTime.now().minusSeconds(1)
+            )
+        )
 
         registerGateway.registerIfNeeded()
 
         verifyNoMoreInteractions(poWebClient)
+    }
+
+    @Test
+    internal fun `registers if needs to renew certificate`() = runBlockingTest {
+        whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.Done)
+        localConfig.setIdentityCertificate(
+            issueGatewayCertificate(
+                KeyPairSet.PRIVATE_GW.public,
+                KeyPairSet.PUBLIC_GW.private,
+                ZonedDateTime.now().plusDays(1), // expiring soon
+                PDACertPath.PUBLIC_GW,
+                validityStartDate = ZonedDateTime.now().minusSeconds(1)
+            )
+        )
+        whenever(poWebClient.preRegisterNode(any()))
+            .thenReturn(buildPNRR())
+        whenever(poWebClient.registerNode(any()))
+            .thenReturn(buildPNR(publicGatewaySessionKeyPair.sessionKey))
+
+        registerGateway.registerIfNeeded()
+
+        verify(poWebClient).preRegisterNode(any())
+        verify(poWebClient).registerNode(any())
     }
 
     @Test

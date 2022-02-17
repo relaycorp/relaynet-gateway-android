@@ -1,5 +1,6 @@
 package tech.relaycorp.gateway.test
 
+import com.nhaarman.mockitokotlin2.spy
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import tech.relaycorp.relaynet.SessionKeyPair
@@ -16,7 +17,7 @@ import javax.inject.Provider
 
 abstract class BaseDataTestCase {
     protected val privateKeyStore = MockPrivateKeyStore()
-    protected val certificateStore = MockCertificateStore()
+    protected val certificateStore = spy(MockCertificateStore())
     protected val privateKeyStoreProvider = Provider<PrivateKeyStore> { privateKeyStore }
     protected val certificateStoreProvider = Provider<CertificateStore> { certificateStore }
 

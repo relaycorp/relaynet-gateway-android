@@ -11,6 +11,8 @@ import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.bindings.pdc.ServerException
 import tech.relaycorp.relaynet.keystores.SessionPublicKeyStore
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
+import java.time.Duration
+import java.time.ZonedDateTime
 import java.util.logging.Level
 import javax.inject.Inject
 
@@ -25,8 +27,11 @@ class RegisterGateway
 ) {
 
     suspend fun registerIfNeeded(): Result {
-        if (publicGatewayPreferences.getRegistrationState() != RegistrationState.ToDo) {
-            return Result.AlreadyRegistered
+        if (
+            publicGatewayPreferences.getRegistrationState() != RegistrationState.ToDo &&
+            !currentCertificateIsAboutToExpire()
+        ) {
+            return Result.AlreadyRegisteredAndNotExpiring
         }
 
         val address = publicGatewayPreferences.getAddress()
@@ -44,6 +49,9 @@ class RegisterGateway
         }
         return result
     }
+
+    private suspend fun currentCertificateIsAboutToExpire() =
+        localConfig.getIdentityCertificate().expiryDate < ZonedDateTime.now().plus(ABOUT_TO_EXPIRE)
 
     private suspend fun register(address: String): Result {
         return try {
@@ -99,6 +107,10 @@ class RegisterGateway
         object FailedToResolve : Result()
         object FailedToRegister : Result()
         data class Registered(val pnr: PrivateNodeRegistration) : Result()
-        object AlreadyRegistered : Result()
+        object AlreadyRegisteredAndNotExpiring : Result()
+    }
+
+    companion object {
+        private val ABOUT_TO_EXPIRE = Duration.ofDays(90)
     }
 }

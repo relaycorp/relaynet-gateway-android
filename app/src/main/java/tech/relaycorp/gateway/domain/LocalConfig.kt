@@ -106,6 +106,10 @@ class LocalConfig
         fileStore.store(CDA_CERTIFICATE_FILE_NAME, cda.serialize())
     }
 
+    suspend fun deleteExpiredCertificate() {
+        certificateStore.get().deleteExpired()
+    }
+
     // Helpers
 
     companion object {

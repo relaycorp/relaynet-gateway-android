@@ -75,6 +75,7 @@ open class App : Application() {
         setupStrictMode()
         bootstrapGateway()
         startPublicSyncWhenPossible()
+        deleteExpiredCertificates()
         registerActivityLifecycleCallbacks(foregroundAppMonitor)
     }
 
@@ -135,6 +136,12 @@ open class App : Application() {
     protected open fun startPublicSyncWhenPossible() {
         backgroundScope.launch {
             publicSync.sync()
+        }
+    }
+
+    protected open fun deleteExpiredCertificates() {
+        backgroundScope.launch {
+            localConfig.bootstrap()
         }
     }
 
