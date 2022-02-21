@@ -181,7 +181,7 @@ dependencies {
     implementation "io.ktor:ktor-client-android:$ktorVersion"
 
     // PrivateKey operations
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
 
     // Testing
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
