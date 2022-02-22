@@ -125,7 +125,7 @@ class LocalConfigTest : BaseDataTestCase() {
 
     @Test
     internal fun deleteExpiredCertificates() = runBlockingTest {
-        localConfig.deleteExpiredCertificate()
+        localConfig.deleteExpiredCertificates()
 
         verify(certificateStore).deleteExpired()
     }

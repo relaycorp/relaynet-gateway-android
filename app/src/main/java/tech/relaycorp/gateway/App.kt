@@ -73,9 +73,13 @@ open class App : Application() {
         enqueuePublicSyncWorker()
 
         setupStrictMode()
-        bootstrapGateway()
-        startPublicSyncWhenPossible()
-        deleteExpiredCertificates()
+
+        backgroundScope.launch {
+            bootstrapGateway()
+            startPublicSyncWhenPossible()
+            deleteExpiredCertificates()
+        }
+
         registerActivityLifecycleCallbacks(foregroundAppMonitor)
     }
 
@@ -124,25 +128,19 @@ open class App : Application() {
         Security.insertProviderAt(Conscrypt.newProvider(), 1)
     }
 
-    private fun bootstrapGateway() {
-        backgroundScope.launch {
-            if (mode != Mode.Test) {
-                localConfig.bootstrap()
-                registerGateway.registerIfNeeded()
-            }
-        }
-    }
-
-    protected open fun startPublicSyncWhenPossible() {
-        backgroundScope.launch {
-            publicSync.sync()
-        }
-    }
-
-    protected open fun deleteExpiredCertificates() {
-        backgroundScope.launch {
+    private suspend fun bootstrapGateway() {
+        if (mode != Mode.Test) {
             localConfig.bootstrap()
+            registerGateway.registerIfNeeded()
         }
+    }
+
+    protected open suspend fun startPublicSyncWhenPossible() {
+        publicSync.sync()
+    }
+
+    private suspend fun deleteExpiredCertificates() {
+        localConfig.deleteExpiredCertificates()
     }
 
     protected open fun enqueuePublicSyncWorker() {

@@ -106,7 +106,7 @@ class LocalConfig
         fileStore.store(CDA_CERTIFICATE_FILE_NAME, cda.serialize())
     }
 
-    suspend fun deleteExpiredCertificate() {
+    suspend fun deleteExpiredCertificates() {
         certificateStore.get().deleteExpired()
     }
 

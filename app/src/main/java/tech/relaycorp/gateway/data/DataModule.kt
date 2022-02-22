@@ -140,10 +140,7 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun certificateStore(
-        context: Context,
-        keystoreRoot: Provider<FileKeystoreRoot>
-    ): CertificateStore =
+    fun certificateStore(keystoreRoot: Provider<FileKeystoreRoot>): CertificateStore =
         FileCertificateStore(keystoreRoot.get())
 
     @Provides
