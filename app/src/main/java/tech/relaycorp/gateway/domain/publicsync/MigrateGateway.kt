@@ -13,7 +13,7 @@ class MigrateGateway
         when (registerGateway.registerNewAddress(address)) {
             RegisterGateway.Result.FailedToRegister -> Result.FailedToRegister
             RegisterGateway.Result.FailedToResolve -> Result.FailedToResolve
-            RegisterGateway.Result.AlreadyRegistered -> Result.Successful
+            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring -> Result.Successful
             is RegisterGateway.Result.Registered -> {
                 deleteInvalidatedData()
                 Result.Successful
