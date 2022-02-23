@@ -23,7 +23,8 @@ class ProcessCargo
     private val storeParcel: StoreParcel,
     private val storeParcelCollection: StoreParcelCollection,
     private val deleteParcel: DeleteParcel,
-    private val gatewayManager: Provider<GatewayManager>
+    private val gatewayManager: Provider<GatewayManager>,
+    private val rotateCertificate: RotateCertificate
 ) {
 
     suspend fun process() {
@@ -42,6 +43,8 @@ class ProcessCargo
                 storeParcelAndParcelCollection(message.messageSerialized)
             CargoMessage.Type.PCA ->
                 deserializeAckAndDeleteParcel(message.messageSerialized)
+            CargoMessage.Type.CERTIFICATE_ROTATION ->
+                rotateCertificate(message.messageSerialized)
             else ->
                 logger.log(Level.WARNING, "Unsupported message received")
         }

@@ -54,8 +54,9 @@ class PublicGatewayPreferences
             Certificate.deserialize(certificateBytes)
         }
 
-    suspend fun setCertificate(value: Certificate) =
+    suspend fun setCertificate(value: Certificate) {
         certificate.setAndCommit(Base64.encodeToString(value.serialize(), Base64.DEFAULT))
+    }
 
     // Registration State
 
