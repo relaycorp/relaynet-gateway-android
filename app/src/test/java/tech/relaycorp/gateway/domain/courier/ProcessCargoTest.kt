@@ -20,9 +20,11 @@ import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.gateway.test.factory.ParcelCollectionAckFactory
 import tech.relaycorp.gateway.test.factory.ParcelFactory
 import tech.relaycorp.relaynet.messages.Cargo
+import tech.relaycorp.relaynet.messages.CertificateRotation
 import tech.relaycorp.relaynet.messages.payloads.CargoMessageSet
 import tech.relaycorp.relaynet.testing.pki.CDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 
 class ProcessCargoTest : BaseDataTestCase() {
 
@@ -30,13 +32,15 @@ class ProcessCargoTest : BaseDataTestCase() {
     private val storeParcel = mock<StoreParcel>()
     private val storeParcelCollection = mock<StoreParcelCollection>()
     private val deleteParcel = mock<DeleteParcel>()
+    private val rotateCertificate = mock<RotateCertificate>()
 
     private val processCargo = ProcessCargo(
         cargoStorage,
         storeParcel,
         storeParcelCollection,
         deleteParcel,
-        gatewayManagerProvider
+        gatewayManagerProvider,
+        rotateCertificate
     )
 
     @BeforeEach
@@ -126,6 +130,18 @@ class ProcessCargoTest : BaseDataTestCase() {
 
         verify(storeParcel).store(any<ByteArray>(), any())
         verify(storeParcelCollection).storeForParcel(any())
+    }
+
+    @Test
+    internal fun `rotates certificate when certificate rotation is received`() = runBlockingTest {
+        val certRotation = CertificateRotation(PDACertPath.PRIVATE_GW, emptyList())
+        val certRotationSerialized = certRotation.serialize()
+        val cargoSerialized = generateCargoFromMessages(listOf(certRotationSerialized))
+        whenever(cargoStorage.list()).thenReturn(listOf(cargoSerialized::inputStream))
+
+        processCargo.process()
+
+        verify(rotateCertificate).invoke(certRotationSerialized)
     }
 
     private fun generateCargoFromMessages(messagesSerialized: List<ByteArray>): ByteArray {
