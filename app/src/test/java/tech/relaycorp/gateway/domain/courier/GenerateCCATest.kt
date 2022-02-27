@@ -18,6 +18,7 @@ import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.CargoCollectionAuthorization
 import tech.relaycorp.relaynet.testing.pki.CDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import java.time.Duration
 
 class GenerateCCATest : BaseDataTestCase() {
@@ -63,7 +64,7 @@ class GenerateCCATest : BaseDataTestCase() {
     }
 
     @Test
-    internal fun `generate in ByteArray`() = runBlockingTest {
+    fun `generate in ByteArray`() = runBlockingTest {
         val creationDate = nowInUtc()
         whenever(calculateCreationDate.calculate()).thenReturn(creationDate)
 
@@ -72,7 +73,7 @@ class GenerateCCATest : BaseDataTestCase() {
 
         cca.validate(null)
         assertEquals(ADDRESS, cca.recipientAddress)
-        assertEquals(localConfig.getCargoDeliveryAuth(), cca.senderCertificate)
+        assertEquals(PDACertPath.PRIVATE_GW, cca.senderCertificate)
         assertTrue(Duration.between(creationDate, cca.creationDate).abs().seconds <= 1)
 
         // Check it was encrypted with the public gateway's session key
