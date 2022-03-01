@@ -23,7 +23,7 @@ class NotifyEndpointsOfParcelsTest {
     private val notifyEndpoints = mock<NotifyEndpoints>()
 
     @Test
-    internal fun `Only notify parcels with unique addresses`() = runBlockingTest {
+    internal fun `only notify parcels with unique addresses`() = runBlockingTest {
         // Arrange
         val useCase = build()
 
@@ -54,14 +54,14 @@ class NotifyEndpointsOfParcelsTest {
                 assertEquals(2, it.size)
             }
         )
-        verify(notifyEndpoints).notifyApp(
+        verify(notifyEndpoints).notify(
             listOf(endpoint1, endpoint2),
             EndpointNotifyAction.ParcelToReceive
         )
     }
 
     @Test
-    fun `Notify by message address`() = runBlockingTest {
+    fun `notify by message address`() = runBlockingTest {
         // Arrange
         val useCase = build()
         val endpoint1 = LocalEndpointFactory.build()
@@ -76,14 +76,14 @@ class NotifyEndpointsOfParcelsTest {
                 assertEquals(endpoint1.address, it)
             }
         )
-        verify(notifyEndpoints).notifyApp(
+        verify(notifyEndpoints).notify(
             endpoint1,
             EndpointNotifyAction.ParcelToReceive
         )
     }
 
     @Test
-    fun `Don't notify when theres no local address`() = runBlockingTest {
+    fun `don't notify when theres no local address`() = runBlockingTest {
         // Arrange
         val useCase = build()
         whenever(localEndpointDao.get(any())).thenReturn(null)
@@ -92,7 +92,7 @@ class NotifyEndpointsOfParcelsTest {
         useCase.notify(LocalEndpointFactory.build().address)
 
         // Assert
-        verify(notifyEndpoints, never()).notifyApp(any<LocalEndpoint>(), any())
+        verify(notifyEndpoints, never()).notify(any<LocalEndpoint>(), any())
     }
 
     fun build() = NotifyEndpointsOfParcels(

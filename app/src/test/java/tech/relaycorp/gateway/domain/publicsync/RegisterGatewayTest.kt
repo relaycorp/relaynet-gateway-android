@@ -17,7 +17,7 @@ import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.model.ServiceAddress
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
-import tech.relaycorp.gateway.domain.endpoint.NotifyEndpointsOfRenewCertificate
+import tech.relaycorp.gateway.domain.endpoint.NotifyEndpointsToRenewCertificate
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.poweb.PoWebClient
@@ -43,7 +43,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
         override suspend fun build(address: ServiceAddress) = poWebClient
     }
     private val resolveServiceAddress = mock<ResolveServiceAddress>()
-    private val notifyEndpoints = mock<NotifyEndpointsOfRenewCertificate>()
+    private val notifyEndpoints = mock<NotifyEndpointsToRenewCertificate>()
     private val registerGateway = RegisterGateway(
         notifyEndpoints,
         pgwPreferences,
@@ -59,7 +59,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
     }
 
     @Test
-    fun `Failure to resolve PoWeb address should be ignored`() = runBlockingTest {
+    fun `failure to resolve PoWeb address should be ignored`() = runBlockingTest {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.ToDo)
         val failingPoWebClientBuilder = object : PoWebClientBuilder {
             override suspend fun build(address: ServiceAddress) =

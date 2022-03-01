@@ -8,8 +8,9 @@ open class GetEndpointReceiver
 @Inject constructor(
     private val packageManager: PackageManager
 ) {
-    open fun get(applicationId: String): String? {
-        val intent = Intent(EndpointNotifyAction.ParcelToReceive.action)
+
+    open fun get(applicationId: String, endpoint: EndpointNotifyAction): String? {
+        val intent = Intent(endpoint.action)
             .setPackage(applicationId)
 
         return packageManager.queryBroadcastReceivers(intent, 0).firstOrNull()?.activityInfo?.name

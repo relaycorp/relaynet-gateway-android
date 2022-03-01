@@ -3,7 +3,7 @@ package tech.relaycorp.gateway.domain.courier
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
-import tech.relaycorp.gateway.domain.endpoint.NotifyEndpointsOfRenewCertificate
+import tech.relaycorp.gateway.domain.endpoint.NotifyEndpointsToRenewCertificate
 import tech.relaycorp.relaynet.messages.CertificateRotation
 import tech.relaycorp.relaynet.messages.InvalidMessageException
 import java.util.logging.Level
@@ -12,7 +12,7 @@ import javax.inject.Inject
 class RotateCertificate @Inject constructor(
     private val localConfig: LocalConfig,
     private val publicGatewayPreferences: PublicGatewayPreferences,
-    private val notifyEndpoints: NotifyEndpointsOfRenewCertificate
+    private val notifyEndpoints: NotifyEndpointsToRenewCertificate
 ) {
 
     suspend operator fun invoke(certRotationSerialized: ByteArray) {

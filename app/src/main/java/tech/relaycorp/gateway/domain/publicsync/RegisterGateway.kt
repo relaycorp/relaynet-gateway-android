@@ -6,7 +6,7 @@ import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
-import tech.relaycorp.gateway.domain.endpoint.NotifyEndpointsOfRenewCertificate
+import tech.relaycorp.gateway.domain.endpoint.NotifyEndpointsToRenewCertificate
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.bindings.pdc.ServerException
@@ -20,7 +20,7 @@ import javax.inject.Inject
 @JvmSuppressWildcards
 class RegisterGateway
 @Inject constructor(
-    private val notifyEndpoints: NotifyEndpointsOfRenewCertificate,
+    private val notifyEndpointsToRenewCertificate: NotifyEndpointsToRenewCertificate,
     private val publicGatewayPreferences: PublicGatewayPreferences,
     private val localConfig: LocalConfig,
     private val poWebClientBuilder: PoWebClientBuilder,
@@ -29,10 +29,11 @@ class RegisterGateway
 ) {
 
     suspend fun registerIfNeeded(): Result {
-        val registrationInitialState = publicGatewayPreferences.getRegistrationState()
+        val isFirstRegistration =
+            publicGatewayPreferences.getRegistrationState() == RegistrationState.ToDo
 
         if (
-            registrationInitialState != RegistrationState.ToDo &&
+            !isFirstRegistration &&
             !currentCertificateIsAboutToExpire()
         ) {
             return Result.AlreadyRegisteredAndNotExpiring
@@ -42,11 +43,10 @@ class RegisterGateway
         val result = register(address)
         if (result is Result.Registered) {
             saveSuccessfulResult(address, result.pnr)
-        }
 
-        // If it registers the new certificate & is a renew and not the first time notify
-        if (result is Result.Registered && registrationInitialState != RegistrationState.ToDo) {
-            notifyEndpoints.notifyAll()
+            if (!isFirstRegistration) {
+                notifyEndpointsToRenewCertificate.notifyAll()
+            }
         }
 
         return result

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
-import tech.relaycorp.gateway.domain.endpoint.NotifyEndpointsOfRenewCertificate
+import tech.relaycorp.gateway.domain.endpoint.NotifyEndpointsToRenewCertificate
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.CertificateRotation
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
@@ -23,7 +23,7 @@ class RotateCertificateTest {
 
     private val localConfig = mock<LocalConfig>()
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
-    private val notifyEndpoints = mock<NotifyEndpointsOfRenewCertificate>()
+    private val notifyEndpoints = mock<NotifyEndpointsToRenewCertificate>()
 
     private val rotateCertificate = RotateCertificate(
         localConfig, publicGatewayPreferences, notifyEndpoints

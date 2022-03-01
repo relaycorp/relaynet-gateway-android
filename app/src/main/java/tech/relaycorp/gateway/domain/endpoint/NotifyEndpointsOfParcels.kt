@@ -17,7 +17,7 @@ class NotifyEndpointsOfParcels @Inject constructor(
         val parcels = storedParcelDao.listForRecipientLocation(RecipientLocation.LocalEndpoint)
         val recipients = parcels.map { it.recipientAddress }.distinct()
         val localEndpointsForParcels = endpointDao.list(recipients)
-        notifyEndpoints.notifyApp(localEndpointsForParcels, EndpointNotifyAction.ParcelToReceive)
+        notifyEndpoints.notify(localEndpointsForParcels, EndpointNotifyAction.ParcelToReceive)
     }
 
     suspend fun notify(endpointAddress: MessageAddress) {
@@ -29,6 +29,6 @@ class NotifyEndpointsOfParcels @Inject constructor(
             return
         }
 
-        notifyEndpoints.notifyApp(endpoint, EndpointNotifyAction.ParcelToReceive)
+        notifyEndpoints.notify(endpoint, EndpointNotifyAction.ParcelToReceive)
     }
 }

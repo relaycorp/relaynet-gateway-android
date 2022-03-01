@@ -38,9 +38,9 @@ class NotifyEndpointsTest {
             val endpoint1 = LocalEndpointFactory.build().copy(address = parcel1.recipientAddress)
             val endpoint2 = LocalEndpointFactory.build().copy(address = parcel2.recipientAddress)
 
-            whenever(getEndpointReceiver.get(any())).thenReturn(".Receiver")
+            whenever(getEndpointReceiver.get(any(), any())).thenReturn(".Receiver")
 
-            notifyEndpoints.notifyApp(
+            notifyEndpoints.notify(
                 listOf(endpoint1, endpoint2),
                 EndpointNotifyAction.ParcelToReceive
             )
@@ -65,9 +65,9 @@ class NotifyEndpointsTest {
             val endpoint = LocalEndpointFactory.build()
                 .copy(applicationId = "123")
 
-            whenever(getEndpointReceiver.get(any())).thenReturn(".Receiver")
+            whenever(getEndpointReceiver.get(any(), any())).thenReturn(".Receiver")
 
-            notifyEndpoints.notifyApp(
+            notifyEndpoints.notify(
                 listOf(endpoint, endpoint),
                 EndpointNotifyAction.ParcelToReceive
             )
@@ -87,9 +87,9 @@ class NotifyEndpointsTest {
         runBlocking {
             val endpoint = LocalEndpointFactory.build()
             val receiverName = "${endpoint.applicationId}.Receiver"
-            whenever(getEndpointReceiver.get(any())).thenReturn(receiverName)
+            whenever(getEndpointReceiver.get(any(), any())).thenReturn(receiverName)
 
-            notifyEndpoints.notifyApp(endpoint, EndpointNotifyAction.ParcelToReceive)
+            notifyEndpoints.notify(endpoint, EndpointNotifyAction.ParcelToReceive)
 
             verify(context).sendBroadcast(
                 check {
@@ -103,7 +103,7 @@ class NotifyEndpointsTest {
     @Test
     fun notify_withKnownAddressButWithoutReceiver() {
         runBlocking {
-            whenever(getEndpointReceiver.get(any())).thenReturn(null)
+            whenever(getEndpointReceiver.get(any(), any())).thenReturn(null)
             verifyNoMoreInteractions(context)
         }
     }
@@ -111,8 +111,8 @@ class NotifyEndpointsTest {
     @Test
     fun notify_withUnknownAddress() {
         runBlocking {
-            whenever(getEndpointReceiver.get(any())).thenReturn(null)
-            notifyEndpoints.notifyApp(
+            whenever(getEndpointReceiver.get(any(), any())).thenReturn(null)
+            notifyEndpoints.notify(
                 LocalEndpointFactory.build(),
                 EndpointNotifyAction.ParcelToReceive
             )
