@@ -20,7 +20,8 @@ class NotifyEndpoints
     fun notifyApp(localEndpoint: LocalEndpoint, endpointNotifyAction: EndpointNotifyAction) {
         val receiverName = getEndpointReceiver.get(localEndpoint.applicationId) ?: run {
             logger.warning(
-                "Failed to notify ${localEndpoint.applicationId} about ${endpointNotifyAction.name} (receiver not found)"
+                "Failed to notify ${localEndpoint.applicationId} " +
+                    "about ${endpointNotifyAction.name} (receiver not found)"
             )
             return@notifyApp
         }

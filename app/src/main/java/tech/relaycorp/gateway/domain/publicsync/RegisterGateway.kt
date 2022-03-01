@@ -29,7 +29,7 @@ class RegisterGateway
 ) {
 
     suspend fun registerIfNeeded(): Result {
-       val registrationInitialState = publicGatewayPreferences.getRegistrationState()
+        val registrationInitialState = publicGatewayPreferences.getRegistrationState()
 
         if (
             registrationInitialState != RegistrationState.ToDo &&

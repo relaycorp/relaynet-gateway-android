@@ -49,9 +49,11 @@ class NotifyEndpointsOfParcelsTest {
         useCase.notifyAllPending()
 
         // Assert
-        verify(localEndpointDao).list(check {
-            assertEquals(2, it.size)
-        })
+        verify(localEndpointDao).list(
+            check {
+                assertEquals(2, it.size)
+            }
+        )
         verify(notifyEndpoints).notifyApp(
             listOf(endpoint1, endpoint2),
             EndpointNotifyAction.ParcelToReceive
@@ -59,7 +61,7 @@ class NotifyEndpointsOfParcelsTest {
     }
 
     @Test
-    fun `Notify by message address`() = runBlockingTest{
+    fun `Notify by message address`() = runBlockingTest {
         // Arrange
         val useCase = build()
         val endpoint1 = LocalEndpointFactory.build()
@@ -69,16 +71,19 @@ class NotifyEndpointsOfParcelsTest {
         useCase.notify(endpoint1.address)
 
         // Assert
-        verify(localEndpointDao).get(check {
-            assertEquals(endpoint1.address, it)
-        })
+        verify(localEndpointDao).get(
+            check {
+                assertEquals(endpoint1.address, it)
+            }
+        )
         verify(notifyEndpoints).notifyApp(
             endpoint1,
             EndpointNotifyAction.ParcelToReceive
         )
     }
+
     @Test
-    fun `Don't notify when theres no local address`() = runBlockingTest{
+    fun `Don't notify when theres no local address`() = runBlockingTest {
         // Arrange
         val useCase = build()
         whenever(localEndpointDao.get(any())).thenReturn(null)
@@ -89,7 +94,6 @@ class NotifyEndpointsOfParcelsTest {
         // Assert
         verify(notifyEndpoints, never()).notifyApp(any<LocalEndpoint>(), any())
     }
-
 
     fun build() = NotifyEndpointsOfParcels(
         notifyEndpoints,

@@ -9,7 +9,6 @@ import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.background.ConnectionStateObserver
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.disk.CargoStorage
-import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
 import tech.relaycorp.gateway.domain.endpoint.NotifyEndpointsOfParcels
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
 import java.util.logging.Level

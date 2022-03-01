@@ -26,7 +26,6 @@ import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.StoreParcel
-import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
 import tech.relaycorp.gateway.domain.endpoint.NotifyEndpointsOfParcels
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.gateway.test.BaseDataTestCase

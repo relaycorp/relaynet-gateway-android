@@ -40,7 +40,10 @@ class NotifyEndpointsTest {
 
             whenever(getEndpointReceiver.get(any())).thenReturn(".Receiver")
 
-            notifyEndpoints.notifyApp(listOf(endpoint1, endpoint2), EndpointNotifyAction.ParcelToReceive)
+            notifyEndpoints.notifyApp(
+                listOf(endpoint1, endpoint2),
+                EndpointNotifyAction.ParcelToReceive
+            )
 
             verify(context, times(2)).sendBroadcast(
                 check {
@@ -64,7 +67,10 @@ class NotifyEndpointsTest {
 
             whenever(getEndpointReceiver.get(any())).thenReturn(".Receiver")
 
-            notifyEndpoints.notifyApp(listOf(endpoint, endpoint), EndpointNotifyAction.ParcelToReceive)
+            notifyEndpoints.notifyApp(
+                listOf(endpoint, endpoint),
+                EndpointNotifyAction.ParcelToReceive
+            )
 
             verify(context, times(1)).sendBroadcast(
                 check {
@@ -106,7 +112,10 @@ class NotifyEndpointsTest {
     fun notify_withUnknownAddress() {
         runBlocking {
             whenever(getEndpointReceiver.get(any())).thenReturn(null)
-            notifyEndpoints.notifyApp(LocalEndpointFactory.build(), EndpointNotifyAction.ParcelToReceive)
+            notifyEndpoints.notifyApp(
+                LocalEndpointFactory.build(),
+                EndpointNotifyAction.ParcelToReceive
+            )
             verify(context, never()).sendBroadcast(any(), any())
         }
     }

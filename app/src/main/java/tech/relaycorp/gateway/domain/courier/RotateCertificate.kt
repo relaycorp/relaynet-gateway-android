@@ -13,7 +13,7 @@ class RotateCertificate @Inject constructor(
     private val localConfig: LocalConfig,
     private val publicGatewayPreferences: PublicGatewayPreferences,
     private val notifyEndpoints: NotifyEndpointsOfRenewCertificate
-    ) {
+) {
 
     suspend operator fun invoke(certRotationSerialized: ByteArray) {
         val certRotation = try {
