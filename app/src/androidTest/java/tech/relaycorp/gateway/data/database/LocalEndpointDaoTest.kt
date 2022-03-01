@@ -30,4 +30,18 @@ class LocalEndpointDaoTest {
             assertEquals(2, result)
         }
     }
+
+    @Test
+    internal fun listAll() {
+        runBlocking {
+            val endpoint1 = LocalEndpointFactory.build()
+            val endpoint2 = LocalEndpointFactory.build()
+            val endpoint3 = LocalEndpointFactory.build()
+
+            listOf(endpoint1, endpoint2, endpoint3).forEach { dao.insert(it) }
+
+            val result = dao.list()
+            assertEquals(3, result.size)
+        }
+    }
 }

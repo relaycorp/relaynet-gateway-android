@@ -1,6 +1,5 @@
 package tech.relaycorp.gateway.domain.endpoint
 
-import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.check
@@ -16,28 +15,16 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import tech.relaycorp.gateway.App
-import tech.relaycorp.gateway.data.database.AppDatabase
-import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.test.factory.LocalEndpointFactory
 import tech.relaycorp.gateway.test.factory.StoredParcelFactory
 
 class NotifyEndpointsTest {
 
-    private val storedParcelDao by lazy {
-        Room.inMemoryDatabaseBuilder(getApplicationContext<App>(), AppDatabase::class.java)
-            .build()
-            .storedParcelDao()
-    }
-    private val localEndpointDao by lazy {
-        Room.inMemoryDatabaseBuilder(getApplicationContext<App>(), AppDatabase::class.java)
-            .build()
-            .localEndpointDao()
-    }
     private val context by lazy { spy(getApplicationContext<App>()) }
     private val getEndpointReceiver = mock<GetEndpointReceiver>()
     private val notifyEndpoints by lazy {
-        NotifyEndpoints(storedParcelDao, localEndpointDao, getEndpointReceiver, context)
+        NotifyEndpoints(getEndpointReceiver, context)
     }
 
     @Test
@@ -47,22 +34,13 @@ class NotifyEndpointsTest {
                 .copy(recipientLocation = RecipientLocation.LocalEndpoint)
             val parcel2 = StoredParcelFactory.build()
                 .copy(recipientLocation = RecipientLocation.LocalEndpoint)
-            val parcel3 = StoredParcelFactory.build().copy(
-                recipientLocation = RecipientLocation.LocalEndpoint,
-                recipientAddress = parcel2.recipientAddress
-            )
-            storedParcelDao.insert(parcel1)
-            storedParcelDao.insert(parcel2)
-            storedParcelDao.insert(parcel3)
 
             val endpoint1 = LocalEndpointFactory.build().copy(address = parcel1.recipientAddress)
-            localEndpointDao.insert(endpoint1)
             val endpoint2 = LocalEndpointFactory.build().copy(address = parcel2.recipientAddress)
-            localEndpointDao.insert(endpoint2)
 
             whenever(getEndpointReceiver.get(any())).thenReturn(".Receiver")
 
-            notifyEndpoints.notifyAllPending()
+            notifyEndpoints.notifyApp(listOf(endpoint1, endpoint2), EndpointNotifyAction.ParcelToReceive)
 
             verify(context, times(2)).sendBroadcast(
                 check {
@@ -80,24 +58,13 @@ class NotifyEndpointsTest {
     @Test
     fun notifyAllPending_oncePerApplicationId() {
         runBlocking {
-            val parcel1 = StoredParcelFactory.build()
-                .copy(recipientLocation = RecipientLocation.LocalEndpoint)
-            val parcel2 = StoredParcelFactory.build()
-                .copy(recipientLocation = RecipientLocation.LocalEndpoint)
-            storedParcelDao.insert(parcel1)
-            storedParcelDao.insert(parcel2)
-
             val appId = "123"
-            val endpoint1 = LocalEndpointFactory.build()
-                .copy(address = parcel1.recipientAddress, applicationId = "123")
-            localEndpointDao.insert(endpoint1)
-            val endpoint2 = LocalEndpointFactory.build()
-                .copy(address = parcel2.recipientAddress, applicationId = "123")
-            localEndpointDao.insert(endpoint2)
+            val endpoint = LocalEndpointFactory.build()
+                .copy(applicationId = "123")
 
             whenever(getEndpointReceiver.get(any())).thenReturn(".Receiver")
 
-            notifyEndpoints.notifyAllPending()
+            notifyEndpoints.notifyApp(listOf(endpoint, endpoint), EndpointNotifyAction.ParcelToReceive)
 
             verify(context, times(1)).sendBroadcast(
                 check {
@@ -113,12 +80,10 @@ class NotifyEndpointsTest {
     fun notify_withKnownAddressAndReceiver() {
         runBlocking {
             val endpoint = LocalEndpointFactory.build()
-            localEndpointDao.insert(endpoint)
-
             val receiverName = "${endpoint.applicationId}.Receiver"
             whenever(getEndpointReceiver.get(any())).thenReturn(receiverName)
 
-            notifyEndpoints.notify(endpoint.address)
+            notifyEndpoints.notifyApp(endpoint, EndpointNotifyAction.ParcelToReceive)
 
             verify(context).sendBroadcast(
                 check {
@@ -129,14 +94,10 @@ class NotifyEndpointsTest {
         }
     }
 
+    @Test
     fun notify_withKnownAddressButWithoutReceiver() {
         runBlocking {
-            val endpoint = LocalEndpointFactory.build()
-            localEndpointDao.insert(endpoint)
-
             whenever(getEndpointReceiver.get(any())).thenReturn(null)
-
-            notifyEndpoints.notify(endpoint.address)
             verifyNoMoreInteractions(context)
         }
     }
@@ -144,8 +105,8 @@ class NotifyEndpointsTest {
     @Test
     fun notify_withUnknownAddress() {
         runBlocking {
-            notifyEndpoints.notify(MessageAddress.of("1234"))
-
+            whenever(getEndpointReceiver.get(any())).thenReturn(null)
+            notifyEndpoints.notifyApp(LocalEndpointFactory.build(), EndpointNotifyAction.ParcelToReceive)
             verify(context, never()).sendBroadcast(any(), any())
         }
     }
