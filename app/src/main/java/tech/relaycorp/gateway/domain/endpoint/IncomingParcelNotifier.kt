@@ -7,7 +7,7 @@ import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import javax.inject.Inject
 
-class NotifyEndpointsOfParcels @Inject constructor(
+class IncomingParcelNotifier @Inject constructor(
     private val notifyEndpoints: NotifyEndpoints,
     private val storedParcelDao: StoredParcelDao,
     private val endpointDao: LocalEndpointDao
@@ -17,7 +17,7 @@ class NotifyEndpointsOfParcels @Inject constructor(
         val parcels = storedParcelDao.listForRecipientLocation(RecipientLocation.LocalEndpoint)
         val recipients = parcels.map { it.recipientAddress }.distinct()
         val localEndpointsForParcels = endpointDao.list(recipients)
-        notifyEndpoints.notify(localEndpointsForParcels, EndpointNotifyAction.ParcelToReceive)
+        notifyEndpoints.notify(localEndpointsForParcels, NotificationType.IncomingParcel)
     }
 
     suspend fun notify(endpointAddress: MessageAddress) {
@@ -29,6 +29,6 @@ class NotifyEndpointsOfParcels @Inject constructor(
             return
         }
 
-        notifyEndpoints.notify(endpoint, EndpointNotifyAction.ParcelToReceive)
+        notifyEndpoints.notify(endpoint, NotificationType.IncomingParcel)
     }
 }

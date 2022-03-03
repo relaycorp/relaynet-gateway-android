@@ -42,7 +42,7 @@ class NotifyEndpointsTest {
 
             notifyEndpoints.notify(
                 listOf(endpoint1, endpoint2),
-                EndpointNotifyAction.ParcelToReceive
+                NotificationType.IncomingParcel
             )
 
             verify(context, times(2)).sendBroadcast(
@@ -69,7 +69,7 @@ class NotifyEndpointsTest {
 
             notifyEndpoints.notify(
                 listOf(endpoint, endpoint),
-                EndpointNotifyAction.ParcelToReceive
+                NotificationType.IncomingParcel
             )
 
             verify(context, times(1)).sendBroadcast(
@@ -89,7 +89,7 @@ class NotifyEndpointsTest {
             val receiverName = "${endpoint.applicationId}.Receiver"
             whenever(getEndpointReceiver.get(any(), any())).thenReturn(receiverName)
 
-            notifyEndpoints.notify(endpoint, EndpointNotifyAction.ParcelToReceive)
+            notifyEndpoints.notify(endpoint, NotificationType.IncomingParcel)
 
             verify(context).sendBroadcast(
                 check {
@@ -114,7 +114,7 @@ class NotifyEndpointsTest {
             whenever(getEndpointReceiver.get(any(), any())).thenReturn(null)
             notifyEndpoints.notify(
                 LocalEndpointFactory.build(),
-                EndpointNotifyAction.ParcelToReceive
+                NotificationType.IncomingParcel
             )
             verify(context, never()).sendBroadcast(any(), any())
         }

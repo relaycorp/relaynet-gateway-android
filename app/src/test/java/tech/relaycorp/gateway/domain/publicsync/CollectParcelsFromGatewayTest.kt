@@ -26,7 +26,7 @@ import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.StoreParcel
-import tech.relaycorp.gateway.domain.endpoint.NotifyEndpointsOfParcels
+import tech.relaycorp.gateway.domain.endpoint.IncomingParcelNotifier
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.poweb.PoWebClient
@@ -50,7 +50,7 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
     private val mockFileStore = mock<FileStore>()
     private val mockLocalConfig =
         LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
-    private val notifyEndpoints = mock<NotifyEndpointsOfParcels>()
+    private val notifyEndpoints = mock<IncomingParcelNotifier>()
     private val subject = CollectParcelsFromGateway(
         storeParcel, poWebClientBuilder, notifyEndpoints, mockLocalConfig
     )

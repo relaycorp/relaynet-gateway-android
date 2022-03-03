@@ -13,22 +13,23 @@ class NotifyEndpoints
     private val context: Context
 ) {
 
-    fun notify(localEndpoints: List<LocalEndpoint>, endpointNotifyAction: EndpointNotifyAction) =
+    fun notify(localEndpoints: List<LocalEndpoint>, notificationType: NotificationType) =
         localEndpoints
             .distinct() // mapper and use strings
-            .forEach { notify(it, endpointNotifyAction) }
+            .forEach { notify(it, notificationType) }
 
-    fun notify(localEndpoint: LocalEndpoint, endpointNotifyAction: EndpointNotifyAction) {
-        val receiverName = getEndpointReceiver.get(localEndpoint.applicationId, endpointNotifyAction) ?: run {
-            logger.warning(
-                "Failed to notify ${localEndpoint.applicationId} " +
-                    "about ${endpointNotifyAction.name} (receiver not found)"
-            )
-            return@notify
-        }
+    fun notify(localEndpoint: LocalEndpoint, notificationType: NotificationType) {
+        val receiverName =
+            getEndpointReceiver.get(localEndpoint.applicationId, notificationType) ?: run {
+                logger.warning(
+                    "Failed to notify ${localEndpoint.applicationId} " +
+                        "about ${notificationType.name} (receiver not found)"
+                )
+                return@notify
+            }
 
         context.sendBroadcast(
-            Intent(endpointNotifyAction.action)
+            Intent(notificationType.action)
                 .setComponent(
                     ComponentName(
                         localEndpoint.applicationId,

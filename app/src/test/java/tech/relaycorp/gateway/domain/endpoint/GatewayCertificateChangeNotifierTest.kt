@@ -13,7 +13,7 @@ import tech.relaycorp.gateway.data.database.LocalEndpointDao
 import tech.relaycorp.gateway.data.model.LocalEndpoint
 import tech.relaycorp.gateway.test.factory.LocalEndpointFactory
 
-class NotifyEndpointsToRenewCertificateTest {
+class GatewayCertificateChangeNotifierTest {
 
     private val notifyEndpoints = mock<NotifyEndpoints>()
     private val endpointDao = mock<LocalEndpointDao>()
@@ -37,7 +37,7 @@ class NotifyEndpointsToRenewCertificateTest {
         // Assert
         verify(notifyEndpoints, times(1)).notify(
             listOfEndpoints,
-            EndpointNotifyAction.CertificateRenew
+            NotificationType.GatewayCertificateChange
         )
     }
 
@@ -54,11 +54,11 @@ class NotifyEndpointsToRenewCertificateTest {
         // Assert
         verify(notifyEndpoints, never()).notify(
             any<List<LocalEndpoint>>(),
-            eq(EndpointNotifyAction.CertificateRenew)
+            eq(NotificationType.GatewayCertificateChange)
         )
     }
 
-    fun build() = NotifyEndpointsToRenewCertificate(
+    fun build() = GatewayCertificateChangeNotifier(
         notifyEndpoints,
         endpointDao
     )

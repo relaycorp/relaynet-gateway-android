@@ -9,8 +9,8 @@ open class GetEndpointReceiver
     private val packageManager: PackageManager
 ) {
 
-    open fun get(applicationId: String, endpoint: EndpointNotifyAction): String? {
-        val intent = Intent(endpoint.action)
+    open fun get(applicationId: String, action: NotificationType): String? {
+        val intent = Intent(action.action)
             .setPackage(applicationId)
 
         return packageManager.queryBroadcastReceivers(intent, 0).firstOrNull()?.activityInfo?.name

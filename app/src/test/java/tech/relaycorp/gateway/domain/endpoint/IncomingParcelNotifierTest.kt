@@ -16,7 +16,7 @@ import tech.relaycorp.gateway.test.factory.LocalEndpointFactory
 import tech.relaycorp.gateway.test.factory.StoredParcelFactory
 import kotlin.test.assertEquals
 
-class NotifyEndpointsOfParcelsTest {
+class IncomingParcelNotifierTest {
 
     private val storedParcelDao = mock<StoredParcelDao>()
     private val localEndpointDao = mock<LocalEndpointDao>()
@@ -56,7 +56,7 @@ class NotifyEndpointsOfParcelsTest {
         )
         verify(notifyEndpoints).notify(
             listOf(endpoint1, endpoint2),
-            EndpointNotifyAction.ParcelToReceive
+            NotificationType.IncomingParcel
         )
     }
 
@@ -78,7 +78,7 @@ class NotifyEndpointsOfParcelsTest {
         )
         verify(notifyEndpoints).notify(
             endpoint1,
-            EndpointNotifyAction.ParcelToReceive
+            NotificationType.IncomingParcel
         )
     }
 
@@ -95,7 +95,7 @@ class NotifyEndpointsOfParcelsTest {
         verify(notifyEndpoints, never()).notify(any<LocalEndpoint>(), any())
     }
 
-    fun build() = NotifyEndpointsOfParcels(
+    fun build() = IncomingParcelNotifier(
         notifyEndpoints,
         storedParcelDao,
         localEndpointDao
