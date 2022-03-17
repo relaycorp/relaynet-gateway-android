@@ -31,7 +31,6 @@ class RotateCertificateTest {
             KeyPairSet.PRIVATE_GW.public,
             KeyPairSet.PUBLIC_GW.private,
             ZonedDateTime.now().plusYears(10),
-            PDACertPath.PUBLIC_GW,
             validityStartDate = ZonedDateTime.now().minusDays(1)
         )
         val certificateRotation = CertificateRotation(

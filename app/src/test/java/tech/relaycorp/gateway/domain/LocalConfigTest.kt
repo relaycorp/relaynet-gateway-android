@@ -1,6 +1,7 @@
 package tech.relaycorp.gateway.domain
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -12,14 +13,18 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.gateway.data.disk.FileStore
+import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.test.BaseDataTestCase
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import kotlin.test.assertEquals
 
 class LocalConfigTest : BaseDataTestCase() {
 
     private val fileStore = mock<FileStore>()
-    private val localConfig =
-        LocalConfig(fileStore, privateKeyStoreProvider, certificateStoreProvider)
+    private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
+    private val localConfig = LocalConfig(
+        fileStore, privateKeyStoreProvider, certificateStoreProvider, publicGatewayPreferences
+    )
 
     @BeforeEach
     fun setUp() {
@@ -35,6 +40,8 @@ class LocalConfigTest : BaseDataTestCase() {
                 val key = it.getArgument<String>(0)
                 memoryStore[key]
             }
+            whenever(publicGatewayPreferences.getPrivateAddress())
+                .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
         }
     }
 
@@ -103,6 +110,19 @@ class LocalConfigTest : BaseDataTestCase() {
 
             assertEquals(originalKeyPair, keyPair)
         }
+
+        @Test
+        fun `Correct public gateway private address used as issuer in set identity certificate `() =
+            runBlockingTest {
+                localConfig.bootstrap()
+
+                verify(certificateStore).setCertificate(
+                    any(),
+                    any(),
+                    any(),
+                    eq(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
+                )
+            }
 
         @Test
         fun `CDA issuer should be created if it doesn't already exist`() = runBlockingTest {

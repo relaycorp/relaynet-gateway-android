@@ -2,6 +2,7 @@ package tech.relaycorp.gateway.domain.endpoint
 
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -11,6 +12,7 @@ import tech.relaycorp.gateway.data.database.LocalEndpointDao
 import tech.relaycorp.gateway.data.disk.FileStore
 import tech.relaycorp.gateway.data.model.LocalEndpoint
 import tech.relaycorp.gateway.data.model.PrivateMessageAddress
+import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.relaynet.messages.InvalidMessageException
@@ -29,8 +31,11 @@ import kotlin.test.assertTrue
 class EndpointRegistrationTest : BaseDataTestCase() {
     private val mockLocalEndpointDao = mock<LocalEndpointDao>()
     private val mockFileStore = mock<FileStore>()
-    private val mockLocalConfig =
-        LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
+    private val mockPublicGatewayPreferences = mock<PublicGatewayPreferences>()
+    private val mockLocalConfig = LocalConfig(
+        mockFileStore, privateKeyStoreProvider, certificateStoreProvider,
+        mockPublicGatewayPreferences
+    )
     private val endpointRegistration = EndpointRegistration(mockLocalEndpointDao, mockLocalConfig)
 
     private val dummyApplicationId = "tech.relaycorp.foo"
@@ -38,6 +43,8 @@ class EndpointRegistrationTest : BaseDataTestCase() {
     @BeforeEach
     internal fun setUp() = runBlockingTest {
         registerPrivateGatewayIdentity()
+        whenever(mockPublicGatewayPreferences.getPrivateAddress())
+            .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
     }
 
     @Nested
@@ -74,7 +81,7 @@ class EndpointRegistrationTest : BaseDataTestCase() {
     @Nested
     inner class Register {
         private val authorization = PrivateNodeRegistrationAuthorization(
-            ZonedDateTime.now().plusSeconds(3),
+            ZonedDateTime.now().plusSeconds(10),
             dummyApplicationId.toByteArray()
         )
         private val crr = PrivateNodeRegistrationRequest(
@@ -145,17 +152,13 @@ class EndpointRegistrationTest : BaseDataTestCase() {
             }
 
             @Test
-            fun `Expiry date should be in three years`() = runBlockingTest {
+            fun `Expiry date should be the same as identity certificate`() = runBlockingTest {
                 val registrationSerialized = endpointRegistration.register(crr)
 
                 val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
-                val threeYearsFromNow = ZonedDateTime.now().plusYears(3)
                 assertEquals(
-                    0,
-                    ChronoUnit.MINUTES.between(
-                        registration.privateNodeCertificate.expiryDate,
-                        threeYearsFromNow
-                    )
+                    PDACertPath.PRIVATE_GW.expiryDate,
+                    registration.privateNodeCertificate.expiryDate
                 )
             }
         }

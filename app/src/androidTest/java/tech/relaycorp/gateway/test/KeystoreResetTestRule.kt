@@ -5,6 +5,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
+import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.relaynet.keystores.CertificateStore
 import tech.relaycorp.relaynet.keystores.PrivateKeyStore
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
@@ -21,6 +22,9 @@ class KeystoreResetTestRule : TestRule {
     lateinit var privateKeyStore: PrivateKeyStore
 
     @Inject
+    lateinit var publicGatewayPreferences: PublicGatewayPreferences
+
+    @Inject
     lateinit var certificateStore: CertificateStore
 
     override fun apply(base: Statement, description: Description?) =
@@ -32,7 +36,11 @@ class KeystoreResetTestRule : TestRule {
                 keystoresFile.deleteRecursively()
                 runBlocking {
                     privateKeyStore.saveIdentityKey(KeyPairSet.PRIVATE_GW.private)
-                    certificateStore.save(PDACertPath.PRIVATE_GW)
+                    certificateStore.save(
+                        PDACertPath.PRIVATE_GW,
+                        emptyList(),
+                        publicGatewayPreferences.getPrivateAddress()
+                    )
                 }
 
                 base.evaluate()

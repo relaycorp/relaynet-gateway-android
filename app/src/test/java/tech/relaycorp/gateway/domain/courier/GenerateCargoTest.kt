@@ -31,8 +31,9 @@ class GenerateCargoTest : BaseDataTestCase() {
     private val diskMessageOperations = mock<DiskMessageOperations>()
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
     private val mockFileStore = mock<FileStore>()
-    private val localConfig =
-        LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
+    private val localConfig = LocalConfig(
+        mockFileStore, privateKeyStoreProvider, certificateStoreProvider, publicGatewayPreferences
+    )
     private val calculateCRCMessageCreationDate = mock<CalculateCRCMessageCreationDate>()
     private val generateCargo = GenerateCargo(
         storedParcelDao,
@@ -47,6 +48,8 @@ class GenerateCargoTest : BaseDataTestCase() {
     @BeforeEach
     internal fun setUp() = runBlockingTest {
         registerPrivateGatewayIdentity()
+        whenever(publicGatewayPreferences.getPrivateAddress())
+            .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
         whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn("https://example.org")
         whenever(publicGatewayPreferences.getCertificate()).thenReturn(PDACertPath.PUBLIC_GW)
         whenever(calculateCRCMessageCreationDate.calculate()).thenReturn(nowInUtc())

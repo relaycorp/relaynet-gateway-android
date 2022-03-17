@@ -3,6 +3,7 @@ package tech.relaycorp.gateway.domain
 import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.common.toPublicKey
 import tech.relaycorp.gateway.data.disk.FileStore
+import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.courier.CalculateCRCMessageCreationDate
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.keystores.CertificateStore
@@ -22,7 +23,8 @@ class LocalConfig
 @Inject constructor(
     private val fileStore: FileStore,
     private val privateKeyStore: Provider<PrivateKeyStore>,
-    private val certificateStore: Provider<CertificateStore>
+    private val certificateStore: Provider<CertificateStore>,
+    private val publicGatewayPreferences: PublicGatewayPreferences
 ) {
     // Private Gateway Key Pair
 
@@ -42,7 +44,8 @@ class LocalConfig
         getIdentityCertificationPath().leafCertificate
 
     private suspend fun getIdentityCertificationPath(): CertificationPath = getIdentityKey().let {
-        certificateStore.get().retrieveLatest(it.privateAddress)
+        certificateStore.get()
+            .retrieveLatest(it.privateAddress, getPublicGatewayPrivateAddress())
             ?: CertificationPath(generateIdentityCertificate(it), emptyList())
     }
 
@@ -50,13 +53,15 @@ class LocalConfig
         getAllValidIdentityCertificationPaths().map { it.leafCertificate }
 
     private suspend fun getAllValidIdentityCertificationPaths(): List<CertificationPath> =
-        certificateStore.get().retrieveAll(getIdentityKey().privateAddress)
+        certificateStore.get()
+            .retrieveAll(getIdentityKey().privateAddress, getPublicGatewayPrivateAddress())
 
     suspend fun setIdentityCertificate(
         leafCertificate: Certificate,
         certificateChain: List<Certificate> = emptyList()
     ) {
-        certificateStore.get().save(leafCertificate, certificateChain)
+        certificateStore.get()
+            .save(leafCertificate, certificateChain, getPublicGatewayPrivateAddress())
     }
 
     private suspend fun generateIdentityCertificate(privateKey: PrivateKey): Certificate {
@@ -109,6 +114,9 @@ class LocalConfig
     suspend fun deleteExpiredCertificates() {
         certificateStore.get().deleteExpired()
     }
+
+    private suspend fun getPublicGatewayPrivateAddress() =
+        publicGatewayPreferences.getPrivateAddress()
 
     // Helpers
 

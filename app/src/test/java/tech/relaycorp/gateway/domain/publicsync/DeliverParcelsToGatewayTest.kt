@@ -16,9 +16,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
-import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
 import tech.relaycorp.gateway.data.disk.FileStore
+import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
 import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.DeleteParcel
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
@@ -39,8 +40,11 @@ class DeliverParcelsToGatewayTest : BaseDataTestCase() {
         override suspend fun get() = poWebClient
     }
     private val mockFileStore = mock<FileStore>()
-    private val localConfig =
-        LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
+    private val mockPublicGatewayPreferences = mock<PublicGatewayPreferences>()
+    private val localConfig = LocalConfig(
+        mockFileStore, privateKeyStoreProvider, certificateStoreProvider,
+        mockPublicGatewayPreferences
+    )
     private val deleteParcel = mock<DeleteParcel>()
     private val subject = DeliverParcelsToGateway(
         storedParcelDao, diskMessageOperations, poWebClientProvider, localConfig, deleteParcel
@@ -51,6 +55,8 @@ class DeliverParcelsToGatewayTest : BaseDataTestCase() {
         registerPrivateGatewayIdentity()
         whenever(diskMessageOperations.readMessage(any(), any()))
             .thenReturn { "".byteInputStream() }
+        whenever(mockPublicGatewayPreferences.getPrivateAddress())
+            .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
     }
 
     @Test

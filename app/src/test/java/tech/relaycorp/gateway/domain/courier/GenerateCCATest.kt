@@ -25,8 +25,9 @@ class GenerateCCATest : BaseDataTestCase() {
 
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
     private val mockFileStore = mock<FileStore>()
-    private val localConfig =
-        LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
+    private val localConfig = LocalConfig(
+        mockFileStore, privateKeyStoreProvider, certificateStoreProvider, publicGatewayPreferences
+    )
     private val calculateCreationDate = mock<CalculateCRCMessageCreationDate>()
 
     private val generateCCA = GenerateCCA(
@@ -55,6 +56,8 @@ class GenerateCCATest : BaseDataTestCase() {
             whenever(mockFileStore.read(eq(LocalConfig.CDA_CERTIFICATE_FILE_NAME)))
                 .thenReturn(certificate.serialize())
 
+            whenever(publicGatewayPreferences.getPrivateAddress())
+                .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
             whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn(ADDRESS)
             whenever(publicGatewayPreferences.getCertificate())
                 .thenReturn(CDACertPath.PUBLIC_GW)

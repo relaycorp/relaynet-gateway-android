@@ -14,7 +14,9 @@ import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import javax.inject.Inject
 import javax.inject.Provider
+import javax.inject.Singleton
 
+@Singleton
 class PublicGatewayPreferences
 @Inject constructor(
     private val preferences: Provider<FlowSharedPreferences>,
@@ -56,6 +58,7 @@ class PublicGatewayPreferences
 
     suspend fun setCertificate(value: Certificate) {
         certificate.setAndCommit(Base64.encodeToString(value.serialize(), Base64.DEFAULT))
+        privateAddressCache = value.subjectPrivateAddress
     }
 
     // Registration State
@@ -68,6 +71,19 @@ class PublicGatewayPreferences
     fun observeRegistrationState() = { registrationState }.toFlow()
     suspend fun setRegistrationState(value: RegistrationState) =
         registrationState.setAndCommit(value)
+
+    // Private Address
+
+    private var privateAddressCache: String? = null
+
+    suspend fun getPrivateAddress(): String {
+        return privateAddressCache ?: run {
+            getCertificate().subjectPrivateAddress.let {
+                privateAddressCache = it
+                return it
+            }
+        }
+    }
 
     companion object {
         @VisibleForTesting
