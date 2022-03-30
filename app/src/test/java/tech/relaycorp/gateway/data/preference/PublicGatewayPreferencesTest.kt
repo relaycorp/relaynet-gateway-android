@@ -35,6 +35,10 @@ class PublicGatewayPreferencesTest {
     private val publicGatewayTargetHost = "poweb.example.com"
     private val publicGatewayTargetPort = 135
     private val mockPublicGatewayAddressPreference = mock<Preference<String>>()
+    private val emptyStringPreference = mock<Preference<String>> {
+        whenever(it.asFlow()).thenReturn(flowOf(""))
+        whenever(it.get()).thenReturn("")
+    }
 
     @BeforeEach
     internal fun setUp() {
@@ -44,11 +48,7 @@ class PublicGatewayPreferencesTest {
                 mockSharedPreferences
                     .getString("address", PublicGatewayPreferences.DEFAULT_ADDRESS)
             ).thenReturn(mockPublicGatewayAddressPreference)
-
-            val emptyStringPreference = mock<Preference<String>> {
-                whenever(it.asFlow()).thenReturn(flowOf(""))
-            }
-            whenever(mockSharedPreferences.getString(eq("public_gateway_certificate"), anyOrNull()))
+            whenever(mockSharedPreferences.getString(eq("public_gateway_public_key"), anyOrNull()))
                 .thenReturn(emptyStringPreference)
         }
     }
@@ -78,14 +78,48 @@ class PublicGatewayPreferencesTest {
     }
 
     @Nested
+    inner class GetPublicKey {
+        @Test
+        fun `getPublicKey returns certificate public key`() = runBlockingTest {
+            whenever(mockReadRawFile.read(any())).thenReturn(PDACertPath.PUBLIC_GW.serialize())
+
+            val publicKey = gwPreferences.getPublicKey()
+
+            assertEquals(PDACertPath.PUBLIC_GW.subjectPublicKey, publicKey)
+        }
+    }
+
+    @Nested
     inner class GetPrivateAddress {
         @Test
         fun `getPrivateAddress returns certificate private address`() = runBlockingTest {
+            whenever(
+                mockSharedPreferences.getString(
+                    eq("public_gateway_private_address"),
+                    anyOrNull()
+                )
+            )
+                .thenReturn(emptyStringPreference)
             whenever(mockReadRawFile.read(any())).thenReturn(PDACertPath.PUBLIC_GW.serialize())
 
             val address = gwPreferences.getPrivateAddress()
 
             assertEquals(PDACertPath.PUBLIC_GW.subjectPrivateAddress, address)
+        }
+
+        @Test
+        fun `getPrivateAddress returns cached private address`() = runBlockingTest {
+            val preference = mock<Preference<String>> {
+                whenever(it.get()).thenReturn("private_address")
+            }
+            whenever(
+                mockSharedPreferences.getString(eq("public_gateway_private_address"), anyOrNull())
+            )
+                .thenReturn(preference)
+
+            val address = gwPreferences.getPrivateAddress()
+
+            assertEquals("private_address", address)
         }
     }
 }

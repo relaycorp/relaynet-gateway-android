@@ -94,7 +94,7 @@ class RegisterGateway
     ) {
         publicGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
         publicGatewayPreferences.setAddress(publicGatewayPublicAddress)
-        publicGatewayPreferences.setCertificate(registration.gatewayCertificate)
+        publicGatewayPreferences.setPublicKey(registration.gatewayCertificate.subjectPublicKey)
         localConfig.setIdentityCertificate(registration.privateNodeCertificate)
         publicKeyStore.save(
             registration.gatewaySessionKey!!,

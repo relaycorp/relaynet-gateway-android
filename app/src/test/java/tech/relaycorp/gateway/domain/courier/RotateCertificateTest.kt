@@ -44,7 +44,7 @@ class RotateCertificateTest {
             check { assertArrayEquals(newIdCertificate.serialize(), it.serialize()) },
             any()
         )
-        verify(publicGatewayPreferences).setCertificate(PDACertPath.PUBLIC_GW)
+        verify(publicGatewayPreferences).setPublicKey(PDACertPath.PUBLIC_GW.subjectPublicKey)
     }
 
     @Test
@@ -52,7 +52,7 @@ class RotateCertificateTest {
         rotateCertificate("invalid".toByteArray())
 
         verify(localConfig, never()).setIdentityCertificate(any(), any())
-        verify(publicGatewayPreferences, never()).setCertificate(any())
+        verify(publicGatewayPreferences, never()).setPublicKey(any())
     }
 
     @Test
@@ -72,6 +72,6 @@ class RotateCertificateTest {
         rotateCertificate(certificateRotation.serialize())
 
         verify(localConfig, never()).setIdentityCertificate(any(), any())
-        verify(publicGatewayPreferences, never()).setCertificate(any())
+        verify(publicGatewayPreferences, never()).setPublicKey(any())
     }
 }

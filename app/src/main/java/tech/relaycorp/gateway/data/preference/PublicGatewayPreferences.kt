@@ -11,7 +11,10 @@ import tech.relaycorp.gateway.data.disk.ReadRawFile
 import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
+import tech.relaycorp.relaynet.wrappers.deserializeRSAPublicKey
+import tech.relaycorp.relaynet.wrappers.privateAddress
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
+import java.security.PublicKey
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
@@ -38,27 +41,46 @@ class PublicGatewayPreferences
     @Throws(PublicAddressResolutionException::class)
     suspend fun getPoWebAddress() = resolveServiceAddress.resolvePoWeb(getAddress())
 
-    // Certificate
+    // Public Key
 
-    private val certificate by lazy {
-        preferences.get().getString("public_gateway_certificate")
+    private val publicKey by lazy {
+        preferences.get().getString("public_gateway_public_key")
     }
 
-    suspend fun getCertificate() = observeCertificate().first()
+    suspend fun getPublicKey(): PublicKey = observePublicKey().first()
 
-    private fun observeCertificate() = { certificate }.toFlow()
+    private fun observePublicKey(): Flow<PublicKey> = { publicKey }.toFlow()
         .map {
-            val certificateBytes = if (it.isEmpty()) {
+            if (it.isEmpty()) {
                 readRawFile.read(R.raw.public_gateway_cert)
+                    .let(Certificate.Companion::deserialize)
+                    .subjectPublicKey
             } else {
                 Base64.decode(it, Base64.DEFAULT)
+                    .deserializeRSAPublicKey()
             }
-            Certificate.deserialize(certificateBytes)
         }
 
-    suspend fun setCertificate(value: Certificate) {
-        certificate.setAndCommit(Base64.encodeToString(value.serialize(), Base64.DEFAULT))
-        privateAddressCache = value.subjectPrivateAddress
+    suspend fun setPublicKey(value: PublicKey) {
+        publicKey.setAndCommit(Base64.encodeToString(value.encoded, Base64.DEFAULT))
+        setPrivateAddress(value.privateAddress)
+    }
+
+    // Private Address
+
+    private val privateAddress by lazy {
+        preferences.get().getString("public_gateway_private_address")
+    }
+
+    suspend fun getPrivateAddress(): String =
+        privateAddress.get().ifEmpty {
+            getPublicKey().privateAddress.also {
+                setPrivateAddress(it)
+            }
+        }
+
+    private suspend fun setPrivateAddress(value: String) {
+        privateAddress.setAndCommit(value)
     }
 
     // Registration State
@@ -71,19 +93,6 @@ class PublicGatewayPreferences
     fun observeRegistrationState() = { registrationState }.toFlow()
     suspend fun setRegistrationState(value: RegistrationState) =
         registrationState.setAndCommit(value)
-
-    // Private Address
-
-    private var privateAddressCache: String? = null
-
-    suspend fun getPrivateAddress(): String {
-        return privateAddressCache ?: run {
-            getCertificate().subjectPrivateAddress.let {
-                privateAddressCache = it
-                return it
-            }
-        }
-    }
 
     companion object {
         @VisibleForTesting

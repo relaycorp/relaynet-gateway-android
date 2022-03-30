@@ -16,7 +16,6 @@ import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.CargoCollectionAuthorization
-import tech.relaycorp.relaynet.testing.pki.CDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import java.time.Duration
@@ -59,8 +58,8 @@ class GenerateCCATest : BaseDataTestCase() {
             whenever(publicGatewayPreferences.getPrivateAddress())
                 .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
             whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn(ADDRESS)
-            whenever(publicGatewayPreferences.getCertificate())
-                .thenReturn(CDACertPath.PUBLIC_GW)
+            whenever(publicGatewayPreferences.getPublicKey())
+                .thenReturn(KeyPairSet.PUBLIC_GW.public)
 
             registerPublicGatewaySessionKey()
         }

@@ -128,7 +128,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
         registerGateway.registerIfNeeded()
 
-        verify(pgwPreferences).setCertificate(eq(pnr.gatewayCertificate))
+        verify(pgwPreferences).setPublicKey(eq(pnr.gatewayCertificate.subjectPublicKey))
         verify(pgwPreferences).setRegistrationState(eq(RegistrationState.Done))
         publicKeyStore.retrieve(pnr.gatewayCertificate.subjectPrivateAddress)
         assertEquals(pnr.privateNodeCertificate, localConfig.getIdentityCertificate())
@@ -142,7 +142,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
         assertEquals(RegisterGateway.Result.FailedToRegister, registerGateway.registerIfNeeded())
 
-        verify(pgwPreferences, never()).setCertificate(any())
+        verify(pgwPreferences, never()).setPublicKey(any())
         verify(pgwPreferences, never()).setRegistrationState(any())
         assertEquals(0, publicKeyStore.keys.size)
     }
@@ -157,7 +157,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
         assertEquals(RegisterGateway.Result.FailedToRegister, registerGateway.registerIfNeeded())
 
-        verify(pgwPreferences, never()).setCertificate(any())
+        verify(pgwPreferences, never()).setPublicKey(any())
         verify(pgwPreferences, never()).setRegistrationState(any())
         assertEquals(0, publicKeyStore.keys.size)
     }

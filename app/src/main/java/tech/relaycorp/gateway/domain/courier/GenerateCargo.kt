@@ -97,7 +97,7 @@ class GenerateCargo
         logger.info("Generating cargo for $recipientAddress")
         val cargoMessageSetCiphertext = gatewayManager.get().wrapMessagePayload(
             cargoMessageSet,
-            publicGatewayPreferences.getCertificate().subjectPrivateAddress,
+            publicGatewayPreferences.getPrivateAddress(),
             identityCert.subjectPrivateAddress
         )
         val cargo = Cargo(
