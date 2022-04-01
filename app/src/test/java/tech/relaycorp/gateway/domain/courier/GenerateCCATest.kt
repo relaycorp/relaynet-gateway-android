@@ -16,7 +16,6 @@ import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.CargoCollectionAuthorization
-import tech.relaycorp.relaynet.testing.pki.CDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import java.time.Duration
@@ -25,8 +24,9 @@ class GenerateCCATest : BaseDataTestCase() {
 
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
     private val mockFileStore = mock<FileStore>()
-    private val localConfig =
-        LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
+    private val localConfig = LocalConfig(
+        mockFileStore, privateKeyStoreProvider, certificateStoreProvider, publicGatewayPreferences
+    )
     private val calculateCreationDate = mock<CalculateCRCMessageCreationDate>()
 
     private val generateCCA = GenerateCCA(
@@ -55,9 +55,11 @@ class GenerateCCATest : BaseDataTestCase() {
             whenever(mockFileStore.read(eq(LocalConfig.CDA_CERTIFICATE_FILE_NAME)))
                 .thenReturn(certificate.serialize())
 
+            whenever(publicGatewayPreferences.getPrivateAddress())
+                .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
             whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn(ADDRESS)
-            whenever(publicGatewayPreferences.getCertificate())
-                .thenReturn(CDACertPath.PUBLIC_GW)
+            whenever(publicGatewayPreferences.getPublicKey())
+                .thenReturn(KeyPairSet.PUBLIC_GW.public)
 
             registerPublicGatewaySessionKey()
         }

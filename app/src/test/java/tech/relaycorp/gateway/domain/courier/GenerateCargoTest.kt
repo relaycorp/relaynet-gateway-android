@@ -20,6 +20,7 @@ import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.gateway.test.factory.ParcelCollectionFactory
 import tech.relaycorp.gateway.test.factory.StoredParcelFactory
 import tech.relaycorp.relaynet.messages.Cargo
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import java.io.InputStream
 import java.time.Duration
@@ -31,8 +32,9 @@ class GenerateCargoTest : BaseDataTestCase() {
     private val diskMessageOperations = mock<DiskMessageOperations>()
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
     private val mockFileStore = mock<FileStore>()
-    private val localConfig =
-        LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
+    private val localConfig = LocalConfig(
+        mockFileStore, privateKeyStoreProvider, certificateStoreProvider, publicGatewayPreferences
+    )
     private val calculateCRCMessageCreationDate = mock<CalculateCRCMessageCreationDate>()
     private val generateCargo = GenerateCargo(
         storedParcelDao,
@@ -47,8 +49,10 @@ class GenerateCargoTest : BaseDataTestCase() {
     @BeforeEach
     internal fun setUp() = runBlockingTest {
         registerPrivateGatewayIdentity()
+        whenever(publicGatewayPreferences.getPrivateAddress())
+            .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
         whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn("https://example.org")
-        whenever(publicGatewayPreferences.getCertificate()).thenReturn(PDACertPath.PUBLIC_GW)
+        whenever(publicGatewayPreferences.getPublicKey()).thenReturn(KeyPairSet.PUBLIC_GW.public)
         whenever(calculateCRCMessageCreationDate.calculate()).thenReturn(nowInUtc())
 
         val messageStream: () -> InputStream = "ABC".toByteArray()::inputStream

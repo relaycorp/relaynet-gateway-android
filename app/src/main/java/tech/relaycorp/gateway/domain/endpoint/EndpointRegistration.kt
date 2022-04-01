@@ -54,7 +54,7 @@ class EndpointRegistration
         val endpointCertificate = issueEndpointCertificate(
             request.privateNodePublicKey,
             identityKey,
-            ZonedDateTime.now().plusYears(ENDPOINT_CERTIFICATE_VALIDITY_YEARS),
+            identityCert.expiryDate,
             identityCert
         )
         val registration = PrivateNodeRegistration(endpointCertificate, identityCert)
@@ -63,6 +63,5 @@ class EndpointRegistration
 
     companion object {
         private const val AUTHORIZATION_VALIDITY_SECONDS: Long = 15
-        private const val ENDPOINT_CERTIFICATE_VALIDITY_YEARS = 3L
     }
 }

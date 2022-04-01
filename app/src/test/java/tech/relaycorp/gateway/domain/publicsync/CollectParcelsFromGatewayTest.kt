@@ -24,6 +24,7 @@ import tech.relaycorp.gateway.data.disk.FileStore
 import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
+import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.domain.endpoint.IncomingParcelNotifier
@@ -48,8 +49,11 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
         override suspend fun get() = poWebClient
     }
     private val mockFileStore = mock<FileStore>()
-    private val mockLocalConfig =
-        LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
+    private val mockPublicGatewayPreferences = mock<PublicGatewayPreferences>()
+    private val mockLocalConfig = LocalConfig(
+        mockFileStore, privateKeyStoreProvider, certificateStoreProvider,
+        mockPublicGatewayPreferences
+    )
     private val notifyEndpoints = mock<IncomingParcelNotifier>()
     private val subject = CollectParcelsFromGateway(
         storeParcel, poWebClientBuilder, notifyEndpoints, mockLocalConfig
@@ -60,6 +64,8 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
         registerPrivateGatewayIdentity()
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.Success(mock()))
+        whenever(mockPublicGatewayPreferences.getPrivateAddress())
+            .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
     }
 
     @Test

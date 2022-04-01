@@ -38,7 +38,9 @@ abstract class BaseDataTestCase {
 
     protected suspend fun registerPrivateGatewayIdentity() {
         privateKeyStore.saveIdentityKey(KeyPairSet.PRIVATE_GW.private)
-        certificateStore.save(PDACertPath.PRIVATE_GW)
+        certificateStore.save(
+            PDACertPath.PRIVATE_GW, emptyList(), PDACertPath.PUBLIC_GW.subjectPrivateAddress
+        )
     }
 
     protected suspend fun registerPrivateGatewaySessionKey() {

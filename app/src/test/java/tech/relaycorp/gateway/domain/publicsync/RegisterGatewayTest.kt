@@ -36,8 +36,9 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
     private val pgwPreferences = mock<PublicGatewayPreferences>()
     private val mockFileStore = mock<FileStore>()
-    private val localConfig =
-        LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
+    private val localConfig = LocalConfig(
+        mockFileStore, privateKeyStoreProvider, certificateStoreProvider, pgwPreferences
+    )
     private val poWebClient = mock<PoWebClient>()
     private val poWebClientBuilder = object : PoWebClientBuilder {
         override suspend fun build(address: ServiceAddress) = poWebClient
@@ -56,6 +57,8 @@ class RegisterGatewayTest : BaseDataTestCase() {
     @BeforeEach
     internal fun setUp() = runBlockingTest {
         registerPrivateGatewayIdentity()
+        whenever(pgwPreferences.getPrivateAddress())
+            .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
     }
 
     @Test
@@ -87,7 +90,6 @@ class RegisterGatewayTest : BaseDataTestCase() {
                 KeyPairSet.PRIVATE_GW.public,
                 KeyPairSet.PUBLIC_GW.private,
                 ZonedDateTime.now().plusYears(1), // not expiring soon
-                PDACertPath.PUBLIC_GW,
                 validityStartDate = ZonedDateTime.now().minusSeconds(1)
             )
         )
@@ -130,7 +132,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
         registerGateway.registerIfNeeded()
 
-        verify(pgwPreferences).setCertificate(eq(pnr.gatewayCertificate))
+        verify(pgwPreferences).setPublicKey(eq(pnr.gatewayCertificate.subjectPublicKey))
         verify(pgwPreferences).setRegistrationState(eq(RegistrationState.Done))
         publicKeyStore.retrieve(pnr.gatewayCertificate.subjectPrivateAddress)
         assertEquals(pnr.privateNodeCertificate, localConfig.getIdentityCertificate())
@@ -144,7 +146,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
         assertEquals(RegisterGateway.Result.FailedToRegister, registerGateway.registerIfNeeded())
 
-        verify(pgwPreferences, never()).setCertificate(any())
+        verify(pgwPreferences, never()).setPublicKey(any())
         verify(pgwPreferences, never()).setRegistrationState(any())
         assertEquals(0, publicKeyStore.keys.size)
     }
@@ -159,7 +161,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
         assertEquals(RegisterGateway.Result.FailedToRegister, registerGateway.registerIfNeeded())
 
-        verify(pgwPreferences, never()).setCertificate(any())
+        verify(pgwPreferences, never()).setPublicKey(any())
         verify(pgwPreferences, never()).setRegistrationState(any())
         assertEquals(0, publicKeyStore.keys.size)
     }

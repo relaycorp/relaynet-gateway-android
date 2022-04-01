@@ -35,7 +35,6 @@ class RotateCertificateTest {
             KeyPairSet.PRIVATE_GW.public,
             KeyPairSet.PUBLIC_GW.private,
             ZonedDateTime.now().plusYears(10),
-            PDACertPath.PUBLIC_GW,
             validityStartDate = ZonedDateTime.now().minusDays(1)
         )
         val certificateRotation = CertificateRotation(
@@ -49,7 +48,7 @@ class RotateCertificateTest {
             check { assertArrayEquals(newIdCertificate.serialize(), it.serialize()) },
             any()
         )
-        verify(publicGatewayPreferences).setCertificate(PDACertPath.PUBLIC_GW)
+        verify(publicGatewayPreferences).setPublicKey(PDACertPath.PUBLIC_GW.subjectPublicKey)
     }
 
     @Test
@@ -57,7 +56,7 @@ class RotateCertificateTest {
         rotateCertificate("invalid".toByteArray())
 
         verify(localConfig, never()).setIdentityCertificate(any(), any())
-        verify(publicGatewayPreferences, never()).setCertificate(any())
+        verify(publicGatewayPreferences, never()).setPublicKey(any())
         verify(notifyEndpoints, never()).notifyAll()
     }
 
@@ -78,23 +77,24 @@ class RotateCertificateTest {
         rotateCertificate(certificateRotation.serialize())
 
         verify(localConfig, never()).setIdentityCertificate(any(), any())
-        verify(publicGatewayPreferences, never()).setCertificate(any())
+        verify(publicGatewayPreferences, never()).setPublicKey(any())
         verify(notifyEndpoints, never()).notifyAll()
     }
 
     @Test
     fun `new certificate triggers notification`() = runBlockingTest {
-        val newIdCertificate = issueGatewayCertificate(
+        val oldCertificate = issueGatewayCertificate(
             KeyPairSet.PRIVATE_GW.public,
             KeyPairSet.PUBLIC_GW.private,
-            ZonedDateTime.now().plusYears(10),
+            PDACertPath.PRIVATE_GW.expiryDate.minusSeconds(1),
             PDACertPath.PUBLIC_GW,
             validityStartDate = ZonedDateTime.now().minusDays(1)
         )
         val certificateRotation = CertificateRotation(
-            newIdCertificate, listOf(PDACertPath.PUBLIC_GW)
+            PDACertPath.PRIVATE_GW, listOf(PDACertPath.PUBLIC_GW)
         )
-        whenever(localConfig.getIdentityCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
+        whenever(localConfig.getIdentityCertificate()).thenReturn(oldCertificate)
+
         rotateCertificate(certificateRotation.serialize())
 
         verify(notifyEndpoints, times(1)).notifyAll()

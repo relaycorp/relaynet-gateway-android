@@ -30,7 +30,7 @@ class RotateCertificate @Inject constructor(
 
         localConfig.setIdentityCertificate(newIdCert)
         certRotation.chain.first().let { publicGatewayCert ->
-            publicGatewayPreferences.setCertificate(publicGatewayCert)
+            publicGatewayPreferences.setPublicKey(publicGatewayCert.subjectPublicKey)
         }
 
         notifyEndpointsChangeNotifier.notifyAll()
