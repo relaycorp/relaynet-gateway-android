@@ -26,7 +26,7 @@ import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.StoreParcel
-import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
+import tech.relaycorp.gateway.domain.endpoint.IncomingParcelNotifier
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.poweb.PoWebClient
@@ -50,9 +50,9 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
     private val mockFileStore = mock<FileStore>()
     private val mockLocalConfig =
         LocalConfig(mockFileStore, privateKeyStoreProvider, certificateStoreProvider)
-    private val notifyEndpoints = mock<NotifyEndpoints>()
+    private val notifyEndpoints = mock<IncomingParcelNotifier>()
     private val subject = CollectParcelsFromGateway(
-        storeParcel, poWebClientBuilder, mockLocalConfig, notifyEndpoints
+        storeParcel, poWebClientBuilder, notifyEndpoints, mockLocalConfig
     )
 
     @BeforeEach
@@ -68,7 +68,7 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
             override suspend fun get() = throw PublicAddressResolutionException("Whoops")
         }
         val subject = CollectParcelsFromGateway(
-            storeParcel, failingPoWebClientProvider, mockLocalConfig, notifyEndpoints
+            storeParcel, failingPoWebClientProvider, notifyEndpoints, mockLocalConfig
         )
 
         subject.collect(false)

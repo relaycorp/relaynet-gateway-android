@@ -6,6 +6,7 @@ import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
+import tech.relaycorp.gateway.domain.endpoint.GatewayCertificateChangeNotifier
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.bindings.pdc.ServerException
@@ -19,6 +20,7 @@ import javax.inject.Inject
 @JvmSuppressWildcards
 class RegisterGateway
 @Inject constructor(
+    private val gatewayCertificateChangeNotifier: GatewayCertificateChangeNotifier,
     private val publicGatewayPreferences: PublicGatewayPreferences,
     private val localConfig: LocalConfig,
     private val poWebClientBuilder: PoWebClientBuilder,
@@ -27,8 +29,11 @@ class RegisterGateway
 ) {
 
     suspend fun registerIfNeeded(): Result {
+        val isFirstRegistration =
+            publicGatewayPreferences.getRegistrationState() == RegistrationState.ToDo
+
         if (
-            publicGatewayPreferences.getRegistrationState() != RegistrationState.ToDo &&
+            !isFirstRegistration &&
             !currentCertificateIsAboutToExpire()
         ) {
             return Result.AlreadyRegisteredAndNotExpiring
@@ -38,7 +43,12 @@ class RegisterGateway
         val result = register(address)
         if (result is Result.Registered) {
             saveSuccessfulResult(address, result.pnr)
+
+            if (!isFirstRegistration) {
+                gatewayCertificateChangeNotifier.notifyAll()
+            }
         }
+
         return result
     }
 
