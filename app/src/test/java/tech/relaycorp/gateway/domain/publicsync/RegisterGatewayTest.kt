@@ -17,6 +17,7 @@ import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.model.ServiceAddress
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
+import tech.relaycorp.gateway.domain.endpoint.GatewayCertificateChangeNotifier
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.poweb.PoWebClient
@@ -43,7 +44,9 @@ class RegisterGatewayTest : BaseDataTestCase() {
         override suspend fun build(address: ServiceAddress) = poWebClient
     }
     private val resolveServiceAddress = mock<ResolveServiceAddress>()
+    private val notifyEndpoints = mock<GatewayCertificateChangeNotifier>()
     private val registerGateway = RegisterGateway(
+        notifyEndpoints,
         pgwPreferences,
         localConfig,
         poWebClientBuilder,
@@ -59,13 +62,14 @@ class RegisterGatewayTest : BaseDataTestCase() {
     }
 
     @Test
-    fun `Failure to resolve PoWeb address should be ignored`() = runBlockingTest {
+    fun `failure to resolve PoWeb address should be ignored`() = runBlockingTest {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.ToDo)
         val failingPoWebClientBuilder = object : PoWebClientBuilder {
             override suspend fun build(address: ServiceAddress) =
                 throw PublicAddressResolutionException("Whoops")
         }
         val registerGateway = RegisterGateway(
+            notifyEndpoints,
             pgwPreferences,
             localConfig,
             failingPoWebClientBuilder,
@@ -160,6 +164,32 @@ class RegisterGatewayTest : BaseDataTestCase() {
         verify(pgwPreferences, never()).setPublicKey(any())
         verify(pgwPreferences, never()).setRegistrationState(any())
         assertEquals(0, publicKeyStore.keys.size)
+    }
+
+    @Test
+    fun `new certificate triggers notification`() = runBlockingTest {
+        whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.Done)
+        val pnrr = buildPNRR()
+        whenever(poWebClient.preRegisterNode(any())).thenReturn(pnrr)
+        val pnr = buildPNR(publicGatewaySessionKeyPair.sessionKey)
+        whenever(poWebClient.registerNode(any())).thenReturn(pnr)
+
+        registerGateway.registerIfNeeded()
+
+        verify(notifyEndpoints).notifyAll()
+    }
+
+    @Test
+    fun `first certificate triggers does not trigger notification`() = runBlockingTest {
+        whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.ToDo)
+        val pnrr = buildPNRR()
+        whenever(poWebClient.preRegisterNode(any())).thenReturn(pnrr)
+        val pnr = buildPNR(publicGatewaySessionKeyPair.sessionKey)
+        whenever(poWebClient.registerNode(any())).thenReturn(pnr)
+
+        registerGateway.registerIfNeeded()
+
+        verify(notifyEndpoints, never()).notifyAll()
     }
 
     private fun buildPNRR(): PrivateNodeRegistrationRequest {

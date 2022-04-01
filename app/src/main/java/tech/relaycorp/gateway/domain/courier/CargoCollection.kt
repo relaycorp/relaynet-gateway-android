@@ -9,7 +9,7 @@ import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.background.ConnectionStateObserver
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.disk.CargoStorage
-import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
+import tech.relaycorp.gateway.domain.endpoint.IncomingParcelNotifier
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
 import java.util.logging.Level
 import javax.inject.Inject
@@ -18,10 +18,10 @@ class CargoCollection
 @Inject constructor(
     private val clientBuilder: CogRPCClient.Builder,
     private val connectionStateObserver: ConnectionStateObserver,
+    private val notifyEndpoints: IncomingParcelNotifier,
     private val generateCCA: GenerateCCA,
     private val cargoStorage: CargoStorage,
-    private val processCargo: ProcessCargo,
-    private val notifyEndpoints: NotifyEndpoints
+    private val processCargo: ProcessCargo
 ) {
 
     @Throws(Disconnected::class)

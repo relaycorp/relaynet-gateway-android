@@ -11,7 +11,7 @@ import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.StoreParcel
-import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
+import tech.relaycorp.gateway.domain.endpoint.IncomingParcelNotifier
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.bindings.pdc.NonceSignerException
@@ -28,8 +28,8 @@ class CollectParcelsFromGateway
 @Inject constructor(
     private val storeParcel: StoreParcel,
     private val poWebClientProvider: PoWebClientProvider,
-    private val localConfig: LocalConfig,
-    private val notifyEndpoints: NotifyEndpoints
+    private val notifyEndpoints: IncomingParcelNotifier,
+    private val localConfig: LocalConfig
 ) {
 
     suspend fun collect(keepAlive: Boolean) {
