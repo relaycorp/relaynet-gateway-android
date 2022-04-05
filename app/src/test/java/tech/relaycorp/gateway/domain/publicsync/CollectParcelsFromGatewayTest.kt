@@ -20,7 +20,6 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import tech.relaycorp.gateway.data.disk.FileStore
 import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
@@ -48,11 +47,9 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
     private val poWebClientBuilder = object : PoWebClientProvider {
         override suspend fun get() = poWebClient
     }
-    private val mockFileStore = mock<FileStore>()
     private val mockPublicGatewayPreferences = mock<PublicGatewayPreferences>()
     private val mockLocalConfig = LocalConfig(
-        mockFileStore, privateKeyStoreProvider, certificateStoreProvider,
-        mockPublicGatewayPreferences
+        privateKeyStoreProvider, certificateStoreProvider, mockPublicGatewayPreferences
     )
     private val notifyEndpoints = mock<IncomingParcelNotifier>()
     private val subject = CollectParcelsFromGateway(
