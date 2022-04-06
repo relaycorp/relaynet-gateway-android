@@ -7,39 +7,28 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import tech.relaycorp.gateway.data.disk.FileStore
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class LocalConfigTest : BaseDataTestCase() {
 
-    private val fileStore = mock<FileStore>()
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
     private val localConfig = LocalConfig(
-        fileStore, privateKeyStoreProvider, certificateStoreProvider, publicGatewayPreferences
+        privateKeyStoreProvider, certificateStoreProvider, publicGatewayPreferences
     )
 
     @BeforeEach
     fun setUp() {
         runBlocking {
-            val memoryStore = mutableMapOf<String, ByteArray>()
-            whenever(fileStore.store(any(), any())).then {
-                val key = it.getArgument<String>(0)
-                val value = it.getArgument(1) as ByteArray
-                memoryStore[key] = value
-                Unit
-            }
-            whenever(fileStore.read(any())).thenAnswer {
-                val key = it.getArgument<String>(0)
-                memoryStore[key]
-            }
             whenever(publicGatewayPreferences.getPrivateAddress())
                 .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
         }
@@ -79,12 +68,11 @@ class LocalConfigTest : BaseDataTestCase() {
         }
 
         @Test
-        fun `Exception should be thrown if certificate does not exist yet`() = runBlockingTest {
-            val exception = assertThrows<RuntimeException> {
-                localConfig.getCargoDeliveryAuth()
-            }
+        fun `New certificate is generated if none exists`() = runBlockingTest {
+            localConfig.bootstrap()
+            certificateStore.clear()
 
-            assertEquals("No CDA issuer was found", exception.message)
+            assertNotNull(localConfig.getCargoDeliveryAuth())
         }
     }
 
@@ -139,7 +127,7 @@ class LocalConfigTest : BaseDataTestCase() {
             localConfig.bootstrap()
             val cdaIssuer = localConfig.getCargoDeliveryAuth()
 
-            assertEquals(originalCDAIssuer, cdaIssuer)
+            assertArrayEquals(originalCDAIssuer.serialize(), cdaIssuer.serialize())
         }
     }
 

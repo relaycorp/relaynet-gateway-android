@@ -13,7 +13,6 @@ import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.database.ParcelCollectionDao
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
-import tech.relaycorp.gateway.data.disk.FileStore
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.BaseDataTestCase
@@ -31,9 +30,8 @@ class GenerateCargoTest : BaseDataTestCase() {
     private val parcelCollectionDao = mock<ParcelCollectionDao>()
     private val diskMessageOperations = mock<DiskMessageOperations>()
     private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
-    private val mockFileStore = mock<FileStore>()
     private val localConfig = LocalConfig(
-        mockFileStore, privateKeyStoreProvider, certificateStoreProvider, publicGatewayPreferences
+        privateKeyStoreProvider, certificateStoreProvider, publicGatewayPreferences
     )
     private val calculateCRCMessageCreationDate = mock<CalculateCRCMessageCreationDate>()
     private val generateCargo = GenerateCargo(

@@ -1,8 +1,9 @@
 package tech.relaycorp.gateway.domain
 
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.common.toPublicKey
-import tech.relaycorp.gateway.data.disk.FileStore
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.courier.CalculateCRCMessageCreationDate
 import tech.relaycorp.relaynet.issueGatewayCertificate
@@ -17,15 +18,17 @@ import java.security.PrivateKey
 import java.security.PublicKey
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlin.time.Duration.Companion.days
 import kotlin.time.toJavaDuration
 
 class LocalConfig
 @Inject constructor(
-    private val fileStore: FileStore,
     private val privateKeyStore: Provider<PrivateKeyStore>,
     private val certificateStore: Provider<CertificateStore>,
     private val publicGatewayPreferences: PublicGatewayPreferences
 ) {
+    private val mutex = Mutex()
+
     // Private Gateway Key Pair
 
     suspend fun getIdentityKey(): PrivateKey =
@@ -70,26 +73,41 @@ class LocalConfig
         return certificate
     }
 
-    @Synchronized
     suspend fun bootstrap() {
-        try {
-            getIdentityKey()
-        } catch (_: RuntimeException) {
-            val keyPair = generateIdentityKeyPair()
-            generateIdentityCertificate(keyPair.private)
-        }
+        mutex.withLock {
+            try {
+                getIdentityKey()
+            } catch (_: RuntimeException) {
+                val keyPair = generateIdentityKeyPair()
+                generateIdentityCertificate(keyPair.private)
+            }
 
-        try {
-            getCargoDeliveryAuth()
-        } catch (_: RuntimeException) {
-            generateCargoDeliveryAuth()
+            getCargoDeliveryAuth() // Generates new CDA if non-existent
         }
     }
 
     suspend fun getCargoDeliveryAuth() =
-        fileStore.read(CDA_CERTIFICATE_FILE_NAME)
-            ?.let { Certificate.deserialize(it) }
-            ?: throw RuntimeException("No CDA issuer was found")
+        certificateStore.get()
+            .retrieveLatest(
+                getIdentityKey().privateAddress,
+                getIdentityCertificate().subjectPrivateAddress
+            )
+            ?.leafCertificate
+            .let { storedCertificate ->
+                if (storedCertificate?.isExpiringSoon() == false) {
+                    storedCertificate
+                } else {
+                    generateCargoDeliveryAuth()
+                }
+            }
+
+    suspend fun getAllValidCargoDeliveryAuth() =
+        certificateStore.get()
+            .retrieveAll(
+                getIdentityKey().privateAddress,
+                getIdentityCertificate().subjectPrivateAddress
+            )
+            .map { it.leafCertificate }
 
     private fun selfIssueCargoDeliveryAuth(
         privateKey: PrivateKey,
@@ -100,15 +118,16 @@ class LocalConfig
             issuerPrivateKey = privateKey,
             validityStartDate = nowInUtc()
                 .minus(CalculateCRCMessageCreationDate.CLOCK_DRIFT_TOLERANCE.toJavaDuration()),
-            validityEndDate = nowInUtc().plusYears(1)
+            validityEndDate = nowInUtc().plusMonths(6)
         )
     }
 
-    private suspend fun generateCargoDeliveryAuth() {
+    private suspend fun generateCargoDeliveryAuth(): Certificate {
         val key = getIdentityKey()
         val certificate = getIdentityCertificate()
         val cda = selfIssueCargoDeliveryAuth(key, certificate.subjectPublicKey)
-        fileStore.store(CDA_CERTIFICATE_FILE_NAME, cda.serialize())
+        certificateStore.get().save(cda, emptyList(), certificate.subjectPrivateAddress)
+        return cda
     }
 
     suspend fun deleteExpiredCertificates() {
@@ -118,9 +137,10 @@ class LocalConfig
     private suspend fun getPublicGatewayPrivateAddress() =
         publicGatewayPreferences.getPrivateAddress()
 
-    // Helpers
+    private fun Certificate.isExpiringSoon() =
+        expiryDate < (nowInUtc().plusNanos(CERTIFICATE_EXPIRING_THRESHOLD.inWholeNanoseconds))
 
     companion object {
-        internal const val CDA_CERTIFICATE_FILE_NAME = "cda_local_gateway.certificate"
+        private val CERTIFICATE_EXPIRING_THRESHOLD = 90.days
     }
 }
