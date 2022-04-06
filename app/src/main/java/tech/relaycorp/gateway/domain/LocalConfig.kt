@@ -16,10 +16,9 @@ import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.security.KeyPair
 import java.security.PrivateKey
 import java.security.PublicKey
-import java.time.ZonedDateTime
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlin.time.days
+import kotlin.time.Duration.Companion.days
 import kotlin.time.toJavaDuration
 
 class LocalConfig
@@ -69,9 +68,7 @@ class LocalConfig
     }
 
     private suspend fun generateIdentityCertificate(privateKey: PrivateKey): Certificate {
-        val certificate = selfIssueCargoDeliveryAuth(
-            privateKey, privateKey.toPublicKey(), nowInUtc().plusYears(1)
-        )
+        val certificate = selfIssueCargoDeliveryAuth(privateKey, privateKey.toPublicKey())
         setIdentityCertificate(certificate)
         return certificate
     }
@@ -114,24 +111,21 @@ class LocalConfig
 
     private fun selfIssueCargoDeliveryAuth(
         privateKey: PrivateKey,
-        publicKey: PublicKey,
-        expiryDate: ZonedDateTime
+        publicKey: PublicKey
     ): Certificate {
         return issueGatewayCertificate(
             subjectPublicKey = publicKey,
             issuerPrivateKey = privateKey,
             validityStartDate = nowInUtc()
                 .minus(CalculateCRCMessageCreationDate.CLOCK_DRIFT_TOLERANCE.toJavaDuration()),
-            validityEndDate = expiryDate
+            validityEndDate = nowInUtc().plusMonths(6)
         )
     }
 
     private suspend fun generateCargoDeliveryAuth(): Certificate {
         val key = getIdentityKey()
         val certificate = getIdentityCertificate()
-        val cda = selfIssueCargoDeliveryAuth(
-            key, certificate.subjectPublicKey, certificate.expiryDate
-        )
+        val cda = selfIssueCargoDeliveryAuth(key, certificate.subjectPublicKey)
         certificateStore.get().save(cda, emptyList(), certificate.subjectPrivateAddress)
         return cda
     }
@@ -147,6 +141,6 @@ class LocalConfig
         expiryDate < (nowInUtc().plusNanos(CERTIFICATE_EXPIRING_THRESHOLD.inWholeNanoseconds))
 
     companion object {
-        private val CERTIFICATE_EXPIRING_THRESHOLD = 1.days
+        private val CERTIFICATE_EXPIRING_THRESHOLD = 90.days
     }
 }
