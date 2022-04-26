@@ -8,6 +8,7 @@ import org.junit.runners.model.Statement
 import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.relaynet.keystores.CertificateStore
 import tech.relaycorp.relaynet.keystores.PrivateKeyStore
+import tech.relaycorp.relaynet.pki.CertificationPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import java.io.File
@@ -37,8 +38,10 @@ class KeystoreResetTestRule : TestRule {
                 runBlocking {
                     privateKeyStore.saveIdentityKey(KeyPairSet.PRIVATE_GW.private)
                     certificateStore.save(
-                        PDACertPath.PRIVATE_GW,
-                        emptyList(),
+                        CertificationPath(
+                            PDACertPath.PRIVATE_GW,
+                            emptyList()
+                        ),
                         publicGatewayPreferences.getPrivateAddress()
                     )
                 }
