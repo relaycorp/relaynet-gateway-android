@@ -24,12 +24,12 @@ class RotateCertificate @Inject constructor(
         }
 
         val currentIdCert = localConfig.getIdentityCertificate()
-        val newIdCert = certRotation.subjectCertificate
+        val newIdCert = certRotation.certificationPath.leafCertificate
 
         if (currentIdCert.expiryDate >= newIdCert.expiryDate) return
 
         localConfig.setIdentityCertificate(newIdCert)
-        certRotation.chain.first().let { publicGatewayCert ->
+        certRotation.certificationPath.certificateAuthorities.first().let { publicGatewayCert ->
             publicGatewayPreferences.setPublicKey(publicGatewayCert.subjectPublicKey)
         }
 

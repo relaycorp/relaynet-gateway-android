@@ -7,6 +7,7 @@ import tech.relaycorp.relaynet.SessionKeyPair
 import tech.relaycorp.relaynet.keystores.CertificateStore
 import tech.relaycorp.relaynet.keystores.PrivateKeyStore
 import tech.relaycorp.relaynet.nodes.GatewayManager
+import tech.relaycorp.relaynet.pki.CertificationPath
 import tech.relaycorp.relaynet.testing.keystores.MockCertificateStore
 import tech.relaycorp.relaynet.testing.keystores.MockPrivateKeyStore
 import tech.relaycorp.relaynet.testing.keystores.MockSessionPublicKeyStore
@@ -39,7 +40,8 @@ abstract class BaseDataTestCase {
     protected suspend fun registerPrivateGatewayIdentity() {
         privateKeyStore.saveIdentityKey(KeyPairSet.PRIVATE_GW.private)
         certificateStore.save(
-            PDACertPath.PRIVATE_GW, emptyList(), PDACertPath.PUBLIC_GW.subjectPrivateAddress
+            CertificationPath(PDACertPath.PRIVATE_GW, emptyList()),
+            PDACertPath.PUBLIC_GW.subjectPrivateAddress
         )
     }
 

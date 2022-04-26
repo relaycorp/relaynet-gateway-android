@@ -8,8 +8,8 @@ import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
 import tech.relaycorp.gateway.domain.courier.CalculateCRCMessageCreationDate
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.keystores.CertificateStore
-import tech.relaycorp.relaynet.keystores.CertificationPath
 import tech.relaycorp.relaynet.keystores.PrivateKeyStore
+import tech.relaycorp.relaynet.pki.CertificationPath
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import tech.relaycorp.relaynet.wrappers.privateAddress
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
@@ -64,7 +64,10 @@ class LocalConfig
         certificateChain: List<Certificate> = emptyList()
     ) {
         certificateStore.get()
-            .save(leafCertificate, certificateChain, getPublicGatewayPrivateAddress())
+            .save(
+                CertificationPath(leafCertificate, certificateChain),
+                getPublicGatewayPrivateAddress()
+            )
     }
 
     private suspend fun generateIdentityCertificate(privateKey: PrivateKey): Certificate {
@@ -126,7 +129,8 @@ class LocalConfig
         val key = getIdentityKey()
         val certificate = getIdentityCertificate()
         val cda = selfIssueCargoDeliveryAuth(key, certificate.subjectPublicKey)
-        certificateStore.get().save(cda, emptyList(), certificate.subjectPrivateAddress)
+        certificateStore.get()
+            .save(CertificationPath(cda, emptyList()), certificate.subjectPrivateAddress)
         return cda
     }
 

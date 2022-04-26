@@ -15,6 +15,7 @@ import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.endpoint.GatewayCertificateChangeNotifier
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.CertificateRotation
+import tech.relaycorp.relaynet.pki.CertificationPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import java.time.ZonedDateTime
@@ -38,7 +39,7 @@ class RotateCertificateTest {
             validityStartDate = ZonedDateTime.now().minusDays(1)
         )
         val certificateRotation = CertificateRotation(
-            newIdCertificate, listOf(PDACertPath.PUBLIC_GW)
+            CertificationPath(newIdCertificate, listOf(PDACertPath.PUBLIC_GW))
         )
         whenever(localConfig.getIdentityCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
 
@@ -70,7 +71,7 @@ class RotateCertificateTest {
             validityStartDate = ZonedDateTime.now().minusDays(1)
         )
         val certificateRotation = CertificateRotation(
-            newIdCertificate, listOf(PDACertPath.PUBLIC_GW)
+            CertificationPath(newIdCertificate, listOf(PDACertPath.PUBLIC_GW))
         )
         whenever(localConfig.getIdentityCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
 
@@ -91,7 +92,7 @@ class RotateCertificateTest {
             validityStartDate = ZonedDateTime.now().minusDays(1)
         )
         val certificateRotation = CertificateRotation(
-            PDACertPath.PRIVATE_GW, listOf(PDACertPath.PUBLIC_GW)
+            CertificationPath(PDACertPath.PRIVATE_GW, listOf(PDACertPath.PUBLIC_GW))
         )
         whenever(localConfig.getIdentityCertificate()).thenReturn(oldCertificate)
 
