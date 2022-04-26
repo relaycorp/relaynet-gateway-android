@@ -22,6 +22,7 @@ import tech.relaycorp.gateway.test.factory.ParcelFactory
 import tech.relaycorp.relaynet.messages.Cargo
 import tech.relaycorp.relaynet.messages.CertificateRotation
 import tech.relaycorp.relaynet.messages.payloads.CargoMessageSet
+import tech.relaycorp.relaynet.pki.CertificationPath
 import tech.relaycorp.relaynet.testing.pki.CDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
@@ -134,7 +135,8 @@ class ProcessCargoTest : BaseDataTestCase() {
 
     @Test
     internal fun `rotates certificate when certificate rotation is received`() = runBlockingTest {
-        val certRotation = CertificateRotation(PDACertPath.PRIVATE_GW, emptyList())
+        val certRotation =
+            CertificateRotation(CertificationPath(PDACertPath.PRIVATE_GW, emptyList()))
         val certRotationSerialized = certRotation.serialize()
         val cargoSerialized = generateCargoFromMessages(listOf(certRotationSerialized))
         whenever(cargoStorage.list()).thenReturn(listOf(cargoSerialized::inputStream))
