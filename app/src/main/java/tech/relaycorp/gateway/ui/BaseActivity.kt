@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.common_app_bar.appBar
 import kotlinx.android.synthetic.main.common_app_bar.toolbar
 import kotlinx.android.synthetic.main.common_app_bar.toolbarTitle
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.asFlow
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.R
@@ -56,7 +56,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        _results.sendBlocking(ActivityResult(requestCode, resultCode, data))
+        _results.trySendBlocking(ActivityResult(requestCode, resultCode, data))
     }
 
     protected fun setupNavigation(
