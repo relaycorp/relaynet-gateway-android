@@ -10,6 +10,9 @@
     <issue id="InvalidPackage">
         <!-- Ignore errors about BC importing javax.naming because we don't use those modules -->
         <ignore path="**/bcpkix-*.jar" />
+        <ignore path="**/org.jacoco/**" />
+        <ignore path="**/grpc-core*.jar" />
+        <ignore path="**/kotlinx-coroutines-core-jvm-1.5.2.jar" />
     </issue>
     <issue id="TrustAllX509TrustManager">
         <ignore path="org/bouncycastle/est/jcajce/*.class" />
