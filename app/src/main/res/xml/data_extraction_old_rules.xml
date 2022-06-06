@@ -1,4 +1,4 @@
 <full-backup-content>
-    <include domain="sharedpref" path="pref_courier.xml"/>
-    <include domain="database" path="*"/>
+    <include domain="sharedpref" path="."/>
+    <include domain="database" path="."/>
 </full-backup-content>

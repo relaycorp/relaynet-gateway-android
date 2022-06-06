@@ -156,7 +156,7 @@ dependencies {
     implementation "io.ktor:ktor-websockets:$ktorVersion"
     implementation "io.ktor:ktor-client-websockets:$ktorVersion"
     implementation "io.ktor:ktor-client-cio:$ktorVersion"
-    implementation "tech.relaycorp:doh:1.0.4" // needs ktor update as well to avoid conflicts
+    implementation "tech.relaycorp:doh:1.0.4"
     testImplementation "io.ktor:ktor-server-test-host:$ktorVersion"
     testImplementation "io.ktor:ktor-test-dispatcher:$ktorVersion"
 
@@ -171,7 +171,7 @@ dependencies {
 
     // Preferences
     implementation 'androidx.preference:preference-ktx:1.1.1'
-    implementation 'com.fredporciuncula:flow-preferences:1.5.0' // needs a higher version of kotlin
+    implementation 'com.fredporciuncula:flow-preferences:1.5.0' 
 
     // Display open-source licenses
     implementation "com.mikepenz:aboutlibraries:$aboutLibrariesVersion"
