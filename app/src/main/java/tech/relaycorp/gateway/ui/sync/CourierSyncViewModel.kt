@@ -1,6 +1,6 @@
 package tech.relaycorp.gateway.ui.sync
 
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asFlow
@@ -21,7 +21,7 @@ class CourierSyncViewModel
 
     // Inputs
 
-    fun stopClicked() = stopClicks.sendBlocking(Click)
+    fun stopClicked() = stopClicks.trySendBlocking(Click)
     private val stopClicks = PublishFlow<Click>()
 
     // Outputs

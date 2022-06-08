@@ -1,6 +1,6 @@
 package tech.relaycorp.gateway.ui.settings
 
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asFlow
@@ -36,7 +36,7 @@ class MigrateGatewayViewModel
     private val _addressChanges = MutableStateFlow("")
 
     fun submitted() {
-        _submits.sendBlocking(Click)
+        _submits.trySendBlocking(Click)
     }
 
     private val _submits = PublishFlow<Click>()
