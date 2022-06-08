@@ -4,7 +4,7 @@ buildscript {
     ext {
         kotlinVersion = '1.5.21'
         kotlinCoroutinesVersion = '1.5.2'
-        aboutLibrariesVersion = '8.9.3'
+        aboutLibrariesVersion = '10.3.0'
     }
     repositories {
         google()
