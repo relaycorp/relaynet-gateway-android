@@ -30,7 +30,7 @@ internal class StoreParcelTest {
     private val storeParcel =
         StoreParcel(storedParcelDao, parcelCollectionDao, diskOperations, mockLocalConfig)
 
-    private val publicEndpointAddress = "example.org" // TODO: check with gus
+    private val publicEndpointAddress = "example.org"
 
     @BeforeEach
     fun setUp() = runBlockingTest {
@@ -57,20 +57,20 @@ internal class StoreParcelTest {
         assertTrue(result is StoreParcel.Result.InvalidParcel)
     }
 
-    /*
-    @Test // TODO: check with gus
-    @Ignore("Can only make this a malformed parcel, did validation changed with urls?")
+
+    @Test
     internal fun `store invalid parcel bound for external gateway`() = runBlockingTest {
         val parcel = Parcel(
-            Recipient("0deadbeef", "api.c"),
+            Recipient("0deadbeef", publicEndpointAddress),
             ByteArray(0),
-            PDACertPath.PRIVATE_ENDPOINT
+            PDACertPath.PRIVATE_ENDPOINT,
+            "",
+            ZonedDateTime.now().plusMinutes(2)
         ).serialize(KeyPairSet.PRIVATE_ENDPOINT.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.ExternalGateway)
         assertTrue(result is StoreParcel.Result.InvalidParcel)
     }
-    */
 
     @Test
     internal fun `store parcel with public address for local endpoint`() = runBlockingTest {

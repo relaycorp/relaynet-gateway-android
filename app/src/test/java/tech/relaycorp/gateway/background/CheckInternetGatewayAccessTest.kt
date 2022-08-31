@@ -16,7 +16,9 @@ import kotlin.test.assertTrue
 class CheckInternetGatewayAccessTest {
     private val mockGatewayPreferences = mock<InternetGatewayPreferences>()
     private val mockPingRemoteServer = mock<PingRemoteServer>()
-    private val checkAccess = CheckInternetGatewayAccess(mockGatewayPreferences, mockPingRemoteServer)
+    private val checkAccess = CheckInternetGatewayAccess(
+        mockGatewayPreferences, mockPingRemoteServer
+    )
 
     private val powebAddress = ServiceAddress("poweb.example.com", 443)
     private val powebURL = "https://${powebAddress.host}:${powebAddress.port}"

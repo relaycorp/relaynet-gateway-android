@@ -49,9 +49,12 @@ class GenerateCargoTest : BaseDataTestCase() {
         registerPrivateGatewayIdentity()
         whenever(internetGatewayPreferences.getId())
             .thenReturn(PDACertPath.INTERNET_GW.subjectId)
-        whenever(internetGatewayPreferences.getCogRPCAddress()).thenReturn("example.org")
-        whenever(internetGatewayPreferences.getPublicKey()).thenReturn(KeyPairSet.INTERNET_GW.public)
-        whenever(calculateCRCMessageCreationDate.calculate()).thenReturn(nowInUtc())
+        whenever(internetGatewayPreferences.getCogRPCAddress())
+            .thenReturn("example.org")
+        whenever(internetGatewayPreferences.getPublicKey())
+            .thenReturn(KeyPairSet.INTERNET_GW.public)
+        whenever(calculateCRCMessageCreationDate.calculate())
+            .thenReturn(nowInUtc())
 
         val messageStream: () -> InputStream = "ABC".toByteArray()::inputStream
         whenever(diskMessageOperations.readMessage(any(), any())).thenReturn(messageStream)
