@@ -16,7 +16,7 @@ import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.background.ConnectionStateObserver
 import tech.relaycorp.gateway.background.ForegroundAppMonitor
 import tech.relaycorp.gateway.data.model.RegistrationState
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.pdc.local.PDCServer
 import tech.relaycorp.gateway.pdc.local.PDCServerStateManager
 import tech.relaycorp.gateway.test.WaitAssertions.waitForAssertEquals
@@ -25,14 +25,14 @@ class PublicSyncTest {
 
     private val foregroundAppMonitor = mock<ForegroundAppMonitor>()
     private val pdcServerStateManager = mock<PDCServerStateManager>()
-    private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
+    private val internetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val connectionStateObserver = mock<ConnectionStateObserver>()
     private val deliverParcelsToGateway = mock<DeliverParcelsToGateway>()
     private val collectParcelsFromGateway = mock<CollectParcelsFromGateway>()
     private val publicSync = PublicSync(
         foregroundAppMonitor,
         pdcServerStateManager,
-        publicGatewayPreferences,
+        internetGatewayPreferences,
         connectionStateObserver,
         deliverParcelsToGateway,
         collectParcelsFromGateway
@@ -44,7 +44,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Foreground,
             PDCServer.State.Started,
             RegistrationState.ToDo,
-            ConnectionState.InternetAndPublicGateway
+            ConnectionState.InternetAndGateway
         )
 
         sync()
@@ -72,7 +72,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Stopped,
             RegistrationState.Done,
-            ConnectionState.InternetAndPublicGateway
+            ConnectionState.InternetAndGateway
         )
 
         sync()
@@ -86,7 +86,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Foreground,
             PDCServer.State.Stopped,
             RegistrationState.Done,
-            ConnectionState.InternetAndPublicGateway
+            ConnectionState.InternetAndGateway
         )
 
         sync()
@@ -100,7 +100,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Started,
             RegistrationState.Done,
-            ConnectionState.InternetAndPublicGateway
+            ConnectionState.InternetAndGateway
         )
 
         sync()
@@ -114,7 +114,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Stopped,
             RegistrationState.Done,
-            ConnectionState.InternetAndPublicGateway
+            ConnectionState.InternetAndGateway
         )
         val appStateFlow = MutableStateFlow(ForegroundAppMonitor.State.Background)
         whenever(foregroundAppMonitor.observe()).thenReturn(appStateFlow.asSharedFlow())
@@ -138,7 +138,7 @@ class PublicSyncTest {
             .thenReturn(flowOf(appState))
         whenever(pdcServerStateManager.observe())
             .thenReturn(flowOf(pdcState))
-        whenever(publicGatewayPreferences.observeRegistrationState())
+        whenever(internetGatewayPreferences.observeRegistrationState())
             .thenReturn(flowOf(registrationState))
         whenever(connectionStateObserver.observe())
             .thenReturn(flowOf(connectionState))

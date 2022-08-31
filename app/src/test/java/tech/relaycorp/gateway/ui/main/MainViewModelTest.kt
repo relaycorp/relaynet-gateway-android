@@ -32,7 +32,7 @@ class MainViewModelTest {
         viewModel.ioScope.launch {
             onboardingDoneFlow.send(false)
             waitForAssertEquals(
-                ConnectionState.InternetAndPublicGateway,
+                ConnectionState.InternetAndGateway,
                 viewModel.openOnboarding::first
             )
         }
@@ -41,9 +41,9 @@ class MainViewModelTest {
     @Test
     internal fun `connection state is passed through`() {
         viewModel.ioScope.launch {
-            connectionStateObserve.send(ConnectionState.InternetAndPublicGateway)
+            connectionStateObserve.send(ConnectionState.InternetAndGateway)
             waitForAssertEquals(
-                ConnectionState.InternetAndPublicGateway,
+                ConnectionState.InternetAndGateway,
                 viewModel.connectionState::first
             )
         }

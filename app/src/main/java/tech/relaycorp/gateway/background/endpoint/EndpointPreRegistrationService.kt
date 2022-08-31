@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import tech.relaycorp.gateway.background.component
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.model.RegistrationState
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.endpoint.EndpointRegistration
 import java.util.logging.Level
 import javax.inject.Inject
@@ -24,7 +24,7 @@ class EndpointPreRegistrationService : Service() {
     private val scope get() = CoroutineScope(Dispatchers.IO)
 
     @Inject
-    lateinit var publicGatewayPreferences: PublicGatewayPreferences
+    lateinit var internetGatewayPreferences: InternetGatewayPreferences
 
     @Inject
     lateinit var endpointRegistration: EndpointRegistration
@@ -64,7 +64,7 @@ class EndpointPreRegistrationService : Service() {
                 Message.obtain(null, PRE_REGISTRATION_ERROR)
             }
 
-            publicGatewayPreferences.getRegistrationState() != RegistrationState.Done -> {
+            internetGatewayPreferences.getRegistrationState() != RegistrationState.Done -> {
                 logger.log(Level.WARNING, "Gateway not ready for registration")
                 Message.obtain(null, GATEWAY_NOT_REGISTERED)
             }

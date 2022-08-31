@@ -1,20 +1,20 @@
 package tech.relaycorp.gateway.background
 
 import tech.relaycorp.gateway.common.Logging.logger
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import java.util.logging.Level
 import javax.inject.Inject
 
-class CheckPublicGatewayAccess
+class CheckInternetGatewayAccess
 @Inject constructor(
-    private val publicGatewayPreferences: PublicGatewayPreferences,
+    private val internetGatewayPreferences: InternetGatewayPreferences,
     private val pingRemoteServer: PingRemoteServer
 ) {
     suspend fun check(): Boolean {
         val address = try {
-            publicGatewayPreferences.getPoWebAddress()
-        } catch (exc: PublicAddressResolutionException) {
+            internetGatewayPreferences.getPoWebAddress()
+        } catch (exc: InternetAddressResolutionException) {
             logger.log(Level.WARNING, "Failed to resolve PoWeb address (${exc.message})")
             return false
         }

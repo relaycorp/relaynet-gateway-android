@@ -11,7 +11,7 @@ import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.gateway.data.database.LocalEndpointDao
 import tech.relaycorp.gateway.data.model.LocalEndpoint
 import tech.relaycorp.gateway.data.model.PrivateMessageAddress
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.relaynet.messages.InvalidMessageException
@@ -20,7 +20,7 @@ import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthoriza
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
-import tech.relaycorp.relaynet.wrappers.privateAddress
+import tech.relaycorp.relaynet.wrappers.nodeId
 import java.nio.charset.Charset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -29,19 +29,23 @@ import kotlin.test.assertTrue
 
 class EndpointRegistrationTest : BaseDataTestCase() {
     private val mockLocalEndpointDao = mock<LocalEndpointDao>()
-    private val mockPublicGatewayPreferences = mock<PublicGatewayPreferences>()
+    private val mockInternetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val mockLocalConfig = LocalConfig(
-        privateKeyStoreProvider, certificateStoreProvider, mockPublicGatewayPreferences
+        privateKeyStoreProvider, certificateStoreProvider, mockInternetGatewayPreferences
     )
-    private val endpointRegistration = EndpointRegistration(mockLocalEndpointDao, mockLocalConfig)
+    private val endpointRegistration =
+        EndpointRegistration(mockLocalEndpointDao, mockLocalConfig)
 
     private val dummyApplicationId = "tech.relaycorp.foo"
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
         registerPrivateGatewayIdentity()
-        whenever(mockPublicGatewayPreferences.getPrivateAddress())
-            .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
+        whenever(mockInternetGatewayPreferences.getId())
+            .thenReturn(PDACertPath.INTERNET_GW.subjectId)
+
+        whenever(mockInternetGatewayPreferences.getAddress())
+            .thenReturn("example.org")
     }
 
     @Nested
@@ -107,7 +111,7 @@ class EndpointRegistrationTest : BaseDataTestCase() {
 
             verify(mockLocalEndpointDao).insert(
                 LocalEndpoint(
-                    PrivateMessageAddress(KeyPairSet.PRIVATE_ENDPOINT.public.privateAddress),
+                    PrivateMessageAddress(KeyPairSet.PRIVATE_ENDPOINT.public.nodeId),
                     dummyApplicationId
                 )
             )
@@ -143,8 +147,8 @@ class EndpointRegistrationTest : BaseDataTestCase() {
 
                 val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
                 assertEquals(
-                    registration.privateNodeCertificate.subjectPrivateAddress,
-                    crr.privateNodePublicKey.privateAddress
+                    registration.privateNodeCertificate.subjectId,
+                    crr.privateNodePublicKey.nodeId
                 )
             }
 

@@ -15,7 +15,7 @@ import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.database.AppDatabase
 import tech.relaycorp.gateway.data.disk.AndroidPrivateKeyStore
 import tech.relaycorp.gateway.data.model.ServiceAddress
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.poweb.PoWebClient
@@ -110,12 +110,12 @@ class DataModule {
 
     @Provides
     fun poWebClientProvider(
-        publicGatewayPreferences: PublicGatewayPreferences,
+        internetGatewayPreferences: InternetGatewayPreferences,
         poWebClientBuilder: PoWebClientBuilder
     ) = object : PoWebClientProvider {
         override suspend fun get() =
             poWebClientBuilder.build(
-                publicGatewayPreferences.getPoWebAddress()
+                internetGatewayPreferences.getPoWebAddress()
             )
     }
 

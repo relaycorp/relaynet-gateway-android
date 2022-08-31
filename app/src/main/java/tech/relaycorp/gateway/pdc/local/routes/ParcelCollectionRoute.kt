@@ -113,7 +113,7 @@ class ParcelCollectionRoute
     }
 
     private fun List<Certificate>.toAddresses() =
-        map { MessageAddress.of(it.subjectPrivateAddress) }
+        map { MessageAddress.of(it.subjectId) }
 
     private suspend fun DefaultWebSocketServerSession.sendParcels(
         collectParcels: CollectParcels,

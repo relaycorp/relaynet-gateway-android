@@ -17,8 +17,8 @@ import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.DeleteParcel
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
@@ -38,9 +38,9 @@ class DeliverParcelsToGatewayTest : BaseDataTestCase() {
     private val poWebClientProvider = object : PoWebClientProvider {
         override suspend fun get() = poWebClient
     }
-    private val mockPublicGatewayPreferences = mock<PublicGatewayPreferences>()
+    private val mockInternetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val localConfig = LocalConfig(
-        privateKeyStoreProvider, certificateStoreProvider, mockPublicGatewayPreferences
+        privateKeyStoreProvider, certificateStoreProvider, mockInternetGatewayPreferences
     )
     private val deleteParcel = mock<DeleteParcel>()
     private val subject = DeliverParcelsToGateway(
@@ -52,14 +52,14 @@ class DeliverParcelsToGatewayTest : BaseDataTestCase() {
         registerPrivateGatewayIdentity()
         whenever(diskMessageOperations.readMessage(any(), any()))
             .thenReturn { "".byteInputStream() }
-        whenever(mockPublicGatewayPreferences.getPrivateAddress())
-            .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
+        whenever(mockInternetGatewayPreferences.getId())
+            .thenReturn(PDACertPath.INTERNET_GW.subjectId)
     }
 
     @Test
     fun `Failure to resolve PoWeb address should be ignored`() = runBlockingTest {
         val failingPoWebClientProvider = object : PoWebClientProvider {
-            override suspend fun get() = throw PublicAddressResolutionException("Whoops")
+            override suspend fun get() = throw InternetAddressResolutionException("Whoops")
         }
         val subject = DeliverParcelsToGateway(
             storedParcelDao,

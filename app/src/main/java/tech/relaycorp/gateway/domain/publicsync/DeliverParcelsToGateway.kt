@@ -2,7 +2,6 @@ package tech.relaycorp.gateway.domain.publicsync
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -11,7 +10,7 @@ import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StoredParcel
 import tech.relaycorp.gateway.domain.DeleteParcel
@@ -44,7 +43,7 @@ class DeliverParcelsToGateway
 
             val poWebClient = try {
                 poWebClientProvider.get()
-            } catch (exc: PublicAddressResolutionException) {
+            } catch (exc: InternetAddressResolutionException) {
                 logger.log(
                     Level.WARNING,
                     "Failed to deliver parcels due to PoWeb address resolution error",

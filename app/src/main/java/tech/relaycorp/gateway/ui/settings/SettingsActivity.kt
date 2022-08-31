@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.activity_settings.learnMore
 import kotlinx.android.synthetic.main.activity_settings.libraries
 import kotlinx.android.synthetic.main.activity_settings.outgoingDataLayout
 import kotlinx.android.synthetic.main.activity_settings.outgoingDataTitle
-import kotlinx.android.synthetic.main.activity_settings.publicGateway
+import kotlinx.android.synthetic.main.activity_settings.internetGateway
 import kotlinx.android.synthetic.main.activity_settings.version
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -45,7 +45,7 @@ class SettingsActivity : BaseActivity() {
             BuildConfig.VERSION_NAME,
             BuildConfig.VERSION_CODE.toString()
         )
-        publicGateway.setOnClickListener { openMigrateGateway() }
+        internetGateway.setOnClickListener { openMigrateGateway() }
         learnMore.setOnClickListener { openKnowMore() }
         libraries.setOnClickListener { openLicenses() }
 
@@ -77,7 +77,7 @@ class SettingsActivity : BaseActivity() {
 
         viewModel
             .publicGwAddress
-            .onEach { publicGateway.text = it }
+            .onEach { internetGateway.text = it }
             .launchIn(lifecycleScope)
     }
 

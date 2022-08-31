@@ -4,8 +4,11 @@ import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.rule.ServiceTestRule
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toCollection
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -68,9 +71,8 @@ class GatewaySyncServiceParcelCollectionTest {
                             KeyPairSet.PRIVATE_ENDPOINT.private
                         )
                     ),
-                    StreamingMode.CloseUponCompletion
-                )
-                .first()
+                    StreamingMode.KeepAlive
+                ).take(1).first()
 
         assertEquals(
             Parcel.deserialize(parcel).id,
@@ -89,7 +91,7 @@ class GatewaySyncServiceParcelCollectionTest {
                 arrayOf(
                     Signer(
                         PDACertPath.PRIVATE_ENDPOINT,
-                        KeyPairSet.PUBLIC_GW.private // Invalid key to trigger invalid handshake
+                        KeyPairSet.INTERNET_GW.private // Invalid key to trigger invalid handshake
                     )
                 ),
                 StreamingMode.CloseUponCompletion

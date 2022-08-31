@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import kotlin.test.assertEquals
@@ -21,16 +21,16 @@ import kotlin.test.assertNotNull
 
 class LocalConfigTest : BaseDataTestCase() {
 
-    private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
+    private val internetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val localConfig = LocalConfig(
-        privateKeyStoreProvider, certificateStoreProvider, publicGatewayPreferences
+        privateKeyStoreProvider, certificateStoreProvider, internetGatewayPreferences
     )
 
     @BeforeEach
     fun setUp() {
         runBlocking {
-            whenever(publicGatewayPreferences.getPrivateAddress())
-                .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
+            whenever(internetGatewayPreferences.getId())
+                .thenReturn(PDACertPath.INTERNET_GW.subjectId)
         }
     }
 
@@ -100,7 +100,7 @@ class LocalConfigTest : BaseDataTestCase() {
         }
 
         @Test
-        fun `Correct public gateway private address used as issuer in set identity certificate `() =
+        fun `Correct public gateway id used as issuer in set identity certificate `() =
             runBlockingTest {
                 localConfig.bootstrap()
 
@@ -108,7 +108,7 @@ class LocalConfigTest : BaseDataTestCase() {
                     any(),
                     any(),
                     any(),
-                    eq(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
+                    eq(PDACertPath.INTERNET_GW.subjectId)
                 )
             }
 

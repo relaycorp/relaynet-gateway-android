@@ -15,6 +15,7 @@ import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.pdc.local.utils.ContentType
 import tech.relaycorp.relaynet.messages.Parcel
+import tech.relaycorp.relaynet.messages.Recipient
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import kotlin.test.assertEquals
@@ -28,7 +29,7 @@ class ParcelDeliveryRouteTest {
     private val route = ParcelDeliveryRoute(storeParcel)
 
     private val parcel =
-        Parcel("https://example.com", byteArrayOf(), PDACertPath.PRIVATE_ENDPOINT)
+        Parcel(Recipient("0deadbeef", "example.com"), byteArrayOf(), PDACertPath.PRIVATE_ENDPOINT)
     private val parcelSerialized = parcel.serialize(KeyPairSet.PRIVATE_ENDPOINT.private)
 
     @Test

@@ -3,10 +3,9 @@ package tech.relaycorp.gateway.domain.publicsync
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.retry
 import tech.relaycorp.gateway.common.Logging.logger
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.domain.LocalConfig
@@ -37,7 +36,7 @@ class CollectParcelsFromGateway
 
         val poWebClient = try {
             poWebClientProvider.get()
-        } catch (exc: PublicAddressResolutionException) {
+        } catch (exc: InternetAddressResolutionException) {
             logger.log(
                 Level.WARNING,
                 "Failed to collect parcels due to PoWeb address resolution error",
@@ -102,8 +101,10 @@ class CollectParcelsFromGateway
                 logger.info("Parcel already received")
             is StoreParcel.Result.Success -> {
                 logger.info("Collected parcel from Gateway ${storeResult.parcel.id}")
-                if (keepAlive) {
-                    notifyEndpoints.notify(MessageAddress.of(storeResult.parcel.recipientAddress))
+                if (keepAlive && storeResult.parcel.recipient.internetAddress != null) { // TODO: double check this
+                    notifyEndpoints.notify(
+                        MessageAddress.of(storeResult.parcel.recipient.internetAddress!!)
+                    )
                 }
             }
         }

@@ -13,7 +13,7 @@ import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.database.ParcelCollectionDao
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.gateway.test.factory.ParcelCollectionFactory
@@ -29,16 +29,16 @@ class GenerateCargoTest : BaseDataTestCase() {
     private val storedParcelDao = mock<StoredParcelDao>()
     private val parcelCollectionDao = mock<ParcelCollectionDao>()
     private val diskMessageOperations = mock<DiskMessageOperations>()
-    private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
+    private val internetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val localConfig = LocalConfig(
-        privateKeyStoreProvider, certificateStoreProvider, publicGatewayPreferences
+        privateKeyStoreProvider, certificateStoreProvider, internetGatewayPreferences
     )
     private val calculateCRCMessageCreationDate = mock<CalculateCRCMessageCreationDate>()
     private val generateCargo = GenerateCargo(
         storedParcelDao,
         parcelCollectionDao,
         diskMessageOperations,
-        publicGatewayPreferences,
+        internetGatewayPreferences,
         localConfig,
         calculateCRCMessageCreationDate,
         gatewayManagerProvider
@@ -47,16 +47,16 @@ class GenerateCargoTest : BaseDataTestCase() {
     @BeforeEach
     internal fun setUp() = runBlockingTest {
         registerPrivateGatewayIdentity()
-        whenever(publicGatewayPreferences.getPrivateAddress())
-            .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
-        whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn("https://example.org")
-        whenever(publicGatewayPreferences.getPublicKey()).thenReturn(KeyPairSet.PUBLIC_GW.public)
+        whenever(internetGatewayPreferences.getId())
+            .thenReturn(PDACertPath.INTERNET_GW.subjectId)
+        whenever(internetGatewayPreferences.getCogRPCAddress()).thenReturn("example.org")
+        whenever(internetGatewayPreferences.getPublicKey()).thenReturn(KeyPairSet.INTERNET_GW.public)
         whenever(calculateCRCMessageCreationDate.calculate()).thenReturn(nowInUtc())
 
         val messageStream: () -> InputStream = "ABC".toByteArray()::inputStream
         whenever(diskMessageOperations.readMessage(any(), any())).thenReturn(messageStream)
 
-        registerPublicGatewaySessionKey()
+        registerInternetGatewaySessionKey()
     }
 
     @Test
@@ -85,12 +85,12 @@ class GenerateCargoTest : BaseDataTestCase() {
 
         val cargo = Cargo.deserialize(cargoes.first().readBytes())
         assertEquals(
-            publicGatewayPreferences.getCogRPCAddress(),
-            cargo.recipientAddress
+            internetGatewayPreferences.getCogRPCAddress(),
+            cargo.recipient.internetAddress
         )
         assertTrue(Duration.between(parcel.expirationTimeUtc, cargo.expiryDate).abs().seconds <= 2)
 
-        val cargoMessages = cargo.unwrapPayload(publicGatewaySessionKeyPair.privateKey).payload
+        val cargoMessages = cargo.unwrapPayload(internetGatewaySessionKeyPair.privateKey).payload
         assertEquals(2, cargoMessages.messages.size)
         assertTrue(Duration.between(creationDate, cargo.creationDate).abs().seconds <= 1)
     }

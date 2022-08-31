@@ -17,7 +17,7 @@ import org.junit.Rule
 import org.junit.Test
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.model.RegistrationState
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.AppTestProvider
 import tech.relaycorp.gateway.test.KeystoreResetTestRule
@@ -41,7 +41,7 @@ class EndpointPreRegistrationServiceTest {
     lateinit var localConfig: LocalConfig
 
     @Inject
-    lateinit var publicGatewayPreferences: PublicGatewayPreferences
+    lateinit var internetGatewayPreferences: InternetGatewayPreferences
 
     private val coroutineContext get() = app.backgroundScope.coroutineContext
 
@@ -49,7 +49,7 @@ class EndpointPreRegistrationServiceTest {
     fun setUp() {
         AppTestProvider.component.inject(this)
         runBlocking(coroutineContext) {
-            publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
+            internetGatewayPreferences.setRegistrationState(RegistrationState.Done)
         }
     }
 
@@ -112,7 +112,7 @@ class EndpointPreRegistrationServiceTest {
 
     @Test
     fun errorReturnedWhenGatewayIsNotRegisteredYet() = runBlocking(coroutineContext) {
-        publicGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
+        internetGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
 
         val serviceIntent = Intent(
             getApplicationContext<Context>(),

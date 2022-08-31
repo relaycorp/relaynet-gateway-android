@@ -76,11 +76,11 @@ class MainActivity : BaseActivity() {
                 messageText.setText(state.toTextRes())
                 messageText.gravity = state.toTextGravity()
                 internetWithoutGatewayButtonsLayout.isVisible =
-                    state is ConnectionState.InternetWithoutPublicGateway
+                    state is ConnectionState.InternetWithoutInternetGateway
                 courierConnection.isVisible =
-                    state !is ConnectionState.InternetAndPublicGateway &&
+                    state !is ConnectionState.InternetAndGateway &&
                     state !is ConnectionState.WiFiWithCourier &&
-                    state !is ConnectionState.InternetWithoutPublicGateway
+                    state !is ConnectionState.InternetWithoutInternetGateway
                 courierSync.isVisible = state is ConnectionState.WiFiWithCourier
             }
             .launchIn(lifecycleScope)
@@ -88,16 +88,16 @@ class MainActivity : BaseActivity() {
 
     private fun ConnectionState.toImageRes() =
         when (this) {
-            ConnectionState.InternetAndPublicGateway -> R.drawable.main_connected_image
+            ConnectionState.InternetAndGateway -> R.drawable.main_connected_image
             is ConnectionState.WiFiWithCourier -> R.drawable.main_courier_image
             else -> R.drawable.main_disconnected_image
         }
 
     private fun ConnectionState.toTitleRes() =
         when (this) {
-            is ConnectionState.InternetWithoutPublicGateway ->
+            is ConnectionState.InternetWithoutInternetGateway ->
                 R.string.main_status_internet_no_gateway
-            ConnectionState.InternetAndPublicGateway ->
+            ConnectionState.InternetAndGateway ->
                 R.string.main_status_internet
             is ConnectionState.WiFiWithCourier ->
                 R.string.main_status_courier
@@ -107,9 +107,9 @@ class MainActivity : BaseActivity() {
 
     private fun ConnectionState.toTextRes() =
         when (this) {
-            is ConnectionState.InternetWithoutPublicGateway ->
+            is ConnectionState.InternetWithoutInternetGateway ->
                 R.string.main_status_internet_no_gateway_text
-            ConnectionState.InternetAndPublicGateway ->
+            ConnectionState.InternetAndGateway ->
                 R.string.main_status_internet_text
             is ConnectionState.WiFiWithCourier ->
                 R.string.main_status_courier_text
@@ -119,7 +119,7 @@ class MainActivity : BaseActivity() {
 
     private fun ConnectionState.toTextGravity() =
         when (this) {
-            ConnectionState.InternetAndPublicGateway,
+            ConnectionState.InternetAndGateway,
             is ConnectionState.WiFiWithCourier -> Gravity.CENTER_HORIZONTAL
             else -> Gravity.START
         }

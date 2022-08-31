@@ -21,6 +21,7 @@ import tech.relaycorp.gateway.test.factory.ParcelCollectionAckFactory
 import tech.relaycorp.gateway.test.factory.ParcelFactory
 import tech.relaycorp.relaynet.messages.Cargo
 import tech.relaycorp.relaynet.messages.CertificateRotation
+import tech.relaycorp.relaynet.messages.Recipient
 import tech.relaycorp.relaynet.messages.payloads.CargoMessageSet
 import tech.relaycorp.relaynet.pki.CertificationPath
 import tech.relaycorp.relaynet.testing.pki.CDACertPath
@@ -63,8 +64,8 @@ class ProcessCargoTest : BaseDataTestCase() {
         processCargo.process()
 
         verify(deleteParcel).delete(
-            eq(MessageAddress.of(pca.recipientEndpointAddress)),
-            eq(MessageAddress.of(pca.senderEndpointPrivateAddress)),
+            eq(MessageAddress.of(pca.recipientEndpointId)),
+            eq(MessageAddress.of(pca.senderEndpointId)),
             eq(MessageId(pca.parcelId))
         )
     }
@@ -149,13 +150,13 @@ class ProcessCargoTest : BaseDataTestCase() {
     private fun generateCargoFromMessages(messagesSerialized: List<ByteArray>): ByteArray {
         val cargoMessageSet = CargoMessageSet(messagesSerialized.toTypedArray())
         val cargoSerialized = Cargo(
-            CDACertPath.PRIVATE_GW.subjectPrivateAddress,
+            Recipient(CDACertPath.PRIVATE_GW.subjectId),
             cargoMessageSet.encrypt(
                 privateGatewaySessionKeyPair.sessionKey,
-                publicGatewaySessionKeyPair
+                internetGatewaySessionKeyPair
             ),
-            CDACertPath.PUBLIC_GW
+            CDACertPath.INTERNET_GW
         )
-        return cargoSerialized.serialize(KeyPairSet.PUBLIC_GW.private)
+        return cargoSerialized.serialize(KeyPairSet.INTERNET_GW.private)
     }
 }

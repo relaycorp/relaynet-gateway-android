@@ -9,7 +9,7 @@ import tech.relaycorp.relaynet.messages.InvalidMessageException
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
-import tech.relaycorp.relaynet.wrappers.privateAddress
+import tech.relaycorp.relaynet.wrappers.nodeId
 import java.nio.charset.Charset
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -17,7 +17,7 @@ import javax.inject.Inject
 class EndpointRegistration
 @Inject constructor(
     private val localEndpointDao: LocalEndpointDao,
-    private val localConfig: LocalConfig
+    private val localConfig: LocalConfig,
 ) {
     /**
      * Issue PNRA for an application to register one or more of its endpoints.
@@ -46,7 +46,7 @@ class EndpointRegistration
         }
         val applicationId = authorization.gatewayData.toString(Charset.defaultCharset())
         val endpoint = LocalEndpoint(
-            MessageAddress.of(request.privateNodePublicKey.privateAddress),
+            MessageAddress.of(request.privateNodePublicKey.nodeId),
             applicationId
         )
         localEndpointDao.insert(endpoint)
@@ -57,7 +57,11 @@ class EndpointRegistration
             identityCert.expiryDate,
             identityCert
         )
-        val registration = PrivateNodeRegistration(endpointCertificate, identityCert)
+        val registration = PrivateNodeRegistration(
+            endpointCertificate,
+            identityCert,
+            localConfig.getInternetGatewayAddress()
+        )
         return registration.serialize()
     }
 

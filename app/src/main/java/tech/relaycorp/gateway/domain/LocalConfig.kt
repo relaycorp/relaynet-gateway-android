@@ -4,14 +4,14 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.common.toPublicKey
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.courier.CalculateCRCMessageCreationDate
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.keystores.CertificateStore
 import tech.relaycorp.relaynet.keystores.PrivateKeyStore
 import tech.relaycorp.relaynet.pki.CertificationPath
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
-import tech.relaycorp.relaynet.wrappers.privateAddress
+import tech.relaycorp.relaynet.wrappers.nodeId
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.security.KeyPair
 import java.security.PrivateKey
@@ -25,7 +25,7 @@ class LocalConfig
 @Inject constructor(
     private val privateKeyStore: Provider<PrivateKeyStore>,
     private val certificateStore: Provider<CertificateStore>,
-    private val publicGatewayPreferences: PublicGatewayPreferences
+    private val internetGatewayPreferences: InternetGatewayPreferences
 ) {
     private val mutex = Mutex()
 
@@ -48,7 +48,7 @@ class LocalConfig
 
     private suspend fun getIdentityCertificationPath(): CertificationPath = getIdentityKey().let {
         certificateStore.get()
-            .retrieveLatest(it.privateAddress, getPublicGatewayPrivateAddress())
+            .retrieveLatest(it.nodeId, getInternetGatewayId())
             ?: CertificationPath(generateIdentityCertificate(it), emptyList())
     }
 
@@ -57,7 +57,7 @@ class LocalConfig
 
     private suspend fun getAllValidIdentityCertificationPaths(): List<CertificationPath> =
         certificateStore.get()
-            .retrieveAll(getIdentityKey().privateAddress, getPublicGatewayPrivateAddress())
+            .retrieveAll(getIdentityKey().nodeId, getInternetGatewayId())
 
     suspend fun setIdentityCertificate(
         leafCertificate: Certificate,
@@ -66,7 +66,7 @@ class LocalConfig
         certificateStore.get()
             .save(
                 CertificationPath(leafCertificate, certificateChain),
-                getPublicGatewayPrivateAddress()
+                getInternetGatewayId()
             )
     }
 
@@ -92,8 +92,8 @@ class LocalConfig
     suspend fun getCargoDeliveryAuth() =
         certificateStore.get()
             .retrieveLatest(
-                getIdentityKey().privateAddress,
-                getIdentityCertificate().subjectPrivateAddress
+                getIdentityKey().nodeId,
+                getIdentityCertificate().subjectId
             )
             ?.leafCertificate
             .let { storedCertificate ->
@@ -107,8 +107,8 @@ class LocalConfig
     suspend fun getAllValidCargoDeliveryAuth() =
         certificateStore.get()
             .retrieveAll(
-                getIdentityKey().privateAddress,
-                getIdentityCertificate().subjectPrivateAddress
+                getIdentityKey().nodeId,
+                getIdentityCertificate().subjectId
             )
             .map { it.leafCertificate }
 
@@ -130,7 +130,7 @@ class LocalConfig
         val certificate = getIdentityCertificate()
         val cda = selfIssueCargoDeliveryAuth(key, certificate.subjectPublicKey)
         certificateStore.get()
-            .save(CertificationPath(cda, emptyList()), certificate.subjectPrivateAddress)
+            .save(CertificationPath(cda, emptyList()), certificate.subjectId)
         return cda
     }
 
@@ -138,8 +138,11 @@ class LocalConfig
         certificateStore.get().deleteExpired()
     }
 
-    private suspend fun getPublicGatewayPrivateAddress() =
-        publicGatewayPreferences.getPrivateAddress()
+    suspend fun getInternetGatewayAddress() =
+        internetGatewayPreferences.getAddress()
+
+    private suspend fun getInternetGatewayId() =
+        internetGatewayPreferences.getId()
 
     private fun Certificate.isExpiringSoon() =
         expiryDate < (nowInUtc().plusNanos(CERTIFICATE_EXPIRING_THRESHOLD.inWholeNanoseconds))

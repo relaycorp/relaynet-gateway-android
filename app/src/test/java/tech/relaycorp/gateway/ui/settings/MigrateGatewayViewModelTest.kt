@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.publicsync.MigrateGateway
 import tech.relaycorp.gateway.test.WaitAssertions.waitForAssertEquals
 import tech.relaycorp.gateway.ui.common.Finish
@@ -19,17 +19,17 @@ import kotlin.test.assertTrue
 
 class MigrateGatewayViewModelTest {
 
-    private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
+    private val internetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val migrateGateway = mock<MigrateGateway>()
     private val hostnameValidator = mock<(String) -> Boolean>()
     private val viewModel = MigrateGatewayViewModel(
-        publicGatewayPreferences, migrateGateway, hostnameValidator
+        internetGatewayPreferences, migrateGateway, hostnameValidator
     )
 
     @Before
     fun setUp() {
         runBlocking {
-            whenever(publicGatewayPreferences.getAddress()).thenReturn("old.url")
+            whenever(internetGatewayPreferences.getAddress()).thenReturn("old.url")
             whenever(hostnameValidator(any())).thenReturn(true)
         }
     }

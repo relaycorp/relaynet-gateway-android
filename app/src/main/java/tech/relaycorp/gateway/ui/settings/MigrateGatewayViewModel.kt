@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.publicsync.MigrateGateway
 import tech.relaycorp.gateway.ui.BaseViewModel
 import tech.relaycorp.gateway.ui.common.Click
@@ -18,7 +18,7 @@ import javax.inject.Named
 
 class MigrateGatewayViewModel
 @Inject constructor(
-    publicGatewayPreferences: PublicGatewayPreferences,
+    internetGatewayPreferences: InternetGatewayPreferences,
     migrateGateway: MigrateGateway,
     @Named("validator_hostname")
     hostnameValidator: (@JvmSuppressWildcards String) -> @JvmSuppressWildcards Boolean
@@ -46,7 +46,7 @@ class MigrateGatewayViewModel
             .onEach {
                 _state.value = when {
                     it.isBlank() -> State.Insert
-                    it == publicGatewayPreferences.getAddress() -> State.Error.SameAddress
+                    it == internetGatewayPreferences.getAddress() -> State.Error.SameAddress
                     hostnameValidator(it) -> State.AddressValid
                     else -> State.Error.AddressInvalid
                 }

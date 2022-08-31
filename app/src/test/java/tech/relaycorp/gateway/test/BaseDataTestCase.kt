@@ -13,7 +13,7 @@ import tech.relaycorp.relaynet.testing.keystores.MockPrivateKeyStore
 import tech.relaycorp.relaynet.testing.keystores.MockSessionPublicKeyStore
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
-import tech.relaycorp.relaynet.wrappers.privateAddress
+import tech.relaycorp.relaynet.wrappers.nodeId
 import javax.inject.Provider
 
 abstract class BaseDataTestCase {
@@ -28,7 +28,7 @@ abstract class BaseDataTestCase {
     protected val gatewayManagerProvider = Provider<GatewayManager> { gatewayManager }
 
     protected val privateGatewaySessionKeyPair = SessionKeyPair.generate()
-    protected val publicGatewaySessionKeyPair = SessionKeyPair.generate()
+    protected val internetGatewaySessionKeyPair = SessionKeyPair.generate()
 
     @BeforeEach
     @AfterEach
@@ -41,7 +41,7 @@ abstract class BaseDataTestCase {
         privateKeyStore.saveIdentityKey(KeyPairSet.PRIVATE_GW.private)
         certificateStore.save(
             CertificationPath(PDACertPath.PRIVATE_GW, emptyList()),
-            PDACertPath.PUBLIC_GW.subjectPrivateAddress
+            PDACertPath.INTERNET_GW.subjectId
         )
     }
 
@@ -49,15 +49,15 @@ abstract class BaseDataTestCase {
         privateKeyStore.saveSessionKey(
             privateGatewaySessionKeyPair.privateKey,
             privateGatewaySessionKeyPair.sessionKey.keyId,
-            KeyPairSet.PRIVATE_GW.public.privateAddress,
-            KeyPairSet.PUBLIC_GW.public.privateAddress
+            KeyPairSet.PRIVATE_GW.public.nodeId,
+            KeyPairSet.INTERNET_GW.public.nodeId
         )
     }
 
-    protected suspend fun registerPublicGatewaySessionKey() {
+    protected suspend fun registerInternetGatewaySessionKey() {
         publicKeyStore.save(
-            publicGatewaySessionKeyPair.sessionKey,
-            KeyPairSet.PUBLIC_GW.public.privateAddress
+            internetGatewaySessionKeyPair.sessionKey,
+            KeyPairSet.INTERNET_GW.public.nodeId
         )
     }
 }

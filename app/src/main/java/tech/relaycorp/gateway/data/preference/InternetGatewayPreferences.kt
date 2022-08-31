@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.data.disk.ReadRawFile
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
 import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.relaynet.wrappers.deserializeRSAPublicKey
-import tech.relaycorp.relaynet.wrappers.privateAddress
+import tech.relaycorp.relaynet.wrappers.nodeId
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.security.PublicKey
 import javax.inject.Inject
@@ -20,7 +20,7 @@ import javax.inject.Provider
 import javax.inject.Singleton
 
 @Singleton
-class PublicGatewayPreferences
+class InternetGatewayPreferences
 @Inject constructor(
     private val preferences: Provider<FlowSharedPreferences>,
     private val readRawFile: ReadRawFile,
@@ -38,7 +38,7 @@ class PublicGatewayPreferences
 
     suspend fun getCogRPCAddress() = "https://${getAddress()}"
 
-    @Throws(PublicAddressResolutionException::class)
+    @Throws(InternetAddressResolutionException::class)
     suspend fun getPoWebAddress() = resolveServiceAddress.resolvePoWeb(getAddress())
 
     // Public Key
@@ -63,24 +63,24 @@ class PublicGatewayPreferences
 
     suspend fun setPublicKey(value: PublicKey) {
         publicKey.setAndCommit(Base64.encodeToString(value.encoded, Base64.DEFAULT))
-        setPrivateAddress(value.privateAddress)
+        setId(value.nodeId)
     }
 
-    // Private Address
+    // Node Id
 
-    private val privateAddress by lazy {
-        preferences.get().getString("public_gateway_private_address")
+    private val id by lazy {
+        preferences.get().getString("public_gateway_id")
     }
 
-    suspend fun getPrivateAddress(): String =
-        privateAddress.get().ifEmpty {
-            getPublicKey().privateAddress.also {
-                setPrivateAddress(it)
+    suspend fun getId(): String =
+        id.get().ifEmpty {
+            getPublicKey().nodeId.also {
+                setId(it)
             }
         }
 
-    private suspend fun setPrivateAddress(value: String) {
-        privateAddress.setAndCommit(value)
+    private suspend fun setId(value: String) {
+        id.setAndCommit(value)
     }
 
     // Registration State

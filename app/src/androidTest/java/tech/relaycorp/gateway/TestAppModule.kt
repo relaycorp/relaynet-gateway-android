@@ -18,7 +18,7 @@ class TestAppModule(
     @Provides
     @Singleton
     fun connectionState(): MutableStateFlow<ConnectionState> =
-        MutableStateFlow(ConnectionState.InternetAndPublicGateway)
+        MutableStateFlow(ConnectionState.InternetAndGateway)
 
     @Provides
     fun mockedConnectStateObserver(
