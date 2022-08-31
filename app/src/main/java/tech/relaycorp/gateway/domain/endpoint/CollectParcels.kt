@@ -1,6 +1,5 @@
 package tech.relaycorp.gateway.domain.endpoint
 
-import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -41,7 +40,7 @@ class CollectParcels
         return storedParcelDao
             .listForRecipients(endpointsAddresses, RecipientLocation.LocalEndpoint)
             .onEach { _anyParcelsLeft.value = it.any() }
-            .onEach { logger.log(Level.INFO, "getNewParcelsForEndpoints was called")}
+            .onEach { logger.log(Level.INFO, "getNewParcelsForEndpoints was called") }
             // Filter only parcels we haven't sent before
             .map { list -> list.filter { !parcelsSent.contains(it) } }
             // Associate local ID

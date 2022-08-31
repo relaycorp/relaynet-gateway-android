@@ -5,7 +5,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Ignore
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -56,7 +55,6 @@ internal class StoreParcelTest {
         val result = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
         assertTrue(result is StoreParcel.Result.InvalidParcel)
     }
-
 
     @Test
     internal fun `store invalid parcel bound for external gateway`() = runBlockingTest {

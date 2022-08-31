@@ -1,6 +1,5 @@
 package tech.relaycorp.gateway.domain
 
-import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.database.ParcelCollectionDao
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
@@ -15,7 +14,6 @@ import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.ramf.RAMFException
 import java.io.InputStream
-import java.util.logging.Level
 import javax.inject.Inject
 
 class StoreParcel
