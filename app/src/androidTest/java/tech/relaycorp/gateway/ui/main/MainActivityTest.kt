@@ -49,7 +49,7 @@ class MainActivityTest {
         // Arrange
         runBlocking {
             appPreferences.setOnboardingDone(true)
-            connectionFlow.emit(ConnectionState.InternetWithoutInternetGateway)
+            connectionFlow.emit(ConnectionState.InternetWithoutGateway)
         }
 
         // Act

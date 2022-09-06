@@ -207,7 +207,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
     private fun buildPNR(internetGatewaySessionKey: SessionKey?) = PrivateNodeRegistration(
         PDACertPath.PRIVATE_GW,
         PDACertPath.INTERNET_GW,
-        PDACertPath.INTERNET_GW.subjectId,
+        "example.org",
         internetGatewaySessionKey
     )
 }

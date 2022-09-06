@@ -101,9 +101,9 @@ class CollectParcelsFromGateway
                 logger.info("Parcel already received")
             is StoreParcel.Result.Success -> {
                 logger.info("Collected parcel from Gateway ${storeResult.parcel.id}")
-                if (keepAlive && storeResult.parcel.recipient.internetAddress != null) {
+                if (keepAlive) {
                     notifyEndpoints.notify(
-                        MessageAddress.of(storeResult.parcel.recipient.internetAddress!!)
+                        MessageAddress.of(storeResult.parcel.recipient.id)
                     )
                 }
             }

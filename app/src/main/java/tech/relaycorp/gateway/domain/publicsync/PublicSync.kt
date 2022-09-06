@@ -47,7 +47,7 @@ class PublicSync
         ) { foregroundState, pdcState, registrationState, connectionState ->
             if (
                 registrationState == RegistrationState.Done &&
-                connectionState is ConnectionState.InternetAndGateway && (
+                connectionState is ConnectionState.InternetWithGateway && (
                     foregroundState == ForegroundAppMonitor.State.Foreground ||
                         pdcState == PDCServer.State.Started
                     )

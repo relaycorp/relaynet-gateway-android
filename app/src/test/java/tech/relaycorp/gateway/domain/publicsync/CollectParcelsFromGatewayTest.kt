@@ -122,7 +122,9 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
         verify(storeParcel, times(2))
             .store(eq(parcelCollection.parcelSerialized), eq(RecipientLocation.LocalEndpoint))
         verify(parcelCollection, times(2)).ack
-        verify(notifyEndpoints, times(2)).notify(eq(MessageAddress.of(parcelAddress)))
+        verify(notifyEndpoints, times(2)).notify(
+            eq(MessageAddress.of(mockRecipient.id))
+        )
     }
 
     @Test

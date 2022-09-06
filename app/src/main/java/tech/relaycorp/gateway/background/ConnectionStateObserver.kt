@@ -58,9 +58,9 @@ open class ConnectionStateObserver
 
     private suspend fun checkNetworkState(network: Network): ConnectionState {
         return if (checkInternetGatewayAccess.check()) {
-            ConnectionState.InternetAndGateway
+            ConnectionState.InternetWithGateway
         } else if (checkInternetAccess.check()) {
-            ConnectionState.InternetWithoutInternetGateway
+            ConnectionState.InternetWithoutGateway
         } else if (network.isWifi) {
             val serverAddress = hotspotSourceIpAddress
                 ?: return ConnectionState.WiFiWithUnknown

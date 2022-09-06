@@ -125,6 +125,14 @@ class EndpointRegistrationTest : BaseDataTestCase() {
             assertEquals(PDACertPath.PRIVATE_GW, registration.gatewayCertificate)
         }
 
+        @Test
+        fun `Registration should encapsulate InternetGatewayAddress`() = runBlockingTest {
+            val registrationSerialized = endpointRegistration.register(crr)
+
+            val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
+            assertEquals(mockLocalConfig.getInternetGatewayAddress(), registration.gatewayInternetAddress)
+        }
+
         @Nested
         inner class EndpointCertificate {
             @Test

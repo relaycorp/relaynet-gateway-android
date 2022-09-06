@@ -44,7 +44,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Foreground,
             PDCServer.State.Started,
             RegistrationState.ToDo,
-            ConnectionState.InternetAndGateway
+            ConnectionState.InternetWithGateway
         )
 
         sync()
@@ -72,7 +72,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Stopped,
             RegistrationState.Done,
-            ConnectionState.InternetAndGateway
+            ConnectionState.InternetWithGateway
         )
 
         sync()
@@ -86,7 +86,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Foreground,
             PDCServer.State.Stopped,
             RegistrationState.Done,
-            ConnectionState.InternetAndGateway
+            ConnectionState.InternetWithGateway
         )
 
         sync()
@@ -100,7 +100,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Started,
             RegistrationState.Done,
-            ConnectionState.InternetAndGateway
+            ConnectionState.InternetWithGateway
         )
 
         sync()
@@ -114,7 +114,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Stopped,
             RegistrationState.Done,
-            ConnectionState.InternetAndGateway
+            ConnectionState.InternetWithGateway
         )
         val appStateFlow = MutableStateFlow(ForegroundAppMonitor.State.Background)
         whenever(foregroundAppMonitor.observe()).thenReturn(appStateFlow.asSharedFlow())
