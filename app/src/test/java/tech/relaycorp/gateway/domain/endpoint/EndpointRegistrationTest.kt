@@ -130,7 +130,10 @@ class EndpointRegistrationTest : BaseDataTestCase() {
             val registrationSerialized = endpointRegistration.register(crr)
 
             val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
-            assertEquals(mockLocalConfig.getInternetGatewayAddress(), registration.gatewayInternetAddress)
+            assertEquals(
+                mockLocalConfig.getInternetGatewayAddress(),
+                registration.gatewayInternetAddress
+            )
         }
 
         @Nested
