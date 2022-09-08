@@ -12,7 +12,7 @@ buildscript {
     ext {
         ktorVersion = '1.6.2'
         junitVersion = '5.8.2'
-        awalaTestingVersion = '1.5.2'
+        awalaTestingVersion = '1.5.8'
     }
 }
 
@@ -123,7 +123,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
 
     // Android
-    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -138,7 +138,7 @@ dependencies {
     kapt 'com.google.dagger:dagger-compiler:2.42'
 
     // Awala
-    implementation 'tech.relaycorp:awala:1.65.0'
+    implementation 'tech.relaycorp:awala:1.66.3'
     implementation 'tech.relaycorp:awala-keystore-file:1.6.1'
     implementation 'tech.relaycorp:cogrpc:1.1.21'
     implementation 'tech.relaycorp:cogrpc-okhttp:1.1.12'
