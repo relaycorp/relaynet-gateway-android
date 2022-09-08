@@ -68,8 +68,8 @@ class ProcessCargo
     private suspend fun deserializeAckAndDeleteParcel(parcelAckData: ByteArray) {
         val pca = ParcelCollectionAck.deserialize(parcelAckData)
         deleteParcel.delete(
-            recipientAddress = MessageAddress.of(pca.recipientEndpointAddress),
-            senderAddress = MessageAddress.of(pca.senderEndpointPrivateAddress),
+            recipientAddress = MessageAddress.of(pca.recipientEndpointId),
+            senderAddress = MessageAddress.of(pca.senderEndpointId),
             messageId = MessageId(pca.parcelId)
         )
     }

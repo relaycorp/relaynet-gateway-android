@@ -42,7 +42,7 @@ class ParcelCollectionRouteTest {
 
     private val endpointAddress = MessageAddress.of("1234")
     private val certificate = mock<Certificate>()
-        .also { whenever(it.subjectPrivateAddress).thenReturn(endpointAddress.value) }
+        .also { whenever(it.subjectId).thenReturn(endpointAddress.value) }
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {

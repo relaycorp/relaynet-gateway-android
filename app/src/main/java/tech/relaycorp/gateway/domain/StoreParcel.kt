@@ -13,7 +13,6 @@ import tech.relaycorp.relaynet.RelaynetException
 import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.ramf.RAMFException
-import tech.relaycorp.relaynet.ramf.RecipientAddressType
 import java.io.InputStream
 import javax.inject.Inject
 
@@ -40,12 +39,6 @@ class StoreParcel
             return Result.MalformedParcel(exc)
         }
 
-        val requiredRecipientAddressType =
-            if (recipientLocation == RecipientLocation.LocalEndpoint) {
-                RecipientAddressType.PRIVATE
-            } else {
-                null
-            }
         val requiredCertificateAuthorities =
             if (recipientLocation == RecipientLocation.ExternalGateway) {
                 null
@@ -53,7 +46,7 @@ class StoreParcel
                 localConfig.getAllValidIdentityCertificates()
             }
         try {
-            parcel.validate(requiredRecipientAddressType, requiredCertificateAuthorities)
+            parcel.validate(requiredCertificateAuthorities)
         } catch (exc: RelaynetException) {
             return Result.InvalidParcel(parcel, exc)
         }
@@ -67,6 +60,7 @@ class StoreParcel
             StoredParcel.STORAGE_PREFIX,
             parcelData
         )
+
         val parcelSize = StorageSize(parcelData.size.toLong())
         val storedParcel = parcel.toStoredParcel(parcelPath, parcelSize, recipientLocation)
         storedParcelDao.insert(storedParcel)
@@ -75,8 +69,8 @@ class StoreParcel
 
     private suspend fun isParcelAlreadyCollected(parcel: Parcel) =
         parcelCollectionDao.exists(
-            MessageAddress.of(parcel.recipientAddress),
-            PrivateMessageAddress(parcel.senderCertificate.subjectPrivateAddress),
+            MessageAddress.of(parcel.recipient.id),
+            PrivateMessageAddress(parcel.senderCertificate.subjectId),
             MessageId(parcel.id)
         )
 
@@ -86,8 +80,8 @@ class StoreParcel
         recipientLocation: RecipientLocation
     ) =
         StoredParcel(
-            recipientAddress = MessageAddress.of(recipientAddress),
-            senderAddress = MessageAddress.of(senderCertificate.subjectPrivateAddress),
+            recipientAddress = MessageAddress.of(recipient.id),
+            senderAddress = MessageAddress.of(senderCertificate.subjectId),
             messageId = MessageId(id),
             recipientLocation = recipientLocation,
             creationTimeUtc = creationDate,

@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.GetOutgoingData
 import tech.relaycorp.gateway.ui.BaseViewModel
 import javax.inject.Inject
@@ -12,7 +12,7 @@ import javax.inject.Inject
 class SettingsViewModel
 @Inject constructor(
     getOutgoingData: GetOutgoingData,
-    publicGatewayPreferences: PublicGatewayPreferences
+    internetGatewayPreferences: InternetGatewayPreferences
 ) : BaseViewModel() {
 
     val showOutgoingData: Flow<Boolean> get() = _showOutgoingData
@@ -31,10 +31,10 @@ class SettingsViewModel
             }
             .launchIn(ioScope)
 
-        publicGatewayPreferences
+        internetGatewayPreferences
             .observeAddress()
             .onEach {
-                _publicGwAddress.value = publicGatewayPreferences.getAddress()
+                _publicGwAddress.value = internetGatewayPreferences.getAddress()
             }
             .launchIn(ioScope)
     }

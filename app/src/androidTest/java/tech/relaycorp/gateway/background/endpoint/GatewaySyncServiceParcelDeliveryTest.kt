@@ -20,6 +20,7 @@ import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.bindings.pdc.RejectedParcelException
 import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.messages.Parcel
+import tech.relaycorp.relaynet.messages.Recipient
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
@@ -54,7 +55,9 @@ class GatewaySyncServiceParcelDeliveryTest {
     @Test
     fun parcelDelivery_validParcel() = runBlocking {
         setGatewayCertificate(PDACertPath.PRIVATE_GW)
-        val recipient = "https://example.org"
+        val recipientId = "0deadbeef"
+        val recipientInternetAddress = "example.org"
+        val recipient = Recipient(recipientId, recipientInternetAddress)
 
         val parcel = Parcel(
             recipient,
@@ -66,7 +69,7 @@ class GatewaySyncServiceParcelDeliveryTest {
         PoWebClient.initLocal(PDCServer.PORT).deliverParcel(parcel, endpointSigner)
 
         val storedParcels = storedParcelDao.listForRecipients(
-            listOf(MessageAddress.of(recipient)),
+            listOf(MessageAddress.of(recipientId)),
             RecipientLocation.ExternalGateway
         ).first()
         assertEquals(1, storedParcels.size)
@@ -75,8 +78,12 @@ class GatewaySyncServiceParcelDeliveryTest {
     @Test(expected = RejectedParcelException::class)
     fun parcelDelivery_invalidParcel() = runBlocking {
         val fiveMinutesAgo = ZonedDateTime.now().minusMinutes(5)
+        val recipientId = "0deadbeef"
+        val recipientInternetAddress = "example.org"
+        val recipient = Recipient(recipientId, recipientInternetAddress)
+
         val parcel = Parcel(
-            "https://example.org",
+            recipient,
             ByteArray(0),
             PDACertPath.PRIVATE_ENDPOINT,
             creationDate = fiveMinutesAgo,

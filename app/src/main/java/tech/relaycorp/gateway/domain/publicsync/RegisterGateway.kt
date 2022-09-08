@@ -1,10 +1,10 @@
 package tech.relaycorp.gateway.domain.publicsync
 
 import tech.relaycorp.gateway.common.Logging.logger
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
 import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.endpoint.GatewayCertificateChangeNotifier
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class RegisterGateway
 @Inject constructor(
     private val gatewayCertificateChangeNotifier: GatewayCertificateChangeNotifier,
-    private val publicGatewayPreferences: PublicGatewayPreferences,
+    private val internetGatewayPreferences: InternetGatewayPreferences,
     private val localConfig: LocalConfig,
     private val poWebClientBuilder: PoWebClientBuilder,
     private val resolveServiceAddress: ResolveServiceAddress,
@@ -30,7 +30,7 @@ class RegisterGateway
 
     suspend fun registerIfNeeded(): Result {
         val isFirstRegistration =
-            publicGatewayPreferences.getRegistrationState() == RegistrationState.ToDo
+            internetGatewayPreferences.getRegistrationState() == RegistrationState.ToDo
 
         if (
             !isFirstRegistration &&
@@ -39,7 +39,7 @@ class RegisterGateway
             return Result.AlreadyRegisteredAndNotExpiring
         }
 
-        val address = publicGatewayPreferences.getAddress()
+        val address = internetGatewayPreferences.getAddress()
         val result = register(address)
         if (result is Result.Registered) {
             saveSuccessfulResult(address, result.pnr)
@@ -88,7 +88,7 @@ class RegisterGateway
         } catch (e: ClientBindingException) {
             logger.log(Level.SEVERE, "Could not register gateway due to client error", e)
             Result.FailedToRegister
-        } catch (e: PublicAddressResolutionException) {
+        } catch (e: InternetAddressResolutionException) {
             logger.log(
                 Level.WARNING,
                 "Could not register gateway due to failure to resolve PoWeb address",
@@ -99,18 +99,18 @@ class RegisterGateway
     }
 
     private suspend fun saveSuccessfulResult(
-        publicGatewayPublicAddress: String,
+        internetGatewayAddress: String,
         registration: PrivateNodeRegistration
     ) {
-        publicGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
-        publicGatewayPreferences.setAddress(publicGatewayPublicAddress)
-        publicGatewayPreferences.setPublicKey(registration.gatewayCertificate.subjectPublicKey)
+        internetGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
+        internetGatewayPreferences.setAddress(internetGatewayAddress)
+        internetGatewayPreferences.setPublicKey(registration.gatewayCertificate.subjectPublicKey)
         localConfig.setIdentityCertificate(registration.privateNodeCertificate)
         publicKeyStore.save(
             registration.gatewaySessionKey!!,
-            registration.gatewayCertificate.subjectPrivateAddress
+            registration.gatewayCertificate.subjectId
         )
-        publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
+        internetGatewayPreferences.setRegistrationState(RegistrationState.Done)
     }
 
     sealed class Result {

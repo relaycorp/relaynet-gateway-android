@@ -16,8 +16,8 @@ class StoreParcelCollection
     suspend fun storeForParcel(parcel: Parcel) {
         parcelCollectionDao.insert(
             ParcelCollection(
-                MessageAddress.of(parcel.recipientAddress),
-                PrivateMessageAddress(parcel.senderCertificate.subjectPrivateAddress),
+                MessageAddress.of(parcel.recipient.id),
+                PrivateMessageAddress(parcel.senderCertificate.subjectId),
                 MessageId(parcel.id),
                 parcel.creationDate,
                 parcel.expiryDate

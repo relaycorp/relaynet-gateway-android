@@ -1,7 +1,7 @@
 package tech.relaycorp.gateway.domain.courier
 
 import tech.relaycorp.gateway.common.Logging.logger
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.endpoint.GatewayCertificateChangeNotifier
 import tech.relaycorp.relaynet.messages.CertificateRotation
@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 class RotateCertificate @Inject constructor(
     private val localConfig: LocalConfig,
-    private val publicGatewayPreferences: PublicGatewayPreferences,
+    private val internetGatewayPreferences: InternetGatewayPreferences,
     private val notifyEndpointsChangeNotifier: GatewayCertificateChangeNotifier
 ) {
 
@@ -29,8 +29,8 @@ class RotateCertificate @Inject constructor(
         if (currentIdCert.expiryDate >= newIdCert.expiryDate) return
 
         localConfig.setIdentityCertificate(newIdCert)
-        certRotation.certificationPath.certificateAuthorities.first().let { publicGatewayCert ->
-            publicGatewayPreferences.setPublicKey(publicGatewayCert.subjectPublicKey)
+        certRotation.certificationPath.certificateAuthorities.first().let { internetGatewayCert ->
+            internetGatewayPreferences.setPublicKey(internetGatewayCert.subjectPublicKey)
         }
 
         notifyEndpointsChangeNotifier.notifyAll()

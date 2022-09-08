@@ -5,7 +5,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.relaynet.keystores.CertificateStore
 import tech.relaycorp.relaynet.keystores.PrivateKeyStore
 import tech.relaycorp.relaynet.pki.CertificationPath
@@ -23,7 +23,7 @@ class KeystoreResetTestRule : TestRule {
     lateinit var privateKeyStore: PrivateKeyStore
 
     @Inject
-    lateinit var publicGatewayPreferences: PublicGatewayPreferences
+    lateinit var internetGatewayPreferences: InternetGatewayPreferences
 
     @Inject
     lateinit var certificateStore: CertificateStore
@@ -42,7 +42,7 @@ class KeystoreResetTestRule : TestRule {
                             PDACertPath.PRIVATE_GW,
                             emptyList()
                         ),
-                        publicGatewayPreferences.getPrivateAddress()
+                        internetGatewayPreferences.getId()
                     )
                 }
 

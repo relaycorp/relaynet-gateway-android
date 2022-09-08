@@ -91,7 +91,8 @@ class EndpointRegistrationRouteTest {
     fun `Valid CRR should complete the registration`() = runBlockingTest {
         val privateNodeRegistration = PrivateNodeRegistration(
             PDACertPath.PRIVATE_ENDPOINT,
-            PDACertPath.PRIVATE_GW
+            PDACertPath.PRIVATE_GW,
+            ""
         )
         val privateNodeRegistrationSerialized = privateNodeRegistration.serialize()
         whenever(endpointRegistration.register(any())).thenReturn(privateNodeRegistrationSerialized)

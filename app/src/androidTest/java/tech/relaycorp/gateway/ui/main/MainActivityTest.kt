@@ -45,11 +45,11 @@ class MainActivityTest {
     }
 
     @Test
-    fun internetWithoutPublicGatewayTestScreen() {
+    fun internetWithoutInternetGatewayTestScreen() {
         // Arrange
         runBlocking {
             appPreferences.setOnboardingDone(true)
-            connectionFlow.emit(ConnectionState.InternetWithoutPublicGateway)
+            connectionFlow.emit(ConnectionState.InternetWithoutGateway)
         }
 
         // Act

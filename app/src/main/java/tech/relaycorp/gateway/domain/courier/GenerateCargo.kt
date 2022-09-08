@@ -12,11 +12,12 @@ import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
 import tech.relaycorp.gateway.data.model.ParcelCollection
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StoredParcel
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.messages.Cargo
 import tech.relaycorp.relaynet.messages.ParcelCollectionAck
+import tech.relaycorp.relaynet.messages.Recipient
 import tech.relaycorp.relaynet.messages.payloads.CargoMessageSetWithExpiry
 import tech.relaycorp.relaynet.messages.payloads.CargoMessageWithExpiry
 import tech.relaycorp.relaynet.messages.payloads.batch
@@ -32,7 +33,7 @@ class GenerateCargo
     private val storedParcelDao: StoredParcelDao,
     private val parcelCollectionDao: ParcelCollectionDao,
     private val diskMessageOperations: DiskMessageOperations,
-    private val publicGatewayPreferences: PublicGatewayPreferences,
+    private val internetGatewayPreferences: InternetGatewayPreferences,
     private val localConfig: LocalConfig,
     private val calculateCreationDate: CalculateCRCMessageCreationDate,
     private val gatewayManager: Provider<GatewayManager>
@@ -55,8 +56,8 @@ class GenerateCargo
     private fun ParcelCollection.toCargoMessageWithExpiry() =
         CargoMessageWithExpiry(
             cargoMessageSerialized = ParcelCollectionAck(
-                senderEndpointPrivateAddress = senderAddress.value,
-                recipientEndpointAddress = recipientAddress.value,
+                senderEndpointId = senderAddress.value,
+                recipientEndpointId = recipientAddress.value,
                 parcelId = messageId.value
             ).serialize(),
             expiryDate = expirationTimeUtc
@@ -91,17 +92,18 @@ class GenerateCargo
         val identityKey = localConfig.getIdentityKey()
         val identityCert = localConfig.getIdentityCertificate()
 
-        val recipientAddress = publicGatewayPreferences.getCogRPCAddress()
+        val recipientAddress = internetGatewayPreferences.getCogRPCAddress()
+        val recipientId = internetGatewayPreferences.getId()
         val creationDate = calculateCreationDate.calculate()
 
         logger.info("Generating cargo for $recipientAddress")
         val cargoMessageSetCiphertext = gatewayManager.get().wrapMessagePayload(
             cargoMessageSet,
-            publicGatewayPreferences.getPrivateAddress(),
-            identityCert.subjectPrivateAddress
+            internetGatewayPreferences.getId(),
+            identityCert.subjectId
         )
         val cargo = Cargo(
-            recipientAddress = recipientAddress,
+            recipient = Recipient(recipientId, recipientAddress),
             payload = cargoMessageSetCiphertext,
             senderCertificate = identityCert,
             creationDate = creationDate,

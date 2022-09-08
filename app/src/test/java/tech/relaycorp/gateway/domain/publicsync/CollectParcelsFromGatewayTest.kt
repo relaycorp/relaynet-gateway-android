@@ -20,10 +20,10 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.domain.endpoint.IncomingParcelNotifier
@@ -36,6 +36,7 @@ import tech.relaycorp.relaynet.bindings.pdc.ParcelCollection
 import tech.relaycorp.relaynet.bindings.pdc.ServerConnectionException
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.messages.Parcel
+import tech.relaycorp.relaynet.messages.Recipient
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import java.lang.Thread.sleep
 import kotlin.math.roundToLong
@@ -47,9 +48,9 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
     private val poWebClientBuilder = object : PoWebClientProvider {
         override suspend fun get() = poWebClient
     }
-    private val mockPublicGatewayPreferences = mock<PublicGatewayPreferences>()
+    private val mockInternetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val mockLocalConfig = LocalConfig(
-        privateKeyStoreProvider, certificateStoreProvider, mockPublicGatewayPreferences
+        privateKeyStoreProvider, certificateStoreProvider, mockInternetGatewayPreferences
     )
     private val notifyEndpoints = mock<IncomingParcelNotifier>()
     private val subject = CollectParcelsFromGateway(
@@ -61,14 +62,14 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
         registerPrivateGatewayIdentity()
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.Success(mock()))
-        whenever(mockPublicGatewayPreferences.getPrivateAddress())
-            .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
+        whenever(mockInternetGatewayPreferences.getId())
+            .thenReturn(PDACertPath.INTERNET_GW.subjectId)
     }
 
     @Test
     fun `Failure to resolve PoWeb address should be ignored`() = runBlockingTest {
         val failingPoWebClientProvider = object : PoWebClientProvider {
-            override suspend fun get() = throw PublicAddressResolutionException("Whoops")
+            override suspend fun get() = throw InternetAddressResolutionException("Whoops")
         }
         val subject = CollectParcelsFromGateway(
             storeParcel, failingPoWebClientProvider, notifyEndpoints, mockLocalConfig
@@ -107,7 +108,8 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
             .thenReturn(flowOf(parcelCollection, parcelCollection))
         val parcel = mock<Parcel>()
         val parcelAddress = "1234"
-        whenever(parcel.recipientAddress).thenReturn(parcelAddress)
+        val mockRecipient = Recipient("0deadbeef", parcelAddress)
+        whenever(parcel.recipient).thenReturn(mockRecipient)
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.Success(parcel))
 
@@ -120,7 +122,9 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
         verify(storeParcel, times(2))
             .store(eq(parcelCollection.parcelSerialized), eq(RecipientLocation.LocalEndpoint))
         verify(parcelCollection, times(2)).ack
-        verify(notifyEndpoints, times(2)).notify(eq(MessageAddress.of(parcelAddress)))
+        verify(notifyEndpoints, times(2)).notify(
+            eq(MessageAddress.of(mockRecipient.id))
+        )
     }
 
     @Test

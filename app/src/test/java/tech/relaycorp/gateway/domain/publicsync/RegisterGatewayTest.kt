@@ -10,11 +10,11 @@ import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
 import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.model.ServiceAddress
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.endpoint.GatewayCertificateChangeNotifier
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
@@ -28,12 +28,13 @@ import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthoriza
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
+import tech.relaycorp.relaynet.wrappers.nodeId
 import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 
 class RegisterGatewayTest : BaseDataTestCase() {
 
-    private val pgwPreferences = mock<PublicGatewayPreferences>()
+    private val pgwPreferences = mock<InternetGatewayPreferences>()
     private val localConfig = LocalConfig(
         privateKeyStoreProvider, certificateStoreProvider, pgwPreferences
     )
@@ -55,8 +56,8 @@ class RegisterGatewayTest : BaseDataTestCase() {
     @BeforeEach
     internal fun setUp() = runBlockingTest {
         registerPrivateGatewayIdentity()
-        whenever(pgwPreferences.getPrivateAddress())
-            .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
+        whenever(pgwPreferences.getId())
+            .thenReturn(PDACertPath.INTERNET_GW.subjectId)
     }
 
     @Test
@@ -64,7 +65,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.ToDo)
         val failingPoWebClientBuilder = object : PoWebClientBuilder {
             override suspend fun build(address: ServiceAddress) =
-                throw PublicAddressResolutionException("Whoops")
+                throw InternetAddressResolutionException("Whoops")
         }
         val registerGateway = RegisterGateway(
             notifyEndpoints,
@@ -86,7 +87,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
         localConfig.setIdentityCertificate(
             issueGatewayCertificate(
                 KeyPairSet.PRIVATE_GW.public,
-                KeyPairSet.PUBLIC_GW.private,
+                KeyPairSet.INTERNET_GW.private,
                 ZonedDateTime.now().plusYears(1), // not expiring soon
                 validityStartDate = ZonedDateTime.now().minusSeconds(1)
             )
@@ -103,16 +104,16 @@ class RegisterGatewayTest : BaseDataTestCase() {
         localConfig.setIdentityCertificate(
             issueGatewayCertificate(
                 KeyPairSet.PRIVATE_GW.public,
-                KeyPairSet.PUBLIC_GW.private,
+                KeyPairSet.INTERNET_GW.private,
                 ZonedDateTime.now().plusDays(1), // expiring soon
-                PDACertPath.PUBLIC_GW,
+                PDACertPath.INTERNET_GW,
                 validityStartDate = ZonedDateTime.now().minusSeconds(1)
             )
         )
         whenever(poWebClient.preRegisterNode(any()))
             .thenReturn(buildPNRR())
         whenever(poWebClient.registerNode(any()))
-            .thenReturn(buildPNR(publicGatewaySessionKeyPair.sessionKey))
+            .thenReturn(buildPNR(internetGatewaySessionKeyPair.sessionKey))
 
         registerGateway.registerIfNeeded()
 
@@ -125,14 +126,14 @@ class RegisterGatewayTest : BaseDataTestCase() {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.ToDo)
         val pnrr = buildPNRR()
         whenever(poWebClient.preRegisterNode(any())).thenReturn(pnrr)
-        val pnr = buildPNR(publicGatewaySessionKeyPair.sessionKey)
+        val pnr = buildPNR(internetGatewaySessionKeyPair.sessionKey)
         whenever(poWebClient.registerNode(any())).thenReturn(pnr)
 
         registerGateway.registerIfNeeded()
 
         verify(pgwPreferences).setPublicKey(eq(pnr.gatewayCertificate.subjectPublicKey))
         verify(pgwPreferences).setRegistrationState(eq(RegistrationState.Done))
-        publicKeyStore.retrieve(pnr.gatewayCertificate.subjectPrivateAddress)
+        publicKeyStore.retrieve(pnr.gatewayCertificate.subjectId)
         assertEquals(pnr.privateNodeCertificate, localConfig.getIdentityCertificate())
     }
 
@@ -166,10 +167,12 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
     @Test
     fun `new certificate triggers notification`() = runBlockingTest {
+        whenever(pgwPreferences.getAddress())
+            .thenReturn(internetGatewaySessionKeyPair.sessionKey.publicKey.nodeId)
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.Done)
         val pnrr = buildPNRR()
         whenever(poWebClient.preRegisterNode(any())).thenReturn(pnrr)
-        val pnr = buildPNR(publicGatewaySessionKeyPair.sessionKey)
+        val pnr = buildPNR(internetGatewaySessionKeyPair.sessionKey)
         whenever(poWebClient.registerNode(any())).thenReturn(pnr)
 
         registerGateway.registerIfNeeded()
@@ -182,7 +185,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.ToDo)
         val pnrr = buildPNRR()
         whenever(poWebClient.preRegisterNode(any())).thenReturn(pnrr)
-        val pnr = buildPNR(publicGatewaySessionKeyPair.sessionKey)
+        val pnr = buildPNR(internetGatewaySessionKeyPair.sessionKey)
         whenever(poWebClient.registerNode(any())).thenReturn(pnr)
 
         registerGateway.registerIfNeeded()
@@ -201,9 +204,10 @@ class RegisterGatewayTest : BaseDataTestCase() {
         )
     }
 
-    private fun buildPNR(publicGatewaySessionKey: SessionKey?) = PrivateNodeRegistration(
+    private fun buildPNR(internetGatewaySessionKey: SessionKey?) = PrivateNodeRegistration(
         PDACertPath.PRIVATE_GW,
-        PDACertPath.PUBLIC_GW,
-        publicGatewaySessionKey
+        PDACertPath.INTERNET_GW,
+        "example.org",
+        internetGatewaySessionKey
     )
 }

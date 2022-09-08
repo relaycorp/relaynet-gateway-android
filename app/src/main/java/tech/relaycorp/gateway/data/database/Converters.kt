@@ -26,16 +26,16 @@ class Converters {
     fun fromAddress(address: MessageAddress) = address.value
 
     @TypeConverter
-    fun toPrivateAddress(value: String) = PrivateMessageAddress(value)
+    fun toNodeId(value: String) = PrivateMessageAddress(value)
 
     @TypeConverter
-    fun fromPrivateAddress(address: PrivateMessageAddress) = address.value
+    fun fromNodeId(address: PrivateMessageAddress) = address.value
 
     @TypeConverter
-    fun toPublicAddress(value: String) = PublicMessageAddress(value)
+    fun toInternetAddress(value: String) = PublicMessageAddress(value)
 
     @TypeConverter
-    fun fromPublicAddress(address: PublicMessageAddress) = address.value
+    fun fromInternetAddress(address: PublicMessageAddress) = address.value
 
     @TypeConverter
     fun toId(value: String) = MessageId(value)

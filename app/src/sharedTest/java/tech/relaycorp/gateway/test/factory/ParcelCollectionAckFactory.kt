@@ -6,8 +6,8 @@ import kotlin.random.Random
 object ParcelCollectionAckFactory {
 
     fun build() = ParcelCollectionAck(
-        senderEndpointPrivateAddress = Random.nextInt().toString(),
-        recipientEndpointAddress = Random.nextInt().toString(),
+        senderEndpointId = Random.nextInt().toString(),
+        recipientEndpointId = Random.nextInt().toString(),
         parcelId = Random.nextInt().toString()
     )
 }

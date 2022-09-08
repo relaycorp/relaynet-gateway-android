@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.common.nowInUtc
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.relaynet.issueGatewayCertificate
@@ -20,26 +20,26 @@ import tech.relaycorp.relaynet.messages.CargoCollectionAuthorization
 import tech.relaycorp.relaynet.pki.CertificationPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
-import tech.relaycorp.relaynet.wrappers.privateAddress
+import tech.relaycorp.relaynet.wrappers.nodeId
 import java.time.Duration
 
 class GenerateCCATest : BaseDataTestCase() {
 
-    private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
+    private val internetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val localConfig = LocalConfig(
-        privateKeyStoreProvider, certificateStoreProvider, publicGatewayPreferences
+        privateKeyStoreProvider, certificateStoreProvider, internetGatewayPreferences
     )
     private val calculateCreationDate = mock<CalculateCRCMessageCreationDate>()
 
     private val generateCCA = GenerateCCA(
-        publicGatewayPreferences,
+        internetGatewayPreferences,
         localConfig,
         calculateCreationDate,
         gatewayManagerProvider
     )
 
     companion object {
-        private const val ADDRESS = "http://example.org"
+        private const val ADDRESS = "example.org"
     }
 
     @BeforeEach
@@ -54,16 +54,16 @@ class GenerateCCATest : BaseDataTestCase() {
                 validityEndDate = nowInUtc().plusMinutes(1),
                 validityStartDate = nowInUtc().minusDays(1)
             )
-            whenever(certificateStore.retrieveLatest(any(), eq(keyPair.public.privateAddress)))
+            whenever(certificateStore.retrieveLatest(any(), eq(keyPair.public.nodeId)))
                 .thenReturn(CertificationPath(cda, emptyList()))
 
-            whenever(publicGatewayPreferences.getPrivateAddress())
-                .thenReturn(PDACertPath.PUBLIC_GW.subjectPrivateAddress)
-            whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn(ADDRESS)
-            whenever(publicGatewayPreferences.getPublicKey())
-                .thenReturn(KeyPairSet.PUBLIC_GW.public)
+            whenever(internetGatewayPreferences.getId())
+                .thenReturn(PDACertPath.INTERNET_GW.subjectId)
+            whenever(internetGatewayPreferences.getCogRPCAddress()).thenReturn(ADDRESS)
+            whenever(internetGatewayPreferences.getPublicKey())
+                .thenReturn(KeyPairSet.INTERNET_GW.public)
 
-            registerPublicGatewaySessionKey()
+            registerInternetGatewaySessionKey()
         }
     }
 
@@ -76,14 +76,14 @@ class GenerateCCATest : BaseDataTestCase() {
         val cca = CargoCollectionAuthorization.deserialize(ccaBytes)
 
         cca.validate(null)
-        assertEquals(ADDRESS, cca.recipientAddress)
+        assertEquals(ADDRESS, cca.recipient.internetAddress)
         assertArrayEquals(PDACertPath.PRIVATE_GW.serialize(), cca.senderCertificate.serialize())
         assertTrue(Duration.between(creationDate, cca.creationDate).abs().seconds <= 1)
 
         // Check it was encrypted with the public gateway's session key
-        val ccr = cca.unwrapPayload(publicGatewaySessionKeyPair.privateKey).payload
+        val ccr = cca.unwrapPayload(internetGatewaySessionKeyPair.privateKey).payload
         assertEquals(
-            KeyPairSet.PUBLIC_GW.public,
+            KeyPairSet.INTERNET_GW.public,
             ccr.cargoDeliveryAuthorization.subjectPublicKey
         )
     }
