@@ -49,7 +49,7 @@ class GenerateCargoTest : BaseDataTestCase() {
         registerPrivateGatewayIdentity()
         whenever(internetGatewayPreferences.getId())
             .thenReturn(PDACertPath.INTERNET_GW.subjectId)
-        whenever(internetGatewayPreferences.getCogRPCAddress())
+        whenever(internetGatewayPreferences.getAddress())
             .thenReturn("example.org")
         whenever(internetGatewayPreferences.getPublicKey())
             .thenReturn(KeyPairSet.INTERNET_GW.public)
@@ -88,7 +88,7 @@ class GenerateCargoTest : BaseDataTestCase() {
 
         val cargo = Cargo.deserialize(cargoes.first().readBytes())
         assertEquals(
-            internetGatewayPreferences.getCogRPCAddress(),
+            internetGatewayPreferences.getAddress(),
             cargo.recipient.internetAddress
         )
         assertTrue(Duration.between(parcel.expirationTimeUtc, cargo.expiryDate).abs().seconds <= 2)

@@ -92,7 +92,7 @@ class GenerateCargo
         val identityKey = localConfig.getIdentityKey()
         val identityCert = localConfig.getIdentityCertificate()
 
-        val recipientAddress = internetGatewayPreferences.getCogRPCAddress()
+        val recipientAddress = internetGatewayPreferences.getAddress()
         val recipientId = internetGatewayPreferences.getId()
         val creationDate = calculateCreationDate.calculate()
 

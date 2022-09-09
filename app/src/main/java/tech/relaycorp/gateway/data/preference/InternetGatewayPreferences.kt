@@ -36,8 +36,6 @@ class InternetGatewayPreferences
     fun observeAddress(): Flow<String> = { address }.toFlow()
     suspend fun setAddress(value: String) = address.setAndCommit(value)
 
-    suspend fun getCogRPCAddress() = "https://${getAddress()}"
-
     @Throws(InternetAddressResolutionException::class)
     suspend fun getPoWebAddress() = resolveServiceAddress.resolvePoWeb(getAddress())
 

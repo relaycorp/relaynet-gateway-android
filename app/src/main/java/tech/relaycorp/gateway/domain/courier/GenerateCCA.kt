@@ -40,7 +40,7 @@ class GenerateCCA
         val cca = CargoCollectionAuthorization(
             recipient = Recipient(
                 internetGatewayPreferences.getId(),
-                internetGatewayPreferences.getCogRPCAddress()
+                internetGatewayPreferences.getAddress()
             ),
             payload = ccrCiphertext,
             senderCertificate = localConfig.getIdentityCertificate(),

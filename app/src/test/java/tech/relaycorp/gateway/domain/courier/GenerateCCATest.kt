@@ -59,7 +59,7 @@ class GenerateCCATest : BaseDataTestCase() {
 
             whenever(internetGatewayPreferences.getId())
                 .thenReturn(PDACertPath.INTERNET_GW.subjectId)
-            whenever(internetGatewayPreferences.getCogRPCAddress()).thenReturn(ADDRESS)
+            whenever(internetGatewayPreferences.getAddress()).thenReturn(ADDRESS)
             whenever(internetGatewayPreferences.getPublicKey())
                 .thenReturn(KeyPairSet.INTERNET_GW.public)
 
