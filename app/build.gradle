@@ -171,7 +171,7 @@ dependencies {
 
     // Preferences
     implementation 'androidx.preference:preference-ktx:1.1.1'
-    implementation 'com.fredporciuncula:flow-preferences:1.5.0' 
+    implementation 'com.fredporciuncula:flow-preferences:1.8.0' 
 
     // Display open-source licenses
     implementation "com.mikepenz:aboutlibraries:$aboutLibrariesVersion"
