@@ -5,7 +5,7 @@ import tech.relaycorp.gateway.domain.LocalConfig
 import java.time.ZonedDateTime
 import java.util.Collections.max
 import javax.inject.Inject
-import kotlin.time.minutes
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
 
 class CalculateCRCMessageCreationDate

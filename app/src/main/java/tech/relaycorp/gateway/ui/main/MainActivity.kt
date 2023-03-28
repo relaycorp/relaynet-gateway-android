@@ -9,19 +9,11 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.stationhead.android.shared.viewmodel.ViewModelFactory
-import kotlinx.android.synthetic.main.activity_main.courierConnection
-import kotlinx.android.synthetic.main.activity_main.courierSync
-import kotlinx.android.synthetic.main.activity_main.getHelp
-import kotlinx.android.synthetic.main.activity_main.image
-import kotlinx.android.synthetic.main.activity_main.internetWithoutGatewayButtonsLayout
-import kotlinx.android.synthetic.main.activity_main.messageText
-import kotlinx.android.synthetic.main.activity_main.settings
-import kotlinx.android.synthetic.main.activity_main.titleText
-import kotlinx.android.synthetic.main.activity_main.vpn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.background.ConnectionState
+import tech.relaycorp.gateway.databinding.ActivityMainBinding
 import tech.relaycorp.gateway.ui.BaseActivity
 import tech.relaycorp.gateway.ui.onboarding.OnboardingActivity
 import tech.relaycorp.gateway.ui.settings.SettingsActivity
@@ -35,28 +27,31 @@ class MainActivity : BaseActivity() {
     lateinit var viewModelFactory: ViewModelFactory<MainViewModel>
 
     private val viewModel by lazy {
-        ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
     }
+
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         component.inject(this)
         setTitle(R.string.app_name)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        settings.setOnClickListener {
+        binding.settings.setOnClickListener {
             startActivity(SettingsActivity.getIntent(this))
         }
-        courierConnection.setOnClickListener {
+        binding.courierConnection.setOnClickListener {
             startActivity(CourierConnectionActivity.getIntent(this))
         }
-        courierSync.setOnClickListener {
+        binding.courierSync.setOnClickListener {
             startActivity(CourierSyncActivity.getIntent(this))
         }
-        vpn.setOnClickListener {
+        binding.vpn.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.vpn_app))))
         }
-        getHelp.setOnClickListener {
+        binding.getHelp.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.gateway_help))))
         }
 
@@ -71,17 +66,17 @@ class MainActivity : BaseActivity() {
         viewModel
             .connectionState
             .onEach { state ->
-                image.setImageResource(state.toImageRes())
-                titleText.setText(state.toTitleRes())
-                messageText.setText(state.toTextRes())
-                messageText.gravity = state.toTextGravity()
-                internetWithoutGatewayButtonsLayout.isVisible =
+                binding.image.setImageResource(state.toImageRes())
+                binding.titleText.setText(state.toTitleRes())
+                binding.messageText.setText(state.toTextRes())
+                binding.messageText.gravity = state.toTextGravity()
+                binding.internetWithoutGatewayButtonsLayout.isVisible =
                     state is ConnectionState.InternetWithoutGateway
-                courierConnection.isVisible =
+                binding.courierConnection.isVisible =
                     state !is ConnectionState.InternetWithGateway &&
                     state !is ConnectionState.WiFiWithCourier &&
                     state !is ConnectionState.InternetWithoutGateway
-                courierSync.isVisible = state is ConnectionState.WiFiWithCourier
+                binding.courierSync.isVisible = state is ConnectionState.WiFiWithCourier
             }
             .launchIn(lifecycleScope)
     }

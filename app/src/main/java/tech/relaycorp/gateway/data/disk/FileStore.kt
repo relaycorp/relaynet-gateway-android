@@ -14,7 +14,6 @@ class FileStore
     private val context: Context
 ) {
 
-    @Synchronized
     suspend fun store(location: String, data: ByteArray) {
         withContext(Dispatchers.IO) {
             delete(location)

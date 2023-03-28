@@ -6,6 +6,7 @@
 
     <issue id="LockedOrientationActivity" severity="ignore" />
     <issue id="ConvertToWebp" severity="informational" />
+    <issue id="MonochromeLauncherIcon" severity="informational"/>
 
     <issue id="InvalidPackage">
         <!-- Ignore errors about BC importing javax.naming because we don't use those modules -->
@@ -20,5 +21,6 @@
     </issue>
     <issue id="TrustAllX509TrustManager">
         <ignore path="org/bouncycastle/est/jcajce/*.class" />
+        <ignore regexp="bcpkix-jdk15on" />
     </issue>
 </lint>

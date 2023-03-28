@@ -11,13 +11,10 @@ import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.stationhead.android.shared.viewmodel.ViewModelFactory
-import kotlinx.android.synthetic.main.activity_migrate_gateway.address
-import kotlinx.android.synthetic.main.activity_migrate_gateway.addressLayout
-import kotlinx.android.synthetic.main.activity_migrate_gateway.info
-import kotlinx.android.synthetic.main.activity_migrate_gateway.submit
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import tech.relaycorp.gateway.R
+import tech.relaycorp.gateway.databinding.ActivityMigrateGatewayBinding
 import tech.relaycorp.gateway.ui.BaseActivity
 import tech.relaycorp.gateway.ui.common.getColorFromAttr
 import javax.inject.Inject
@@ -28,8 +25,10 @@ class MigrateGatewayActivity : BaseActivity() {
     lateinit var viewModelFactory: ViewModelFactory<MigrateGatewayViewModel>
 
     private val viewModel by lazy {
-        ViewModelProvider(this, viewModelFactory).get(MigrateGatewayViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory)[MigrateGatewayViewModel::class.java]
     }
+
+    private lateinit var binding: ActivityMigrateGatewayBinding
 
     private var confirmDialog: AlertDialog? = null
 
@@ -37,15 +36,16 @@ class MigrateGatewayActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         component.inject(this)
         setTitle(R.string.settings)
-        setContentView(R.layout.activity_migrate_gateway)
+        binding = ActivityMigrateGatewayBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         setupNavigation(R.drawable.ic_back)
 
-        address.addTextChangedListener(
+        binding.address.addTextChangedListener(
             onTextChanged = { text: CharSequence?, _, _, _ ->
                 viewModel.addressChanged(text?.toString()?.trim() ?: "")
             }
         )
-        submit.setOnClickListener { showSubmitConfirm() }
+        binding.submit.setOnClickListener { showSubmitConfirm() }
 
         viewModel
             .state
@@ -70,9 +70,9 @@ class MigrateGatewayActivity : BaseActivity() {
     }
 
     private fun onStateChange(state: MigrateGatewayViewModel.State) {
-        address.isEnabled = state !is MigrateGatewayViewModel.State.Submitting
+        binding.address.isEnabled = state !is MigrateGatewayViewModel.State.Submitting
 
-        addressLayout.endIconDrawable = when (state) {
+        binding.addressLayout.endIconDrawable = when (state) {
             MigrateGatewayViewModel.State.AddressValid ->
                 ContextCompat.getDrawable(this, R.drawable.ic_check)
             MigrateGatewayViewModel.State.Error.SameAddress,
@@ -88,9 +88,9 @@ class MigrateGatewayActivity : BaseActivity() {
                 else -> R.attr.colorOnBackground
             }
         )
-        addressLayout.setEndIconTintList(ColorStateList.valueOf(infoColor))
+        binding.addressLayout.setEndIconTintList(ColorStateList.valueOf(infoColor))
 
-        info.text = when (state) {
+        binding.info.text = when (state) {
             MigrateGatewayViewModel.State.Insert ->
                 R.string.settings_pgw_insert
             MigrateGatewayViewModel.State.AddressValid ->
@@ -105,9 +105,9 @@ class MigrateGatewayActivity : BaseActivity() {
                 R.string.settings_pgw_migration_failed_to_register
             else -> null
         }?.let(this::getString).orEmpty()
-        info.setTextColor(infoColor)
+        binding.info.setTextColor(infoColor)
 
-        submit.isVisible = when (state) {
+        binding.submit.isVisible = when (state) {
             MigrateGatewayViewModel.State.Insert,
             MigrateGatewayViewModel.State.Error.SameAddress,
             MigrateGatewayViewModel.State.Error.AddressInvalid ->
@@ -119,7 +119,7 @@ class MigrateGatewayActivity : BaseActivity() {
                 true
         }
 
-        submit.isEnabled = state !is MigrateGatewayViewModel.State.Submitting
+        binding.submit.isEnabled = state !is MigrateGatewayViewModel.State.Submitting
     }
 
     private fun showSubmitConfirm() {

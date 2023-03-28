@@ -19,7 +19,7 @@ import tech.relaycorp.gateway.pdc.local.PDCServer
 import tech.relaycorp.gateway.pdc.local.PDCServerStateManager
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.time.seconds
+import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 class PublicSync

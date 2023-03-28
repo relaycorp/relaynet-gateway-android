@@ -7,18 +7,17 @@ buildscript {
     dependencies {
         classpath 'com.github.triplet.gradle:play-publisher:3.5.0'
         classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.14.1'
-        classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.7.1.1'
+        classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.8.2.1'
     }
     ext {
-        ktorVersion = '1.6.2'
+        ktorVersion = '1.6.8'
         junitVersion = '5.8.2'
-        awalaTestingVersion = '1.5.8'
+        awalaTestingVersion = '1.5.10'
     }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.diffplug.spotless'
 apply plugin: 'com.github.triplet.play'
@@ -81,6 +80,9 @@ android {
             }
         }
     }
+    buildFeatures {
+        viewBinding true
+    }
     compileOptions {
         coreLibraryDesugaringEnabled true
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -115,6 +117,13 @@ android {
     useLibrary 'android.test.mock'
 }
 
+configurations.all {
+    resolutionStrategy {
+        force "io.ktor:ktor-server-core:$ktorVersion"
+        force "io.ktor:ktor-client-cio:$ktorVersion"
+    }
+}
+
 dependencies {
     // Java 8
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
@@ -134,14 +143,14 @@ dependencies {
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
 
     // Dependency Injection
-    api 'com.google.dagger:dagger:2.42'
-    kapt 'com.google.dagger:dagger-compiler:2.42'
+    api 'com.google.dagger:dagger:2.45'
+    kapt 'com.google.dagger:dagger-compiler:2.45'
 
     // Awala
-    implementation 'tech.relaycorp:awala:1.66.3'
-    implementation 'tech.relaycorp:awala-keystore-file:1.6.1'
-    implementation 'tech.relaycorp:cogrpc:1.1.27'
-    implementation 'tech.relaycorp:cogrpc-okhttp:1.1.15'
+    implementation 'tech.relaycorp:awala:1.66.4'
+    implementation 'tech.relaycorp:awala-keystore-file:1.6.5'
+    implementation 'tech.relaycorp:cogrpc:1.1.29'
+    implementation 'tech.relaycorp:cogrpc-okhttp:1.1.16'
     testImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
     androidTestImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
 
@@ -150,13 +159,14 @@ dependencies {
     implementation 'org.conscrypt:conscrypt-android:2.5.2'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
-    implementation 'tech.relaycorp:poweb:1.5.25'
+    implementation 'tech.relaycorp:poweb:1.5.37'
     implementation "io.ktor:ktor-server-core:$ktorVersion"
     implementation "io.ktor:ktor-server-netty:$ktorVersion"
+    implementation "io.ktor:ktor-utils:$ktorVersion"
     implementation "io.ktor:ktor-websockets:$ktorVersion"
     implementation "io.ktor:ktor-client-websockets:$ktorVersion"
     implementation "io.ktor:ktor-client-cio:$ktorVersion"
-    implementation "tech.relaycorp:doh:1.0.4"
+    implementation 'tech.relaycorp:doh:1.0.10'
     testImplementation "io.ktor:ktor-server-test-host:$ktorVersion"
     testImplementation "io.ktor:ktor-test-dispatcher:$ktorVersion"
 
@@ -171,7 +181,7 @@ dependencies {
 
     // Preferences
     implementation 'androidx.preference:preference-ktx:1.1.1'
-    implementation 'com.fredporciuncula:flow-preferences:1.5.0' 
+    implementation 'com.fredporciuncula:flow-preferences:1.5.0'
 
     // Display open-source licenses
     implementation "com.mikepenz:aboutlibraries:$aboutLibrariesVersion"
