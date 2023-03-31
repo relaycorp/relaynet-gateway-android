@@ -13,7 +13,7 @@ import tech.relaycorp.gateway.pdc.local.routes.PDCServerRoute
 import tech.relaycorp.gateway.pdc.local.routes.ParcelCollectionRoute
 import tech.relaycorp.gateway.pdc.local.routes.ParcelDeliveryRoute
 import javax.inject.Inject
-import kotlin.time.seconds
+import kotlin.time.Duration.Companion.seconds
 
 class PDCServer
 @Inject constructor(
@@ -45,7 +45,7 @@ class PDCServer
 
     suspend fun stop() {
         withContext(Dispatchers.IO) {
-            server.stop(0, CALL_DEADLINE.toLongMilliseconds())
+            server.stop(0, CALL_DEADLINE.inWholeMilliseconds)
         }
         stateManager.set(State.Stopped)
     }

@@ -9,17 +9,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.stationhead.android.shared.viewmodel.ViewModelFactory
-import kotlinx.android.synthetic.main.activity_courier_sync.animation
-import kotlinx.android.synthetic.main.activity_courier_sync.close
-import kotlinx.android.synthetic.main.activity_courier_sync.image
-import kotlinx.android.synthetic.main.activity_courier_sync.stateMessage
-import kotlinx.android.synthetic.main.activity_courier_sync.stop
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import tech.relaycorp.gateway.R
+import tech.relaycorp.gateway.databinding.ActivityCourierSyncBinding
 import tech.relaycorp.gateway.domain.courier.CourierSync
 import tech.relaycorp.gateway.ui.BaseActivity
 import tech.relaycorp.gateway.ui.common.startLoopingAvd
@@ -35,26 +31,29 @@ class CourierSyncActivity : BaseActivity() {
         ViewModelProvider(this, viewModelFactory).get(CourierSyncViewModel::class.java)
     }
 
+    private lateinit var binding: ActivityCourierSyncBinding
+
     private var stopConfirmDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         component.inject(this)
-        setContentView(R.layout.activity_courier_sync)
+        binding = ActivityCourierSyncBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        stop.setOnClickListener { showStopConfirmDialog() }
-        close.setOnClickListener { finish() }
+        binding.stop.setOnClickListener { showStopConfirmDialog() }
+        binding.close.setOnClickListener { finish() }
 
         viewModel
             .state
-            .onEach { stateMessage.setText(it.toStringRes()) }
+            .onEach { binding.stateMessage.setText(it.toStringRes()) }
             .map { it != CourierSync.State.Finished && it != CourierSync.State.Error }
             .distinctUntilChanged()
             .onEach { isSyncing ->
-                stop.isVisible = isSyncing
-                close.isVisible = !isSyncing
+                binding.stop.isVisible = isSyncing
+                binding.close.isVisible = !isSyncing
 
-                image.setImageResource(
+                binding.image.setImageResource(
                     if (isSyncing) {
                         R.drawable.sync_image
                     } else {
@@ -62,18 +61,18 @@ class CourierSyncActivity : BaseActivity() {
                     }
                 )
                 if (isSyncing) {
-                    animation.startLoopingAvd(R.drawable.sync_animation)
+                    binding.animation.startLoopingAvd(R.drawable.sync_animation)
                 } else {
-                    animation.stopLoopingAvd()
+                    binding.animation.stopLoopingAvd()
                 }
             }
-            .onCompletion { animation.stopLoopingAvd() }
+            .onCompletion { binding.animation.stopLoopingAvd() }
             .launchIn(lifecycleScope)
 
         viewModel
             .state
             .onEach { state ->
-                image.setImageResource(
+                binding.image.setImageResource(
                     when (state) {
                         CourierSync.State.Finished -> R.drawable.sync_done_image
                         CourierSync.State.Error -> 0

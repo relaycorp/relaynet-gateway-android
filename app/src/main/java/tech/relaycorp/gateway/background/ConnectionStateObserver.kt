@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.onEach
 import tech.relaycorp.gateway.common.interval
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.time.seconds
+import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 open class ConnectionStateObserver

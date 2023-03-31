@@ -9,18 +9,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.mikepenz.aboutlibraries.LibsBuilder
 import com.stationhead.android.shared.viewmodel.ViewModelFactory
-import kotlinx.android.synthetic.main.activity_settings.dataChart
-import kotlinx.android.synthetic.main.activity_settings.dataTotal
-import kotlinx.android.synthetic.main.activity_settings.learnMore
-import kotlinx.android.synthetic.main.activity_settings.libraries
-import kotlinx.android.synthetic.main.activity_settings.outgoingDataLayout
-import kotlinx.android.synthetic.main.activity_settings.outgoingDataTitle
-import kotlinx.android.synthetic.main.activity_settings.internetGateway
-import kotlinx.android.synthetic.main.activity_settings.version
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import tech.relaycorp.gateway.BuildConfig
 import tech.relaycorp.gateway.R
+import tech.relaycorp.gateway.databinding.ActivitySettingsBinding
 import tech.relaycorp.gateway.ui.BaseActivity
 import tech.relaycorp.gateway.ui.common.format
 import javax.inject.Inject
@@ -34,20 +27,23 @@ class SettingsActivity : BaseActivity() {
         ViewModelProvider(this, viewModelFactory).get(SettingsViewModel::class.java)
     }
 
+    private lateinit var binding: ActivitySettingsBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         component.inject(this)
-        setContentView(R.layout.activity_settings)
+        binding = ActivitySettingsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         setupNavigation()
 
-        version.text = getString(
+        binding.version.text = getString(
             R.string.settings_version,
             BuildConfig.VERSION_NAME,
             BuildConfig.VERSION_CODE.toString()
         )
-        internetGateway.setOnClickListener { openMigrateGateway() }
-        learnMore.setOnClickListener { openKnowMore() }
-        libraries.setOnClickListener { openLicenses() }
+        binding.internetGateway.setOnClickListener { openMigrateGateway() }
+        binding.learnMore.setOnClickListener { openKnowMore() }
+        binding.libraries.setOnClickListener { openLicenses() }
 
         results
             .onEach {
@@ -62,22 +58,22 @@ class SettingsActivity : BaseActivity() {
         viewModel
             .showOutgoingData
             .onEach {
-                outgoingDataTitle.isVisible = it
-                outgoingDataLayout.isVisible = it
+                binding.outgoingDataTitle.isVisible = it
+                binding.outgoingDataLayout.isVisible = it
             }
             .launchIn(lifecycleScope)
 
         viewModel
             .outgoingData
             .onEach {
-                dataChart.progress = it.percentage
-                dataTotal.text = it.total.format(this)
+                binding.dataChart.progress = it.percentage
+                binding.dataTotal.text = it.total.format(this)
             }
             .launchIn(lifecycleScope)
 
         viewModel
             .publicGwAddress
-            .onEach { internetGateway.text = it }
+            .onEach { binding.internetGateway.text = it }
             .launchIn(lifecycleScope)
     }
 

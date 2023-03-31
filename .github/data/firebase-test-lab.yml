@@ -16,8 +16,8 @@ spec:
       locale: en
       orientation: portrait
 
-    # Nexus 5X (virtual)
-    - model: Nexus5X
+    # Nexus 6 (virtual)
+    - model: Nexus6
       version: 24   # Android 7.0
       locale: en
       orientation: portrait

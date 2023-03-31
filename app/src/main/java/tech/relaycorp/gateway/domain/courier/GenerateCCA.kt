@@ -11,7 +11,7 @@ import tech.relaycorp.relaynet.wrappers.nodeId
 import java.time.ZonedDateTime
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlin.time.days
+import kotlin.time.Duration.Companion.days
 
 class GenerateCCA
 @Inject constructor(
@@ -28,7 +28,7 @@ class GenerateCCA
         val cda = issueDeliveryAuthorization(
             internetGatewayPublicKey,
             identityPrivateKey,
-            ZonedDateTime.now().plusSeconds(TTL.inSeconds.toLong()),
+            ZonedDateTime.now().plusSeconds(TTL.inWholeSeconds),
             cdaIssuer
         )
         val ccr = CargoCollectionRequest(cda)
@@ -45,7 +45,7 @@ class GenerateCCA
             payload = ccrCiphertext,
             senderCertificate = localConfig.getIdentityCertificate(),
             creationDate = calculateCreationDate.calculate(),
-            ttl = TTL.inSeconds.toInt()
+            ttl = TTL.inWholeSeconds.toInt()
         )
         return cca.serialize(identityPrivateKey)
     }
