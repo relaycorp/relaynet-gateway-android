@@ -38,7 +38,7 @@ android {
     defaultConfig {
         applicationId "tech.relaycorp.gateway"
 
-        minSdkVersion 21
+        minSdkVersion 23
 
         targetSdkVersion 33
         versionCode 1
