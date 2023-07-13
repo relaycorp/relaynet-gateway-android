@@ -3,15 +3,14 @@ package tech.relaycorp.gateway.domain.publicsync
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.retry
 import tech.relaycorp.gateway.common.Logging.logger
+import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
 import tech.relaycorp.gateway.data.model.MessageAddress
 import tech.relaycorp.gateway.data.model.RecipientLocation
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.StoreParcel
-import tech.relaycorp.gateway.domain.endpoint.NotifyEndpoints
+import tech.relaycorp.gateway.domain.endpoint.IncomingParcelNotifier
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.bindings.pdc.NonceSignerException
@@ -28,8 +27,8 @@ class CollectParcelsFromGateway
 @Inject constructor(
     private val storeParcel: StoreParcel,
     private val poWebClientProvider: PoWebClientProvider,
-    private val localConfig: LocalConfig,
-    private val notifyEndpoints: NotifyEndpoints
+    private val notifyEndpoints: IncomingParcelNotifier,
+    private val localConfig: LocalConfig
 ) {
 
     suspend fun collect(keepAlive: Boolean) {
@@ -37,7 +36,7 @@ class CollectParcelsFromGateway
 
         val poWebClient = try {
             poWebClientProvider.get()
-        } catch (exc: PublicAddressResolutionException) {
+        } catch (exc: InternetAddressResolutionException) {
             logger.log(
                 Level.WARNING,
                 "Failed to collect parcels due to PoWeb address resolution error",
@@ -45,7 +44,7 @@ class CollectParcelsFromGateway
             )
             return
         }
-        val signer = Signer(localConfig.getCertificate(), localConfig.getKeyPair().private)
+        val signer = Signer(localConfig.getIdentityCertificate(), localConfig.getIdentityKey())
         val streamingMode =
             if (keepAlive) StreamingMode.KeepAlive else StreamingMode.CloseUponCompletion
 
@@ -53,14 +52,14 @@ class CollectParcelsFromGateway
             poWebClient.use {
                 poWebClient
                     .collectParcels(arrayOf(signer), streamingMode)
-                    .retry(Long.MAX_VALUE) { e ->
-                        if (keepAlive && e is ServerConnectionException) {
+                    .retry(Long.MAX_VALUE) { exc ->
+                        if (keepAlive && exc is ServerConnectionException) {
                             // The culprit is likely to be:
                             // https://github.com/relaycorp/cloud-gateway/issues/53
+                            val errorMessage = exc.message
                             logger.log(
                                 Level.WARNING,
-                                "Could not collect parcels due to server error, will retry.",
-                                e
+                                "Will retry to collect parcels due to server error: $errorMessage",
                             )
                             delay(RETRY_AFTER_SECONDS)
                             true
@@ -103,7 +102,9 @@ class CollectParcelsFromGateway
             is StoreParcel.Result.Success -> {
                 logger.info("Collected parcel from Gateway ${storeResult.parcel.id}")
                 if (keepAlive) {
-                    notifyEndpoints.notify(MessageAddress.of(storeResult.parcel.recipientAddress))
+                    notifyEndpoints.notify(
+                        MessageAddress.of(storeResult.parcel.recipient.id)
+                    )
                 }
             }
         }

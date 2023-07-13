@@ -8,14 +8,19 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.data.disk.ReadRawFile
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
 import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
+import tech.relaycorp.relaynet.wrappers.deserializeRSAPublicKey
+import tech.relaycorp.relaynet.wrappers.nodeId
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
+import java.security.PublicKey
 import javax.inject.Inject
 import javax.inject.Provider
+import javax.inject.Singleton
 
-class PublicGatewayPreferences
+@Singleton
+class InternetGatewayPreferences
 @Inject constructor(
     private val preferences: Provider<FlowSharedPreferences>,
     private val readRawFile: ReadRawFile,
@@ -31,31 +36,50 @@ class PublicGatewayPreferences
     fun observeAddress(): Flow<String> = { address }.toFlow()
     suspend fun setAddress(value: String) = address.setAndCommit(value)
 
-    suspend fun getCogRPCAddress() = "https://${getAddress()}"
-
-    @Throws(PublicAddressResolutionException::class)
+    @Throws(InternetAddressResolutionException::class)
     suspend fun getPoWebAddress() = resolveServiceAddress.resolvePoWeb(getAddress())
 
-    // Certificate
+    // Public Key
 
-    private val certificate by lazy {
-        preferences.get().getString("public_gateway_certificate")
+    private val publicKey by lazy {
+        preferences.get().getString("public_gateway_public_key")
     }
 
-    suspend fun getCertificate() = observeCertificate().first()
+    suspend fun getPublicKey(): PublicKey = observePublicKey().first()
 
-    private fun observeCertificate() = { certificate }.toFlow()
+    private fun observePublicKey(): Flow<PublicKey> = { publicKey }.toFlow()
         .map {
-            val certificateBytes = if (it.isEmpty()) {
+            if (it.isEmpty()) {
                 readRawFile.read(R.raw.public_gateway_cert)
+                    .let(Certificate.Companion::deserialize)
+                    .subjectPublicKey
             } else {
                 Base64.decode(it, Base64.DEFAULT)
+                    .deserializeRSAPublicKey()
             }
-            Certificate.deserialize(certificateBytes)
         }
 
-    suspend fun setCertificate(value: Certificate) =
-        certificate.setAndCommit(Base64.encodeToString(value.serialize(), Base64.DEFAULT))
+    suspend fun setPublicKey(value: PublicKey) {
+        publicKey.setAndCommit(Base64.encodeToString(value.encoded, Base64.DEFAULT))
+        setId(value.nodeId)
+    }
+
+    // Node Id
+
+    private val id by lazy {
+        preferences.get().getString("public_gateway_id")
+    }
+
+    suspend fun getId(): String =
+        id.get().ifEmpty {
+            getPublicKey().nodeId.also {
+                setId(it)
+            }
+        }
+
+    private suspend fun setId(value: String) {
+        id.setAndCommit(value)
+    }
 
     // Registration State
 

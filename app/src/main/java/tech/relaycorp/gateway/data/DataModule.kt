@@ -7,16 +7,26 @@ import androidx.room.Room
 import com.fredporciuncula.flow.preferences.FlowSharedPreferences
 import dagger.Module
 import dagger.Provides
+import tech.relaycorp.awala.keystores.file.FileCertificateStore
+import tech.relaycorp.awala.keystores.file.FileKeystoreRoot
+import tech.relaycorp.awala.keystores.file.FileSessionPublicKeystore
 import tech.relaycorp.doh.DoHClient
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.database.AppDatabase
+import tech.relaycorp.gateway.data.disk.AndroidPrivateKeyStore
 import tech.relaycorp.gateway.data.model.ServiceAddress
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.pdc.PoWebClientBuilder
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient
+import tech.relaycorp.relaynet.keystores.CertificateStore
+import tech.relaycorp.relaynet.keystores.PrivateKeyStore
+import tech.relaycorp.relaynet.keystores.SessionPublicKeyStore
+import tech.relaycorp.relaynet.nodes.GatewayManager
+import java.io.File
 import javax.inject.Named
+import javax.inject.Provider
 import javax.inject.Singleton
 
 @Module
@@ -100,12 +110,44 @@ class DataModule {
 
     @Provides
     fun poWebClientProvider(
-        publicGatewayPreferences: PublicGatewayPreferences,
+        internetGatewayPreferences: InternetGatewayPreferences,
         poWebClientBuilder: PoWebClientBuilder
     ) = object : PoWebClientProvider {
         override suspend fun get() =
             poWebClientBuilder.build(
-                publicGatewayPreferences.getPoWebAddress()
+                internetGatewayPreferences.getPoWebAddress()
             )
     }
+
+    // Awala keystores
+
+    @Provides
+    @Singleton
+    fun keystoreRoot(context: Context) = FileKeystoreRoot(File(context.filesDir, "keystores"))
+
+    @Provides
+    @Singleton
+    fun privateKeyStore(
+        context: Context,
+        keystoreRoot: Provider<FileKeystoreRoot>
+    ): PrivateKeyStore =
+        AndroidPrivateKeyStore(keystoreRoot.get(), context)
+
+    @Provides
+    @Singleton
+    fun publicKeyStore(keystoreRoot: Provider<FileKeystoreRoot>): SessionPublicKeyStore =
+        FileSessionPublicKeystore(keystoreRoot.get())
+
+    @Provides
+    @Singleton
+    fun certificateStore(keystoreRoot: Provider<FileKeystoreRoot>): CertificateStore =
+        FileCertificateStore(keystoreRoot.get())
+
+    @Provides
+    @Singleton
+    fun gatewayManager(
+        privateKeyStore: Provider<PrivateKeyStore>,
+        publicKeyStore: Provider<SessionPublicKeyStore>
+    ) =
+        GatewayManager(privateKeyStore.get(), publicKeyStore.get())
 }

@@ -17,6 +17,7 @@ import tech.relaycorp.gateway.test.CargoDeliveryCertPath
 import tech.relaycorp.gateway.test.factory.CargoFactory
 import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.Cargo
+import tech.relaycorp.relaynet.messages.Recipient
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
 import java.time.ZonedDateTime
@@ -41,11 +42,11 @@ internal class CargoStorageTest {
 
     @Test
     fun `Valid cargo bound for a public gateway should be refused`() = runBlockingTest {
-        whenever(mockLocalConfig.getCargoDeliveryAuth())
-            .thenReturn(CargoDeliveryCertPath.PRIVATE_GW)
+        whenever(mockLocalConfig.getAllValidCargoDeliveryAuth())
+            .thenReturn(listOf(CargoDeliveryCertPath.PRIVATE_GW))
 
         val cargo = Cargo(
-            "https://foo.relaycorp.tech",
+            Recipient("0deadbeef", "foo.relaycorp.tech"),
             "".toByteArray(),
             CargoDeliveryCertPath.PUBLIC_GW
         )
@@ -53,7 +54,7 @@ internal class CargoStorageTest {
         assertThrows<CargoStorage.Exception.InvalidCargo> {
             runBlocking {
                 cargoStorage
-                    .store(cargo.serialize(KeyPairSet.PUBLIC_GW.private).inputStream())
+                    .store(cargo.serialize(KeyPairSet.INTERNET_GW.private).inputStream())
             }
         }
 
@@ -62,8 +63,8 @@ internal class CargoStorageTest {
 
     @Test
     fun `Well-formed but unauthorized cargo should be refused`() = runBlockingTest {
-        whenever(mockLocalConfig.getCargoDeliveryAuth())
-            .thenReturn(CargoDeliveryCertPath.PRIVATE_GW)
+        whenever(mockLocalConfig.getAllValidCargoDeliveryAuth())
+            .thenReturn(listOf(CargoDeliveryCertPath.PRIVATE_GW))
 
         val unauthorizedSenderKeyPair = generateRSAKeyPair()
         val unauthorizedSenderCert = issueGatewayCertificate(
@@ -72,7 +73,7 @@ internal class CargoStorageTest {
             ZonedDateTime.now().plusMinutes(1)
         )
         val cargo = Cargo(
-            CargoDeliveryCertPath.PRIVATE_GW.subjectPrivateAddress,
+            Recipient(CargoDeliveryCertPath.PRIVATE_GW.subjectId),
             "".toByteArray(),
             unauthorizedSenderCert
         )
@@ -88,8 +89,8 @@ internal class CargoStorageTest {
 
     @Test
     fun `Authorized cargo should be accepted`() = runBlockingTest {
-        whenever(mockLocalConfig.getCargoDeliveryAuth())
-            .thenReturn(CargoDeliveryCertPath.PRIVATE_GW)
+        whenever(mockLocalConfig.getAllValidCargoDeliveryAuth())
+            .thenReturn(listOf(CargoDeliveryCertPath.PRIVATE_GW))
         val cargoSerialized = CargoFactory.buildSerialized()
 
         cargoStorage.store(cargoSerialized.inputStream())

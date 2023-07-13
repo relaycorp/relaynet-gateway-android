@@ -17,10 +17,10 @@ import org.junit.Rule
 import org.junit.Test
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.model.RegistrationState
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.AppTestProvider
-import tech.relaycorp.gateway.test.WaitAssertions.suspendWaitFor
+import tech.relaycorp.gateway.test.KeystoreResetTestRule
 import tech.relaycorp.gateway.test.WaitAssertions.waitFor
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
 import java.nio.charset.Charset
@@ -31,6 +31,9 @@ class EndpointPreRegistrationServiceTest {
     @get:Rule
     val serviceRule = ServiceTestRule()
 
+    @get:Rule
+    val keystoreResetRule = KeystoreResetTestRule()
+
     @Inject
     lateinit var app: App
 
@@ -38,7 +41,7 @@ class EndpointPreRegistrationServiceTest {
     lateinit var localConfig: LocalConfig
 
     @Inject
-    lateinit var publicGatewayPreferences: PublicGatewayPreferences
+    lateinit var internetGatewayPreferences: InternetGatewayPreferences
 
     private val coroutineContext get() = app.backgroundScope.coroutineContext
 
@@ -46,8 +49,7 @@ class EndpointPreRegistrationServiceTest {
     fun setUp() {
         AppTestProvider.component.inject(this)
         runBlocking(coroutineContext) {
-            suspendWaitFor { localConfig.getKeyPair() }
-            publicGatewayPreferences.setRegistrationState(RegistrationState.Done)
+            internetGatewayPreferences.setRegistrationState(RegistrationState.Done)
         }
     }
 
@@ -83,10 +85,10 @@ class EndpointPreRegistrationServiceTest {
         // Check we got a valid authorization
         val resultData = resultMessage!!.data
         assertTrue(resultData.containsKey("auth"))
-        val gatewayKeyPair = localConfig.getKeyPair()
+        val gatewayCert = localConfig.getIdentityCertificate()
         val authorization = PrivateNodeRegistrationAuthorization.deserialize(
             resultData.getByteArray("auth")!!,
-            gatewayKeyPair.public
+            gatewayCert.subjectPublicKey
         )
         assertEquals(
             getApplicationContext<Context>().packageName,
@@ -110,7 +112,7 @@ class EndpointPreRegistrationServiceTest {
 
     @Test
     fun errorReturnedWhenGatewayIsNotRegisteredYet() = runBlocking(coroutineContext) {
-        publicGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
+        internetGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
 
         val serviceIntent = Intent(
             getApplicationContext<Context>(),

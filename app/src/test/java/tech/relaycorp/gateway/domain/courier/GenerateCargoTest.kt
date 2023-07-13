@@ -13,49 +13,53 @@ import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.database.ParcelCollectionDao
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
+import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.gateway.test.factory.ParcelCollectionFactory
 import tech.relaycorp.gateway.test.factory.StoredParcelFactory
-import tech.relaycorp.relaynet.issueGatewayCertificate
 import tech.relaycorp.relaynet.messages.Cargo
-import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import java.io.InputStream
 import java.time.Duration
 
-class GenerateCargoTest {
+class GenerateCargoTest : BaseDataTestCase() {
 
     private val storedParcelDao = mock<StoredParcelDao>()
     private val parcelCollectionDao = mock<ParcelCollectionDao>()
     private val diskMessageOperations = mock<DiskMessageOperations>()
-    private val publicGatewayPreferences = mock<PublicGatewayPreferences>()
-    private val localConfig = mock<LocalConfig>()
+    private val internetGatewayPreferences = mock<InternetGatewayPreferences>()
+    private val localConfig = LocalConfig(
+        privateKeyStoreProvider, certificateStoreProvider, internetGatewayPreferences
+    )
     private val calculateCRCMessageCreationDate = mock<CalculateCRCMessageCreationDate>()
     private val generateCargo = GenerateCargo(
         storedParcelDao,
         parcelCollectionDao,
         diskMessageOperations,
-        publicGatewayPreferences,
+        internetGatewayPreferences,
         localConfig,
-        calculateCRCMessageCreationDate
+        calculateCRCMessageCreationDate,
+        gatewayManagerProvider
     )
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
-        val keyPair = generateRSAKeyPair()
-        val certificate = issueGatewayCertificate(
-            keyPair.public,
-            keyPair.private,
-            nowInUtc().plusMinutes(1)
-        )
-        whenever(localConfig.getKeyPair()).thenReturn(keyPair)
-        whenever(localConfig.getCertificate()).thenReturn(certificate)
-        whenever(publicGatewayPreferences.getCogRPCAddress()).thenReturn("https://example.org")
-        whenever(publicGatewayPreferences.getCertificate()).thenReturn(certificate)
-        whenever(calculateCRCMessageCreationDate.calculate()).thenReturn(nowInUtc())
+        registerPrivateGatewayIdentity()
+        whenever(internetGatewayPreferences.getId())
+            .thenReturn(PDACertPath.INTERNET_GW.subjectId)
+        whenever(internetGatewayPreferences.getAddress())
+            .thenReturn("example.org")
+        whenever(internetGatewayPreferences.getPublicKey())
+            .thenReturn(KeyPairSet.INTERNET_GW.public)
+        whenever(calculateCRCMessageCreationDate.calculate())
+            .thenReturn(nowInUtc())
 
         val messageStream: () -> InputStream = "ABC".toByteArray()::inputStream
         whenever(diskMessageOperations.readMessage(any(), any())).thenReturn(messageStream)
+
+        registerInternetGatewaySessionKey()
     }
 
     @Test
@@ -69,7 +73,7 @@ class GenerateCargoTest {
     }
 
     @Test
-    internal fun `generate 1 cargo with 1 PCA and 1 parcel`() = runBlockingTest {
+    fun `generate 1 cargo with 1 PCA and 1 parcel`() = runBlockingTest {
         val parcel = StoredParcelFactory.build()
             .copy(expirationTimeUtc = nowInUtc().plusDays(1))
         whenever(storedParcelDao.listForRecipientLocation(any(), any())).thenReturn(listOf(parcel))
@@ -84,12 +88,12 @@ class GenerateCargoTest {
 
         val cargo = Cargo.deserialize(cargoes.first().readBytes())
         assertEquals(
-            publicGatewayPreferences.getCogRPCAddress(),
-            cargo.recipientAddress
+            internetGatewayPreferences.getAddress(),
+            cargo.recipient.internetAddress
         )
         assertTrue(Duration.between(parcel.expirationTimeUtc, cargo.expiryDate).abs().seconds <= 2)
 
-        val cargoMessages = cargo.unwrapPayload(localConfig.getKeyPair().private)
+        val cargoMessages = cargo.unwrapPayload(internetGatewaySessionKeyPair.privateKey).payload
         assertEquals(2, cargoMessages.messages.size)
         assertTrue(Duration.between(creationDate, cargo.creationDate).abs().seconds <= 1)
     }

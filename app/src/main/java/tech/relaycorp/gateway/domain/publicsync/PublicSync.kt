@@ -14,19 +14,19 @@ import tech.relaycorp.gateway.background.ConnectionStateObserver
 import tech.relaycorp.gateway.background.ForegroundAppMonitor
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.model.RegistrationState
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.pdc.local.PDCServer
 import tech.relaycorp.gateway.pdc.local.PDCServerStateManager
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.time.seconds
+import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 class PublicSync
 @Inject constructor(
     private val foregroundAppMonitor: ForegroundAppMonitor,
     private val pdcServerStateManager: PDCServerStateManager,
-    private val publicGatewayPreferences: PublicGatewayPreferences,
+    private val internetGatewayPreferences: InternetGatewayPreferences,
     private val connectionStateObserver: ConnectionStateObserver,
     private val deliverParcelsToGateway: DeliverParcelsToGateway,
     private val collectParcelsFromGateway: CollectParcelsFromGateway
@@ -42,12 +42,12 @@ class PublicSync
         combine(
             foregroundAppMonitor.observe(),
             pdcServerStateManager.observe(),
-            publicGatewayPreferences.observeRegistrationState(),
+            internetGatewayPreferences.observeRegistrationState(),
             connectionStateObserver.observe()
         ) { foregroundState, pdcState, registrationState, connectionState ->
             if (
                 registrationState == RegistrationState.Done &&
-                connectionState is ConnectionState.InternetAndPublicGateway && (
+                connectionState is ConnectionState.InternetWithGateway && (
                     foregroundState == ForegroundAppMonitor.State.Foreground ||
                         pdcState == PDCServer.State.Started
                     )
@@ -90,7 +90,7 @@ class PublicSync
     }
 
     private suspend fun isRegistered() =
-        publicGatewayPreferences.getRegistrationState() == RegistrationState.Done
+        internetGatewayPreferences.getRegistrationState() == RegistrationState.Done
 
     private suspend fun isForeground() =
         foregroundAppMonitor.observe().first() == ForegroundAppMonitor.State.Foreground

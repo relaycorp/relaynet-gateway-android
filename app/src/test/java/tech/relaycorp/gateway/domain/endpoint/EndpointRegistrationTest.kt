@@ -11,31 +11,41 @@ import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.gateway.data.database.LocalEndpointDao
 import tech.relaycorp.gateway.data.model.LocalEndpoint
 import tech.relaycorp.gateway.data.model.PrivateMessageAddress
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
+import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.relaynet.messages.InvalidMessageException
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
-import tech.relaycorp.relaynet.wrappers.privateAddress
+import tech.relaycorp.relaynet.wrappers.nodeId
 import java.nio.charset.Charset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class EndpointRegistrationTest {
+class EndpointRegistrationTest : BaseDataTestCase() {
     private val mockLocalEndpointDao = mock<LocalEndpointDao>()
-    private val mockLocalConfig = mock<LocalConfig>()
-    private val endpointRegistration = EndpointRegistration(mockLocalEndpointDao, mockLocalConfig)
+    private val mockInternetGatewayPreferences = mock<InternetGatewayPreferences>()
+    private val mockLocalConfig = LocalConfig(
+        privateKeyStoreProvider, certificateStoreProvider, mockInternetGatewayPreferences
+    )
+    private val endpointRegistration =
+        EndpointRegistration(mockLocalEndpointDao, mockLocalConfig)
 
     private val dummyApplicationId = "tech.relaycorp.foo"
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
-        whenever(mockLocalConfig.getKeyPair()).thenReturn(KeyPairSet.PRIVATE_GW)
-        whenever(mockLocalConfig.getCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
+        registerPrivateGatewayIdentity()
+        whenever(mockInternetGatewayPreferences.getId())
+            .thenReturn(PDACertPath.INTERNET_GW.subjectId)
+
+        whenever(mockInternetGatewayPreferences.getAddress())
+            .thenReturn("example.org")
     }
 
     @Nested
@@ -72,7 +82,7 @@ class EndpointRegistrationTest {
     @Nested
     inner class Register {
         private val authorization = PrivateNodeRegistrationAuthorization(
-            ZonedDateTime.now().plusSeconds(3),
+            ZonedDateTime.now().plusSeconds(10),
             dummyApplicationId.toByteArray()
         )
         private val crr = PrivateNodeRegistrationRequest(
@@ -101,7 +111,7 @@ class EndpointRegistrationTest {
 
             verify(mockLocalEndpointDao).insert(
                 LocalEndpoint(
-                    PrivateMessageAddress(KeyPairSet.PRIVATE_ENDPOINT.public.privateAddress),
+                    PrivateMessageAddress(KeyPairSet.PRIVATE_ENDPOINT.public.nodeId),
                     dummyApplicationId
                 )
             )
@@ -113,6 +123,17 @@ class EndpointRegistrationTest {
 
             val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
             assertEquals(PDACertPath.PRIVATE_GW, registration.gatewayCertificate)
+        }
+
+        @Test
+        fun `Registration should encapsulate InternetGatewayAddress`() = runBlockingTest {
+            val registrationSerialized = endpointRegistration.register(crr)
+
+            val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
+            assertEquals(
+                mockLocalConfig.getInternetGatewayAddress(),
+                registration.gatewayInternetAddress
+            )
         }
 
         @Nested
@@ -137,23 +158,19 @@ class EndpointRegistrationTest {
 
                 val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
                 assertEquals(
-                    registration.privateNodeCertificate.subjectPrivateAddress,
-                    crr.privateNodePublicKey.privateAddress
+                    registration.privateNodeCertificate.subjectId,
+                    crr.privateNodePublicKey.nodeId
                 )
             }
 
             @Test
-            fun `Expiry date should be in three years`() = runBlockingTest {
+            fun `Expiry date should be the same as identity certificate`() = runBlockingTest {
                 val registrationSerialized = endpointRegistration.register(crr)
 
                 val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
-                val threeYearsFromNow = ZonedDateTime.now().plusYears(3)
                 assertEquals(
-                    0,
-                    ChronoUnit.MINUTES.between(
-                        registration.privateNodeCertificate.expiryDate,
-                        threeYearsFromNow
-                    )
+                    PDACertPath.PRIVATE_GW.expiryDate,
+                    registration.privateNodeCertificate.expiryDate
                 )
             }
         }

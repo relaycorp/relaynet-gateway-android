@@ -12,27 +12,31 @@ import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
 import tech.relaycorp.gateway.data.model.ParcelCollection
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.data.model.StoredParcel
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.messages.Cargo
 import tech.relaycorp.relaynet.messages.ParcelCollectionAck
+import tech.relaycorp.relaynet.messages.Recipient
 import tech.relaycorp.relaynet.messages.payloads.CargoMessageSetWithExpiry
 import tech.relaycorp.relaynet.messages.payloads.CargoMessageWithExpiry
 import tech.relaycorp.relaynet.messages.payloads.batch
+import tech.relaycorp.relaynet.nodes.GatewayManager
 import java.io.InputStream
 import java.time.Duration
 import java.util.logging.Level
 import javax.inject.Inject
+import javax.inject.Provider
 
 class GenerateCargo
 @Inject constructor(
     private val storedParcelDao: StoredParcelDao,
     private val parcelCollectionDao: ParcelCollectionDao,
     private val diskMessageOperations: DiskMessageOperations,
-    private val publicGatewayPreferences: PublicGatewayPreferences,
+    private val internetGatewayPreferences: InternetGatewayPreferences,
     private val localConfig: LocalConfig,
-    private val calculateCreationDate: CalculateCRCMessageCreationDate
+    private val calculateCreationDate: CalculateCRCMessageCreationDate,
+    private val gatewayManager: Provider<GatewayManager>
 ) {
 
     suspend fun generate(): Flow<InputStream> =
@@ -40,7 +44,7 @@ class GenerateCargo
             .asSequence()
             .batch()
             .asFlow()
-            .map { it.toCargo().serialize(localConfig.getKeyPair().private).inputStream() }
+            .map { it.toCargoSerialized().inputStream() }
 
     private suspend fun getPCAsMessages() =
         parcelCollectionDao.getAll().map { it.toCargoMessageWithExpiry() }
@@ -52,8 +56,8 @@ class GenerateCargo
     private fun ParcelCollection.toCargoMessageWithExpiry() =
         CargoMessageWithExpiry(
             cargoMessageSerialized = ParcelCollectionAck(
-                senderEndpointPrivateAddress = senderAddress.value,
-                recipientEndpointAddress = recipientAddress.value,
+                senderEndpointId = senderAddress.value,
+                recipientEndpointId = recipientAddress.value,
                 parcelId = messageId.value
             ).serialize(),
             expiryDate = expirationTimeUtc
@@ -78,26 +82,33 @@ class GenerateCargo
             null
         }
 
-    private suspend fun getPublicGatewayCertificate() =
-        publicGatewayPreferences.getCertificate()
-
-    private suspend fun CargoMessageSetWithExpiry.toCargo(): Cargo {
+    private suspend fun CargoMessageSetWithExpiry.toCargoSerialized(): ByteArray {
         if (nowInUtc() > latestMessageExpiryDate) {
             logger.warning(
                 "The latest expiration date $latestMessageExpiryDate has expired already"
             )
         }
 
-        val recipientAddress = publicGatewayPreferences.getCogRPCAddress()
+        val identityKey = localConfig.getIdentityKey()
+        val identityCert = localConfig.getIdentityCertificate()
+
+        val recipientAddress = internetGatewayPreferences.getAddress()
+        val recipientId = internetGatewayPreferences.getId()
         val creationDate = calculateCreationDate.calculate()
 
         logger.info("Generating cargo for $recipientAddress")
-        return Cargo(
-            recipientAddress = recipientAddress,
-            payload = cargoMessageSet.encrypt(getPublicGatewayCertificate()),
-            senderCertificate = localConfig.getCertificate(),
+        val cargoMessageSetCiphertext = gatewayManager.get().wrapMessagePayload(
+            cargoMessageSet,
+            internetGatewayPreferences.getId(),
+            identityCert.subjectId
+        )
+        val cargo = Cargo(
+            recipient = Recipient(recipientId, recipientAddress),
+            payload = cargoMessageSetCiphertext,
+            senderCertificate = identityCert,
             creationDate = creationDate,
             ttl = Duration.between(creationDate, latestMessageExpiryDate).seconds.toInt()
         )
+        return cargo.serialize(identityKey)
     }
 }

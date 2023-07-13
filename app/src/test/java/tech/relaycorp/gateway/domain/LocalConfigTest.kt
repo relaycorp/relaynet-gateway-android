@@ -1,37 +1,36 @@
 package tech.relaycorp.gateway.domain
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import tech.relaycorp.gateway.data.disk.SensitiveStore
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
+import tech.relaycorp.gateway.test.BaseDataTestCase
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
-class LocalConfigTest {
+class LocalConfigTest : BaseDataTestCase() {
 
-    private val sensitiveStore = mock<SensitiveStore>()
-    private val localConfig = LocalConfig(sensitiveStore)
+    private val internetGatewayPreferences = mock<InternetGatewayPreferences>()
+    private val localConfig = LocalConfig(
+        privateKeyStoreProvider, certificateStoreProvider, internetGatewayPreferences
+    )
 
     @BeforeEach
     fun setUp() {
         runBlocking {
-            val memoryStore = mutableMapOf<String, ByteArray>()
-            whenever(sensitiveStore.store(any(), any())).then {
-                val key = it.getArgument<String>(0)
-                val value = it.getArgument(1) as ByteArray
-                memoryStore[key] = value
-                Unit
-            }
-            whenever(sensitiveStore.read(any())).thenAnswer {
-                val key = it.getArgument<String>(0)
-                memoryStore[key]
-            }
+            whenever(internetGatewayPreferences.getId())
+                .thenReturn(PDACertPath.INTERNET_GW.subjectId)
         }
     }
 
@@ -39,33 +38,22 @@ class LocalConfigTest {
     inner class GetKeyPair {
         @Test
         fun `Key pair should be returned if it exists`() = runBlockingTest {
-            val keyPair = localConfig.generateKeyPair()
+            localConfig.bootstrap()
 
-            val retrievedKeyPair = localConfig.getKeyPair()
+            val retrievedKeyPair = localConfig.getIdentityKey()
 
-            assertEquals(
-                keyPair.private.encoded.asList(),
-                retrievedKeyPair.private.encoded.asList()
-            )
+            val storedKeyPair = privateKeyStore.retrieveAllIdentityKeys().first()
+            assertEquals(storedKeyPair, retrievedKeyPair)
         }
 
         @Test
         fun `Exception should be thrown if key pair does not exist`() = runBlockingTest {
             val exception = assertThrows<RuntimeException> {
-                localConfig.getKeyPair()
+                localConfig.getIdentityKey()
             }
 
             assertEquals("No key pair was found", exception.message)
         }
-    }
-
-    @Test
-    fun `get certificate stores and recovers the same certificate`() = runBlockingTest {
-        localConfig.generateKeyPair()
-
-        val certificate1 = localConfig.getCertificate().serialize()
-        val certificate2 = localConfig.getCertificate().serialize()
-        assertTrue(certificate1.contentEquals(certificate2))
     }
 
     @Nested
@@ -80,12 +68,11 @@ class LocalConfigTest {
         }
 
         @Test
-        fun `Exception should be thrown if certificate does not exist yet`() = runBlockingTest {
-            val exception = assertThrows<RuntimeException> {
-                localConfig.getCargoDeliveryAuth()
-            }
+        fun `New certificate is generated if none exists`() = runBlockingTest {
+            localConfig.bootstrap()
+            certificateStore.clear()
 
-            assertEquals("No CDA issuer was found", exception.message)
+            assertNotNull(localConfig.getCargoDeliveryAuth())
         }
     }
 
@@ -95,19 +82,35 @@ class LocalConfigTest {
         fun `Key pair should be created if it doesn't already exist`() = runBlockingTest {
             localConfig.bootstrap()
 
-            localConfig.getKeyPair()
+            val keyPair = localConfig.getIdentityKey()
+
+            val storedKeyPair = privateKeyStore.retrieveAllIdentityKeys().first()
+            assertEquals(keyPair, storedKeyPair)
         }
 
         @Test
         fun `Key pair should not be created if it already exists`() = runBlockingTest {
             localConfig.bootstrap()
-            val originalKeyPair = localConfig.getKeyPair()
+            val originalKeyPair = localConfig.getIdentityKey()
 
             localConfig.bootstrap()
-            val keyPair = localConfig.getKeyPair()
+            val keyPair = localConfig.getIdentityKey()
 
-            assertEquals(originalKeyPair.private.encoded.asList(), keyPair.private.encoded.asList())
+            assertEquals(originalKeyPair, keyPair)
         }
+
+        @Test
+        fun `Correct public gateway id used as issuer in set identity certificate `() =
+            runBlockingTest {
+                localConfig.bootstrap()
+
+                verify(certificateStore).setCertificate(
+                    any(),
+                    any(),
+                    any(),
+                    eq(PDACertPath.INTERNET_GW.subjectId)
+                )
+            }
 
         @Test
         fun `CDA issuer should be created if it doesn't already exist`() = runBlockingTest {
@@ -124,7 +127,14 @@ class LocalConfigTest {
             localConfig.bootstrap()
             val cdaIssuer = localConfig.getCargoDeliveryAuth()
 
-            assertEquals(originalCDAIssuer, cdaIssuer)
+            assertArrayEquals(originalCDAIssuer.serialize(), cdaIssuer.serialize())
         }
+    }
+
+    @Test
+    internal fun deleteExpiredCertificates() = runBlockingTest {
+        localConfig.deleteExpiredCertificates()
+
+        verify(certificateStore).deleteExpired()
     }
 }

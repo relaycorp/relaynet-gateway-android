@@ -24,7 +24,7 @@ object CargoDeliveryCertPath {
     // implemented: https://github.com/relaycorp/relaynet-jvm/issues/76
     val PUBLIC_GW by lazy {
         issueGatewayCertificate(
-            KeyPairSet.PUBLIC_GW.public,
+            KeyPairSet.INTERNET_GW.public,
             KeyPairSet.PRIVATE_GW.private,
             endDate,
             PRIVATE_GW,

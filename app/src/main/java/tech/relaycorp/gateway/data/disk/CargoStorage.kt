@@ -6,7 +6,6 @@ import tech.relaycorp.relaynet.RelaynetException
 import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.messages.Cargo
 import tech.relaycorp.relaynet.ramf.RAMFException
-import tech.relaycorp.relaynet.ramf.RecipientAddressType
 import java.io.InputStream
 import javax.inject.Inject
 
@@ -27,7 +26,7 @@ class CargoStorage
         }
 
         try {
-            cargo.validate(RecipientAddressType.PRIVATE, setOf(localConfig.getCargoDeliveryAuth()))
+            cargo.validate(localConfig.getAllValidCargoDeliveryAuth())
         } catch (exc: RelaynetException) {
             logger.warning("Invalid cargo received: ${exc.message}")
             throw Exception.InvalidCargo(null, exc)

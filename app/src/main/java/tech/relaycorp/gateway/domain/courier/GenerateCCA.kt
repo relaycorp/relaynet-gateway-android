@@ -1,41 +1,54 @@
 package tech.relaycorp.gateway.domain.courier
 
-import tech.relaycorp.gateway.data.preference.PublicGatewayPreferences
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.issueDeliveryAuthorization
 import tech.relaycorp.relaynet.messages.CargoCollectionAuthorization
+import tech.relaycorp.relaynet.messages.Recipient
 import tech.relaycorp.relaynet.messages.payloads.CargoCollectionRequest
+import tech.relaycorp.relaynet.nodes.GatewayManager
+import tech.relaycorp.relaynet.wrappers.nodeId
 import java.time.ZonedDateTime
 import javax.inject.Inject
-import kotlin.time.days
+import javax.inject.Provider
+import kotlin.time.Duration.Companion.days
 
 class GenerateCCA
 @Inject constructor(
-    private val publicGatewayPreferences: PublicGatewayPreferences,
+    private val internetGatewayPreferences: InternetGatewayPreferences,
     private val localConfig: LocalConfig,
-    private val calculateCreationDate: CalculateCRCMessageCreationDate
+    private val calculateCreationDate: CalculateCRCMessageCreationDate,
+    private val gatewayManager: Provider<GatewayManager>
 ) {
 
-    suspend fun generate(): CargoCollectionAuthorization {
-        val senderCertificate = localConfig.getCargoDeliveryAuth()
+    suspend fun generateSerialized(): ByteArray {
+        val identityPrivateKey = localConfig.getIdentityKey()
+        val cdaIssuer = localConfig.getCargoDeliveryAuth()
+        val internetGatewayPublicKey = internetGatewayPreferences.getPublicKey()
         val cda = issueDeliveryAuthorization(
-            publicGatewayPreferences.getCertificate().subjectPublicKey,
-            localConfig.getKeyPair().private,
-            ZonedDateTime.now().plusSeconds(TTL.inSeconds.toLong()),
-            senderCertificate
+            internetGatewayPublicKey,
+            identityPrivateKey,
+            ZonedDateTime.now().plusSeconds(TTL.inWholeSeconds),
+            cdaIssuer
         )
         val ccr = CargoCollectionRequest(cda)
-        return CargoCollectionAuthorization(
-            recipientAddress = publicGatewayPreferences.getCogRPCAddress(),
-            payload = ccr.encrypt(publicGatewayPreferences.getCertificate()),
-            senderCertificate = senderCertificate,
-            creationDate = calculateCreationDate.calculate(),
-            ttl = TTL.inSeconds.toInt()
+        val ccrCiphertext = gatewayManager.get().wrapMessagePayload(
+            ccr,
+            internetGatewayPublicKey.nodeId,
+            cdaIssuer.subjectId
         )
+        val cca = CargoCollectionAuthorization(
+            recipient = Recipient(
+                internetGatewayPreferences.getId(),
+                internetGatewayPreferences.getAddress()
+            ),
+            payload = ccrCiphertext,
+            senderCertificate = localConfig.getIdentityCertificate(),
+            creationDate = calculateCreationDate.calculate(),
+            ttl = TTL.inWholeSeconds.toInt()
+        )
+        return cca.serialize(identityPrivateKey)
     }
-
-    suspend fun generateByteArray() =
-        generate().serialize(localConfig.getKeyPair().private)
 
     companion object {
         private val TTL = 14.days

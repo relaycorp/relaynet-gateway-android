@@ -9,7 +9,7 @@ import tech.relaycorp.relaynet.messages.InvalidMessageException
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
-import tech.relaycorp.relaynet.wrappers.privateAddress
+import tech.relaycorp.relaynet.wrappers.nodeId
 import java.nio.charset.Charset
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -17,7 +17,7 @@ import javax.inject.Inject
 class EndpointRegistration
 @Inject constructor(
     private val localEndpointDao: LocalEndpointDao,
-    private val localConfig: LocalConfig
+    private val localConfig: LocalConfig,
 ) {
     /**
      * Issue PNRA for an application to register one or more of its endpoints.
@@ -26,7 +26,7 @@ class EndpointRegistration
         val expiryDate = ZonedDateTime.now().plusSeconds(AUTHORIZATION_VALIDITY_SECONDS)
         val authorization =
             PrivateNodeRegistrationAuthorization(expiryDate, endpointApplicationId.toByteArray())
-        return authorization.serialize(localConfig.getKeyPair().private)
+        return authorization.serialize(localConfig.getIdentityKey())
     }
 
     /**
@@ -34,35 +34,38 @@ class EndpointRegistration
      */
     @Throws(InvalidPNRAException::class)
     suspend fun register(request: PrivateNodeRegistrationRequest): ByteArray {
-        val gatewayKeyPair = localConfig.getKeyPair()
+        val identityKey = localConfig.getIdentityKey()
+        val identityCert = localConfig.getIdentityCertificate()
         val authorization = try {
             PrivateNodeRegistrationAuthorization.deserialize(
                 request.pnraSerialized,
-                gatewayKeyPair.public
+                identityCert.subjectPublicKey
             )
         } catch (exc: InvalidMessageException) {
             throw InvalidPNRAException("Registration request contains invalid authorization", exc)
         }
         val applicationId = authorization.gatewayData.toString(Charset.defaultCharset())
         val endpoint = LocalEndpoint(
-            MessageAddress.of(request.privateNodePublicKey.privateAddress),
+            MessageAddress.of(request.privateNodePublicKey.nodeId),
             applicationId
         )
         localEndpointDao.insert(endpoint)
 
-        val gatewayCertificate = localConfig.getCertificate()
         val endpointCertificate = issueEndpointCertificate(
             request.privateNodePublicKey,
-            gatewayKeyPair.private,
-            ZonedDateTime.now().plusYears(ENDPOINT_CERTIFICATE_VALIDITY_YEARS),
-            gatewayCertificate
+            identityKey,
+            identityCert.expiryDate,
+            identityCert
         )
-        val registration = PrivateNodeRegistration(endpointCertificate, gatewayCertificate)
+        val registration = PrivateNodeRegistration(
+            endpointCertificate,
+            identityCert,
+            localConfig.getInternetGatewayAddress()
+        )
         return registration.serialize()
     }
 
     companion object {
         private const val AUTHORIZATION_VALIDITY_SECONDS: Long = 15
-        private const val ENDPOINT_CERTIFICATE_VALIDITY_YEARS = 3L
     }
 }

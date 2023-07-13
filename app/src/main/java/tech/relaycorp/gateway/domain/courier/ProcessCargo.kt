@@ -12,24 +12,27 @@ import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
 import tech.relaycorp.relaynet.messages.Cargo
 import tech.relaycorp.relaynet.messages.ParcelCollectionAck
 import tech.relaycorp.relaynet.messages.payloads.CargoMessage
+import tech.relaycorp.relaynet.nodes.GatewayManager
 import java.util.logging.Level
 import javax.inject.Inject
+import javax.inject.Provider
 
 class ProcessCargo
 @Inject constructor(
     private val cargoStorage: CargoStorage,
-    private val readMessagesFromCargo: ReadMessagesFromCargo,
     private val storeParcel: StoreParcel,
     private val storeParcelCollection: StoreParcelCollection,
-    private val deleteParcel: DeleteParcel
+    private val deleteParcel: DeleteParcel,
+    private val gatewayManager: Provider<GatewayManager>,
+    private val rotateCertificate: RotateCertificate
 ) {
 
     suspend fun process() {
         val cargoes = cargoStorage.list()
         cargoes.iterator().forEach { cargoStream ->
             val cargo = Cargo.deserialize(cargoStream().readBytesAndClose())
-            readMessagesFromCargo.read(cargo)
-                .forEach { message -> handleMessage(message) }
+            val messageSet = gatewayManager.get().unwrapMessagePayload(cargo)
+            messageSet.classifyMessages().forEach { message -> handleMessage(message) }
         }
         cargoStorage.deleteAll()
     }
@@ -40,6 +43,8 @@ class ProcessCargo
                 storeParcelAndParcelCollection(message.messageSerialized)
             CargoMessage.Type.PCA ->
                 deserializeAckAndDeleteParcel(message.messageSerialized)
+            CargoMessage.Type.CERTIFICATE_ROTATION ->
+                rotateCertificate(message.messageSerialized)
             else ->
                 logger.log(Level.WARNING, "Unsupported message received")
         }
@@ -63,8 +68,8 @@ class ProcessCargo
     private suspend fun deserializeAckAndDeleteParcel(parcelAckData: ByteArray) {
         val pca = ParcelCollectionAck.deserialize(parcelAckData)
         deleteParcel.delete(
-            recipientAddress = MessageAddress.of(pca.recipientEndpointAddress),
-            senderAddress = MessageAddress.of(pca.senderEndpointPrivateAddress),
+            recipientAddress = MessageAddress.of(pca.recipientEndpointId),
+            senderAddress = MessageAddress.of(pca.senderEndpointId),
             messageId = MessageId(pca.parcelId)
         )
     }

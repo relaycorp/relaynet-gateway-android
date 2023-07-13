@@ -9,7 +9,7 @@ import dagger.Module
 import dagger.Provides
 
 @Module
-class AppModule(
+open class AppModule(
     private val app: App
 ) {
 

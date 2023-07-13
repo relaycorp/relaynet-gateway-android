@@ -1,11 +1,11 @@
 package tech.relaycorp.gateway.test
 
 import tech.relaycorp.gateway.App
-import tech.relaycorp.gateway.AppModule
+import tech.relaycorp.gateway.TestAppModule
 
 open class TestApp : App() {
     override val component: AppTestComponent = DaggerAppTestComponent.builder()
-        .appModule(AppModule(this))
+        .testAppModule(TestAppModule(this))
         .build() as AppTestComponent
 
     override fun onCreate() {
@@ -13,7 +13,7 @@ open class TestApp : App() {
         component.inject(this)
     }
 
-    override fun startPublicSyncWhenPossible() {
+    override suspend fun startPublicSyncWhenPossible() {
         // Disable automatic public sync start
     }
 

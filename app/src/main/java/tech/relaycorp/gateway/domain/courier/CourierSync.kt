@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import tech.relaycorp.gateway.common.Logging.logger
 import java.util.logging.Level
 import javax.inject.Inject
-import kotlin.time.seconds
+import kotlin.time.Duration.Companion.seconds
 
 class CourierSync
 @Inject constructor(

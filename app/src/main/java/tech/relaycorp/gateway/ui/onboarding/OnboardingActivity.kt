@@ -16,13 +16,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.activity_onboarding.back
-import kotlinx.android.synthetic.main.activity_onboarding.indicators
-import kotlinx.android.synthetic.main.activity_onboarding.next
-import kotlinx.android.synthetic.main.activity_onboarding.pager
 import kotlinx.coroutines.launch
 import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.data.preference.AppPreferences
+import tech.relaycorp.gateway.databinding.ActivityOnboardingBinding
 import tech.relaycorp.gateway.ui.BaseActivity
 import tech.relaycorp.gateway.ui.main.MainActivity
 import javax.inject.Inject
@@ -32,25 +29,30 @@ class OnboardingActivity : BaseActivity() {
     @Inject
     lateinit var appPreferences: AppPreferences
 
+    private lateinit var binding: ActivityOnboardingBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         component.inject(this)
-        setContentView(R.layout.activity_onboarding)
+        binding = ActivityOnboardingBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        pager.adapter = Adapter()
-        pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        binding.pager.adapter = Adapter()
+        binding.pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                back.isVisible = position > 0
-                next.isVisible = position < ONBOARDING_PAGES.size - 1
+                binding.back.isVisible = position > 0
+                binding.next.isVisible = position < ONBOARDING_PAGES.size - 1
             }
         })
-        TabLayoutMediator(indicators, pager) { _, _ -> }.attach()
+        TabLayoutMediator(binding.indicators, binding.pager) { _, _ -> }.attach()
 
-        back.setOnClickListener {
-            pager.currentItem = (pager.currentItem - 1).coerceAtLeast(0)
+        binding.back.setOnClickListener {
+            binding.pager.currentItem =
+                (binding.pager.currentItem - 1).coerceAtLeast(0)
         }
-        next.setOnClickListener {
-            pager.currentItem = (pager.currentItem + 1).coerceAtMost(ONBOARDING_PAGES.size - 1)
+        binding.next.setOnClickListener {
+            binding.pager.currentItem =
+                (binding.pager.currentItem + 1).coerceAtMost(ONBOARDING_PAGES.size - 1)
         }
     }
 

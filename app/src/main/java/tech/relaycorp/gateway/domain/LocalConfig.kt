@@ -1,115 +1,153 @@
 package tech.relaycorp.gateway.domain
 
-import androidx.annotation.VisibleForTesting
-import tech.relaycorp.gateway.common.CryptoUtils.BC_PROVIDER
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import tech.relaycorp.gateway.common.nowInUtc
-import tech.relaycorp.gateway.data.disk.SensitiveStore
+import tech.relaycorp.gateway.common.toPublicKey
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.courier.CalculateCRCMessageCreationDate
 import tech.relaycorp.relaynet.issueGatewayCertificate
+import tech.relaycorp.relaynet.keystores.CertificateStore
+import tech.relaycorp.relaynet.keystores.PrivateKeyStore
+import tech.relaycorp.relaynet.pki.CertificationPath
 import tech.relaycorp.relaynet.wrappers.generateRSAKeyPair
+import tech.relaycorp.relaynet.wrappers.nodeId
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
-import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.PrivateKey
-import java.security.interfaces.RSAPrivateCrtKey
-import java.security.spec.EncodedKeySpec
-import java.security.spec.PKCS8EncodedKeySpec
-import java.security.spec.RSAPublicKeySpec
+import java.security.PublicKey
 import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.time.Duration.Companion.days
 import kotlin.time.toJavaDuration
 
 class LocalConfig
 @Inject constructor(
-    private val sensitiveStore: SensitiveStore
+    private val privateKeyStore: Provider<PrivateKeyStore>,
+    private val certificateStore: Provider<CertificateStore>,
+    private val internetGatewayPreferences: InternetGatewayPreferences
 ) {
+    private val mutex = Mutex()
+
     // Private Gateway Key Pair
 
-    suspend fun getKeyPair() =
-        sensitiveStore.read(PRIVATE_KEY_FILE_NAME)
-            ?.toPrivateKey()
-            ?.toKeyPair()
+    suspend fun getIdentityKey(): PrivateKey =
+        privateKeyStore.get().retrieveAllIdentityKeys().firstOrNull()
             ?: throw RuntimeException("No key pair was found")
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    suspend fun generateKeyPair() = generateRSAKeyPair().also { setKeyPair(it) }
-
-    private suspend fun setKeyPair(value: KeyPair) {
-        sensitiveStore.store(PRIVATE_KEY_FILE_NAME, value.private.encoded)
+    private suspend fun generateIdentityKeyPair(): KeyPair {
+        val keyPair = generateRSAKeyPair()
+        privateKeyStore.get().saveIdentityKey(keyPair.private)
+        return keyPair
     }
 
     // Private Gateway Certificate
 
-    suspend fun getCertificate() =
-        sensitiveStore.read(PDA_CERTIFICATE_FILE_NAME)
-            ?.let { Certificate.deserialize(it) }
-            ?: generateCertificate()
-                .also { setCertificate(it) }
+    suspend fun getIdentityCertificate(): Certificate =
+        getIdentityCertificationPath().leafCertificate
 
-    suspend fun setCertificate(value: Certificate) {
-        sensitiveStore.store(PDA_CERTIFICATE_FILE_NAME, value.serialize())
+    private suspend fun getIdentityCertificationPath(): CertificationPath = getIdentityKey().let {
+        certificateStore.get()
+            .retrieveLatest(it.nodeId, getInternetGatewayId())
+            ?: CertificationPath(generateIdentityCertificate(it), emptyList())
     }
 
-    suspend fun deleteCertificate() {
-        sensitiveStore.delete(PDA_CERTIFICATE_FILE_NAME)
+    suspend fun getAllValidIdentityCertificates(): List<Certificate> =
+        getAllValidIdentityCertificationPaths().map { it.leafCertificate }
+
+    private suspend fun getAllValidIdentityCertificationPaths(): List<CertificationPath> =
+        certificateStore.get()
+            .retrieveAll(getIdentityKey().nodeId, getInternetGatewayId())
+
+    suspend fun setIdentityCertificate(
+        leafCertificate: Certificate,
+        certificateChain: List<Certificate> = emptyList()
+    ) {
+        certificateStore.get()
+            .save(
+                CertificationPath(leafCertificate, certificateChain),
+                getInternetGatewayId()
+            )
+    }
+
+    private suspend fun generateIdentityCertificate(privateKey: PrivateKey): Certificate {
+        val certificate = selfIssueCargoDeliveryAuth(privateKey, privateKey.toPublicKey())
+        setIdentityCertificate(certificate)
+        return certificate
+    }
+
+    suspend fun bootstrap() {
+        mutex.withLock {
+            try {
+                getIdentityKey()
+            } catch (_: RuntimeException) {
+                val keyPair = generateIdentityKeyPair()
+                generateIdentityCertificate(keyPair.private)
+            }
+
+            getCargoDeliveryAuth() // Generates new CDA if non-existent
+        }
     }
 
     suspend fun getCargoDeliveryAuth() =
-        sensitiveStore.read(CDA_CERTIFICATE_FILE_NAME)
-            ?.let { Certificate.deserialize(it) }
-            ?: throw RuntimeException("No CDA issuer was found")
+        certificateStore.get()
+            .retrieveLatest(
+                getIdentityKey().nodeId,
+                getIdentityCertificate().subjectId
+            )
+            ?.leafCertificate
+            .let { storedCertificate ->
+                if (storedCertificate?.isExpiringSoon() == false) {
+                    storedCertificate
+                } else {
+                    generateCargoDeliveryAuth()
+                }
+            }
 
-    private suspend fun generateCargoDeliveryAuth() = generateCertificate().also {
-        sensitiveStore.store(CDA_CERTIFICATE_FILE_NAME, it.serialize())
-    }
+    suspend fun getAllValidCargoDeliveryAuth() =
+        certificateStore.get()
+            .retrieveAll(
+                getIdentityKey().nodeId,
+                getIdentityCertificate().subjectId
+            )
+            .map { it.leafCertificate }
 
-    @Synchronized
-    suspend fun bootstrap() {
-        try {
-            getKeyPair()
-        } catch (_: RuntimeException) {
-            generateKeyPair()
-        }
-
-        try {
-            getCargoDeliveryAuth()
-        } catch (_: RuntimeException) {
-            generateCargoDeliveryAuth()
-        }
-    }
-
-    // Helpers
-
-    private fun ByteArray.toPrivateKey(): PrivateKey {
-        val privateKeySpec: EncodedKeySpec = PKCS8EncodedKeySpec(this)
-        val generator: KeyFactory = KeyFactory.getInstance(KEY_ALGORITHM, BC_PROVIDER)
-        return generator.generatePrivate(privateKeySpec)
-    }
-
-    private fun PrivateKey.toKeyPair(): KeyPair {
-        val publicKeySpec =
-            (this as RSAPrivateCrtKey).run { RSAPublicKeySpec(modulus, publicExponent) }
-        val keyFactory = KeyFactory.getInstance("RSA", BC_PROVIDER)
-        val publicKey = keyFactory.generatePublic(publicKeySpec)
-        return KeyPair(publicKey, this)
-    }
-
-    private suspend fun generateCertificate(): Certificate {
-        val keyPair = getKeyPair()
+    private fun selfIssueCargoDeliveryAuth(
+        privateKey: PrivateKey,
+        publicKey: PublicKey
+    ): Certificate {
         return issueGatewayCertificate(
-            subjectPublicKey = keyPair.public,
-            issuerPrivateKey = keyPair.private,
+            subjectPublicKey = publicKey,
+            issuerPrivateKey = privateKey,
             validityStartDate = nowInUtc()
                 .minus(CalculateCRCMessageCreationDate.CLOCK_DRIFT_TOLERANCE.toJavaDuration()),
-            validityEndDate = nowInUtc().plusYears(1)
+            validityEndDate = nowInUtc().plusMonths(6)
         )
     }
 
+    private suspend fun generateCargoDeliveryAuth(): Certificate {
+        val key = getIdentityKey()
+        val certificate = getIdentityCertificate()
+        val cda = selfIssueCargoDeliveryAuth(key, certificate.subjectPublicKey)
+        certificateStore.get()
+            .save(CertificationPath(cda, emptyList()), certificate.subjectId)
+        return cda
+    }
+
+    suspend fun deleteExpiredCertificates() {
+        certificateStore.get().deleteExpired()
+    }
+
+    suspend fun getInternetGatewayAddress() =
+        internetGatewayPreferences.getAddress()
+
+    private suspend fun getInternetGatewayId() =
+        internetGatewayPreferences.getId()
+
+    private fun Certificate.isExpiringSoon() =
+        expiryDate < (nowInUtc().plusNanos(CERTIFICATE_EXPIRING_THRESHOLD.inWholeNanoseconds))
+
     companion object {
-        private const val KEY_ALGORITHM = "RSA"
-
-        private const val PRIVATE_KEY_FILE_NAME = "local_gateway.key"
-
-        private const val PDA_CERTIFICATE_FILE_NAME = "local_gateway.certificate"
-        private const val CDA_CERTIFICATE_FILE_NAME = "cda_local_gateway.certificate"
+        private val CERTIFICATE_EXPIRING_THRESHOLD = 90.days
     }
 }

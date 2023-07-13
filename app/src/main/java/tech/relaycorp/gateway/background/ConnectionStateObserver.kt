@@ -17,16 +17,16 @@ import kotlinx.coroutines.flow.onEach
 import tech.relaycorp.gateway.common.interval
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.time.seconds
+import kotlin.time.Duration.Companion.seconds
 
 @Singleton
-class ConnectionStateObserver
+open class ConnectionStateObserver
 @Inject constructor(
     private val connectivityManager: ConnectivityManager,
     private val wifiManager: WifiManager,
     private val pingRemoteServer: PingRemoteServer,
     private val checkInternetAccess: CheckInternetAccess,
-    private val checkPublicGatewayAccess: CheckPublicGatewayAccess
+    private val checkInternetGatewayAccess: CheckInternetGatewayAccess
 ) {
 
     private val state = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
@@ -54,13 +54,13 @@ class ConnectionStateObserver
         connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
     }
 
-    fun observe(): Flow<ConnectionState> = state
+    open fun observe(): Flow<ConnectionState> = state
 
     private suspend fun checkNetworkState(network: Network): ConnectionState {
-        return if (checkPublicGatewayAccess.check()) {
-            ConnectionState.InternetAndPublicGateway
+        return if (checkInternetGatewayAccess.check()) {
+            ConnectionState.InternetWithGateway
         } else if (checkInternetAccess.check()) {
-            ConnectionState.InternetWithoutPublicGateway
+            ConnectionState.InternetWithoutGateway
         } else if (network.isWifi) {
             val serverAddress = hotspotSourceIpAddress
                 ?: return ConnectionState.WiFiWithUnknown

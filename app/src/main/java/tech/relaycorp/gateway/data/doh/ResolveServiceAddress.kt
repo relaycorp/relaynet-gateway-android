@@ -9,13 +9,13 @@ class ResolveServiceAddress
 @Inject constructor(
     private val doHClient: DoHClient
 ) {
-    @Throws(PublicAddressResolutionException::class)
+    @Throws(InternetAddressResolutionException::class)
     suspend fun resolvePoWeb(address: String): ServiceAddress {
         val srvRecordName = "_awala-gsc._tcp.$address"
         val answer = try {
             doHClient.lookUp(srvRecordName, "SRV")
         } catch (exc: LookupFailureException) {
-            throw PublicAddressResolutionException(
+            throw InternetAddressResolutionException(
                 "Failed to resolve DNS for PoWeb address",
                 exc
             )
@@ -23,7 +23,7 @@ class ResolveServiceAddress
         val srvRecordData = answer.data.first()
         val srvRecordDataFields = srvRecordData.split(" ")
         if (srvRecordDataFields.size < 4) {
-            throw PublicAddressResolutionException(
+            throw InternetAddressResolutionException(
                 "Malformed SRV for $address ($srvRecordData)"
             )
         }

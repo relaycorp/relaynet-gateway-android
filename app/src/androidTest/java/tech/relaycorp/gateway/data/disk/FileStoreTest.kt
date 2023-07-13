@@ -12,9 +12,9 @@ import tech.relaycorp.gateway.App
 import java.io.File
 import java.nio.charset.Charset
 
-class SensitiveStoreTest {
+class FileStoreTest {
 
-    private lateinit var store: SensitiveStore
+    private lateinit var store: FileStore
 
     private val folder by lazy {
         File(ApplicationProvider.getApplicationContext<App>().filesDir, "test").also { it.mkdirs() }
@@ -22,7 +22,7 @@ class SensitiveStoreTest {
 
     @Before
     fun setUp() {
-        store = SensitiveStore(ApplicationProvider.getApplicationContext<App>())
+        store = FileStore(ApplicationProvider.getApplicationContext<App>())
     }
 
     @After
@@ -57,6 +57,13 @@ class SensitiveStoreTest {
                 message2,
                 readData!!.toString(Charset.defaultCharset())
             )
+        }
+    }
+
+    @Test
+    fun readNonExisting() {
+        runBlocking {
+            assertNull(store.read("${folder.name}/non-existing.txt"))
         }
     }
 

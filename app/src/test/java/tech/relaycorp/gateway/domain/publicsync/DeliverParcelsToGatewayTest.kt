@@ -17,19 +17,20 @@ import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.DiskMessageOperations
 import tech.relaycorp.gateway.data.disk.MessageDataNotFoundException
-import tech.relaycorp.gateway.data.doh.PublicAddressResolutionException
+import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.domain.DeleteParcel
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
-import tech.relaycorp.gateway.test.CargoDeliveryCertPath
+import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.gateway.test.factory.StoredParcelFactory
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.bindings.pdc.RejectedParcelException
 import tech.relaycorp.relaynet.bindings.pdc.ServerConnectionException
-import tech.relaycorp.relaynet.testing.pki.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import kotlin.test.assertEquals
 
-class DeliverParcelsToGatewayTest {
+class DeliverParcelsToGatewayTest : BaseDataTestCase() {
 
     private val storedParcelDao = mock<StoredParcelDao>()
     private val diskMessageOperations = mock<DiskMessageOperations>()
@@ -37,7 +38,10 @@ class DeliverParcelsToGatewayTest {
     private val poWebClientProvider = object : PoWebClientProvider {
         override suspend fun get() = poWebClient
     }
-    private val localConfig = mock<LocalConfig>()
+    private val mockInternetGatewayPreferences = mock<InternetGatewayPreferences>()
+    private val localConfig = LocalConfig(
+        privateKeyStoreProvider, certificateStoreProvider, mockInternetGatewayPreferences
+    )
     private val deleteParcel = mock<DeleteParcel>()
     private val subject = DeliverParcelsToGateway(
         storedParcelDao, diskMessageOperations, poWebClientProvider, localConfig, deleteParcel
@@ -45,16 +49,17 @@ class DeliverParcelsToGatewayTest {
 
     @BeforeEach
     internal fun setUp() = testSuspend {
-        whenever(localConfig.getCertificate()).thenReturn(CargoDeliveryCertPath.PRIVATE_GW)
-        whenever(localConfig.getKeyPair()).thenReturn(KeyPairSet.PRIVATE_GW)
+        registerPrivateGatewayIdentity()
         whenever(diskMessageOperations.readMessage(any(), any()))
             .thenReturn { "".byteInputStream() }
+        whenever(mockInternetGatewayPreferences.getId())
+            .thenReturn(PDACertPath.INTERNET_GW.subjectId)
     }
 
     @Test
     fun `Failure to resolve PoWeb address should be ignored`() = runBlockingTest {
         val failingPoWebClientProvider = object : PoWebClientProvider {
-            override suspend fun get() = throw PublicAddressResolutionException("Whoops")
+            override suspend fun get() = throw InternetAddressResolutionException("Whoops")
         }
         val subject = DeliverParcelsToGateway(
             storedParcelDao,
@@ -70,7 +75,7 @@ class DeliverParcelsToGatewayTest {
     }
 
     @Test
-    internal fun `when keepAlive is false, only deliver first batch of parcels`() = testSuspend {
+    fun `when keepAlive is false, only deliver first batch of parcels`() = testSuspend {
         val parcel1 = StoredParcelFactory.build()
         val parcel2 = StoredParcelFactory.build()
         whenever(storedParcelDao.observeForRecipientLocation(any(), any()))
@@ -81,7 +86,7 @@ class DeliverParcelsToGatewayTest {
         verify(poWebClient, times(1)).deliverParcel(
             any(),
             check {
-                assertEquals(CargoDeliveryCertPath.PRIVATE_GW, it.certificate)
+                assertEquals(PDACertPath.PRIVATE_GW, it.certificate)
             }
         )
         verify(deleteParcel).delete(eq(parcel1))
