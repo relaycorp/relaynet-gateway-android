@@ -52,14 +52,14 @@ class CollectParcelsFromGateway
             poWebClient.use {
                 poWebClient
                     .collectParcels(arrayOf(signer), streamingMode)
-                    .retry(Long.MAX_VALUE) { e ->
-                        if (keepAlive && e is ServerConnectionException) {
+                    .retry(Long.MAX_VALUE) { exc ->
+                        if (keepAlive && exc is ServerConnectionException) {
                             // The culprit is likely to be:
                             // https://github.com/relaycorp/cloud-gateway/issues/53
+                            val errorMessage = exc.message
                             logger.log(
                                 Level.WARNING,
-                                "Could not collect parcels due to server error, will retry.",
-                                e
+                                "Will retry to collect parcels due to server error: $errorMessage",
                             )
                             delay(RETRY_AFTER_SECONDS)
                             true
