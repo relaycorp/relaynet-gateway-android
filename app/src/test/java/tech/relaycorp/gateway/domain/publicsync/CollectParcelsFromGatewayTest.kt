@@ -10,12 +10,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.ktor.test.dispatcher.testSuspend
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -38,8 +33,6 @@ import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.messages.Recipient
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
-import java.lang.Thread.sleep
-import kotlin.math.roundToLong
 
 class CollectParcelsFromGatewayTest : BaseDataTestCase() {
 
@@ -159,28 +152,5 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
     fun `poWebClient with keepAlive false, server issues are handled`() = testSuspend {
         whenever(poWebClient.collectParcels(any(), any())).thenThrow(ServerConnectionException(""))
         subject.collect(false)
-    }
-
-    @Test
-    fun `poWebClient with keepAlive true, retries after server issue`() {
-        val retryPeriod = 0.1.toLong()
-        CollectParcelsFromGateway.RETRY_AFTER_SECONDS = retryPeriod
-        runBlockingTest {
-            var tries = 0
-            whenever(poWebClient.collectParcels(any(), any()))
-                .thenReturn(
-                    flow<ParcelCollection> {
-                        if (tries == 0) {
-                            throw ServerConnectionException("")
-                        }
-                    }.onCompletion { tries++ }
-                )
-
-            CoroutineScope(Dispatchers.Unconfined).launch {
-                subject.collect(true)
-            }
-            sleep((retryPeriod * 1.5).roundToLong())
-            assertEquals(2, tries)
-        }
     }
 }

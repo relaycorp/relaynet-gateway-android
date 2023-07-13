@@ -1,9 +1,6 @@
 package tech.relaycorp.gateway.domain.publicsync
 
-import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.retry
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
 import tech.relaycorp.gateway.data.model.MessageAddress
@@ -16,7 +13,6 @@ import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.bindings.pdc.NonceSignerException
 import tech.relaycorp.relaynet.bindings.pdc.PDCException
 import tech.relaycorp.relaynet.bindings.pdc.ParcelCollection
-import tech.relaycorp.relaynet.bindings.pdc.ServerConnectionException
 import tech.relaycorp.relaynet.bindings.pdc.ServerException
 import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
@@ -52,19 +48,6 @@ class CollectParcelsFromGateway
             poWebClient.use {
                 poWebClient
                     .collectParcels(arrayOf(signer), streamingMode)
-                    .retry(Long.MAX_VALUE) { exc ->
-                        if (keepAlive && exc is ServerConnectionException) {
-                            // The culprit is likely to be:
-                            // https://github.com/relaycorp/cloud-gateway/issues/53
-                            val errorMessage = exc.message
-                            logger.log(
-                                Level.WARNING,
-                                "Will retry to collect parcels due to server error: $errorMessage",
-                            )
-                            delay(RETRY_AFTER_SECONDS)
-                            true
-                        } else false
-                    }
                     .collect { collectParcel(it, keepAlive) }
             }
         } catch (e: ServerException) {
@@ -95,10 +78,13 @@ class CollectParcelsFromGateway
         when (storeResult) {
             is StoreParcel.Result.MalformedParcel ->
                 logger.info("Malformed parcel received")
+
             is StoreParcel.Result.InvalidParcel ->
                 logger.info("Invalid parcel received")
+
             is StoreParcel.Result.CollectedParcel ->
                 logger.info("Parcel already received")
+
             is StoreParcel.Result.Success -> {
                 logger.info("Collected parcel from Gateway ${storeResult.parcel.id}")
                 if (keepAlive) {
@@ -110,10 +96,5 @@ class CollectParcelsFromGateway
         }
 
         parcelCollection.ack()
-    }
-
-    companion object {
-        @VisibleForTesting
-        var RETRY_AFTER_SECONDS = 1.toLong()
     }
 }
