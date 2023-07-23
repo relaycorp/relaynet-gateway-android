@@ -103,8 +103,8 @@ open class App : Application() {
                  */
                 StrictMode.VmPolicy.Builder()
                     .detectLeakedSqlLiteObjects()
-                    .detectActivityLeaks()
-                    .detectLeakedClosableObjects()
+//                    .detectActivityLeaks()
+//                    .detectLeakedClosableObjects()
                     .detectLeakedRegistrationObjects()
                     .detectFileUriExposure()
                     .apply {

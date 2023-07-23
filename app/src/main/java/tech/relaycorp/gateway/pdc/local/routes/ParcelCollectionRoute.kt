@@ -20,6 +20,7 @@ import tech.relaycorp.gateway.domain.endpoint.CollectParcels
 import tech.relaycorp.gateway.pdc.local.utils.ParcelCollectionHandshake
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.cogrpc.readBytesAndClose
+import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.messages.control.ParcelDelivery
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.util.logging.Level
@@ -57,6 +58,7 @@ class ParcelCollectionRoute
     }
 
     private suspend fun DefaultWebSocketServerSession.handle() {
+        logger.info("New Parcel Collection connection")
         if (call.request.header(HEADER_ORIGIN) != null) {
             // The client is most likely a (malicious) web page
             close(
@@ -124,6 +126,8 @@ class ParcelCollectionRoute
                 parcels.iterator().forEach { (localId, parcelStream) ->
                     val parcelDelivery =
                         ParcelDelivery(localId, parcelStream.readBytesAndClose())
+                    val parcel = Parcel.deserialize(parcelDelivery.parcelSerialized)
+                    logger.info("Sending parcel ${parcel.id} to endpoint")
                     outgoing.send(
                         Frame.Binary(true, parcelDelivery.serialize())
                     )
