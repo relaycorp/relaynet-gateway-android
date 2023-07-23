@@ -58,7 +58,9 @@ class ParcelCollectionRoute
     }
 
     private suspend fun DefaultWebSocketServerSession.handle() {
-        logger.info("New Parcel Collection connection")
+        val allowedConnectionIdChars = ('a'..'z') + ('0'..'9')
+        val connectionId = (1..6).map { allowedConnectionIdChars.random() }.joinToString("")
+        logger.info("New Parcel Collection connection (id: $connectionId)")
         if (call.request.header(HEADER_ORIGIN) != null) {
             // The client is most likely a (malicious) web page
             close(
@@ -77,7 +79,7 @@ class ParcelCollectionRoute
         }
 
         val collectParcels = collectParcelsProvider.get()
-        val sendJob = sendParcels(collectParcels, certificates.toAddresses())
+        val sendJob = sendParcels(collectParcels, certificates.toAddresses(), connectionId)
         val receiveJob = receiveAcks(collectParcels)
 
         val keepAlive =
@@ -119,7 +121,8 @@ class ParcelCollectionRoute
 
     private suspend fun DefaultWebSocketServerSession.sendParcels(
         collectParcels: CollectParcels,
-        addresses: List<MessageAddress>
+        addresses: List<MessageAddress>,
+        connectionId: String
     ) =
         collectParcels.getNewParcelsForEndpoints(addresses)
             .onEach { parcels ->
@@ -127,7 +130,10 @@ class ParcelCollectionRoute
                     val parcelDelivery =
                         ParcelDelivery(localId, parcelStream.readBytesAndClose())
                     val parcel = Parcel.deserialize(parcelDelivery.parcelSerialized)
-                    logger.info("Sending parcel ${parcel.id} to endpoint")
+                    logger.info(
+                        "Sending parcel ${parcel.id} to endpoint ${parcel.recipient.id} " +
+                            "via connection $connectionId"
+                    )
                     outgoing.send(
                         Frame.Binary(true, parcelDelivery.serialize())
                     )
