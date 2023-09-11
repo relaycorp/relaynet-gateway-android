@@ -60,7 +60,7 @@ class ParcelCollectionRoute
     private suspend fun DefaultWebSocketServerSession.handle() {
         val allowedConnectionIdChars = ('a'..'z') + ('0'..'9')
         val connectionId = (1..6).map { allowedConnectionIdChars.random() }.joinToString("")
-        logger.info("New Parcel Collection connection (id: $connectionId)")
+        logger.info("New parcel collection connection (id: $connectionId)")
         if (call.request.header(HEADER_ORIGIN) != null) {
             // The client is most likely a (malicious) web page
             close(
@@ -114,6 +114,7 @@ class ParcelCollectionRoute
                     "(code: $closeCode, reason: ${reason?.message})"
             )
         }
+        logger.info("Closing parcel collection connection (id: $connectionId)")
     }
 
     private fun List<Certificate>.toAddresses() =
