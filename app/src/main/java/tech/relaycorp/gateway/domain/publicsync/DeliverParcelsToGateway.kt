@@ -102,7 +102,7 @@ class DeliverParcelsToGateway
         try {
             diskMessageOperations.readMessage(StoredParcel.STORAGE_FOLDER, storagePath)()
         } catch (e: MessageDataNotFoundException) {
-            logger.log(Level.WARNING, "Could not read parcel", e)
+            logger.log(Level.WARNING, "Could not read parcel ${messageId.value}", e)
             deleteParcel.delete(this)
             null
         }
