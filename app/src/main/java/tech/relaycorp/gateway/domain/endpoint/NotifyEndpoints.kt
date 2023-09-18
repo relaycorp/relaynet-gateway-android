@@ -19,6 +19,8 @@ class NotifyEndpoints
             .forEach { notify(it, notificationType) }
 
     fun notify(localEndpoint: LocalEndpoint, notificationType: NotificationType) {
+        logger.info("Notifying ${localEndpoint.applicationId} about ${notificationType.name}")
+
         val receiverName =
             getEndpointReceiver.get(localEndpoint.applicationId, notificationType) ?: run {
                 logger.warning(
