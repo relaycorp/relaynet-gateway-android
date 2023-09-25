@@ -8,6 +8,7 @@ import io.ktor.server.netty.Netty
 import io.ktor.websocket.WebSockets
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.pdc.local.routes.EndpointRegistrationRoute
 import tech.relaycorp.gateway.pdc.local.routes.PDCServerRoute
 import tech.relaycorp.gateway.pdc.local.routes.ParcelCollectionRoute
@@ -37,6 +38,7 @@ class PDCServer
     }
 
     suspend fun start() {
+        logger.info("Starting PDC server")
         withContext(Dispatchers.IO) {
             server.start(false)
         }
@@ -44,6 +46,7 @@ class PDCServer
     }
 
     suspend fun stop() {
+        logger.info("Stopping PDC server")
         withContext(Dispatchers.IO) {
             server.stop(0, CALL_DEADLINE.inWholeMilliseconds)
         }
