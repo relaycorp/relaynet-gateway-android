@@ -44,7 +44,7 @@ task jacocoAndroidTestReport(type: JacocoReport) {
     if (project.hasProperty('codeCoverageDataLocation')) {
         executionData.from += fileTree(dir: codeCoverageDataLocation, includes: ['**/*.ec'])
     }
-\
+
     reports {
         html.required = true
         html.destination file("${buildDir}/reports/coverage")
