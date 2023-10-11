@@ -2,7 +2,7 @@ package tech.relaycorp.gateway.ui.main
 
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.junit.jupiter.api.BeforeEach
@@ -22,15 +22,17 @@ class MainViewModelTest {
 
     @BeforeEach
     internal fun setUp() {
-        whenever(appPreferences.isOnboardingDone()).thenReturn(onboardingDoneFlow.asFlow())
-        whenever(connectionStateObserver.observe()).thenReturn(connectionStateObserve.asFlow())
+        whenever(appPreferences.isOnboardingDone())
+            .thenReturn(onboardingDoneFlow.asSharedFlow())
+        whenever(connectionStateObserver.observe())
+            .thenReturn(connectionStateObserve.asSharedFlow())
         viewModel = buildViewModel()
     }
 
     @Test
     internal fun `open onboarding if not done`() {
         viewModel.ioScope.launch {
-            onboardingDoneFlow.send(false)
+            onboardingDoneFlow.emit(false)
             waitForAssertEquals(
                 ConnectionState.InternetWithGateway,
                 viewModel.openOnboarding::first
@@ -41,7 +43,7 @@ class MainViewModelTest {
     @Test
     internal fun `connection state is passed through`() {
         viewModel.ioScope.launch {
-            connectionStateObserve.send(ConnectionState.InternetWithGateway)
+            connectionStateObserve.emit(ConnectionState.InternetWithGateway)
             waitForAssertEquals(
                 ConnectionState.InternetWithGateway,
                 viewModel.connectionState::first
