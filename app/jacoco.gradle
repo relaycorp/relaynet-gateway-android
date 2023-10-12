@@ -46,11 +46,11 @@ task jacocoAndroidTestReport(type: JacocoReport) {
     }
 
     reports {
-        html.enabled true
+        html.required = true
         html.destination file("${buildDir}/reports/coverage")
-        xml.enabled true
+        xml.required = true
         xml.destination file("${buildDir}/reports/coverage.xml")
-        csv.enabled false
+        csv.required = false
     }
 
     doLast {

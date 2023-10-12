@@ -9,8 +9,7 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.appbar.AppBarLayout
-import kotlinx.coroutines.channels.trySendBlocking
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.R
 import tech.relaycorp.gateway.ui.common.ActivityResult
@@ -29,7 +28,7 @@ abstract class BaseActivity : AppCompatActivity() {
     private val toolbar get() = findViewById<Toolbar?>(R.id.toolbar)
     private val toolbarTitle get() = findViewById<TextView?>(R.id.toolbarTitle)
 
-    protected val results get() = _results.asFlow()
+    protected val results get() = _results.asSharedFlow()
     private val _results = PublishFlow<ActivityResult>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +55,7 @@ abstract class BaseActivity : AppCompatActivity() {
     @Suppress("DEPRECATION")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        _results.trySendBlocking(ActivityResult(requestCode, resultCode, data))
+        _results.tryEmit(ActivityResult(requestCode, resultCode, data))
     }
 
     protected fun setupNavigation(
