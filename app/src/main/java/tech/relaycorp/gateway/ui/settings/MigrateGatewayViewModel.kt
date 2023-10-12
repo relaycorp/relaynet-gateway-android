@@ -1,9 +1,8 @@
 package tech.relaycorp.gateway.ui.settings
 
-import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -26,7 +25,7 @@ class MigrateGatewayViewModel
 
     val state: Flow<State> get() = _state
     private val _state = MutableStateFlow<State>(State.Insert)
-    val finishSuccessfully get() = _finishSuccessfully.asFlow()
+    val finishSuccessfully get() = _finishSuccessfully.asSharedFlow()
     private val _finishSuccessfully = PublishFlow<Finish>()
 
     fun addressChanged(value: String) {
@@ -36,7 +35,7 @@ class MigrateGatewayViewModel
     private val _addressChanges = MutableStateFlow("")
 
     fun submitted() {
-        _submits.trySendBlocking(Click)
+        _submits.tryEmit(Click)
     }
 
     private val _submits = PublishFlow<Click>()
@@ -54,14 +53,14 @@ class MigrateGatewayViewModel
             .launchIn(ioScope)
 
         _submits
-            .asFlow()
+            .asSharedFlow()
             .filter { _state.value == State.AddressValid }
             .onEach {
                 _state.value = State.Submitting
                 val address = _addressChanges.value
                 when (migrateGateway.migrate(address)) {
                     MigrateGateway.Result.Successful ->
-                        _finishSuccessfully.send(Finish)
+                        _finishSuccessfully.emit(Finish)
                     MigrateGateway.Result.FailedToResolve ->
                         _state.value = State.Error.FailedToResolve
                     MigrateGateway.Result.FailedToRegister ->

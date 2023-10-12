@@ -4,12 +4,6 @@ spec:
   test: app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
   timeout: 30m
   device:
-    # Asus Nexus 7 (physical). The oldest device we're testing.
-    - model: flo
-      version: 21   # Android 5.0
-      locale: en
-      orientation: portrait
-
     # Nexus 5 (virtual)
     - model: Nexus5
       version: 23   # Android 6.0

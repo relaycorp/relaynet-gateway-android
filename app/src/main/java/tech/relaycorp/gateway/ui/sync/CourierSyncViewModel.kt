@@ -1,9 +1,8 @@
 package tech.relaycorp.gateway.ui.sync
 
-import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -21,7 +20,7 @@ class CourierSyncViewModel
 
     // Inputs
 
-    fun stopClicked() = stopClicks.trySendBlocking(Click)
+    fun stopClicked() = stopClicks.tryEmit(Click)
     private val stopClicks = PublishFlow<Click>()
 
     // Outputs
@@ -30,7 +29,7 @@ class CourierSyncViewModel
     val state: Flow<CourierSync.State> = _state
 
     private val _finish = PublishFlow<Finish>()
-    val finish get() = _finish.asFlow()
+    val finish get() = _finish.asSharedFlow()
 
     init {
         val syncJob = ioScope.launch {
@@ -44,11 +43,11 @@ class CourierSyncViewModel
                 .launchIn(ioScope)
 
         stopClicks
-            .asFlow()
+            .asSharedFlow()
             .onEach {
                 syncStateJob.cancel()
                 syncJob.cancel()
-                _finish.send(Finish)
+                _finish.emit(Finish)
             }
             .launchIn(ioScope)
     }
