@@ -8,6 +8,7 @@ import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import kotlinx.coroutines.CoroutineScope
@@ -167,6 +168,7 @@ open class App : Application() {
     enum class Mode { Normal, Test }
 
     companion object {
-        private val PUBLIC_SYNC_WORKER_PERIOD = Duration.ofHours(1)
+        private val PUBLIC_SYNC_WORKER_PERIOD =
+            Duration.ofMillis(PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS)
     }
 }
