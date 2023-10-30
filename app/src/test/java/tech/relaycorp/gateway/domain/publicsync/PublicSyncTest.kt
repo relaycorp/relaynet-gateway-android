@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.background.ConnectionStateObserver
 import tech.relaycorp.gateway.background.ForegroundAppMonitor
-import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.pdc.local.PDCServer
 import tech.relaycorp.gateway.pdc.local.PDCServerStateManager
@@ -27,6 +26,7 @@ class PublicSyncTest {
     private val pdcServerStateManager = mock<PDCServerStateManager>()
     private val internetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val connectionStateObserver = mock<ConnectionStateObserver>()
+    private val registerGateway = mock<RegisterGateway>()
     private val deliverParcelsToGateway = mock<DeliverParcelsToGateway>()
     private val collectParcelsFromGateway = mock<CollectParcelsFromGateway>()
     private val publicSync = PublicSync(
@@ -34,17 +34,18 @@ class PublicSyncTest {
         pdcServerStateManager,
         internetGatewayPreferences,
         connectionStateObserver,
+        registerGateway,
         deliverParcelsToGateway,
         collectParcelsFromGateway
     )
 
     @Test
-    internal fun `does not sync if gateway is not registered`() = testSuspend {
+    internal fun `does not sync if gateway is failed to register`() = testSuspend {
         setState(
             ForegroundAppMonitor.State.Foreground,
             PDCServer.State.Started,
-            RegistrationState.ToDo,
-            ConnectionState.InternetWithGateway
+            ConnectionState.InternetWithGateway,
+            RegisterGateway.Result.FailedToRegister
         )
 
         sync()
@@ -57,8 +58,8 @@ class PublicSyncTest {
         setState(
             ForegroundAppMonitor.State.Foreground,
             PDCServer.State.Started,
-            RegistrationState.ToDo,
-            ConnectionState.Disconnected
+            ConnectionState.Disconnected,
+            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring
         )
 
         sync()
@@ -71,8 +72,8 @@ class PublicSyncTest {
         setState(
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Stopped,
-            RegistrationState.Done,
-            ConnectionState.InternetWithGateway
+            ConnectionState.InternetWithGateway,
+            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring
         )
 
         sync()
@@ -85,8 +86,8 @@ class PublicSyncTest {
         setState(
             ForegroundAppMonitor.State.Foreground,
             PDCServer.State.Stopped,
-            RegistrationState.Done,
-            ConnectionState.InternetWithGateway
+            ConnectionState.InternetWithGateway,
+            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring
         )
 
         sync()
@@ -99,8 +100,8 @@ class PublicSyncTest {
         setState(
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Started,
-            RegistrationState.Done,
-            ConnectionState.InternetWithGateway
+            ConnectionState.InternetWithGateway,
+            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring
         )
 
         sync()
@@ -113,8 +114,8 @@ class PublicSyncTest {
         setState(
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Stopped,
-            RegistrationState.Done,
-            ConnectionState.InternetWithGateway
+            ConnectionState.InternetWithGateway,
+            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring
         )
         val appStateFlow = MutableStateFlow(ForegroundAppMonitor.State.Background)
         whenever(foregroundAppMonitor.observe()).thenReturn(appStateFlow.asSharedFlow())
@@ -128,20 +129,20 @@ class PublicSyncTest {
         waitForAssertEquals(false) { publicSync.isSyncing }
     }
 
-    private fun setState(
+    private suspend fun setState(
         appState: ForegroundAppMonitor.State,
         pdcState: PDCServer.State,
-        registrationState: RegistrationState,
-        connectionState: ConnectionState
+        connectionState: ConnectionState,
+        registrationResult: RegisterGateway.Result
     ) {
         whenever(foregroundAppMonitor.observe())
             .thenReturn(flowOf(appState))
         whenever(pdcServerStateManager.observe())
             .thenReturn(flowOf(pdcState))
-        whenever(internetGatewayPreferences.observeRegistrationState())
-            .thenReturn(flowOf(registrationState))
         whenever(connectionStateObserver.observe())
             .thenReturn(flowOf(connectionState))
+        whenever(registerGateway.registerIfNeeded())
+            .thenReturn(registrationResult)
     }
 
     private fun sync() {

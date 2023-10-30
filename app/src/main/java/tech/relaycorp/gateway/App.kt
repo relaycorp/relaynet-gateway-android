@@ -23,7 +23,6 @@ import tech.relaycorp.gateway.common.di.AppComponent
 import tech.relaycorp.gateway.common.di.DaggerAppComponent
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.domain.publicsync.PublicSync
-import tech.relaycorp.gateway.domain.publicsync.RegisterGateway
 import java.security.Security
 import java.time.Duration
 import java.util.logging.Level
@@ -57,9 +56,6 @@ open class App : Application() {
     lateinit var localConfig: LocalConfig
 
     @Inject
-    lateinit var registerGateway: RegisterGateway
-
-    @Inject
     lateinit var publicSync: PublicSync
 
     @Inject
@@ -77,8 +73,8 @@ open class App : Application() {
 
         backgroundScope.launch {
             bootstrapGateway()
-            startPublicSyncWhenPossible()
-            deleteExpiredCertificates()
+            launch { startPublicSyncWhenPossible() }
+            launch { deleteExpiredCertificates() }
         }
 
         registerActivityLifecycleCallbacks(foregroundAppMonitor)
@@ -132,7 +128,6 @@ open class App : Application() {
     private suspend fun bootstrapGateway() {
         if (mode != Mode.Test) {
             localConfig.bootstrap()
-            registerGateway.registerIfNeeded()
         }
     }
 
