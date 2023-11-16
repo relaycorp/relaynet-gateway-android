@@ -2,7 +2,7 @@
 
 # Awala Gateway for Android
 
-The [Awala Gateway for Android](https://play.google.com/store/apps/details?id=tech.relaycorp.gateway) is a _[private gateway](https://specs.awala.network/RS-000#concepts)_ for Android 5+ devices. This repository contains the source code for the app, which is also a reference implementation of a private gateway in the Awala protocol suite.
+The [Awala Gateway for Android](https://play.google.com/store/apps/details?id=tech.relaycorp.gateway) is a _[private gateway](https://specs.awala.network/RS-000#concepts)_ for Android 6+ devices. This repository contains the source code for the app, which is also a reference implementation of a private gateway in the Awala protocol suite.
 
 This document is aimed at advanced users and (prospective) contributors. We aim to make the app as simple and intuitive as possible, and we're therefore not planning on publishing end-user documentation at this point. To learn more about _using_ Awala, visit [awala.network/users](https://awala.network/users).
 
@@ -21,10 +21,6 @@ By default, instances of this gateway are paired to [Relaycorp's Frankfurt gatew
 ## Security and privacy considerations
 
 The items below summarize the security and privacy considerations specific to this app. For a more general overview of the security considerations in Awala, please refer to [RS-019](https://specs.awala.network/RS-019).
-
-### No encryption at rest on Android 5
-
-We use the [Android Keystore system](https://developer.android.com/training/articles/keystore) to protect sensitive cryptographic material, such as long-term and ephemeral keys. Unfortunately, [Android 5 doesn't actually encrypt anything at rest](https://github.com/relaycorp/relaynet-gateway-android/issues/247).
 
 ### External communication
 
