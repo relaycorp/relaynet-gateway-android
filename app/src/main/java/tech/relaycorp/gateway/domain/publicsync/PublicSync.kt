@@ -13,12 +13,14 @@ import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.background.ConnectionStateObserver
 import tech.relaycorp.gateway.background.ForegroundAppMonitor
 import tech.relaycorp.gateway.common.Logging.logger
+import tech.relaycorp.gateway.common.interval
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.pdc.local.PDCServer
 import tech.relaycorp.gateway.pdc.local.PDCServerStateManager
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @Singleton
@@ -28,6 +30,7 @@ class PublicSync
     private val pdcServerStateManager: PDCServerStateManager,
     private val internetGatewayPreferences: InternetGatewayPreferences,
     private val connectionStateObserver: ConnectionStateObserver,
+    private val registerGateway: RegisterGateway,
     private val deliverParcelsToGateway: DeliverParcelsToGateway,
     private val collectParcelsFromGateway: CollectParcelsFromGateway
 ) {
@@ -42,11 +45,11 @@ class PublicSync
         combine(
             foregroundAppMonitor.observe(),
             pdcServerStateManager.observe(),
-            internetGatewayPreferences.observeRegistrationState(),
-            connectionStateObserver.observe()
-        ) { foregroundState, pdcState, registrationState, connectionState ->
+            connectionStateObserver.observe(),
+            // Retry registration and sync every minute in case there's a failure
+            interval(1.minutes)
+        ) { foregroundState, pdcState, connectionState, _ ->
             if (
-                registrationState == RegistrationState.Done &&
                 connectionState is ConnectionState.InternetWithGateway && (
                     foregroundState == ForegroundAppMonitor.State.Foreground ||
                         pdcState == PDCServer.State.Started
@@ -71,8 +74,9 @@ class PublicSync
         collectParcelsFromGateway.collect(false)
     }
 
-    private fun startSync() {
+    private suspend fun startSync() {
         if (isSyncing) return
+        if (!registerGateway.registerIfNeeded().isSuccessful) return
 
         logger.info("Starting public sync")
         val syncJob = Job()

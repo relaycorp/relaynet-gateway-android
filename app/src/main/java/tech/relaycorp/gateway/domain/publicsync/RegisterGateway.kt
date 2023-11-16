@@ -1,5 +1,7 @@
 package tech.relaycorp.gateway.domain.publicsync
 
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
 import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
@@ -16,7 +18,9 @@ import java.time.Duration
 import java.time.ZonedDateTime
 import java.util.logging.Level
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 @JvmSuppressWildcards
 class RegisterGateway
 @Inject constructor(
@@ -28,36 +32,42 @@ class RegisterGateway
     private val publicKeyStore: SessionPublicKeyStore
 ) {
 
+    private val mutex = Mutex()
+
     suspend fun registerIfNeeded(): Result {
-        val isFirstRegistration =
-            internetGatewayPreferences.getRegistrationState() == RegistrationState.ToDo
+        mutex.withLock {
+            val isFirstRegistration =
+                internetGatewayPreferences.getRegistrationState() == RegistrationState.ToDo
 
-        if (
-            !isFirstRegistration &&
-            !currentCertificateIsAboutToExpire()
-        ) {
-            return Result.AlreadyRegisteredAndNotExpiring
-        }
-
-        val address = internetGatewayPreferences.getAddress()
-        val result = register(address)
-        if (result is Result.Registered) {
-            saveSuccessfulResult(address, result.pnr)
-
-            if (!isFirstRegistration) {
-                gatewayCertificateChangeNotifier.notifyAll()
+            if (
+                !isFirstRegistration &&
+                !currentCertificateIsAboutToExpire()
+            ) {
+                return Result.AlreadyRegisteredAndNotExpiring
             }
-        }
 
-        return result
+            val address = internetGatewayPreferences.getAddress()
+            val result = register(address)
+            if (result is Result.Registered) {
+                saveSuccessfulResult(address, result.pnr)
+
+                if (!isFirstRegistration) {
+                    gatewayCertificateChangeNotifier.notifyAll()
+                }
+            }
+
+            return result
+        }
     }
 
     suspend fun registerNewAddress(newAddress: String): Result {
-        val result = register(newAddress)
-        if (result is Result.Registered) {
-            saveSuccessfulResult(newAddress, result.pnr)
+        mutex.withLock {
+            val result = register(newAddress)
+            if (result is Result.Registered) {
+                saveSuccessfulResult(newAddress, result.pnr)
+            }
+            return result
         }
-        return result
     }
 
     private suspend fun currentCertificateIsAboutToExpire() =
@@ -65,6 +75,8 @@ class RegisterGateway
 
     private suspend fun register(address: String): Result {
         return try {
+            logger.info("Registering with $address")
+
             val poWebAddress = resolveServiceAddress.resolvePoWeb(address)
             val poWeb = poWebClientBuilder.build(poWebAddress)
             val privateKey = localConfig.getIdentityKey()
@@ -114,10 +126,13 @@ class RegisterGateway
     }
 
     sealed class Result {
-        object FailedToResolve : Result()
-        object FailedToRegister : Result()
+        data object FailedToResolve : Result()
+        data object FailedToRegister : Result()
         data class Registered(val pnr: PrivateNodeRegistration) : Result()
-        object AlreadyRegisteredAndNotExpiring : Result()
+        data object AlreadyRegisteredAndNotExpiring : Result()
+
+        val isSuccessful
+            get() = this is Registered || this is AlreadyRegisteredAndNotExpiring
     }
 
     companion object {
