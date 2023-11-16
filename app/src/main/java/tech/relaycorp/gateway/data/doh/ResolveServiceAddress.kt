@@ -1,9 +1,12 @@
 package tech.relaycorp.gateway.data.doh
 
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
 import tech.relaycorp.doh.DoHClient
 import tech.relaycorp.doh.LookupFailureException
 import tech.relaycorp.gateway.data.model.ServiceAddress
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 class ResolveServiceAddress
 @Inject constructor(
@@ -13,8 +16,15 @@ class ResolveServiceAddress
     suspend fun resolvePoWeb(address: String): ServiceAddress {
         val srvRecordName = "_awala-gsc._tcp.$address"
         val answer = try {
-            doHClient.lookUp(srvRecordName, "SRV")
+            withTimeout(5.seconds) {
+                doHClient.lookUp(srvRecordName, "SRV")
+            }
         } catch (exc: LookupFailureException) {
+            throw InternetAddressResolutionException(
+                "Failed to resolve DNS for PoWeb address",
+                exc
+            )
+        } catch (exc: TimeoutCancellationException) {
             throw InternetAddressResolutionException(
                 "Failed to resolve DNS for PoWeb address",
                 exc
