@@ -136,6 +136,6 @@ class RegisterGateway
     }
 
     companion object {
-        private val ABOUT_TO_EXPIRE = Duration.ofDays(25)
+        private val ABOUT_TO_EXPIRE = Duration.ofDays(90)
     }
 }
