@@ -91,16 +91,13 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8
     }
     packagingOptions {
-        exclude 'META-INF/*'
-        // Due to https://github.com/Kotlin/kotlinx.coroutines/issues/2023
-        exclude 'META-INF/licenses/*'
-        exclude '**/attach_hotspot_windows.dll'
-    }
-    lintOptions {
-        checkAllWarnings true
-        warningsAsErrors true
-        abortOnError true
-        lintConfig file('lint.xml')
+        jniLibs {
+            useLegacyPackaging false
+            excludes += ['META-INF/*', 'META-INF/licenses/*']
+        }
+        resources {
+            excludes += ['META-INF/*', 'META-INF/licenses/*', '**/attach_hotspot_windows.dll']
+        }
     }
     sourceSets {
         androidTest {
@@ -115,6 +112,12 @@ android {
 
     useLibrary 'android.test.mock'
     namespace 'tech.relaycorp.gateway'
+    lint {
+        abortOnError true
+        checkAllWarnings true
+        lintConfig file('lint.xml')
+        warningsAsErrors true
+    }
 }
 
 configurations.all {
