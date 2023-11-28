@@ -42,17 +42,17 @@ class NotifyEndpointsTest {
 
             notifyEndpoints.notify(
                 listOf(endpoint1, endpoint2),
-                NotificationType.IncomingParcel
+                NotificationType.IncomingParcel,
             )
 
             verify(context, times(2)).sendBroadcast(
                 check {
                     assertTrue(
                         listOf(endpoint1.applicationId, endpoint2.applicationId)
-                            .contains(it.component?.packageName)
+                            .contains(it.component?.packageName),
                     )
                     assertEquals(".Receiver", it.component?.className)
-                }
+                },
             )
             verifyNoMoreInteractions(context)
         }
@@ -69,14 +69,14 @@ class NotifyEndpointsTest {
 
             notifyEndpoints.notify(
                 listOf(endpoint, endpoint),
-                NotificationType.IncomingParcel
+                NotificationType.IncomingParcel,
             )
 
             verify(context, times(1)).sendBroadcast(
                 check {
                     assertEquals(appId, it.component?.packageName)
                     assertEquals(".Receiver", it.component?.className)
-                }
+                },
             )
             verifyNoMoreInteractions(context)
         }
@@ -95,7 +95,7 @@ class NotifyEndpointsTest {
                 check {
                     assertEquals(endpoint.applicationId, it.component?.packageName)
                     assertEquals(receiverName, it.component?.className)
-                }
+                },
             )
         }
     }
@@ -114,7 +114,7 @@ class NotifyEndpointsTest {
             whenever(getEndpointReceiver.get(any(), any())).thenReturn(null)
             notifyEndpoints.notify(
                 LocalEndpointFactory.build(),
-                NotificationType.IncomingParcel
+                NotificationType.IncomingParcel,
             )
             verify(context, never()).sendBroadcast(any(), any())
         }

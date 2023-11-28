@@ -20,13 +20,13 @@ object StrictModeSetup {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         penaltyListener(
                             ContextCompat.getMainExecutor(context),
-                            ThreadPolicyViolationListener()
+                            ThreadPolicyViolationListener(),
                         )
                     } else {
                         penaltyLog()
                     }
                 }
-                .build()
+                .build(),
         )
         StrictMode.setVmPolicy(
             StrictMode.VmPolicy.Builder()
@@ -35,13 +35,13 @@ object StrictModeSetup {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         penaltyListener(
                             ContextCompat.getMainExecutor(context),
-                            VMViolationListener()
+                            VMViolationListener(),
                         )
                     } else {
                         penaltyLog()
                     }
                 }
-                .build()
+                .build(),
         )
     }
 
@@ -65,7 +65,7 @@ object StrictModeSetup {
         // Huawei startup font loading
         "Typeface.loadSystemFonts",
         // Xiaomi startup font loading
-        "TypefaceUtils.loadFontSettings"
+        "TypefaceUtils.loadFontSettings",
     )
 
     @RequiresApi(Build.VERSION_CODES.P)
@@ -90,6 +90,6 @@ object StrictModeSetup {
         "io.ktor.client.engine",
         "io.ktor.network.sockets",
         "io.netty.channel.socket",
-        "io.grpc.okhttp"
+        "io.grpc.okhttp",
     )
 }

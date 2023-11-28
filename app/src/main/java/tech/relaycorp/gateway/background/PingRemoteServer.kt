@@ -28,38 +28,36 @@ class PingRemoteServer
         }
     }
 
-    suspend fun pingSocket(address: String, port: Int) =
-        try {
-            aSocket(ActorSelectorManager(Dispatchers.IO))
-                .tcp()
-                .connect(address, port) {
-                    socketTimeout = TIMEOUT.inWholeMilliseconds
-                }
-                .use { true }
-        } catch (e: IOException) {
-            logger.log(Level.INFO, "Could not ping $address:$port")
-            false
-        }
-
-    suspend fun pingURL(url: String) =
-        try {
-            withTimeout(TIMEOUT) {
-                ktorClient.head<Unit>(url)
-                true
+    suspend fun pingSocket(address: String, port: Int) = try {
+        aSocket(ActorSelectorManager(Dispatchers.IO))
+            .tcp()
+            .connect(address, port) {
+                socketTimeout = TIMEOUT.inWholeMilliseconds
             }
-        } catch (e: IOException) {
-            logger.log(Level.INFO, "Could not ping $url (${e.message})")
-            false
-        } catch (e: TimeoutCancellationException) {
-            logger.log(Level.INFO, "Could not ping $url (${e.message})")
-            false
-        } catch (e: ResponseException) {
-            logger.log(
-                Level.INFO,
-                "Successfully pinged $url but got a response exception (${e.message})"
-            )
+            .use { true }
+    } catch (e: IOException) {
+        logger.log(Level.INFO, "Could not ping $address:$port")
+        false
+    }
+
+    suspend fun pingURL(url: String) = try {
+        withTimeout(TIMEOUT) {
+            ktorClient.head<Unit>(url)
             true
         }
+    } catch (e: IOException) {
+        logger.log(Level.INFO, "Could not ping $url (${e.message})")
+        false
+    } catch (e: TimeoutCancellationException) {
+        logger.log(Level.INFO, "Could not ping $url (${e.message})")
+        false
+    } catch (e: ResponseException) {
+        logger.log(
+            Level.INFO,
+            "Successfully pinged $url but got a response exception (${e.message})",
+        )
+        true
+    }
 
     companion object {
         private val TIMEOUT = 5.seconds

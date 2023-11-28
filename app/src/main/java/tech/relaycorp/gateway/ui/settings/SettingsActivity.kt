@@ -39,7 +39,7 @@ class SettingsActivity : BaseActivity() {
         binding.version.text = getString(
             R.string.settings_version,
             BuildConfig.VERSION_NAME,
-            BuildConfig.VERSION_CODE.toString()
+            BuildConfig.VERSION_CODE.toString(),
         )
         binding.internetGateway.setOnClickListener { openMigrateGateway() }
         binding.learnMore.setOnClickListener { openKnowMore() }

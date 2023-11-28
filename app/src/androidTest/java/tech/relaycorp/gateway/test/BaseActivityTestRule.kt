@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
 
 class BaseActivityTestRule<T : Activity>(
     activityClass: KClass<T>,
-    launchActivity: Boolean = true
+    launchActivity: Boolean = true,
 ) : TestRule {
 
     private val clearPreferencesRule: ClearPreferencesRule = ClearPreferencesRule()
@@ -22,7 +22,7 @@ class BaseActivityTestRule<T : Activity>(
     private val activityTestRule: ActivityTestRule<T> = ActivityTestRule(
         activityClass.java,
         true,
-        launchActivity
+        launchActivity,
     )
 
     override fun apply(base: Statement, description: Description): Statement {

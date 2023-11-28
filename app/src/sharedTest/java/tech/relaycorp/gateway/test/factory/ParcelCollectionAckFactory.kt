@@ -8,6 +8,6 @@ object ParcelCollectionAckFactory {
     fun build() = ParcelCollectionAck(
         senderEndpointId = Random.nextInt().toString(),
         recipientEndpointId = Random.nextInt().toString(),
-        parcelId = Random.nextInt().toString()
+        parcelId = Random.nextInt().toString(),
     )
 }

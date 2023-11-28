@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 class EndpointRegistrationRoute
 @Inject constructor(
-    private val endpointRegistration: EndpointRegistration
+    private val endpointRegistration: EndpointRegistration,
 ) : PDCServerRoute {
 
     override fun register(routing: Routing) {
@@ -25,7 +25,7 @@ class EndpointRegistrationRoute
             if (call.request.contentType() != ContentType.REGISTRATION_REQUEST) {
                 call.respondText(
                     "Content type ${ContentType.REGISTRATION_REQUEST} is required",
-                    status = HttpStatusCode.UnsupportedMediaType
+                    status = HttpStatusCode.UnsupportedMediaType,
                 )
                 return@post
             }
@@ -35,7 +35,7 @@ class EndpointRegistrationRoute
             } catch (_: InvalidMessageException) {
                 call.respondText(
                     "Invalid registration request",
-                    status = HttpStatusCode.BadRequest
+                    status = HttpStatusCode.BadRequest,
                 )
                 return@post
             }
@@ -45,7 +45,7 @@ class EndpointRegistrationRoute
             } catch (_: InvalidPNRAException) {
                 call.respondText(
                     "Invalid authorization encapsulated in registration request",
-                    status = HttpStatusCode.BadRequest
+                    status = HttpStatusCode.BadRequest,
                 )
                 return@post
             }

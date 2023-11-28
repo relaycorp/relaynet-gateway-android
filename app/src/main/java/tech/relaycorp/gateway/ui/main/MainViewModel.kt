@@ -14,7 +14,7 @@ import javax.inject.Inject
 class MainViewModel
 @Inject constructor(
     appPreferences: AppPreferences,
-    private val connectionStateObserver: ConnectionStateObserver
+    private val connectionStateObserver: ConnectionStateObserver,
 ) : BaseViewModel() {
 
     // Outputs

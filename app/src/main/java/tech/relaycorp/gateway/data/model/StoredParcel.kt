@@ -6,7 +6,7 @@ import java.time.ZonedDateTime
 
 @Entity(
     tableName = "Parcel",
-    primaryKeys = ["recipientAddress", "senderAddress", "messageId"]
+    primaryKeys = ["recipientAddress", "senderAddress", "messageId"],
 )
 data class StoredParcel(
     val recipientAddress: MessageAddress,
@@ -20,7 +20,7 @@ data class StoredParcel(
     val expirationTimeUtc: ZonedDateTime,
     val storagePath: String,
     val size: StorageSize,
-    val inTransit: Boolean = false
+    val inTransit: Boolean = false,
 ) {
     companion object {
         const val STORAGE_FOLDER = "parcels"

@@ -21,18 +21,13 @@ class StoreParcel
     private val storedParcelDao: StoredParcelDao,
     private val parcelCollectionDao: ParcelCollectionDao,
     private val diskMessageOperations: DiskMessageOperations,
-    private val localConfig: LocalConfig
+    private val localConfig: LocalConfig,
 ) {
 
-    suspend fun store(
-        parcelStream: InputStream,
-        recipientLocation: RecipientLocation
-    ) = store(parcelStream.readBytesAndClose(), recipientLocation)
+    suspend fun store(parcelStream: InputStream, recipientLocation: RecipientLocation) =
+        store(parcelStream.readBytesAndClose(), recipientLocation)
 
-    suspend fun store(
-        parcelData: ByteArray,
-        recipientLocation: RecipientLocation
-    ): Result {
+    suspend fun store(parcelData: ByteArray, recipientLocation: RecipientLocation): Result {
         val parcel = try {
             Parcel.deserialize(parcelData)
         } catch (exc: RAMFException) {
@@ -58,7 +53,7 @@ class StoreParcel
         val parcelPath = diskMessageOperations.writeMessage(
             StoredParcel.STORAGE_FOLDER,
             StoredParcel.STORAGE_PREFIX,
-            parcelData
+            parcelData,
         )
 
         val parcelSize = StorageSize(parcelData.size.toLong())
@@ -67,28 +62,26 @@ class StoreParcel
         return Result.Success(parcel)
     }
 
-    private suspend fun isParcelAlreadyCollected(parcel: Parcel) =
-        parcelCollectionDao.exists(
-            MessageAddress.of(parcel.recipient.id),
-            PrivateMessageAddress(parcel.senderCertificate.subjectId),
-            MessageId(parcel.id)
-        )
+    private suspend fun isParcelAlreadyCollected(parcel: Parcel) = parcelCollectionDao.exists(
+        MessageAddress.of(parcel.recipient.id),
+        PrivateMessageAddress(parcel.senderCertificate.subjectId),
+        MessageId(parcel.id),
+    )
 
     private fun Parcel.toStoredParcel(
         storagePath: String,
         dataSize: StorageSize,
-        recipientLocation: RecipientLocation
-    ) =
-        StoredParcel(
-            recipientAddress = MessageAddress.of(recipient.id),
-            senderAddress = MessageAddress.of(senderCertificate.subjectId),
-            messageId = MessageId(id),
-            recipientLocation = recipientLocation,
-            creationTimeUtc = creationDate,
-            expirationTimeUtc = expiryDate,
-            size = dataSize,
-            storagePath = storagePath
-        )
+        recipientLocation: RecipientLocation,
+    ) = StoredParcel(
+        recipientAddress = MessageAddress.of(recipient.id),
+        senderAddress = MessageAddress.of(senderCertificate.subjectId),
+        messageId = MessageId(id),
+        recipientLocation = recipientLocation,
+        creationTimeUtc = creationDate,
+        expirationTimeUtc = expiryDate,
+        size = dataSize,
+        storagePath = storagePath,
+    )
 
     sealed class Result {
         data class MalformedParcel(val cause: Throwable) : Result()

@@ -5,7 +5,7 @@ import javax.inject.Inject
 
 class GetEndpointApplicationsCount
 @Inject constructor(
-    private val localEndpointDao: LocalEndpointDao
+    private val localEndpointDao: LocalEndpointDao,
 ) {
 
     fun get() = localEndpointDao.countApplicationIds()

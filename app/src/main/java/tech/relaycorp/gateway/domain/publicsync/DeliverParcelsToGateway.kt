@@ -34,7 +34,7 @@ class DeliverParcelsToGateway
     private val diskMessageOperations: DiskMessageOperations,
     private val poWebClientProvider: PoWebClientProvider,
     private val localConfig: LocalConfig,
-    private val deleteParcel: DeleteParcel
+    private val deleteParcel: DeleteParcel,
 ) {
 
     suspend fun deliver(keepAlive: Boolean) {
@@ -47,7 +47,7 @@ class DeliverParcelsToGateway
                 logger.log(
                     Level.WARNING,
                     "Failed to deliver parcels due to PoWeb address resolution error",
-                    exc
+                    exc,
                 )
                 return
             }
@@ -67,14 +67,22 @@ class DeliverParcelsToGateway
                     try {
                         deliverParcel(poWebClient, parcel)
                     } catch (e: ClientBindingException) {
-                        logger.log(Level.SEVERE, "Could not deliver parcel due to client error", e)
+                        logger.log(
+                            Level.SEVERE,
+                            "Could not deliver parcel due to client error",
+                            e,
+                        )
                     } catch (e: ServerConnectionException) {
-                        logger.log(Level.INFO, "Could not deliver parcel due to server error", e)
+                        logger.log(
+                            Level.INFO,
+                            "Could not deliver parcel due to server error",
+                            e,
+                        )
                     } catch (e: PDCException) {
                         logger.log(
                             Level.SEVERE,
                             "Could not deliver parcel due to unexpected error",
-                            e
+                            e,
                         )
                     }
                 }
@@ -98,22 +106,20 @@ class DeliverParcelsToGateway
         deleteParcel.delete(parcel)
     }
 
-    private suspend fun StoredParcel.getInputStream() =
-        try {
-            diskMessageOperations.readMessage(StoredParcel.STORAGE_FOLDER, storagePath)()
-        } catch (e: MessageDataNotFoundException) {
-            logger.log(Level.WARNING, "Could not read parcel", e)
-            deleteParcel.delete(this)
-            null
-        }
+    private suspend fun StoredParcel.getInputStream() = try {
+        diskMessageOperations.readMessage(StoredParcel.STORAGE_FOLDER, storagePath)()
+    } catch (e: MessageDataNotFoundException) {
+        logger.log(Level.WARNING, "Could not read parcel", e)
+        deleteParcel.delete(this)
+        null
+    }
 
-    private lateinit var _signer: Signer
-    private suspend fun getSigner() =
-        if (this::_signer.isInitialized) {
-            _signer
-        } else {
-            Signer(localConfig.getIdentityCertificate(), localConfig.getIdentityKey()).also {
-                _signer = it
-            }
+    private lateinit var signerInternal: Signer
+    private suspend fun getSigner() = if (this::signerInternal.isInitialized) {
+        signerInternal
+    } else {
+        Signer(localConfig.getIdentityCertificate(), localConfig.getIdentityKey()).also {
+            signerInternal = it
         }
+    }
 }

@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 class StoreParcelCollection
 @Inject constructor(
-    private val parcelCollectionDao: ParcelCollectionDao
+    private val parcelCollectionDao: ParcelCollectionDao,
 ) {
 
     suspend fun storeForParcel(parcel: Parcel) {
@@ -20,8 +20,8 @@ class StoreParcelCollection
                 PrivateMessageAddress(parcel.senderCertificate.subjectId),
                 MessageId(parcel.id),
                 parcel.creationDate,
-                parcel.expiryDate
-            )
+                parcel.expiryDate,
+            ),
         )
     }
 }

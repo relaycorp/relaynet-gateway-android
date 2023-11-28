@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 class FileStore
 @Inject constructor(
-    private val context: Context
+    private val context: Context,
 ) {
 
     suspend fun store(location: String, data: ByteArray) {

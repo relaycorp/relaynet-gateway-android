@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class GatewayCertificateChangeNotifier @Inject constructor(
     private val notifyEndpoints: NotifyEndpoints,
-    private val endpointDao: LocalEndpointDao
+    private val endpointDao: LocalEndpointDao,
 ) {
     suspend fun notifyAll() {
         val registeredEndPoints = endpointDao.list()

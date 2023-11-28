@@ -9,25 +9,23 @@ import javax.inject.Inject
 
 class GetOutgoingData
 @Inject constructor(
-    private val storedParcelDao: StoredParcelDao
+    private val storedParcelDao: StoredParcelDao,
 ) {
 
-    fun get() =
-        combine(
-            storedParcelDao.countSizeForRecipientLocation(RecipientLocation.ExternalGateway),
-            storedParcelDao.countSizeForRecipientLocationAndInTransit(
-                RecipientLocation.ExternalGateway,
-                true
-            )
-        ) { total, inTransit -> Data(total, inTransit) }
+    fun get() = combine(
+        storedParcelDao.countSizeForRecipientLocation(RecipientLocation.ExternalGateway),
+        storedParcelDao.countSizeForRecipientLocationAndInTransit(
+            RecipientLocation.ExternalGateway,
+            true,
+        ),
+    ) { total, inTransit -> Data(total, inTransit) }
 
-    fun any() =
-        storedParcelDao.countSizeForRecipientLocation(RecipientLocation.ExternalGateway)
-            .map { !it.isZero }
+    fun any() = storedParcelDao.countSizeForRecipientLocation(RecipientLocation.ExternalGateway)
+        .map { !it.isZero }
 
     data class Data(
         val total: StorageSize = StorageSize.ZERO,
-        val inTransit: StorageSize = StorageSize.ZERO
+        val inTransit: StorageSize = StorageSize.ZERO,
     ) {
         val percentage
             get() = if (total.isZero) 0 else (inTransit.bytes / total.bytes).toInt()

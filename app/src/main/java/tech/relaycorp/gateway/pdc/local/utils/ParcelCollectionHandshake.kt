@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 class ParcelCollectionHandshake
 @Inject constructor(
-    private val localConfig: LocalConfig
+    private val localConfig: LocalConfig,
 ) {
 
     @Throws(HandshakeUnsuccessful::class)
@@ -24,7 +24,7 @@ class ParcelCollectionHandshake
         val nonce = Handshake.generateNonce()
         val challenge = HandshakeChallenge(nonce)
         session.outgoing.send(
-            Frame.Binary(true, challenge.serialize())
+            Frame.Binary(true, challenge.serialize()),
         )
 
         val responseRaw = session.incoming.receive()
@@ -48,11 +48,11 @@ class ParcelCollectionHandshake
                     DetachedSignatureType.NONCE.verify(
                         nonceSignature,
                         nonce,
-                        trustedCertificates
+                        trustedCertificates,
                     )
                 } catch (_: InvalidSignatureException) {
                     session.closeCannotAccept(
-                        "Handshake response included invalid nonce signatures or untrusted signers"
+                        "Handshake response included invalid nonce signatures or untrusted signers",
                     )
                     throw HandshakeUnsuccessful()
                 }
@@ -63,8 +63,8 @@ class ParcelCollectionHandshake
         close(
             CloseReason(
                 CloseReason.Codes.CANNOT_ACCEPT,
-                reason
-            )
+                reason,
+            ),
         )
     }
 

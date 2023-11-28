@@ -36,7 +36,9 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
     private val pgwPreferences = mock<InternetGatewayPreferences>()
     private val localConfig = LocalConfig(
-        privateKeyStoreProvider, certificateStoreProvider, pgwPreferences
+        privateKeyStoreProvider,
+        certificateStoreProvider,
+        pgwPreferences,
     )
     private val poWebClient = mock<PoWebClient>()
     private val poWebClientBuilder = object : PoWebClientBuilder {
@@ -50,7 +52,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
         localConfig,
         poWebClientBuilder,
         resolveServiceAddress,
-        publicKeyStore
+        publicKeyStore,
     )
 
     @BeforeEach
@@ -73,7 +75,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
             localConfig,
             failingPoWebClientBuilder,
             resolveServiceAddress,
-            publicKeyStore
+            publicKeyStore,
         )
 
         registerGateway.registerIfNeeded()
@@ -88,9 +90,10 @@ class RegisterGatewayTest : BaseDataTestCase() {
             issueGatewayCertificate(
                 KeyPairSet.PRIVATE_GW.public,
                 KeyPairSet.INTERNET_GW.private,
-                ZonedDateTime.now().plusYears(1), // not expiring soon
-                validityStartDate = ZonedDateTime.now().minusSeconds(1)
-            )
+                // not expiring soon
+                ZonedDateTime.now().plusYears(1),
+                validityStartDate = ZonedDateTime.now().minusSeconds(1),
+            ),
         )
 
         registerGateway.registerIfNeeded()
@@ -105,10 +108,11 @@ class RegisterGatewayTest : BaseDataTestCase() {
             issueGatewayCertificate(
                 KeyPairSet.PRIVATE_GW.public,
                 KeyPairSet.INTERNET_GW.private,
-                ZonedDateTime.now().plusDays(1), // expiring soon
+                // expiring soon
+                ZonedDateTime.now().plusDays(1),
                 PDACertPath.INTERNET_GW,
-                validityStartDate = ZonedDateTime.now().minusSeconds(1)
-            )
+                validityStartDate = ZonedDateTime.now().minusSeconds(1),
+            ),
         )
         whenever(poWebClient.preRegisterNode(any()))
             .thenReturn(buildPNRR())
@@ -196,11 +200,11 @@ class RegisterGatewayTest : BaseDataTestCase() {
     private fun buildPNRR(): PrivateNodeRegistrationRequest {
         val authorization = PrivateNodeRegistrationAuthorization(
             ZonedDateTime.now().plusSeconds(3),
-            "1234".toByteArray()
+            "1234".toByteArray(),
         )
         return PrivateNodeRegistrationRequest(
             KeyPairSet.PRIVATE_ENDPOINT.public,
-            authorization.serialize(KeyPairSet.PRIVATE_GW.private)
+            authorization.serialize(KeyPairSet.PRIVATE_GW.private),
         )
     }
 
@@ -208,6 +212,6 @@ class RegisterGatewayTest : BaseDataTestCase() {
         PDACertPath.PRIVATE_GW,
         PDACertPath.INTERNET_GW,
         "example.org",
-        internetGatewaySessionKey
+        internetGatewaySessionKey,
     )
 }

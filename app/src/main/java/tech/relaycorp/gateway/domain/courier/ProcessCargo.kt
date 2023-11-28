@@ -24,7 +24,7 @@ class ProcessCargo
     private val storeParcelCollection: StoreParcelCollection,
     private val deleteParcel: DeleteParcel,
     private val gatewayManager: Provider<GatewayManager>,
-    private val rotateCertificate: RotateCertificate
+    private val rotateCertificate: RotateCertificate,
 ) {
 
     suspend fun process() {
@@ -55,7 +55,8 @@ class ProcessCargo
             val result = storeParcel.store(parcelData, RecipientLocation.LocalEndpoint)
         ) {
             is StoreParcel.Result.MalformedParcel,
-            is StoreParcel.Result.CollectedParcel -> return
+            is StoreParcel.Result.CollectedParcel,
+            -> return
             is StoreParcel.Result.InvalidParcel -> {
                 logger.log(Level.WARNING, "Invalid parcel received", result.cause)
                 result.parcel
@@ -70,7 +71,7 @@ class ProcessCargo
         deleteParcel.delete(
             recipientAddress = MessageAddress.of(pca.recipientEndpointId),
             senderAddress = MessageAddress.of(pca.senderEndpointId),
-            messageId = MessageId(pca.parcelId)
+            messageId = MessageId(pca.parcelId),
         )
     }
 }

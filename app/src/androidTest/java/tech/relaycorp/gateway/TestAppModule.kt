@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 @Module
 class TestAppModule(
-    app: TestApp
+    app: TestApp,
 ) : AppModule(app) {
 
     @Provides
@@ -22,7 +22,7 @@ class TestAppModule(
 
     @Provides
     fun mockedConnectStateObserver(
-        connectionStateFlow: MutableStateFlow<ConnectionState>
+        connectionStateFlow: MutableStateFlow<ConnectionState>,
     ): ConnectionStateObserver {
         val mock = mock<ConnectionStateObserver>()
         whenever(mock.observe()).thenReturn(connectionStateFlow)

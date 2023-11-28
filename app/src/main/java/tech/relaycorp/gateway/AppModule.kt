@@ -10,7 +10,7 @@ import dagger.Provides
 
 @Module
 open class AppModule(
-    private val app: App
+    private val app: App,
 ) {
 
     @Provides
@@ -33,6 +33,5 @@ open class AppModule(
         app.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
     @Provides
-    fun wifiManager() =
-        app.getSystemService(Context.WIFI_SERVICE) as WifiManager
+    fun wifiManager() = app.getSystemService(Context.WIFI_SERVICE) as WifiManager
 }

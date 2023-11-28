@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 class CourierSyncViewModel
 @Inject constructor(
-    private val courierSync: CourierSync
+    private val courierSync: CourierSync,
 ) : BaseViewModel() {
 
     // Inputs

@@ -11,7 +11,7 @@ object ParcelFactory {
         Recipient(PDACertPath.PRIVATE_ENDPOINT.subjectId, internetAddress),
         "".toByteArray(),
         PDACertPath.PDA,
-        senderCertificateChain = setOf(PDACertPath.PRIVATE_ENDPOINT)
+        senderCertificateChain = setOf(PDACertPath.PRIVATE_ENDPOINT),
     )
 
     fun buildSerialized(internetAddress: String? = null) =

@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class CourierConnectionViewModel
 @Inject constructor(
-    private val connectionStateObserver: ConnectionStateObserver
+    private val connectionStateObserver: ConnectionStateObserver,
 ) : BaseViewModel() {
 
     // Outputs

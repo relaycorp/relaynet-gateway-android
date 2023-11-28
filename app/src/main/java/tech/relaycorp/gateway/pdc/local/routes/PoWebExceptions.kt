@@ -2,7 +2,7 @@ package tech.relaycorp.gateway.pdc.local.routes
 
 abstract class PoWebException internal constructor(
     message: String?,
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : Exception(message, cause)
 
 /**

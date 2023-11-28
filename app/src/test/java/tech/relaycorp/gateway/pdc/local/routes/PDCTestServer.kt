@@ -9,5 +9,5 @@ fun <R> testPDCServerRoute(route: PDCServerRoute, test: TestApplicationEngine.()
         {
             PDCServerConfiguration.configure(this, listOf(route))
         },
-        test
+        test,
     )

@@ -23,7 +23,7 @@ internal class DeleteParcelTest {
         verify(storedParcelDao).delete(eq(storedParcel))
         verify(diskOperations).deleteMessage(
             eq(StoredParcel.STORAGE_FOLDER),
-            eq(storedParcel.storagePath)
+            eq(storedParcel.storagePath),
         )
     }
 }

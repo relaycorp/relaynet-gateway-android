@@ -39,7 +39,7 @@ class FileStoreTest {
             val readData = store.read(fileName)
             assertEquals(
                 message,
-                readData!!.toString(Charset.defaultCharset())
+                readData!!.toString(Charset.defaultCharset()),
             )
         }
     }
@@ -55,7 +55,7 @@ class FileStoreTest {
             val readData = store.read(fileName)
             assertEquals(
                 message2,
-                readData!!.toString(Charset.defaultCharset())
+                readData!!.toString(Charset.defaultCharset()),
             )
         }
     }

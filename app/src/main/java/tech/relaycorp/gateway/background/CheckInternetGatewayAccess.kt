@@ -9,7 +9,7 @@ import javax.inject.Inject
 class CheckInternetGatewayAccess
 @Inject constructor(
     private val internetGatewayPreferences: InternetGatewayPreferences,
-    private val pingRemoteServer: PingRemoteServer
+    private val pingRemoteServer: PingRemoteServer,
 ) {
     suspend fun check(): Boolean {
         val address = try {

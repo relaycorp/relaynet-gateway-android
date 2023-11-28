@@ -2,7 +2,8 @@ package tech.relaycorp.gateway.data.model
 
 enum class RecipientLocation(val value: String) {
     LocalEndpoint("local-endpoint"),
-    ExternalGateway("external-gateway");
+    ExternalGateway("external-gateway"),
+    ;
 
     companion object {
         fun fromValue(value: String): RecipientLocation {

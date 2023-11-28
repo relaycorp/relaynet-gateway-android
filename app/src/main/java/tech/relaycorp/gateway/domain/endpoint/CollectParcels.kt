@@ -25,21 +25,21 @@ class CollectParcels
 @Inject constructor(
     private val storedParcelDao: StoredParcelDao,
     private val diskMessageOperations: DiskMessageOperations,
-    private val deleteParcel: DeleteParcel
+    private val deleteParcel: DeleteParcel,
 ) {
 
     private val parcelsSent = mutableListOf<StoredParcel>()
     private val parcelsWaitingAck = mutableMapOf<String, StoredParcel>()
 
-    private val _anyParcelsLeft = MutableStateFlow(true)
-    val anyParcelsLeftToDeliverOrAck: Flow<Boolean> = _anyParcelsLeft
+    private val anyParcelsLeftMutable = MutableStateFlow(true)
+    val anyParcelsLeftToDeliverOrAck: Flow<Boolean> = anyParcelsLeftMutable
 
     suspend fun getNewParcelsForEndpoints(
-        endpointsAddresses: List<MessageAddress>
+        endpointsAddresses: List<MessageAddress>,
     ): Flow<List<Pair<String, InputStream>>> {
         return storedParcelDao
             .listForRecipients(endpointsAddresses, RecipientLocation.LocalEndpoint)
-            .onEach { _anyParcelsLeft.value = it.any() }
+            .onEach { anyParcelsLeftMutable.value = it.any() }
             // Filter only parcels we haven't sent before
             .map { list -> list.filter { !parcelsSent.contains(it) } }
             // Associate local ID
@@ -66,11 +66,10 @@ class CollectParcels
             }
         }
 
-    private suspend fun StoredParcel.getInputStream() =
-        try {
-            diskMessageOperations.readMessage(StoredParcel.STORAGE_FOLDER, storagePath)()
-        } catch (e: MessageDataNotFoundException) {
-            logger.log(Level.WARNING, "Read parcel", e)
-            null
-        }
+    private suspend fun StoredParcel.getInputStream() = try {
+        diskMessageOperations.readMessage(StoredParcel.STORAGE_FOLDER, storagePath)()
+    } catch (e: MessageDataNotFoundException) {
+        logger.log(Level.WARNING, "Read parcel", e)
+        null
+    }
 }

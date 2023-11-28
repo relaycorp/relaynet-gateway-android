@@ -62,9 +62,9 @@ class ParcelCollectionRouteTest {
                     {
                         addHeader(
                             StreamingMode.HEADER_NAME,
-                            StreamingMode.CloseUponCompletion.headerValue
+                            StreamingMode.CloseUponCompletion.headerValue,
                         )
-                    }
+                    },
                 ) { incoming, _ ->
                     val closingFrameRaw = incoming.receive()
                     assertEquals(FrameType.CLOSE, closingFrameRaw.frameType)
@@ -72,114 +72,108 @@ class ParcelCollectionRouteTest {
                     val closingFrame = closingFrameRaw as Frame.Close
                     assertEquals(
                         CloseReason.Codes.NORMAL,
-                        closingFrame.readReason()!!.knownReason
+                        closingFrame.readReason()!!.knownReason,
                     )
                     assertEquals(
                         "All available parcels delivered",
-                        closingFrame.readReason()!!.message
+                        closingFrame.readReason()!!.message,
                     )
                 }
             }
         }
 
     @Test
-    fun `Server should keep connection if Keep-Alive is on`() =
-        runBlockingTest {
-            whenever(collectParcels.anyParcelsLeftToDeliverOrAck).thenReturn(flowOf(true))
+    fun `Server should keep connection if Keep-Alive is on`() = runBlockingTest {
+        whenever(collectParcels.anyParcelsLeftToDeliverOrAck).thenReturn(flowOf(true))
 
-            testPDCServerRoute(route) {
-                handleWebSocketConversation(
-                    ParcelCollectionRoute.URL_PATH,
-                    {
-                        addHeader(
-                            StreamingMode.HEADER_NAME,
-                            StreamingMode.KeepAlive.headerValue
-                        )
-                    }
-                ) { incoming, _ ->
-                    delay(3_000) // wait to see if the connection is kept alive
-                    assertFalse(incoming.isClosedForReceive)
-                }
+        testPDCServerRoute(route) {
+            handleWebSocketConversation(
+                ParcelCollectionRoute.URL_PATH,
+                {
+                    addHeader(
+                        StreamingMode.HEADER_NAME,
+                        StreamingMode.KeepAlive.headerValue,
+                    )
+                },
+            ) { incoming, _ ->
+                delay(3_000) // wait to see if the connection is kept alive
+                assertFalse(incoming.isClosedForReceive)
             }
         }
+    }
 
     @Test
-    fun `Server should keep connection if Keep-Alive is invalid value`() =
-        runBlockingTest {
-            whenever(collectParcels.anyParcelsLeftToDeliverOrAck).thenReturn(flowOf(true))
+    fun `Server should keep connection if Keep-Alive is invalid value`() = runBlockingTest {
+        whenever(collectParcels.anyParcelsLeftToDeliverOrAck).thenReturn(flowOf(true))
 
-            testPDCServerRoute(route) {
-                handleWebSocketConversation(
-                    ParcelCollectionRoute.URL_PATH,
-                    { addHeader(StreamingMode.HEADER_NAME, "whatever") }
-                ) { incoming, _ ->
-                    delay(3_000) // wait to see if the connection is kept alive
-                    assertFalse(incoming.isClosedForReceive)
-                }
+        testPDCServerRoute(route) {
+            handleWebSocketConversation(
+                ParcelCollectionRoute.URL_PATH,
+                { addHeader(StreamingMode.HEADER_NAME, "whatever") },
+            ) { incoming, _ ->
+                delay(3_000) // wait to see if the connection is kept alive
+                assertFalse(incoming.isClosedForReceive)
             }
         }
+    }
 
     @Test
-    fun `Server should send parcel to deliver`() =
-        runBlockingTest {
-            val parcel = Pair("abc", ByteArray(0).inputStream())
-            whenever(collectParcels.getNewParcelsForEndpoints(any()))
-                .thenReturn(flowOf(listOf(parcel)))
+    fun `Server should send parcel to deliver`() = runBlockingTest {
+        val parcel = Pair("abc", ByteArray(0).inputStream())
+        whenever(collectParcels.getNewParcelsForEndpoints(any()))
+            .thenReturn(flowOf(listOf(parcel)))
 
-            testPDCServerRoute(route) {
-                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, _ ->
-                    val parcelFrame = incoming.receive() as Frame.Binary
-                    val parcelDelivery = ParcelDelivery.deserialize(parcelFrame.data)
-                    assertEquals(parcel.first, parcelDelivery.deliveryId)
-                }
+        testPDCServerRoute(route) {
+            handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, _ ->
+                val parcelFrame = incoming.receive() as Frame.Binary
+                val parcelDelivery = ParcelDelivery.deserialize(parcelFrame.data)
+                assertEquals(parcel.first, parcelDelivery.deliveryId)
             }
         }
+    }
 
     @Test
-    fun `Server should process client parcel acks`() =
-        runBlockingTest {
-            testPDCServerRoute(route) {
-                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { _, outgoing ->
-                    val localId = "abc"
+    fun `Server should process client parcel acks`() = runBlockingTest {
+        testPDCServerRoute(route) {
+            handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { _, outgoing ->
+                val localId = "abc"
 
-                    outgoing.send(Frame.Text(localId))
+                outgoing.send(Frame.Text(localId))
 
-                    suspendWaitFor {
-                        verify(collectParcels).processParcelAck(eq(localId))
-                    }
+                suspendWaitFor {
+                    verify(collectParcels).processParcelAck(eq(localId))
                 }
             }
         }
+    }
 
     @Test
-    fun `Server should tell the client that it cannot accept binary acks`() =
-        runBlockingTest {
-            testPDCServerRoute(route) {
-                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, outgoing ->
-                    outgoing.send(Frame.Binary(true, "abc".toByteArray()))
+    fun `Server should tell the client that it cannot accept binary acks`() = runBlockingTest {
+        testPDCServerRoute(route) {
+            handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { incoming, outgoing ->
+                outgoing.send(Frame.Binary(true, "abc".toByteArray()))
 
-                    suspendWaitFor {
-                        assertEquals(
-                            CloseReason.Codes.CANNOT_ACCEPT,
-                            (incoming.receive() as Frame.Close).readReason()?.knownReason
-                        )
-                    }
-                    verify(collectParcels, never()).processParcelAck(any())
+                suspendWaitFor {
+                    assertEquals(
+                        CloseReason.Codes.CANNOT_ACCEPT,
+                        (incoming.receive() as Frame.Close).readReason()?.knownReason,
+                    )
                 }
+                verify(collectParcels, never()).processParcelAck(any())
             }
         }
+    }
 
     @Test
-    fun `Server should handle gracefully client closes with normal`() =
-        runBlockingTest {
-            testPDCServerRoute(route) {
-                handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { _, outgoing ->
-                    outgoing.send(Frame.Close(CloseReason(CloseReason.Codes.NORMAL, "")))
-                    delay(1_000)
-                    verify(logger, never()).log(eq(Level.WARNING), any(), anyOrNull<Exception>())
-                }
+    fun `Server should handle gracefully client closes with normal`() = runBlockingTest {
+        testPDCServerRoute(route) {
+            handleWebSocketConversation(ParcelCollectionRoute.URL_PATH) { _, outgoing ->
+                outgoing.send(Frame.Close(CloseReason(CloseReason.Codes.NORMAL, "")))
+                delay(1_000)
+                verify(logger, never()).log(eq(Level.WARNING), any(), anyOrNull<Exception>())
             }
         }
+    }
 
     @Test
     fun `Server should handle gracefully client closes with another reason besides normal`() =
@@ -192,7 +186,7 @@ class ParcelCollectionRouteTest {
                         verify(logger).log(
                             eq(Level.WARNING),
                             eq("Connection closed without a normal reason"),
-                            anyOrNull<Exception>()
+                            anyOrNull<Exception>(),
                         )
                     }
                 }

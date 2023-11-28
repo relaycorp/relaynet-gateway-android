@@ -16,7 +16,7 @@ object Insets {
         left: Boolean = false,
         top: Boolean = false,
         right: Boolean = false,
-        bottom: Boolean = false
+        bottom: Boolean = false,
     ) {
         val (initialLeft, initialTop, initialRight, initialBottom) =
             listOf(marginLeft, marginTop, marginRight, marginBottom)
@@ -28,7 +28,8 @@ object Insets {
                         left = initialLeft + (if (left) insets.systemWindowInsetLeft else 0),
                         top = initialTop + (if (top) insets.systemWindowInsetTop else 0),
                         right = initialRight + (if (right) insets.systemWindowInsetRight else 0),
-                        bottom = initialBottom + (if (bottom) insets.systemWindowInsetBottom else 0)
+                        bottom = initialBottom +
+                            (if (bottom) insets.systemWindowInsetBottom else 0),
                     )
                 }
             }
@@ -40,7 +41,7 @@ object Insets {
         left: Boolean = false,
         top: Boolean = false,
         right: Boolean = false,
-        bottom: Boolean = false
+        bottom: Boolean = false,
     ) {
         val (initialLeft, initialTop, initialRight, initialBottom) =
             listOf(paddingLeft, paddingTop, paddingRight, paddingBottom)
@@ -50,7 +51,7 @@ object Insets {
                 left = initialLeft + (if (left) insets.systemWindowInsetLeft else 0),
                 top = initialTop + (if (top) insets.systemWindowInsetTop else 0),
                 right = initialRight + (if (right) insets.systemWindowInsetRight else 0),
-                bottom = initialBottom + (if (bottom) insets.systemWindowInsetBottom else 0)
+                bottom = initialBottom + (if (bottom) insets.systemWindowInsetBottom else 0),
             )
             insets
         }

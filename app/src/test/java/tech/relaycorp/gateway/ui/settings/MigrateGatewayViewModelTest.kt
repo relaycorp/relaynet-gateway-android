@@ -23,7 +23,9 @@ class MigrateGatewayViewModelTest {
     private val migrateGateway = mock<MigrateGateway>()
     private val hostnameValidator = mock<(String) -> Boolean>()
     private val viewModel = MigrateGatewayViewModel(
-        internetGatewayPreferences, migrateGateway, hostnameValidator
+        internetGatewayPreferences,
+        migrateGateway,
+        hostnameValidator,
     )
 
     @Before
@@ -40,7 +42,7 @@ class MigrateGatewayViewModelTest {
             viewModel.addressChanged("")
             assertEquals(
                 MigrateGatewayViewModel.State.Insert,
-                viewModel.state.first()
+                viewModel.state.first(),
             )
         }
     }
@@ -54,7 +56,7 @@ class MigrateGatewayViewModelTest {
 
             waitForAssertEquals(
                 MigrateGatewayViewModel.State.Error.AddressInvalid,
-                viewModel.state::first
+                viewModel.state::first,
             )
         }
     }
@@ -65,7 +67,7 @@ class MigrateGatewayViewModelTest {
             viewModel.addressChanged("new.url")
             waitForAssertEquals(
                 MigrateGatewayViewModel.State.AddressValid,
-                viewModel.state::first
+                viewModel.state::first,
             )
         }
     }
@@ -76,7 +78,7 @@ class MigrateGatewayViewModelTest {
             viewModel.addressChanged("old.url")
             waitForAssertEquals(
                 MigrateGatewayViewModel.State.Error.SameAddress,
-                viewModel.state::first
+                viewModel.state::first,
             )
         }
     }
@@ -92,7 +94,7 @@ class MigrateGatewayViewModelTest {
 
             waitForAssertEquals(
                 MigrateGatewayViewModel.State.Error.FailedToResolve,
-                viewModel.state::first
+                viewModel.state::first,
             )
         }
     }

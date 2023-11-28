@@ -40,11 +40,17 @@ class DeliverParcelsToGatewayTest : BaseDataTestCase() {
     }
     private val mockInternetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val localConfig = LocalConfig(
-        privateKeyStoreProvider, certificateStoreProvider, mockInternetGatewayPreferences
+        privateKeyStoreProvider,
+        certificateStoreProvider,
+        mockInternetGatewayPreferences,
     )
     private val deleteParcel = mock<DeleteParcel>()
     private val subject = DeliverParcelsToGateway(
-        storedParcelDao, diskMessageOperations, poWebClientProvider, localConfig, deleteParcel
+        storedParcelDao,
+        diskMessageOperations,
+        poWebClientProvider,
+        localConfig,
+        deleteParcel,
     )
 
     @BeforeEach
@@ -66,7 +72,7 @@ class DeliverParcelsToGatewayTest : BaseDataTestCase() {
             diskMessageOperations,
             failingPoWebClientProvider,
             localConfig,
-            deleteParcel
+            deleteParcel,
         )
 
         subject.deliver(false)
@@ -87,7 +93,7 @@ class DeliverParcelsToGatewayTest : BaseDataTestCase() {
             any(),
             check {
                 assertEquals(PDACertPath.PRIVATE_GW, it.certificate)
-            }
+            },
         )
         verify(deleteParcel).delete(eq(parcel1))
     }
@@ -102,8 +108,8 @@ class DeliverParcelsToGatewayTest : BaseDataTestCase() {
                 flowOf(
                     listOf(parcel1, parcel2, parcel3),
                     listOf(parcel2, parcel3),
-                    listOf(parcel3)
-                )
+                    listOf(parcel3),
+                ),
             )
 
         subject.deliver(true)

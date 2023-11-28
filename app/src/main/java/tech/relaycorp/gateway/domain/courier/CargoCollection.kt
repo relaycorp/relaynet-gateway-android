@@ -21,7 +21,7 @@ class CargoCollection
     private val notifyEndpoints: IncomingParcelNotifier,
     private val generateCCA: GenerateCCA,
     private val cargoStorage: CargoStorage,
-    private val processCargo: ProcessCargo
+    private val processCargo: ProcessCargo,
 ) {
 
     @Throws(Disconnected::class)
@@ -49,12 +49,11 @@ class CargoCollection
         generateCCA.generateSerialized().inputStream()
     }
 
-    private suspend fun getCourierAddress() =
-        connectionStateObserver
-            .observe()
-            .map { it as? ConnectionState.WiFiWithCourier }
-            .first()
-            ?.courierAddress
+    private suspend fun getCourierAddress() = connectionStateObserver
+        .observe()
+        .map { it as? ConnectionState.WiFiWithCourier }
+        .first()
+        ?.courierAddress
 
     class Disconnected : Exception()
 }

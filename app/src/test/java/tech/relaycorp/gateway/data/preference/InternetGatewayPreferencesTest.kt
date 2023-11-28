@@ -28,7 +28,7 @@ class InternetGatewayPreferencesTest {
     private val gwPreferences = InternetGatewayPreferences(
         Provider { mockSharedPreferences },
         mockReadRawFile,
-        mockResolveServiceAddress
+        mockResolveServiceAddress,
     )
 
     private val internetGatewayAddress = "example.com"
@@ -46,7 +46,7 @@ class InternetGatewayPreferencesTest {
             whenever(mockInternetGatewayAddressPreference.get()).thenReturn(internetGatewayAddress)
             whenever(
                 mockSharedPreferences
-                    .getString("address", InternetGatewayPreferences.DEFAULT_ADDRESS)
+                    .getString("address", InternetGatewayPreferences.DEFAULT_ADDRESS),
             ).thenReturn(mockInternetGatewayAddressPreference)
             whenever(mockSharedPreferences.getString(eq("public_gateway_public_key"), anyOrNull()))
                 .thenReturn(emptyStringPreference)
@@ -96,8 +96,8 @@ class InternetGatewayPreferencesTest {
             whenever(
                 mockSharedPreferences.getString(
                     eq("public_gateway_id"),
-                    anyOrNull()
-                )
+                    anyOrNull(),
+                ),
             )
                 .thenReturn(emptyStringPreference)
             whenever(mockReadRawFile.read(any())).thenReturn(PDACertPath.INTERNET_GW.serialize())
@@ -113,7 +113,7 @@ class InternetGatewayPreferencesTest {
                 whenever(it.get()).thenReturn("private_address")
             }
             whenever(
-                mockSharedPreferences.getString(eq("public_gateway_id"), anyOrNull())
+                mockSharedPreferences.getString(eq("public_gateway_id"), anyOrNull()),
             )
                 .thenReturn(preference)
 

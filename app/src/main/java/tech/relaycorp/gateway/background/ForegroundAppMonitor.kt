@@ -14,7 +14,9 @@ class ForegroundAppMonitor
 
     private val activityCountFlow = MutableStateFlow(0)
 
-    fun observe() = activityCountFlow.map { if (it == 0) State.Background else State.Foreground }
+    fun observe() = activityCountFlow.map {
+        if (it == 0) State.Background else State.Foreground
+    }
 
     override fun onActivityStarted(activity: Activity) {
         activityCountFlow.value++
@@ -31,6 +33,7 @@ class ForegroundAppMonitor
     override fun onActivityResumed(activity: Activity) = Unit
 
     enum class State {
-        Foreground, Background
+        Foreground,
+        Background,
     }
 }

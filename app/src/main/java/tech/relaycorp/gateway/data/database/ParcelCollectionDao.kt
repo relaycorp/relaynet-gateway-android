@@ -34,11 +34,11 @@ interface ParcelCollectionDao {
                 AND messageId = :messageId
             LIMIT 1
         )
-        """
+        """,
     )
     suspend fun exists(
         recipientAddress: MessageAddress,
         senderAddress: PrivateMessageAddress,
-        messageId: MessageId
+        messageId: MessageId,
     ): Boolean
 }

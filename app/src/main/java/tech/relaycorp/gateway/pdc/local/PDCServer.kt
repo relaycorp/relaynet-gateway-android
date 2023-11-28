@@ -20,7 +20,7 @@ class PDCServer
     private val stateManager: PDCServerStateManager,
     endpointRegistrationRoute: EndpointRegistrationRoute,
     parcelCollectionRoute: ParcelCollectionRoute,
-    parcelDeliveryRoute: ParcelDeliveryRoute
+    parcelDeliveryRoute: ParcelDeliveryRoute,
 ) {
 
     private val server by lazy {
@@ -30,8 +30,8 @@ class PDCServer
                 listOf(
                     endpointRegistrationRoute,
                     parcelCollectionRoute,
-                    parcelDeliveryRoute
-                )
+                    parcelDeliveryRoute,
+                ),
             )
         }
     }
@@ -51,7 +51,8 @@ class PDCServer
     }
 
     enum class State {
-        Started, Stopped
+        Started,
+        Stopped,
     }
 
     companion object {

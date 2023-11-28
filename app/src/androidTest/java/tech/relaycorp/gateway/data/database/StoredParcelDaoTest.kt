@@ -42,13 +42,13 @@ class StoredParcelDaoTest {
             StoredParcelFactory.build()
                 .copy(
                     recipientLocation = RecipientLocation.ExternalGateway,
-                    expirationTimeUtc = nowInUtc().minusMinutes(5)
+                    expirationTimeUtc = nowInUtc().minusMinutes(5),
                 )
                 .also { dao.insert(it) }
             val parcelUnexpired = StoredParcelFactory.build()
                 .copy(
                     recipientLocation = RecipientLocation.ExternalGateway,
-                    expirationTimeUtc = nowInUtc().plusMinutes(5)
+                    expirationTimeUtc = nowInUtc().plusMinutes(5),
                 )
                 .also { dao.insert(it) }
 

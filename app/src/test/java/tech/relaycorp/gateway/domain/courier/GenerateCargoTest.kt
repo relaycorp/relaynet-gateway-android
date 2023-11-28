@@ -31,7 +31,9 @@ class GenerateCargoTest : BaseDataTestCase() {
     private val diskMessageOperations = mock<DiskMessageOperations>()
     private val internetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val localConfig = LocalConfig(
-        privateKeyStoreProvider, certificateStoreProvider, internetGatewayPreferences
+        privateKeyStoreProvider,
+        certificateStoreProvider,
+        internetGatewayPreferences,
     )
     private val calculateCRCMessageCreationDate = mock<CalculateCRCMessageCreationDate>()
     private val generateCargo = GenerateCargo(
@@ -41,7 +43,7 @@ class GenerateCargoTest : BaseDataTestCase() {
         internetGatewayPreferences,
         localConfig,
         calculateCRCMessageCreationDate,
-        gatewayManagerProvider
+        gatewayManagerProvider,
     )
 
     @BeforeEach
@@ -89,7 +91,7 @@ class GenerateCargoTest : BaseDataTestCase() {
         val cargo = Cargo.deserialize(cargoes.first().readBytes())
         assertEquals(
             internetGatewayPreferences.getAddress(),
-            cargo.recipient.internetAddress
+            cargo.recipient.internetAddress,
         )
         assertTrue(Duration.between(parcel.expirationTimeUtc, cargo.expiryDate).abs().seconds <= 2)
 

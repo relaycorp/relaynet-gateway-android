@@ -14,7 +14,7 @@ import javax.inject.Provider
 class PublicSyncWorker(
     appContext: Context,
     workerParams: WorkerParameters,
-    private val publicSync: PublicSync
+    private val publicSync: PublicSync,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -33,11 +33,11 @@ class PublicSyncWorker(
 
 class PublicSyncWorkerFactory
 @Inject constructor(
-    private val PublicSync: Provider<PublicSync>
+    private val PublicSync: Provider<PublicSync>,
 ) : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
         workerClassName: String,
-        workerParameters: WorkerParameters
+        workerParameters: WorkerParameters,
     ) = PublicSyncWorker(appContext, workerParameters, PublicSync.get())
 }

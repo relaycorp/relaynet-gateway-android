@@ -29,7 +29,7 @@ interface StoredParcelDao {
 
     suspend fun listForRecipientLocation(
         recipientLocation: RecipientLocation,
-        expiresSince: ZonedDateTime = nowInUtc()
+        expiresSince: ZonedDateTime = nowInUtc(),
     ) = observeForRecipientLocation(recipientLocation, expiresSince).first()
 
     @Query(
@@ -37,11 +37,11 @@ interface StoredParcelDao {
         SELECT * FROM Parcel
         WHERE recipientLocation = :recipientLocation AND expirationTimeUtc > :expiresSince
         ORDER BY creationTimeUtc ASC
-        """
+        """,
     )
     fun observeForRecipientLocation(
         recipientLocation: RecipientLocation,
-        expiresSince: ZonedDateTime = nowInUtc()
+        expiresSince: ZonedDateTime = nowInUtc(),
     ): Flow<List<StoredParcel>>
 
     @Query(
@@ -51,12 +51,12 @@ interface StoredParcelDao {
           AND recipientLocation = :recipientLocation 
           AND expirationTimeUtc > :expiresSince
         ORDER BY creationTimeUtc ASC
-        """
+        """,
     )
     fun listForRecipients(
         recipientAddresses: List<MessageAddress>,
         recipientLocation: RecipientLocation,
-        expiresSince: ZonedDateTime = nowInUtc()
+        expiresSince: ZonedDateTime = nowInUtc(),
     ): Flow<List<StoredParcel>>
 
     @Query("SELECT SUM(Parcel.size) FROM Parcel WHERE recipientLocation = :recipientLocation")
@@ -66,11 +66,11 @@ interface StoredParcelDao {
         """
         SELECT SUM(Parcel.size) FROM Parcel 
         WHERE recipientLocation = :recipientLocation AND inTransit = :inTransit
-        """
+        """,
     )
     fun countSizeForRecipientLocationAndInTransit(
         recipientLocation: RecipientLocation,
-        inTransit: Boolean
+        inTransit: Boolean,
     ): Flow<StorageSize>
 
     @Query(
@@ -80,22 +80,22 @@ interface StoredParcelDao {
             AND senderAddress = :senderAddress 
             AND messageId = :messageId
         LIMIT 1
-        """
+        """,
     )
     suspend fun get(
         recipientAddress: MessageAddress,
         senderAddress: MessageAddress,
-        messageId: MessageId
+        messageId: MessageId,
     ): StoredParcel?
 
     @Query(
         """
         UPDATE Parcel SET inTransit = :inTransit
         WHERE recipientLocation = :recipientLocation 
-        """
+        """,
     )
     suspend fun setInTransit(
         recipientLocation: RecipientLocation = RecipientLocation.ExternalGateway,
-        inTransit: Boolean
+        inTransit: Boolean,
     )
 }

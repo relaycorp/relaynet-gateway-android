@@ -41,7 +41,7 @@ abstract class BaseDataTestCase {
         privateKeyStore.saveIdentityKey(KeyPairSet.PRIVATE_GW.private)
         certificateStore.save(
             CertificationPath(PDACertPath.PRIVATE_GW, emptyList()),
-            PDACertPath.INTERNET_GW.subjectId
+            PDACertPath.INTERNET_GW.subjectId,
         )
     }
 
@@ -50,14 +50,14 @@ abstract class BaseDataTestCase {
             privateGatewaySessionKeyPair.privateKey,
             privateGatewaySessionKeyPair.sessionKey.keyId,
             KeyPairSet.PRIVATE_GW.public.nodeId,
-            KeyPairSet.INTERNET_GW.public.nodeId
+            KeyPairSet.INTERNET_GW.public.nodeId,
         )
     }
 
     protected suspend fun registerInternetGatewaySessionKey() {
         publicKeyStore.save(
             internetGatewaySessionKeyPair.sessionKey,
-            KeyPairSet.INTERNET_GW.public.nodeId
+            KeyPairSet.INTERNET_GW.public.nodeId,
         )
     }
 }

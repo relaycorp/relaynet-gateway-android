@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.triplet.gradle:play-publisher:3.5.0'
-        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.14.1'
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:6.23.0'
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.8.2.1'
     }
     ext {
@@ -174,7 +174,7 @@ dependencies {
     testImplementation "io.ktor:ktor-test-dispatcher:$ktorVersion"
 
     // ORM
-    def room_version = '2.6.0-rc01'
+    def room_version = '2.6.0'
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
@@ -221,7 +221,9 @@ dependencies {
 
 spotless {
     kotlin {
-        ktlint('0.37.2').userData(['disabled_rules': 'import-ordering', 'max_line_length': '100'])
+        ktlint('1.0.1').editorConfigOverride([
+                'ktlint_standard_property-naming': 'disabled'
+        ])
         target '**/*.kt'
     }
 }

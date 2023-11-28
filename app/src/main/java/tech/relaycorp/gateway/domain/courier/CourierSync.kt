@@ -11,7 +11,7 @@ import kotlin.time.Duration.Companion.seconds
 class CourierSync
 @Inject constructor(
     private val cargoDelivery: CargoDelivery,
-    private val cargoCollection: CargoCollection
+    private val cargoCollection: CargoCollection,
 ) {
 
     private val state = MutableStateFlow(State.Initial)
@@ -40,7 +40,12 @@ class CourierSync
     }
 
     enum class State {
-        DeliveringCargo, Waiting, CollectingCargo, Finished, Error;
+        DeliveringCargo,
+        Waiting,
+        CollectingCargo,
+        Finished,
+        Error,
+        ;
 
         companion object {
             val Initial = DeliveringCargo

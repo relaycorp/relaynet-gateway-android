@@ -24,7 +24,7 @@ class InternetGatewayPreferences
 @Inject constructor(
     private val preferences: Provider<FlowSharedPreferences>,
     private val readRawFile: ReadRawFile,
-    private val resolveServiceAddress: ResolveServiceAddress
+    private val resolveServiceAddress: ResolveServiceAddress,
 ) {
     // Address
 
@@ -70,12 +70,11 @@ class InternetGatewayPreferences
         preferences.get().getString("public_gateway_id")
     }
 
-    suspend fun getId(): String =
-        id.get().ifEmpty {
-            getPublicKey().nodeId.also {
-                setId(it)
-            }
+    suspend fun getId(): String = id.get().ifEmpty {
+        getPublicKey().nodeId.also {
+            setId(it)
         }
+    }
 
     private suspend fun setId(value: String) {
         id.setAndCommit(value)

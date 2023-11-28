@@ -10,7 +10,7 @@ import javax.inject.Inject
 class IncomingParcelNotifier @Inject constructor(
     private val notifyEndpoints: NotifyEndpoints,
     private val storedParcelDao: StoredParcelDao,
-    private val endpointDao: LocalEndpointDao
+    private val endpointDao: LocalEndpointDao,
 ) {
 
     suspend fun notifyAllPending() {
@@ -24,7 +24,8 @@ class IncomingParcelNotifier @Inject constructor(
         val endpoint = endpointDao.get(endpointAddress)
         if (endpoint == null) {
             logger.warning(
-                "Can't notify endpoint with unknown address $endpointAddress about incoming parcels"
+                "Can't notify endpoint with unknown address " +
+                    "$endpointAddress about incoming parcels",
             )
             return
         }

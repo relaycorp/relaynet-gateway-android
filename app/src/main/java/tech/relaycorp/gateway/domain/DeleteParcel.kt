@@ -10,12 +10,12 @@ import javax.inject.Inject
 class DeleteParcel
 @Inject constructor(
     private val storedParcelDao: StoredParcelDao,
-    private val diskMessageOperations: DiskMessageOperations
+    private val diskMessageOperations: DiskMessageOperations,
 ) {
     suspend fun delete(
         recipientAddress: MessageAddress,
         senderAddress: MessageAddress,
-        messageId: MessageId
+        messageId: MessageId,
     ) {
         storedParcelDao.get(recipientAddress, senderAddress, messageId)
             ?.let { delete(it) }
@@ -23,6 +23,9 @@ class DeleteParcel
 
     suspend fun delete(storedParcel: StoredParcel) {
         storedParcelDao.delete(storedParcel)
-        diskMessageOperations.deleteMessage(StoredParcel.STORAGE_FOLDER, storedParcel.storagePath)
+        diskMessageOperations.deleteMessage(
+            StoredParcel.STORAGE_FOLDER,
+            storedParcel.storagePath,
+        )
     }
 }

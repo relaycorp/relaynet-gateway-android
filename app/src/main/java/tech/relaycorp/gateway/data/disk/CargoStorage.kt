@@ -12,7 +12,7 @@ import javax.inject.Inject
 class CargoStorage
 @Inject constructor(
     private val diskMessageOperations: DiskMessageOperations,
-    private val localConfig: LocalConfig
+    private val localConfig: LocalConfig,
 ) {
 
     @Throws(Exception::class)
@@ -41,8 +41,10 @@ class CargoStorage
 
     sealed class Exception(message: String?, cause: Throwable? = null) :
         kotlin.Exception(message, cause) {
-        class MalformedCargo(cause: Throwable) : Exception(null, cause)
-        class InvalidCargo(message: String?, cause: Throwable? = null) : Exception(message, cause)
+        class MalformedCargo(cause: Throwable) :
+            Exception(null, cause)
+        class InvalidCargo(message: String?, cause: Throwable? = null) :
+            Exception(message, cause)
     }
 
     companion object {

@@ -20,7 +20,7 @@ class ParcelDeliveryRoute
             if (call.request.contentType() != ContentType.PARCEL) {
                 call.respondText(
                     "Content type ${ContentType.PARCEL} is required",
-                    status = HttpStatusCode.UnsupportedMediaType
+                    status = HttpStatusCode.UnsupportedMediaType,
                 )
                 return@post
             }
@@ -30,11 +30,11 @@ class ParcelDeliveryRoute
             when (storeResult) {
                 is StoreParcel.Result.MalformedParcel -> call.respondText(
                     "Parcel is malformed",
-                    status = HttpStatusCode.BadRequest
+                    status = HttpStatusCode.BadRequest,
                 )
                 is StoreParcel.Result.InvalidParcel -> call.respondText(
                     "Parcel is invalid",
-                    status = HttpStatusCode.UnprocessableEntity
+                    status = HttpStatusCode.UnprocessableEntity,
                 )
                 else -> call.respond(HttpStatusCode.Accepted)
             }

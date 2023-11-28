@@ -14,6 +14,6 @@ object ParcelCollectionFactory {
         recipientAddress = MessageAddress.of(Random.nextInt().toString()),
         messageId = MessageId(Random.nextInt().toString()),
         creationTimeUtc = nowInUtc(),
-        expirationTimeUtc = nowInUtc()
+        expirationTimeUtc = nowInUtc(),
     )
 }

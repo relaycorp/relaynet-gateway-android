@@ -57,7 +57,7 @@ class EndpointPreRegistrationServiceTest {
     fun requestPreRegistration() = runBlocking(coroutineContext) {
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
-            EndpointPreRegistrationService::class.java
+            EndpointPreRegistrationService::class.java,
         )
         val binder = serviceRule.bindService(serviceIntent)
 
@@ -79,7 +79,7 @@ class EndpointPreRegistrationServiceTest {
         }
         assertEquals(
             EndpointPreRegistrationService.REGISTRATION_AUTHORIZATION,
-            resultMessage!!.what
+            resultMessage!!.what,
         )
 
         // Check we got a valid authorization
@@ -88,11 +88,11 @@ class EndpointPreRegistrationServiceTest {
         val gatewayCert = localConfig.getIdentityCertificate()
         val authorization = PrivateNodeRegistrationAuthorization.deserialize(
             resultData.getByteArray("auth")!!,
-            gatewayCert.subjectPublicKey
+            gatewayCert.subjectPublicKey,
         )
         assertEquals(
             getApplicationContext<Context>().packageName,
-            authorization.gatewayData.toString(Charset.defaultCharset())
+            authorization.gatewayData.toString(Charset.defaultCharset()),
         )
     }
 
@@ -100,7 +100,7 @@ class EndpointPreRegistrationServiceTest {
     fun invalidRequestIsIgnored() {
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
-            EndpointPreRegistrationService::class.java
+            EndpointPreRegistrationService::class.java,
         )
         val binder = serviceRule.bindService(serviceIntent)
 
@@ -116,7 +116,7 @@ class EndpointPreRegistrationServiceTest {
 
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
-            EndpointPreRegistrationService::class.java
+            EndpointPreRegistrationService::class.java,
         )
         val binder = serviceRule.bindService(serviceIntent)
 
@@ -138,7 +138,7 @@ class EndpointPreRegistrationServiceTest {
         }
         assertEquals(
             EndpointPreRegistrationService.GATEWAY_NOT_REGISTERED,
-            resultMessage!!.what
+            resultMessage!!.what,
         )
     }
 }

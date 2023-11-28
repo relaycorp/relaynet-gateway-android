@@ -49,7 +49,8 @@ internal class StoreParcelTest {
         val parcel = Parcel(
             Recipient(PDACertPath.PRIVATE_ENDPOINT.subjectId),
             ByteArray(0),
-            PDACertPath.INTERNET_GW // Unauthorized sender
+            // Unauthorized sender
+            PDACertPath.INTERNET_GW,
         ).serialize(KeyPairSet.INTERNET_GW.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
@@ -63,7 +64,7 @@ internal class StoreParcelTest {
             ByteArray(0),
             PDACertPath.PRIVATE_ENDPOINT,
             "",
-            ZonedDateTime.now().plusMinutes(2)
+            ZonedDateTime.now().plusMinutes(2),
         ).serialize(KeyPairSet.PRIVATE_ENDPOINT.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.ExternalGateway)
@@ -77,7 +78,7 @@ internal class StoreParcelTest {
         val parcel = Parcel(
             Recipient("0deadbeef", publicEndpointAddress),
             ByteArray(0),
-            PDACertPath.PDA
+            PDACertPath.PDA,
         ).serialize(KeyPairSet.PDA_GRANTEE.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
@@ -91,7 +92,7 @@ internal class StoreParcelTest {
             Recipient(PDACertPath.PRIVATE_ENDPOINT.subjectId),
             ByteArray(0),
             PDACertPath.PDA,
-            senderCertificateChain = setOf(PDACertPath.PRIVATE_ENDPOINT)
+            senderCertificateChain = setOf(PDACertPath.PRIVATE_ENDPOINT),
         ).serialize(KeyPairSet.PDA_GRANTEE.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
@@ -108,12 +109,12 @@ internal class StoreParcelTest {
         val untrustedCertificate = issueEndpointCertificate(
             untrustedKeyPair.public,
             untrustedKeyPair.private,
-            ZonedDateTime.now().plusMinutes(2)
+            ZonedDateTime.now().plusMinutes(2),
         )
         val parcel = Parcel(
             Recipient("0deadbeef", publicEndpointAddress),
             ByteArray(0),
-            untrustedCertificate
+            untrustedCertificate,
         ).serialize(untrustedKeyPair.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.ExternalGateway)
@@ -131,7 +132,7 @@ internal class StoreParcelTest {
             Recipient(PDACertPath.PRIVATE_ENDPOINT.subjectId),
             ByteArray(0),
             PDACertPath.PDA,
-            senderCertificateChain = setOf(PDACertPath.PRIVATE_ENDPOINT)
+            senderCertificateChain = setOf(PDACertPath.PRIVATE_ENDPOINT),
         ).serialize(KeyPairSet.PDA_GRANTEE.private)
 
         val result = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)

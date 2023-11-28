@@ -36,7 +36,7 @@ class PublicSyncTest {
         connectionStateObserver,
         registerGateway,
         deliverParcelsToGateway,
-        collectParcelsFromGateway
+        collectParcelsFromGateway,
     )
 
     @Test
@@ -45,7 +45,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Foreground,
             PDCServer.State.Started,
             ConnectionState.InternetWithGateway,
-            RegisterGateway.Result.FailedToRegister
+            RegisterGateway.Result.FailedToRegister,
         )
 
         sync()
@@ -59,7 +59,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Foreground,
             PDCServer.State.Started,
             ConnectionState.Disconnected,
-            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring
+            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring,
         )
 
         sync()
@@ -73,7 +73,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Stopped,
             ConnectionState.InternetWithGateway,
-            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring
+            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring,
         )
 
         sync()
@@ -87,7 +87,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Foreground,
             PDCServer.State.Stopped,
             ConnectionState.InternetWithGateway,
-            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring
+            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring,
         )
 
         sync()
@@ -101,7 +101,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Started,
             ConnectionState.InternetWithGateway,
-            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring
+            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring,
         )
 
         sync()
@@ -115,7 +115,7 @@ class PublicSyncTest {
             ForegroundAppMonitor.State.Background,
             PDCServer.State.Stopped,
             ConnectionState.InternetWithGateway,
-            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring
+            RegisterGateway.Result.AlreadyRegisteredAndNotExpiring,
         )
         val appStateFlow = MutableStateFlow(ForegroundAppMonitor.State.Background)
         whenever(foregroundAppMonitor.observe()).thenReturn(appStateFlow.asSharedFlow())
@@ -133,7 +133,7 @@ class PublicSyncTest {
         appState: ForegroundAppMonitor.State,
         pdcState: PDCServer.State,
         connectionState: ConnectionState,
-        registrationResult: RegisterGateway.Result
+        registrationResult: RegisterGateway.Result,
     ) {
         whenever(foregroundAppMonitor.observe())
             .thenReturn(flowOf(appState))

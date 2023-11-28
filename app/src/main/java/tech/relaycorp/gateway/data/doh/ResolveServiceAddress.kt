@@ -10,7 +10,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class ResolveServiceAddress
 @Inject constructor(
-    private val doHClient: DoHClient
+    private val doHClient: DoHClient,
 ) {
     @Throws(InternetAddressResolutionException::class)
     suspend fun resolvePoWeb(address: String): ServiceAddress {
@@ -22,19 +22,19 @@ class ResolveServiceAddress
         } catch (exc: LookupFailureException) {
             throw InternetAddressResolutionException(
                 "Failed to resolve DNS for PoWeb address",
-                exc
+                exc,
             )
         } catch (exc: TimeoutCancellationException) {
             throw InternetAddressResolutionException(
                 "Failed to resolve DNS for PoWeb address",
-                exc
+                exc,
             )
         }
         val srvRecordData = answer.data.first()
         val srvRecordDataFields = srvRecordData.split(" ")
         if (srvRecordDataFields.size < 4) {
             throw InternetAddressResolutionException(
-                "Malformed SRV for $address ($srvRecordData)"
+                "Malformed SRV for $address ($srvRecordData)",
             )
         }
         val targetHost = srvRecordDataFields[3]
