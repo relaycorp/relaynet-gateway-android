@@ -21,12 +21,12 @@ class ParcelCollectionDaoTest {
         runBlocking {
             val element = ParcelCollectionFactory.build()
             assertFalse(
-                dao.exists(element.recipientAddress, element.senderAddress, element.messageId)
+                dao.exists(element.recipientAddress, element.senderAddress, element.messageId),
             )
 
             dao.insert(element)
             assertTrue(
-                dao.exists(element.recipientAddress, element.senderAddress, element.messageId)
+                dao.exists(element.recipientAddress, element.senderAddress, element.messageId),
             )
         }
     }

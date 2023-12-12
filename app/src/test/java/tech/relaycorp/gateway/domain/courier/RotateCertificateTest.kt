@@ -27,7 +27,9 @@ class RotateCertificateTest {
     private val notifyEndpoints = mock<GatewayCertificateChangeNotifier>()
 
     private val rotateCertificate = RotateCertificate(
-        localConfig, internetGatewayPreferences, notifyEndpoints
+        localConfig,
+        internetGatewayPreferences,
+        notifyEndpoints,
     )
 
     @Test
@@ -36,10 +38,10 @@ class RotateCertificateTest {
             KeyPairSet.PRIVATE_GW.public,
             KeyPairSet.INTERNET_GW.private,
             ZonedDateTime.now().plusYears(10),
-            validityStartDate = ZonedDateTime.now().minusDays(1)
+            validityStartDate = ZonedDateTime.now().minusDays(1),
         )
         val certificateRotation = CertificateRotation(
-            CertificationPath(newIdCertificate, listOf(PDACertPath.INTERNET_GW))
+            CertificationPath(newIdCertificate, listOf(PDACertPath.INTERNET_GW)),
         )
         whenever(localConfig.getIdentityCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
 
@@ -47,7 +49,7 @@ class RotateCertificateTest {
 
         verify(localConfig).setIdentityCertificate(
             check { assertArrayEquals(newIdCertificate.serialize(), it.serialize()) },
-            any()
+            any(),
         )
         verify(internetGatewayPreferences).setPublicKey(PDACertPath.INTERNET_GW.subjectPublicKey)
     }
@@ -68,10 +70,10 @@ class RotateCertificateTest {
             KeyPairSet.INTERNET_GW.private,
             PDACertPath.PRIVATE_GW.expiryDate.minusSeconds(1),
             PDACertPath.INTERNET_GW,
-            validityStartDate = ZonedDateTime.now().minusDays(1)
+            validityStartDate = ZonedDateTime.now().minusDays(1),
         )
         val certificateRotation = CertificateRotation(
-            CertificationPath(newIdCertificate, listOf(PDACertPath.INTERNET_GW))
+            CertificationPath(newIdCertificate, listOf(PDACertPath.INTERNET_GW)),
         )
         whenever(localConfig.getIdentityCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
 
@@ -89,10 +91,10 @@ class RotateCertificateTest {
             KeyPairSet.INTERNET_GW.private,
             PDACertPath.PRIVATE_GW.expiryDate.minusSeconds(1),
             PDACertPath.INTERNET_GW,
-            validityStartDate = ZonedDateTime.now().minusDays(1)
+            validityStartDate = ZonedDateTime.now().minusDays(1),
         )
         val certificateRotation = CertificateRotation(
-            CertificationPath(PDACertPath.PRIVATE_GW, listOf(PDACertPath.INTERNET_GW))
+            CertificationPath(PDACertPath.PRIVATE_GW, listOf(PDACertPath.INTERNET_GW)),
         )
         whenever(localConfig.getIdentityCertificate()).thenReturn(oldCertificate)
 

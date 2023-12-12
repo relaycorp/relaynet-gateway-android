@@ -8,8 +8,8 @@ import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
-import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import tech.relaycorp.gateway.data.model.ServiceAddress
+import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -17,7 +17,8 @@ class CheckInternetGatewayAccessTest {
     private val mockGatewayPreferences = mock<InternetGatewayPreferences>()
     private val mockPingRemoteServer = mock<PingRemoteServer>()
     private val checkAccess = CheckInternetGatewayAccess(
-        mockGatewayPreferences, mockPingRemoteServer
+        mockGatewayPreferences,
+        mockPingRemoteServer,
     )
 
     private val powebAddress = ServiceAddress("poweb.example.com", 443)

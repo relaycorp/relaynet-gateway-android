@@ -30,7 +30,7 @@ import javax.inject.Provider
 class ParcelCollectionRoute
 @Inject constructor(
     private val parcelCollectionHandshake: ParcelCollectionHandshake,
-    private val collectParcelsProvider: Provider<CollectParcels>
+    private val collectParcelsProvider: Provider<CollectParcels>,
 ) : PDCServerRoute {
 
     @VisibleForTesting
@@ -62,8 +62,8 @@ class ParcelCollectionRoute
             close(
                 CloseReason(
                     CloseReason.Codes.VIOLATED_POLICY,
-                    "Web browser requests are disabled for security reasons"
-                )
+                    "Web browser requests are disabled for security reasons",
+                ),
             )
             return
         }
@@ -78,8 +78,8 @@ class ParcelCollectionRoute
         val sendJob = sendParcels(collectParcels, certificates.toAddresses())
         val receiveJob = receiveAcks(collectParcels)
 
-        val keepAlive =
-            call.request.header(StreamingMode.HEADER_NAME) == StreamingMode.KeepAlive.headerValue
+        val keepAlive = call.request.header(StreamingMode.HEADER_NAME) ==
+            StreamingMode.KeepAlive.headerValue
         if (!keepAlive) {
             collectParcels
                 .anyParcelsLeftToDeliverOrAck
@@ -88,8 +88,8 @@ class ParcelCollectionRoute
                         close(
                             CloseReason(
                                 CloseReason.Codes.NORMAL,
-                                "All available parcels delivered"
-                            )
+                                "All available parcels delivered",
+                            ),
                         )
                         asyncJob.complete()
                     }
@@ -107,29 +107,27 @@ class ParcelCollectionRoute
         if (closeCode != CloseReason.Codes.NORMAL.code) {
             throw ServerConnectionException(
                 "Server closed the connection unexpectedly " +
-                    "(code: $closeCode, reason: ${reason?.message})"
+                    "(code: $closeCode, reason: ${reason?.message})",
             )
         }
     }
 
-    private fun List<Certificate>.toAddresses() =
-        map { MessageAddress.of(it.subjectId) }
+    private fun List<Certificate>.toAddresses() = map { MessageAddress.of(it.subjectId) }
 
     private suspend fun DefaultWebSocketServerSession.sendParcels(
         collectParcels: CollectParcels,
-        addresses: List<MessageAddress>
-    ) =
-        collectParcels.getNewParcelsForEndpoints(addresses)
-            .onEach { parcels ->
-                parcels.iterator().forEach { (localId, parcelStream) ->
-                    val parcelDelivery =
-                        ParcelDelivery(localId, parcelStream.readBytesAndClose())
-                    outgoing.send(
-                        Frame.Binary(true, parcelDelivery.serialize())
-                    )
-                }
+        addresses: List<MessageAddress>,
+    ) = collectParcels.getNewParcelsForEndpoints(addresses)
+        .onEach { parcels ->
+            parcels.iterator().forEach { (localId, parcelStream) ->
+                val parcelDelivery =
+                    ParcelDelivery(localId, parcelStream.readBytesAndClose())
+                outgoing.send(
+                    Frame.Binary(true, parcelDelivery.serialize()),
+                )
             }
-            .launchIn(asyncScope)
+        }
+        .launchIn(asyncScope)
 
     private suspend fun DefaultWebSocketServerSession.receiveAcks(collectParcels: CollectParcels) =
         incoming.receiveAsFlow()

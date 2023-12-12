@@ -24,7 +24,7 @@ class CollectParcelsFromGateway
     private val storeParcel: StoreParcel,
     private val poWebClientProvider: PoWebClientProvider,
     private val notifyEndpoints: IncomingParcelNotifier,
-    private val localConfig: LocalConfig
+    private val localConfig: LocalConfig,
 ) {
 
     suspend fun collect(keepAlive: Boolean) {
@@ -36,7 +36,7 @@ class CollectParcelsFromGateway
             logger.log(
                 Level.WARNING,
                 "Failed to collect parcels due to PoWeb address resolution error",
-                exc
+                exc,
             )
             return
         }
@@ -73,8 +73,10 @@ class CollectParcelsFromGateway
     }
 
     private suspend fun collectParcel(parcelCollection: ParcelCollection, keepAlive: Boolean) {
-        val storeResult =
-            storeParcel.store(parcelCollection.parcelSerialized, RecipientLocation.LocalEndpoint)
+        val storeResult = storeParcel.store(
+            parcelCollection.parcelSerialized,
+            RecipientLocation.LocalEndpoint,
+        )
         when (storeResult) {
             is StoreParcel.Result.MalformedParcel ->
                 logger.info("Malformed parcel received")
@@ -89,7 +91,7 @@ class CollectParcelsFromGateway
                 logger.info("Collected parcel from Gateway ${storeResult.parcel.id}")
                 if (keepAlive) {
                     notifyEndpoints.notify(
-                        MessageAddress.of(storeResult.parcel.recipient.id)
+                        MessageAddress.of(storeResult.parcel.recipient.id),
                     )
                 }
             }

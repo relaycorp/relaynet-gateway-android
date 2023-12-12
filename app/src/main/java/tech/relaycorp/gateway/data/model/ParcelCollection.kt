@@ -6,7 +6,7 @@ import java.time.ZonedDateTime
 
 @Entity(
     tableName = "ParcelCollection",
-    primaryKeys = ["recipientAddress", "senderAddress", "messageId"]
+    primaryKeys = ["recipientAddress", "senderAddress", "messageId"],
 )
 data class ParcelCollection(
     val recipientAddress: MessageAddress,
@@ -15,5 +15,5 @@ data class ParcelCollection(
     @ColumnInfo(index = true)
     val creationTimeUtc: ZonedDateTime,
     @ColumnInfo(index = true)
-    val expirationTimeUtc: ZonedDateTime
+    val expirationTimeUtc: ZonedDateTime,
 )

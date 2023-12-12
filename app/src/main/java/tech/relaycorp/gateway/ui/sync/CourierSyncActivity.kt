@@ -58,7 +58,7 @@ class CourierSyncActivity : BaseActivity() {
                         R.drawable.sync_image
                     } else {
                         R.drawable.sync_done_image
-                    }
+                    },
                 )
                 if (isSyncing) {
                     binding.animation.startLoopingAvd(R.drawable.sync_animation)
@@ -77,7 +77,7 @@ class CourierSyncActivity : BaseActivity() {
                         CourierSync.State.Finished -> R.drawable.sync_done_image
                         CourierSync.State.Error -> 0
                         else -> R.drawable.sync_image
-                    }
+                    },
                 )
             }
             .launchIn(lifecycleScope)
@@ -97,14 +97,13 @@ class CourierSyncActivity : BaseActivity() {
             .show()
     }
 
-    private fun CourierSync.State.toStringRes() =
-        when (this) {
-            CourierSync.State.DeliveringCargo -> R.string.sync_delivering_cargo
-            CourierSync.State.Waiting -> R.string.sync_waiting
-            CourierSync.State.CollectingCargo -> R.string.sync_collecting_cargo
-            CourierSync.State.Finished -> R.string.sync_finished
-            CourierSync.State.Error -> R.string.sync_error
-        }
+    private fun CourierSync.State.toStringRes() = when (this) {
+        CourierSync.State.DeliveringCargo -> R.string.sync_delivering_cargo
+        CourierSync.State.Waiting -> R.string.sync_waiting
+        CourierSync.State.CollectingCargo -> R.string.sync_collecting_cargo
+        CourierSync.State.Finished -> R.string.sync_finished
+        CourierSync.State.Error -> R.string.sync_error
+    }
 
     companion object {
         fun getIntent(context: Context) = Intent(context, CourierSyncActivity::class.java)

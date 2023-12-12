@@ -10,7 +10,7 @@ import javax.inject.Inject
 class NotifyEndpoints
 @Inject constructor(
     private val getEndpointReceiver: GetEndpointReceiver,
-    private val context: Context
+    private val context: Context,
 ) {
 
     fun notify(localEndpoints: List<LocalEndpoint>, notificationType: NotificationType) =
@@ -23,7 +23,7 @@ class NotifyEndpoints
             getEndpointReceiver.get(localEndpoint.applicationId, notificationType) ?: run {
                 logger.warning(
                     "Failed to notify ${localEndpoint.applicationId} " +
-                        "about ${notificationType.name} (receiver not found)"
+                        "about ${notificationType.name} (receiver not found)",
                 )
                 return@notify
             }
@@ -33,9 +33,9 @@ class NotifyEndpoints
                 .setComponent(
                     ComponentName(
                         localEndpoint.applicationId,
-                        receiverName
-                    )
-                )
+                        receiverName,
+                    ),
+                ),
         )
     }
 }

@@ -35,7 +35,7 @@ class MainViewModelTest {
             onboardingDoneFlow.emit(false)
             waitForAssertEquals(
                 ConnectionState.InternetWithGateway,
-                viewModel.openOnboarding::first
+                viewModel.openOnboarding::first,
             )
         }
     }
@@ -46,14 +46,13 @@ class MainViewModelTest {
             connectionStateObserve.emit(ConnectionState.InternetWithGateway)
             waitForAssertEquals(
                 ConnectionState.InternetWithGateway,
-                viewModel.connectionState::first
+                viewModel.connectionState::first,
             )
         }
     }
 
-    private fun buildViewModel() =
-        MainViewModel(
-            appPreferences,
-            connectionStateObserver
-        )
+    private fun buildViewModel() = MainViewModel(
+        appPreferences,
+        connectionStateObserver,
+    )
 }

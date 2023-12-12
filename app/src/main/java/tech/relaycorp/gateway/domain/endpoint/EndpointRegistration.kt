@@ -24,8 +24,10 @@ class EndpointRegistration
      */
     suspend fun authorize(endpointApplicationId: String): ByteArray {
         val expiryDate = ZonedDateTime.now().plusSeconds(AUTHORIZATION_VALIDITY_SECONDS)
-        val authorization =
-            PrivateNodeRegistrationAuthorization(expiryDate, endpointApplicationId.toByteArray())
+        val authorization = PrivateNodeRegistrationAuthorization(
+            expiryDate,
+            endpointApplicationId.toByteArray(),
+        )
         return authorization.serialize(localConfig.getIdentityKey())
     }
 
@@ -39,15 +41,18 @@ class EndpointRegistration
         val authorization = try {
             PrivateNodeRegistrationAuthorization.deserialize(
                 request.pnraSerialized,
-                identityCert.subjectPublicKey
+                identityCert.subjectPublicKey,
             )
         } catch (exc: InvalidMessageException) {
-            throw InvalidPNRAException("Registration request contains invalid authorization", exc)
+            throw InvalidPNRAException(
+                "Registration request contains invalid authorization",
+                exc,
+            )
         }
         val applicationId = authorization.gatewayData.toString(Charset.defaultCharset())
         val endpoint = LocalEndpoint(
             MessageAddress.of(request.privateNodePublicKey.nodeId),
-            applicationId
+            applicationId,
         )
         localEndpointDao.insert(endpoint)
 
@@ -55,12 +60,12 @@ class EndpointRegistration
             request.privateNodePublicKey,
             identityKey,
             identityCert.expiryDate,
-            identityCert
+            identityCert,
         )
         val registration = PrivateNodeRegistration(
             endpointCertificate,
             identityCert,
-            localConfig.getInternetGatewayAddress()
+            localConfig.getInternetGatewayAddress(),
         )
         return registration.serialize()
     }

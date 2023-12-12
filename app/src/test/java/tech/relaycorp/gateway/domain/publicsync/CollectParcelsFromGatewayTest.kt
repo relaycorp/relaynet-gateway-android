@@ -43,11 +43,16 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
     }
     private val mockInternetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val mockLocalConfig = LocalConfig(
-        privateKeyStoreProvider, certificateStoreProvider, mockInternetGatewayPreferences
+        privateKeyStoreProvider,
+        certificateStoreProvider,
+        mockInternetGatewayPreferences,
     )
     private val notifyEndpoints = mock<IncomingParcelNotifier>()
     private val subject = CollectParcelsFromGateway(
-        storeParcel, poWebClientBuilder, notifyEndpoints, mockLocalConfig
+        storeParcel,
+        poWebClientBuilder,
+        notifyEndpoints,
+        mockLocalConfig,
     )
 
     @BeforeEach
@@ -65,7 +70,10 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
             override suspend fun get() = throw InternetAddressResolutionException("Whoops")
         }
         val subject = CollectParcelsFromGateway(
-            storeParcel, failingPoWebClientProvider, notifyEndpoints, mockLocalConfig
+            storeParcel,
+            failingPoWebClientProvider,
+            notifyEndpoints,
+            mockLocalConfig,
         )
 
         subject.collect(false)
@@ -84,7 +92,7 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
 
         verify(poWebClient).collectParcels(
             check { assertEquals(PDACertPath.PRIVATE_GW, it.first().certificate) },
-            check { assertEquals(StreamingMode.CloseUponCompletion, it) }
+            check { assertEquals(StreamingMode.CloseUponCompletion, it) },
         )
         verify(storeParcel)
             .store(eq(parcelCollection.parcelSerialized), eq(RecipientLocation.LocalEndpoint))
@@ -110,31 +118,30 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
 
         verify(poWebClient).collectParcels(
             check { assertEquals(PDACertPath.PRIVATE_GW, it.first().certificate) },
-            check { assertEquals(StreamingMode.KeepAlive, it) }
+            check { assertEquals(StreamingMode.KeepAlive, it) },
         )
         verify(storeParcel, times(2))
             .store(eq(parcelCollection.parcelSerialized), eq(RecipientLocation.LocalEndpoint))
         verify(parcelCollection, times(2)).ack
         verify(notifyEndpoints, times(2)).notify(
-            eq(MessageAddress.of(mockRecipient.id))
+            eq(MessageAddress.of(mockRecipient.id)),
         )
     }
 
     @Test
-    fun `collect invalid parcel, with keepAlive true, acks but does not notify`() =
-        testSuspend {
-            val parcelCollection = mock<ParcelCollection>()
-            whenever(parcelCollection.parcelSerialized).thenReturn(ByteArray(0))
-            whenever(parcelCollection.ack).thenReturn {}
-            whenever(poWebClient.collectParcels(any(), any())).thenReturn(flowOf(parcelCollection))
-            whenever(storeParcel.store(any<ByteArray>(), any()))
-                .thenReturn(StoreParcel.Result.InvalidParcel(mock(), Exception()))
+    fun `collect invalid parcel, with keepAlive true, acks but does not notify`() = testSuspend {
+        val parcelCollection = mock<ParcelCollection>()
+        whenever(parcelCollection.parcelSerialized).thenReturn(ByteArray(0))
+        whenever(parcelCollection.ack).thenReturn {}
+        whenever(poWebClient.collectParcels(any(), any())).thenReturn(flowOf(parcelCollection))
+        whenever(storeParcel.store(any<ByteArray>(), any()))
+            .thenReturn(StoreParcel.Result.InvalidParcel(mock(), Exception()))
 
-            subject.collect(true)
+        subject.collect(true)
 
-            verify(parcelCollection).ack
-            verifyNoMoreInteractions(notifyEndpoints)
-        }
+        verify(parcelCollection).ack
+        verifyNoMoreInteractions(notifyEndpoints)
+    }
 
     @Test
     fun `poWebClient client binding issues are handled`() = testSuspend {

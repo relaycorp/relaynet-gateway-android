@@ -21,8 +21,8 @@ import tech.relaycorp.relaynet.bindings.pdc.RejectedParcelException
 import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.messages.Recipient
-import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -47,8 +47,8 @@ class GatewaySyncServiceParcelDeliveryTest {
         serviceRule.bindService(
             Intent(
                 getApplicationContext<Context>(),
-                GatewaySyncService::class.java
-            )
+                GatewaySyncService::class.java,
+            ),
         )
     }
 
@@ -63,14 +63,14 @@ class GatewaySyncServiceParcelDeliveryTest {
             recipient,
             ByteArray(0),
             PDACertPath.PRIVATE_ENDPOINT,
-            senderCertificateChain = setOf(PDACertPath.PRIVATE_GW)
+            senderCertificateChain = setOf(PDACertPath.PRIVATE_GW),
         ).serialize(KeyPairSet.PRIVATE_ENDPOINT.private)
 
         PoWebClient.initLocal(PDCServer.PORT).deliverParcel(parcel, endpointSigner)
 
         val storedParcels = storedParcelDao.listForRecipients(
             listOf(MessageAddress.of(recipientId)),
-            RecipientLocation.ExternalGateway
+            RecipientLocation.ExternalGateway,
         ).first()
         assertEquals(1, storedParcels.size)
     }
@@ -87,7 +87,7 @@ class GatewaySyncServiceParcelDeliveryTest {
             ByteArray(0),
             PDACertPath.PRIVATE_ENDPOINT,
             creationDate = fiveMinutesAgo,
-            ttl = 1
+            ttl = 1,
         ).serialize(KeyPairSet.PRIVATE_ENDPOINT.private)
 
         PoWebClient.initLocal(PDCServer.PORT).deliverParcel(parcel, endpointSigner)

@@ -25,7 +25,7 @@ class LocalConfig
 @Inject constructor(
     private val privateKeyStore: Provider<PrivateKeyStore>,
     private val certificateStore: Provider<CertificateStore>,
-    private val internetGatewayPreferences: InternetGatewayPreferences
+    private val internetGatewayPreferences: InternetGatewayPreferences,
 ) {
     private val mutex = Mutex()
 
@@ -61,12 +61,12 @@ class LocalConfig
 
     suspend fun setIdentityCertificate(
         leafCertificate: Certificate,
-        certificateChain: List<Certificate> = emptyList()
+        certificateChain: List<Certificate> = emptyList(),
     ) {
         certificateStore.get()
             .save(
                 CertificationPath(leafCertificate, certificateChain),
-                getInternetGatewayId()
+                getInternetGatewayId(),
             )
     }
 
@@ -89,39 +89,38 @@ class LocalConfig
         }
     }
 
-    suspend fun getCargoDeliveryAuth() =
-        certificateStore.get()
-            .retrieveLatest(
-                getIdentityKey().nodeId,
-                getIdentityCertificate().subjectId
-            )
-            ?.leafCertificate
-            .let { storedCertificate ->
-                if (storedCertificate?.isExpiringSoon() == false) {
-                    storedCertificate
-                } else {
-                    generateCargoDeliveryAuth()
-                }
+    suspend fun getCargoDeliveryAuth() = certificateStore.get()
+        .retrieveLatest(
+            getIdentityKey().nodeId,
+            getIdentityCertificate().subjectId,
+        )
+        ?.leafCertificate
+        .let { storedCertificate ->
+            if (storedCertificate?.isExpiringSoon() == false) {
+                storedCertificate
+            } else {
+                generateCargoDeliveryAuth()
             }
+        }
 
-    suspend fun getAllValidCargoDeliveryAuth() =
-        certificateStore.get()
-            .retrieveAll(
-                getIdentityKey().nodeId,
-                getIdentityCertificate().subjectId
-            )
-            .map { it.leafCertificate }
+    suspend fun getAllValidCargoDeliveryAuth() = certificateStore.get()
+        .retrieveAll(
+            getIdentityKey().nodeId,
+            getIdentityCertificate().subjectId,
+        )
+        .map { it.leafCertificate }
 
     private fun selfIssueCargoDeliveryAuth(
         privateKey: PrivateKey,
-        publicKey: PublicKey
+        publicKey: PublicKey,
     ): Certificate {
         return issueGatewayCertificate(
             subjectPublicKey = publicKey,
             issuerPrivateKey = privateKey,
-            validityStartDate = nowInUtc()
-                .minus(CalculateCRCMessageCreationDate.CLOCK_DRIFT_TOLERANCE.toJavaDuration()),
-            validityEndDate = nowInUtc().plusMonths(6)
+            validityStartDate = nowInUtc().minus(
+                CalculateCRCMessageCreationDate.CLOCK_DRIFT_TOLERANCE.toJavaDuration(),
+            ),
+            validityEndDate = nowInUtc().plusMonths(6),
         )
     }
 
@@ -138,11 +137,9 @@ class LocalConfig
         certificateStore.get().deleteExpired()
     }
 
-    suspend fun getInternetGatewayAddress() =
-        internetGatewayPreferences.getAddress()
+    suspend fun getInternetGatewayAddress() = internetGatewayPreferences.getAddress()
 
-    private suspend fun getInternetGatewayId() =
-        internetGatewayPreferences.getId()
+    private suspend fun getInternetGatewayId() = internetGatewayPreferences.getId()
 
     private fun Certificate.isExpiringSoon() =
         expiryDate < (nowInUtc().plusNanos(CERTIFICATE_EXPIRING_THRESHOLD.inWholeNanoseconds))

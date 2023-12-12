@@ -108,7 +108,7 @@ open class App : Application() {
             this@App,
             Configuration.Builder()
                 .setWorkerFactory(publicSyncWorkerFactory)
-                .build()
+                .build(),
         )
         WorkManager.getInstance(this@App)
             .enqueueUniquePeriodicWork(
@@ -118,9 +118,9 @@ open class App : Application() {
                     .setConstraints(
                         Constraints.Builder()
                             .setRequiredNetworkType(NetworkType.CONNECTED)
-                            .build()
+                            .build(),
                     )
-                    .build()
+                    .build(),
             )
     }
 

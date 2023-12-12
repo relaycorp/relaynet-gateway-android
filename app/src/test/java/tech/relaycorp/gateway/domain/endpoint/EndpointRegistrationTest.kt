@@ -31,7 +31,9 @@ class EndpointRegistrationTest : BaseDataTestCase() {
     private val mockLocalEndpointDao = mock<LocalEndpointDao>()
     private val mockInternetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val mockLocalConfig = LocalConfig(
-        privateKeyStoreProvider, certificateStoreProvider, mockInternetGatewayPreferences
+        privateKeyStoreProvider,
+        certificateStoreProvider,
+        mockInternetGatewayPreferences,
     )
     private val endpointRegistration =
         EndpointRegistration(mockLocalEndpointDao, mockLocalConfig)
@@ -56,12 +58,12 @@ class EndpointRegistrationTest : BaseDataTestCase() {
 
             val authorization = PrivateNodeRegistrationAuthorization.deserialize(
                 authorizationSerialized,
-                KeyPairSet.PRIVATE_GW.public
+                KeyPairSet.PRIVATE_GW.public,
             )
 
             assertEquals(
                 dummyApplicationId,
-                authorization.gatewayData.toString(Charset.defaultCharset())
+                authorization.gatewayData.toString(Charset.defaultCharset()),
             )
         }
 
@@ -71,7 +73,7 @@ class EndpointRegistrationTest : BaseDataTestCase() {
 
             val authorization = PrivateNodeRegistrationAuthorization.deserialize(
                 authorizationSerialized,
-                KeyPairSet.PRIVATE_GW.public
+                KeyPairSet.PRIVATE_GW.public,
             )
 
             val ttl = ChronoUnit.SECONDS.between(ZonedDateTime.now(), authorization.expiryDate)
@@ -83,18 +85,18 @@ class EndpointRegistrationTest : BaseDataTestCase() {
     inner class Register {
         private val authorization = PrivateNodeRegistrationAuthorization(
             ZonedDateTime.now().plusSeconds(10),
-            dummyApplicationId.toByteArray()
+            dummyApplicationId.toByteArray(),
         )
         private val crr = PrivateNodeRegistrationRequest(
             KeyPairSet.PRIVATE_ENDPOINT.public,
-            authorization.serialize(KeyPairSet.PRIVATE_GW.private)
+            authorization.serialize(KeyPairSet.PRIVATE_GW.private),
         )
 
         @Test
         fun `CRR should be refused if its encapsulated authorization is invalid`() {
             val invalidCRR = PrivateNodeRegistrationRequest(
                 KeyPairSet.PRIVATE_ENDPOINT.public,
-                "invalid authorization".toByteArray()
+                "invalid authorization".toByteArray(),
             )
 
             val exception = assertThrows<InvalidPNRAException> {
@@ -112,8 +114,8 @@ class EndpointRegistrationTest : BaseDataTestCase() {
             verify(mockLocalEndpointDao).insert(
                 LocalEndpoint(
                     PrivateMessageAddress(KeyPairSet.PRIVATE_ENDPOINT.public.nodeId),
-                    dummyApplicationId
-                )
+                    dummyApplicationId,
+                ),
             )
         }
 
@@ -132,7 +134,7 @@ class EndpointRegistrationTest : BaseDataTestCase() {
             val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
             assertEquals(
                 mockLocalConfig.getInternetGatewayAddress(),
-                registration.gatewayInternetAddress
+                registration.gatewayInternetAddress,
             )
         }
 
@@ -147,8 +149,8 @@ class EndpointRegistrationTest : BaseDataTestCase() {
                     listOf(registration.privateNodeCertificate, PDACertPath.PRIVATE_GW),
                     registration.privateNodeCertificate.getCertificationPath(
                         emptyList(),
-                        setOf(PDACertPath.PRIVATE_GW)
-                    ).asList()
+                        setOf(PDACertPath.PRIVATE_GW),
+                    ).asList(),
                 )
             }
 
@@ -159,7 +161,7 @@ class EndpointRegistrationTest : BaseDataTestCase() {
                 val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
                 assertEquals(
                     registration.privateNodeCertificate.subjectId,
-                    crr.privateNodePublicKey.nodeId
+                    crr.privateNodePublicKey.nodeId,
                 )
             }
 
@@ -170,7 +172,7 @@ class EndpointRegistrationTest : BaseDataTestCase() {
                 val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
                 assertEquals(
                     PDACertPath.PRIVATE_GW.expiryDate,
-                    registration.privateNodeCertificate.expiryDate
+                    registration.privateNodeCertificate.expiryDate,
                 )
             }
         }

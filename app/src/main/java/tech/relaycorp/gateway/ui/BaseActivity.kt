@@ -60,7 +60,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     protected fun setupNavigation(
         @DrawableRes icon: Int = R.drawable.ic_close,
-        clickListener: (() -> Unit) = { finish() }
+        clickListener: (() -> Unit) = { finish() },
     ) {
         toolbar?.setNavigationIcon(icon)
         toolbar?.setNavigationOnClickListener { clickListener.invoke() }

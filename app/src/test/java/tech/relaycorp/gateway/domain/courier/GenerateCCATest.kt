@@ -27,7 +27,9 @@ class GenerateCCATest : BaseDataTestCase() {
 
     private val internetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val localConfig = LocalConfig(
-        privateKeyStoreProvider, certificateStoreProvider, internetGatewayPreferences
+        privateKeyStoreProvider,
+        certificateStoreProvider,
+        internetGatewayPreferences,
     )
     private val calculateCreationDate = mock<CalculateCRCMessageCreationDate>()
 
@@ -35,7 +37,7 @@ class GenerateCCATest : BaseDataTestCase() {
         internetGatewayPreferences,
         localConfig,
         calculateCreationDate,
-        gatewayManagerProvider
+        gatewayManagerProvider,
     )
 
     companion object {
@@ -52,7 +54,7 @@ class GenerateCCATest : BaseDataTestCase() {
                 subjectPublicKey = keyPair.public,
                 issuerPrivateKey = keyPair.private,
                 validityEndDate = nowInUtc().plusMinutes(1),
-                validityStartDate = nowInUtc().minusDays(1)
+                validityStartDate = nowInUtc().minusDays(1),
             )
             whenever(certificateStore.retrieveLatest(any(), eq(keyPair.public.nodeId)))
                 .thenReturn(CertificationPath(cda, emptyList()))
@@ -84,7 +86,7 @@ class GenerateCCATest : BaseDataTestCase() {
         val ccr = cca.unwrapPayload(internetGatewaySessionKeyPair.privateKey).payload
         assertEquals(
             KeyPairSet.INTERNET_GW.public,
-            ccr.cargoDeliveryAuthorization.subjectPublicKey
+            ccr.cargoDeliveryAuthorization.subjectPublicKey,
         )
     }
 }

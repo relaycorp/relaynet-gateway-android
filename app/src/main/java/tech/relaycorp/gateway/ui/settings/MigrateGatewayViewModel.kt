@@ -20,7 +20,7 @@ class MigrateGatewayViewModel
     internetGatewayPreferences: InternetGatewayPreferences,
     migrateGateway: MigrateGateway,
     @Named("validator_hostname")
-    hostnameValidator: (@JvmSuppressWildcards String) -> @JvmSuppressWildcards Boolean
+    hostnameValidator: (@JvmSuppressWildcards String) -> @JvmSuppressWildcards Boolean,
 ) : BaseViewModel() {
 
     val state: Flow<State> get() = _state

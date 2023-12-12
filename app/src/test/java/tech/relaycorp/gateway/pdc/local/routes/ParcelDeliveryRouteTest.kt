@@ -16,8 +16,8 @@ import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.pdc.local.utils.ContentType
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.messages.Recipient
-import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import kotlin.test.assertEquals
 import io.ktor.http.ContentType as KtorContentType
 
@@ -43,7 +43,7 @@ class ParcelDeliveryRouteTest {
                 assertEquals(plainTextUTF8ContentType, response.contentType())
                 assertEquals(
                     "Content type ${ContentType.PARCEL} is required",
-                    response.content
+                    response.content,
                 )
             }
         }

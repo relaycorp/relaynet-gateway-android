@@ -32,7 +32,7 @@ class PublicSync
     private val connectionStateObserver: ConnectionStateObserver,
     private val registerGateway: RegisterGateway,
     private val deliverParcelsToGateway: DeliverParcelsToGateway,
-    private val collectParcelsFromGateway: CollectParcelsFromGateway
+    private val collectParcelsFromGateway: CollectParcelsFromGateway,
 ) {
 
     private var syncJob: Job? = null
@@ -47,7 +47,7 @@ class PublicSync
             pdcServerStateManager.observe(),
             connectionStateObserver.observe(),
             // Retry registration and sync every minute in case there's a failure
-            interval(1.minutes)
+            interval(1.minutes),
         ) { foregroundState, pdcState, connectionState, _ ->
             if (
                 connectionState is ConnectionState.InternetWithGateway && (

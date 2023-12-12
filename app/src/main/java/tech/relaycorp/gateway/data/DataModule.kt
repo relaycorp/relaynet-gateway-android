@@ -36,45 +36,39 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun database(context: Context, appMode: App.Mode): AppDatabase =
-        when (appMode) {
-            App.Mode.Normal ->
-                Room.databaseBuilder(context, AppDatabase::class.java, "gateway")
-            App.Mode.Test ->
-                Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
-        }.build()
+    fun database(context: Context, appMode: App.Mode): AppDatabase = when (appMode) {
+        App.Mode.Normal ->
+            Room.databaseBuilder(context, AppDatabase::class.java, "gateway")
+        App.Mode.Test ->
+            Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+    }.build()
 
     @Provides
     @Singleton
-    fun storedParcelDao(database: AppDatabase) =
-        database.storedParcelDao()
+    fun storedParcelDao(database: AppDatabase) = database.storedParcelDao()
 
     @Provides
     @Singleton
-    fun parcelCollectionDao(database: AppDatabase) =
-        database.parcelCollectionDao()
+    fun parcelCollectionDao(database: AppDatabase) = database.parcelCollectionDao()
 
     @Provides
     @Singleton
-    fun localEndpointDao(database: AppDatabase) =
-        database.localEndpointDao()
+    fun localEndpointDao(database: AppDatabase) = database.localEndpointDao()
 
     // Preferences
 
     @Provides
     @Named("preferences_name")
-    fun preferencesName(appMode: App.Mode) =
-        when (appMode) {
-            App.Mode.Normal -> "pref_gateway"
-            App.Mode.Test -> "pref_gateway_test"
-        }
+    fun preferencesName(appMode: App.Mode) = when (appMode) {
+        App.Mode.Normal -> "pref_gateway"
+        App.Mode.Test -> "pref_gateway_test"
+    }
 
     @Provides
     fun sharedPreferences(
         context: Context,
-        @Named("preferences_name") preferencesName: String
-    ): SharedPreferences =
-        context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
+        @Named("preferences_name") preferencesName: String,
+    ): SharedPreferences = context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
 
     @Provides
     fun flowSharedPreferences(sharedPreferences: SharedPreferences) =
@@ -111,12 +105,11 @@ class DataModule {
     @Provides
     fun poWebClientProvider(
         internetGatewayPreferences: InternetGatewayPreferences,
-        poWebClientBuilder: PoWebClientBuilder
+        poWebClientBuilder: PoWebClientBuilder,
     ) = object : PoWebClientProvider {
-        override suspend fun get() =
-            poWebClientBuilder.build(
-                internetGatewayPreferences.getPoWebAddress()
-            )
+        override suspend fun get() = poWebClientBuilder.build(
+            internetGatewayPreferences.getPoWebAddress(),
+        )
     }
 
     // Awala keystores
@@ -129,9 +122,8 @@ class DataModule {
     @Singleton
     fun privateKeyStore(
         context: Context,
-        keystoreRoot: Provider<FileKeystoreRoot>
-    ): PrivateKeyStore =
-        AndroidPrivateKeyStore(keystoreRoot.get(), context)
+        keystoreRoot: Provider<FileKeystoreRoot>,
+    ): PrivateKeyStore = AndroidPrivateKeyStore(keystoreRoot.get(), context)
 
     @Provides
     @Singleton
@@ -147,7 +139,6 @@ class DataModule {
     @Singleton
     fun gatewayManager(
         privateKeyStore: Provider<PrivateKeyStore>,
-        publicKeyStore: Provider<SessionPublicKeyStore>
-    ) =
-        GatewayManager(privateKeyStore.get(), publicKeyStore.get())
+        publicKeyStore: Provider<SessionPublicKeyStore>,
+    ) = GatewayManager(privateKeyStore.get(), publicKeyStore.get())
 }

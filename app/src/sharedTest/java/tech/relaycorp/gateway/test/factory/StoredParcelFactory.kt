@@ -19,7 +19,7 @@ object StoredParcelFactory {
             creationTimeUtc = nowInUtc(),
             expirationTimeUtc = nowInUtc().plusDays(1),
             storagePath = "file",
-            size = StorageSizeFactory.build()
+            size = StorageSizeFactory.build(),
         )
     }
 }

@@ -16,7 +16,7 @@ object CargoDeliveryCertPath {
             KeyPairSet.PRIVATE_GW.public,
             KeyPairSet.PRIVATE_GW.private,
             endDate,
-            validityStartDate = startDate
+            validityStartDate = startDate,
         )
     }
 
@@ -28,7 +28,7 @@ object CargoDeliveryCertPath {
             KeyPairSet.PRIVATE_GW.private,
             endDate,
             PRIVATE_GW,
-            validityStartDate = startDate
+            validityStartDate = startDate,
         )
     }
 }

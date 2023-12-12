@@ -48,7 +48,7 @@ internal class CargoStorageTest {
         val cargo = Cargo(
             Recipient("0deadbeef", "foo.relaycorp.tech"),
             "".toByteArray(),
-            CargoDeliveryCertPath.PUBLIC_GW
+            CargoDeliveryCertPath.PUBLIC_GW,
         )
 
         assertThrows<CargoStorage.Exception.InvalidCargo> {
@@ -70,12 +70,12 @@ internal class CargoStorageTest {
         val unauthorizedSenderCert = issueGatewayCertificate(
             unauthorizedSenderKeyPair.public,
             unauthorizedSenderKeyPair.private,
-            ZonedDateTime.now().plusMinutes(1)
+            ZonedDateTime.now().plusMinutes(1),
         )
         val cargo = Cargo(
             Recipient(CargoDeliveryCertPath.PRIVATE_GW.subjectId),
             "".toByteArray(),
-            unauthorizedSenderCert
+            unauthorizedSenderCert,
         )
 
         assertThrows<CargoStorage.Exception.InvalidCargo> {
@@ -99,7 +99,7 @@ internal class CargoStorageTest {
             verify(diskOperations).writeMessage(
                 eq(CargoStorage.FOLDER),
                 eq(CargoStorage.PREFIX),
-                capture()
+                capture(),
             )
 
             assertEquals(cargoSerialized.asList(), firstValue.asList())

@@ -28,27 +28,26 @@ class KeystoreResetTestRule : TestRule {
     @Inject
     lateinit var certificateStore: CertificateStore
 
-    override fun apply(base: Statement, description: Description?) =
-        object : Statement() {
-            override fun evaluate() {
-                AppTestProvider.component.inject(this@KeystoreResetTestRule)
+    override fun apply(base: Statement, description: Description?) = object : Statement() {
+        override fun evaluate() {
+            AppTestProvider.component.inject(this@KeystoreResetTestRule)
 
-                val keystoresFile = File("${context.filesDir}/keystores")
-                keystoresFile.deleteRecursively()
-                runBlocking {
-                    privateKeyStore.saveIdentityKey(KeyPairSet.PRIVATE_GW.private)
-                    certificateStore.save(
-                        CertificationPath(
-                            PDACertPath.PRIVATE_GW,
-                            emptyList()
-                        ),
-                        internetGatewayPreferences.getId()
-                    )
-                }
-
-                base.evaluate()
-
-                keystoresFile.deleteRecursively()
+            val keystoresFile = File("${context.filesDir}/keystores")
+            keystoresFile.deleteRecursively()
+            runBlocking {
+                privateKeyStore.saveIdentityKey(KeyPairSet.PRIVATE_GW.private)
+                certificateStore.save(
+                    CertificationPath(
+                        PDACertPath.PRIVATE_GW,
+                        emptyList(),
+                    ),
+                    internetGatewayPreferences.getId(),
+                )
             }
+
+            base.evaluate()
+
+            keystoresFile.deleteRecursively()
         }
+    }
 }

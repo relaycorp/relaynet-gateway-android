@@ -18,7 +18,7 @@ class GenerateCCA
     private val internetGatewayPreferences: InternetGatewayPreferences,
     private val localConfig: LocalConfig,
     private val calculateCreationDate: CalculateCRCMessageCreationDate,
-    private val gatewayManager: Provider<GatewayManager>
+    private val gatewayManager: Provider<GatewayManager>,
 ) {
 
     suspend fun generateSerialized(): ByteArray {
@@ -29,23 +29,23 @@ class GenerateCCA
             internetGatewayPublicKey,
             identityPrivateKey,
             ZonedDateTime.now().plusSeconds(TTL.inWholeSeconds),
-            cdaIssuer
+            cdaIssuer,
         )
         val ccr = CargoCollectionRequest(cda)
         val ccrCiphertext = gatewayManager.get().wrapMessagePayload(
             ccr,
             internetGatewayPublicKey.nodeId,
-            cdaIssuer.subjectId
+            cdaIssuer.subjectId,
         )
         val cca = CargoCollectionAuthorization(
             recipient = Recipient(
                 internetGatewayPreferences.getId(),
-                internetGatewayPreferences.getAddress()
+                internetGatewayPreferences.getAddress(),
             ),
             payload = ccrCiphertext,
             senderCertificate = localConfig.getIdentityCertificate(),
             creationDate = calculateCreationDate.calculate(),
-            ttl = TTL.inWholeSeconds.toInt()
+            ttl = TTL.inWholeSeconds.toInt(),
         )
         return cca.serialize(identityPrivateKey)
     }

@@ -49,8 +49,8 @@ class GatewaySyncServiceParcelCollectionTest {
         serviceRule.bindService(
             Intent(
                 getApplicationContext<Context>(),
-                GatewaySyncService::class.java
-            )
+                GatewaySyncService::class.java,
+            ),
         )
     }
 
@@ -66,15 +66,15 @@ class GatewaySyncServiceParcelCollectionTest {
                     arrayOf(
                         Signer(
                             PDACertPath.PRIVATE_ENDPOINT,
-                            KeyPairSet.PRIVATE_ENDPOINT.private
-                        )
+                            KeyPairSet.PRIVATE_ENDPOINT.private,
+                        ),
                     ),
-                    StreamingMode.KeepAlive
+                    StreamingMode.KeepAlive,
                 ).take(1).first()
 
         assertEquals(
             Parcel.deserialize(parcel).id,
-            Parcel.deserialize(parcelCollection.parcelSerialized).id
+            Parcel.deserialize(parcelCollection.parcelSerialized).id,
         )
     }
 
@@ -89,10 +89,11 @@ class GatewaySyncServiceParcelCollectionTest {
                 arrayOf(
                     Signer(
                         PDACertPath.PRIVATE_ENDPOINT,
-                        KeyPairSet.INTERNET_GW.private // Invalid key to trigger invalid handshake
-                    )
+                        // Invalid key to trigger invalid handshake
+                        KeyPairSet.INTERNET_GW.private,
+                    ),
                 ),
-                StreamingMode.CloseUponCompletion
+                StreamingMode.CloseUponCompletion,
             )
             .collect()
     }

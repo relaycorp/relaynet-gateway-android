@@ -6,7 +6,7 @@ import javax.inject.Provider
 
 class AppPreferences
 @Inject constructor(
-    private val preferences: Provider<FlowSharedPreferences>
+    private val preferences: Provider<FlowSharedPreferences>,
 ) {
 
     // Address

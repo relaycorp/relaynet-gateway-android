@@ -69,7 +69,7 @@ class OnboardingActivity : BaseActivity() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             OnboardingPageViewHolder(
                 LayoutInflater.from(this@OnboardingActivity)
-                    .inflate(R.layout.item_onboarding, parent, false)
+                    .inflate(R.layout.item_onboarding, parent, false),
             )
 
         override fun onBindViewHolder(holder: OnboardingPageViewHolder, position: Int) {
@@ -94,7 +94,7 @@ class OnboardingActivity : BaseActivity() {
         @StringRes val title: Int,
         @StringRes val text: Int,
         @DrawableRes val image: Int,
-        val getStarted: Boolean = false
+        val getStarted: Boolean = false,
     )
 
     companion object {
@@ -102,19 +102,19 @@ class OnboardingActivity : BaseActivity() {
             OnboardingPage(
                 R.string.onboarding_title_1,
                 R.string.onboarding_text_1,
-                R.drawable.onboarding_image_1
+                R.drawable.onboarding_image_1,
             ),
             OnboardingPage(
                 R.string.onboarding_title_2,
                 R.string.onboarding_text_2,
-                R.drawable.onboarding_image_2
+                R.drawable.onboarding_image_2,
             ),
             OnboardingPage(
                 R.string.onboarding_title_3,
                 R.string.onboarding_text_3,
                 R.drawable.onboarding_image_3,
-                true
-            )
+                true,
+            ),
         )
 
         fun getIntent(context: Context) = Intent(context, OnboardingActivity::class.java)

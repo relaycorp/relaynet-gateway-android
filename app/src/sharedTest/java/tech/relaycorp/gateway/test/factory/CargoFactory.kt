@@ -13,9 +13,8 @@ object CargoFactory {
     fun build() = Cargo(
         Recipient(CargoDeliveryCertPath.PRIVATE_GW.subjectId),
         "".toByteArray(),
-        CargoDeliveryCertPath.PUBLIC_GW
+        CargoDeliveryCertPath.PUBLIC_GW,
     )
 
-    fun buildSerialized() =
-        build().serialize(KeyPairSet.INTERNET_GW.private)
+    fun buildSerialized() = build().serialize(KeyPairSet.INTERNET_GW.private)
 }

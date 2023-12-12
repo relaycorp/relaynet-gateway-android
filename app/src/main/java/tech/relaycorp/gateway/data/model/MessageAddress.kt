@@ -14,21 +14,21 @@ sealed class MessageAddress {
         }
 
     companion object {
-        fun of(value: String) =
-            if (value.contains(":")) {
-                PublicMessageAddress(value)
-            } else {
-                PrivateMessageAddress(value)
-            }
+        fun of(value: String) = if (value.contains(":")) {
+            PublicMessageAddress(value)
+        } else {
+            PrivateMessageAddress(value)
+        }
     }
 
     enum class Type(val value: String) {
-        Public("public"), Private("private");
+        Public("public"),
+        Private("private"),
+        ;
 
         companion object {
-            fun fromValue(value: String) =
-                values().firstOrNull { it.value == value }
-                    ?: throw IllegalArgumentException("Invalid MessageAddress.Type value = $value")
+            fun fromValue(value: String) = values().firstOrNull { it.value == value }
+                ?: throw IllegalArgumentException("Invalid MessageAddress.Type value = $value")
         }
     }
 }

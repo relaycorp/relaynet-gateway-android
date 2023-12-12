@@ -3,7 +3,7 @@ package tech.relaycorp.gateway.data.model
 import kotlin.math.min
 
 data class StorageSize(
-    val bytes: Long
+    val bytes: Long,
 ) : Comparable<StorageSize> {
     val isZero get() = bytes == 0L
 
@@ -20,7 +20,6 @@ data class StorageSize(
     companion object {
         val ZERO = StorageSize(0L)
 
-        fun min(size1: StorageSize, size2: StorageSize) =
-            StorageSize(min(size1.bytes, size2.bytes))
+        fun min(size1: StorageSize, size2: StorageSize) = StorageSize(min(size1.bytes, size2.bytes))
     }
 }

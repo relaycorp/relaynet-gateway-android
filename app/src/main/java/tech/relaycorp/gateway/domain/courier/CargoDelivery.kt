@@ -18,7 +18,7 @@ class CargoDelivery
     private val clientBuilder: CogRPCClient.Builder,
     private val connectionStateObserver: ConnectionStateObserver,
     private val generateCargo: GenerateCargo,
-    private val storedParcelDao: StoredParcelDao
+    private val storedParcelDao: StoredParcelDao,
 ) {
 
     suspend fun deliver() {
@@ -38,16 +38,14 @@ class CargoDelivery
         storedParcelDao.setInTransit(inTransit = true)
     }
 
-    private suspend fun generateCargoDeliveries() =
-        generateCargo.generate()
-            .map { CargoDeliveryRequest(UUID.randomUUID().toString()) { it } }
+    private suspend fun generateCargoDeliveries() = generateCargo.generate()
+        .map { CargoDeliveryRequest(UUID.randomUUID().toString()) { it } }
 
-    private suspend fun getCourierAddress() =
-        connectionStateObserver
-            .observe()
-            .map { it as? ConnectionState.WiFiWithCourier }
-            .first()
-            ?.courierAddress
+    private suspend fun getCourierAddress() = connectionStateObserver
+        .observe()
+        .map { it as? ConnectionState.WiFiWithCourier }
+        .first()
+        ?.courierAddress
 
     class Disconnected : Exception()
 }

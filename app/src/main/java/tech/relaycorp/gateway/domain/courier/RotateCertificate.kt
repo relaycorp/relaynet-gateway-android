@@ -12,7 +12,7 @@ import javax.inject.Inject
 class RotateCertificate @Inject constructor(
     private val localConfig: LocalConfig,
     private val internetGatewayPreferences: InternetGatewayPreferences,
-    private val notifyEndpointsChangeNotifier: GatewayCertificateChangeNotifier
+    private val notifyEndpointsChangeNotifier: GatewayCertificateChangeNotifier,
 ) {
 
     suspend operator fun invoke(certRotationSerialized: ByteArray) {
@@ -29,8 +29,8 @@ class RotateCertificate @Inject constructor(
         if (currentIdCert.expiryDate >= newIdCert.expiryDate) return
 
         localConfig.setIdentityCertificate(newIdCert)
-        certRotation.certificationPath.certificateAuthorities.first().let { internetGatewayCert ->
-            internetGatewayPreferences.setPublicKey(internetGatewayCert.subjectPublicKey)
+        certRotation.certificationPath.certificateAuthorities.first().let { internetCert ->
+            internetGatewayPreferences.setPublicKey(internetCert.subjectPublicKey)
         }
 
         notifyEndpointsChangeNotifier.notifyAll()

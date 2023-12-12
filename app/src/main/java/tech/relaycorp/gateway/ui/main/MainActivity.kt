@@ -81,43 +81,40 @@ class MainActivity : BaseActivity() {
             .launchIn(lifecycleScope)
     }
 
-    private fun ConnectionState.toImageRes() =
-        when (this) {
-            ConnectionState.InternetWithGateway -> R.drawable.main_connected_image
-            is ConnectionState.WiFiWithCourier -> R.drawable.main_courier_image
-            else -> R.drawable.main_disconnected_image
-        }
+    private fun ConnectionState.toImageRes() = when (this) {
+        ConnectionState.InternetWithGateway -> R.drawable.main_connected_image
+        is ConnectionState.WiFiWithCourier -> R.drawable.main_courier_image
+        else -> R.drawable.main_disconnected_image
+    }
 
-    private fun ConnectionState.toTitleRes() =
-        when (this) {
-            is ConnectionState.InternetWithoutGateway ->
-                R.string.main_status_internet_no_gateway
-            ConnectionState.InternetWithGateway ->
-                R.string.main_status_internet
-            is ConnectionState.WiFiWithCourier ->
-                R.string.main_status_courier
-            else ->
-                R.string.main_status_disconnected
-        }
+    private fun ConnectionState.toTitleRes() = when (this) {
+        is ConnectionState.InternetWithoutGateway ->
+            R.string.main_status_internet_no_gateway
+        ConnectionState.InternetWithGateway ->
+            R.string.main_status_internet
+        is ConnectionState.WiFiWithCourier ->
+            R.string.main_status_courier
+        else ->
+            R.string.main_status_disconnected
+    }
 
-    private fun ConnectionState.toTextRes() =
-        when (this) {
-            is ConnectionState.InternetWithoutGateway ->
-                R.string.main_status_internet_no_gateway_text
-            ConnectionState.InternetWithGateway ->
-                R.string.main_status_internet_text
-            is ConnectionState.WiFiWithCourier ->
-                R.string.main_status_courier_text
-            else ->
-                R.string.main_status_disconnected_text
-        }
+    private fun ConnectionState.toTextRes() = when (this) {
+        is ConnectionState.InternetWithoutGateway ->
+            R.string.main_status_internet_no_gateway_text
+        ConnectionState.InternetWithGateway ->
+            R.string.main_status_internet_text
+        is ConnectionState.WiFiWithCourier ->
+            R.string.main_status_courier_text
+        else ->
+            R.string.main_status_disconnected_text
+    }
 
-    private fun ConnectionState.toTextGravity() =
-        when (this) {
-            ConnectionState.InternetWithGateway,
-            is ConnectionState.WiFiWithCourier -> Gravity.CENTER_HORIZONTAL
-            else -> Gravity.START
-        }
+    private fun ConnectionState.toTextGravity() = when (this) {
+        ConnectionState.InternetWithGateway,
+        is ConnectionState.WiFiWithCourier,
+        -> Gravity.CENTER_HORIZONTAL
+        else -> Gravity.START
+    }
 
     companion object {
         fun getIntent(context: Context) = Intent(context, MainActivity::class.java)

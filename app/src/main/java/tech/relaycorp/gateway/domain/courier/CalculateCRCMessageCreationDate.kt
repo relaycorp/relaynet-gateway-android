@@ -10,15 +10,15 @@ import kotlin.time.toJavaDuration
 
 class CalculateCRCMessageCreationDate
 @Inject constructor(
-    private val localConfig: LocalConfig
+    private val localConfig: LocalConfig,
 ) {
-    suspend fun calculate(): ZonedDateTime =
-        max(
-            listOf(
-                nowInUtc().minus(CLOCK_DRIFT_TOLERANCE.toJavaDuration()),
-                localConfig.getIdentityCertificate().startDate // Never before the GW registration
-            )
-        )
+    suspend fun calculate(): ZonedDateTime = max(
+        listOf(
+            nowInUtc().minus(CLOCK_DRIFT_TOLERANCE.toJavaDuration()),
+            // Never before the GW registration
+            localConfig.getIdentityCertificate().startDate,
+        ),
+    )
 
     companion object {
         val CLOCK_DRIFT_TOLERANCE = 90.minutes

@@ -12,7 +12,7 @@ import javax.inject.Inject
 class SettingsViewModel
 @Inject constructor(
     getOutgoingData: GetOutgoingData,
-    internetGatewayPreferences: InternetGatewayPreferences
+    internetGatewayPreferences: InternetGatewayPreferences,
 ) : BaseViewModel() {
 
     val showOutgoingData: Flow<Boolean> get() = _showOutgoingData

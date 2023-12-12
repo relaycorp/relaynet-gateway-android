@@ -36,15 +36,14 @@ class GenerateCargo
     private val internetGatewayPreferences: InternetGatewayPreferences,
     private val localConfig: LocalConfig,
     private val calculateCreationDate: CalculateCRCMessageCreationDate,
-    private val gatewayManager: Provider<GatewayManager>
+    private val gatewayManager: Provider<GatewayManager>,
 ) {
 
-    suspend fun generate(): Flow<InputStream> =
-        (getPCAsMessages() + getParcelMessages())
-            .asSequence()
-            .batch()
-            .asFlow()
-            .map { it.toCargoSerialized().inputStream() }
+    suspend fun generate(): Flow<InputStream> = (getPCAsMessages() + getParcelMessages())
+        .asSequence()
+        .batch()
+        .asFlow()
+        .map { it.toCargoSerialized().inputStream() }
 
     private suspend fun getPCAsMessages() =
         parcelCollectionDao.getAll().map { it.toCargoMessageWithExpiry() }
@@ -53,39 +52,37 @@ class GenerateCargo
         storedParcelDao.listForRecipientLocation(RecipientLocation.ExternalGateway)
             .mapNotNull { it.toCargoMessageWithExpiry() }
 
-    private fun ParcelCollection.toCargoMessageWithExpiry() =
-        CargoMessageWithExpiry(
-            cargoMessageSerialized = ParcelCollectionAck(
-                senderEndpointId = senderAddress.value,
-                recipientEndpointId = recipientAddress.value,
-                parcelId = messageId.value
-            ).serialize(),
-            expiryDate = expirationTimeUtc
-        )
+    private fun ParcelCollection.toCargoMessageWithExpiry() = CargoMessageWithExpiry(
+        cargoMessageSerialized = ParcelCollectionAck(
+            senderEndpointId = senderAddress.value,
+            recipientEndpointId = recipientAddress.value,
+            parcelId = messageId.value,
+        ).serialize(),
+        expiryDate = expirationTimeUtc,
+    )
 
     private suspend fun StoredParcel.toCargoMessageWithExpiry(): CargoMessageWithExpiry? =
         readParcel()?.let { parcelSerialized ->
             CargoMessageWithExpiry(
                 cargoMessageSerialized = parcelSerialized,
-                expiryDate = expirationTimeUtc
+                expiryDate = expirationTimeUtc,
             )
         }
 
-    private suspend fun StoredParcel.readParcel(): ByteArray? =
-        try {
-            diskMessageOperations.readMessage(
-                StoredParcel.STORAGE_FOLDER,
-                storagePath
-            )().readBytesAndClose()
-        } catch (e: MessageDataNotFoundException) {
-            logger.log(Level.WARNING, "Read parcel", e)
-            null
-        }
+    private suspend fun StoredParcel.readParcel(): ByteArray? = try {
+        diskMessageOperations.readMessage(
+            StoredParcel.STORAGE_FOLDER,
+            storagePath,
+        )().readBytesAndClose()
+    } catch (e: MessageDataNotFoundException) {
+        logger.log(Level.WARNING, "Read parcel", e)
+        null
+    }
 
     private suspend fun CargoMessageSetWithExpiry.toCargoSerialized(): ByteArray {
         if (nowInUtc() > latestMessageExpiryDate) {
             logger.warning(
-                "The latest expiration date $latestMessageExpiryDate has expired already"
+                "The latest expiration date $latestMessageExpiryDate has expired already",
             )
         }
 
@@ -100,14 +97,14 @@ class GenerateCargo
         val cargoMessageSetCiphertext = gatewayManager.get().wrapMessagePayload(
             cargoMessageSet,
             internetGatewayPreferences.getId(),
-            identityCert.subjectId
+            identityCert.subjectId,
         )
         val cargo = Cargo(
             recipient = Recipient(recipientId, recipientAddress),
             payload = cargoMessageSetCiphertext,
             senderCertificate = identityCert,
             creationDate = creationDate,
-            ttl = Duration.between(creationDate, latestMessageExpiryDate).seconds.toInt()
+            ttl = Duration.between(creationDate, latestMessageExpiryDate).seconds.toInt(),
         )
         return cargo.serialize(identityKey)
     }

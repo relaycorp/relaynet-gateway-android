@@ -26,7 +26,7 @@ class GatewayCertificateChangeNotifierTest {
         val listOfEndpoints = listOf(
             LocalEndpointFactory.build(),
             LocalEndpointFactory.build(),
-            LocalEndpointFactory.build()
+            LocalEndpointFactory.build(),
         )
 
         whenever(endpointDao.list()).thenReturn(listOfEndpoints)
@@ -37,7 +37,7 @@ class GatewayCertificateChangeNotifierTest {
         // Assert
         verify(notifyEndpoints, times(1)).notify(
             listOfEndpoints,
-            NotificationType.GatewayCertificateChange
+            NotificationType.GatewayCertificateChange,
         )
     }
 
@@ -54,12 +54,12 @@ class GatewayCertificateChangeNotifierTest {
         // Assert
         verify(notifyEndpoints, never()).notify(
             any<List<LocalEndpoint>>(),
-            eq(NotificationType.GatewayCertificateChange)
+            eq(NotificationType.GatewayCertificateChange),
         )
     }
 
     fun build() = GatewayCertificateChangeNotifier(
         notifyEndpoints,
-        endpointDao
+        endpointDao,
     )
 }

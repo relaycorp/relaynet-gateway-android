@@ -23,7 +23,9 @@ class LocalConfigTest : BaseDataTestCase() {
 
     private val internetGatewayPreferences = mock<InternetGatewayPreferences>()
     private val localConfig = LocalConfig(
-        privateKeyStoreProvider, certificateStoreProvider, internetGatewayPreferences
+        privateKeyStoreProvider,
+        certificateStoreProvider,
+        internetGatewayPreferences,
     )
 
     @BeforeEach
@@ -108,7 +110,7 @@ class LocalConfigTest : BaseDataTestCase() {
                     any(),
                     any(),
                     any(),
-                    eq(PDACertPath.INTERNET_GW.subjectId)
+                    eq(PDACertPath.INTERNET_GW.subjectId),
                 )
             }
 

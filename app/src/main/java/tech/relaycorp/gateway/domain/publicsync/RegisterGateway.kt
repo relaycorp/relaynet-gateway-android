@@ -29,7 +29,7 @@ class RegisterGateway
     private val localConfig: LocalConfig,
     private val poWebClientBuilder: PoWebClientBuilder,
     private val resolveServiceAddress: ResolveServiceAddress,
-    private val publicKeyStore: SessionPublicKeyStore
+    private val publicKeyStore: SessionPublicKeyStore,
 ) {
 
     private val mutex = Mutex()
@@ -71,7 +71,8 @@ class RegisterGateway
     }
 
     private suspend fun currentCertificateIsAboutToExpire() =
-        localConfig.getIdentityCertificate().expiryDate < ZonedDateTime.now().plus(ABOUT_TO_EXPIRE)
+        localConfig.getIdentityCertificate().expiryDate <
+            ZonedDateTime.now().plus(ABOUT_TO_EXPIRE)
 
     private suspend fun register(address: String): Result {
         return try {
@@ -104,7 +105,7 @@ class RegisterGateway
             logger.log(
                 Level.WARNING,
                 "Could not register gateway due to failure to resolve PoWeb address",
-                e
+                e,
             )
             Result.FailedToResolve
         }
@@ -112,15 +113,17 @@ class RegisterGateway
 
     private suspend fun saveSuccessfulResult(
         internetGatewayAddress: String,
-        registration: PrivateNodeRegistration
+        registration: PrivateNodeRegistration,
     ) {
         internetGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
         internetGatewayPreferences.setAddress(internetGatewayAddress)
-        internetGatewayPreferences.setPublicKey(registration.gatewayCertificate.subjectPublicKey)
+        internetGatewayPreferences.setPublicKey(
+            registration.gatewayCertificate.subjectPublicKey,
+        )
         localConfig.setIdentityCertificate(registration.privateNodeCertificate)
         publicKeyStore.save(
             registration.gatewaySessionKey!!,
-            registration.gatewayCertificate.subjectId
+            registration.gatewayCertificate.subjectId,
         )
         internetGatewayPreferences.setRegistrationState(RegistrationState.Done)
     }

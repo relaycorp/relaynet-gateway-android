@@ -10,7 +10,7 @@ import java.io.OutputStream
 
 internal class AndroidPrivateKeyStore(
     root: FileKeystoreRoot,
-    private val context: Context
+    private val context: Context,
 ) : FilePrivateKeyStore(root) {
     override fun makeEncryptedInputStream(file: File) = buildEncryptedFile(file).openFileInput()
 
@@ -21,13 +21,12 @@ internal class AndroidPrivateKeyStore(
         return buildEncryptedFile(file).openFileOutput()
     }
 
-    private fun buildEncryptedFile(file: File) =
-        EncryptedFile.Builder(
-            context,
-            file,
-            masterKey,
-            EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
-        ).build()
+    private fun buildEncryptedFile(file: File) = EncryptedFile.Builder(
+        context,
+        file,
+        masterKey,
+        EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB,
+    ).build()
 
     private val masterKey by lazy {
         MasterKey.Builder(context, MASTER_KEY_ALIAS)

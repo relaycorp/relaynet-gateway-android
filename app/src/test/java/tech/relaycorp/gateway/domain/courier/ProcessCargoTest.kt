@@ -42,7 +42,7 @@ class ProcessCargoTest : BaseDataTestCase() {
         storeParcelCollection,
         deleteParcel,
         gatewayManagerProvider,
-        rotateCertificate
+        rotateCertificate,
     )
 
     @BeforeEach
@@ -66,7 +66,7 @@ class ProcessCargoTest : BaseDataTestCase() {
         verify(deleteParcel).delete(
             eq(MessageAddress.of(pca.recipientEndpointId)),
             eq(MessageAddress.of(pca.senderEndpointId)),
-            eq(MessageId(pca.parcelId))
+            eq(MessageId(pca.parcelId)),
         )
     }
 
@@ -74,7 +74,7 @@ class ProcessCargoTest : BaseDataTestCase() {
     fun `store received parcel with collection`() = runBlockingTest {
         val parcel = ParcelFactory.build()
         val cargoSerialized = generateCargoFromMessages(
-            listOf(parcel.serialize(KeyPairSet.PDA_GRANTEE.private))
+            listOf(parcel.serialize(KeyPairSet.PDA_GRANTEE.private)),
         )
         whenever(cargoStorage.list()).thenReturn(listOf(cargoSerialized::inputStream))
         whenever(storeParcel.store(any<ByteArray>(), any()))
@@ -90,7 +90,7 @@ class ProcessCargoTest : BaseDataTestCase() {
     fun `received malformed parcel that does not get stored`() = runBlockingTest {
         val parcel = ParcelFactory.build()
         val cargoSerialized = generateCargoFromMessages(
-            listOf(parcel.serialize(KeyPairSet.PDA_GRANTEE.private))
+            listOf(parcel.serialize(KeyPairSet.PDA_GRANTEE.private)),
         )
         whenever(cargoStorage.list()).thenReturn(listOf(cargoSerialized::inputStream))
         whenever(storeParcel.store(any<ByteArray>(), any()))
@@ -106,7 +106,7 @@ class ProcessCargoTest : BaseDataTestCase() {
     fun `received duplicated parcel that does not get stored`() = runBlockingTest {
         val parcel = ParcelFactory.build()
         val cargoSerialized = generateCargoFromMessages(
-            listOf(parcel.serialize(KeyPairSet.PDA_GRANTEE.private))
+            listOf(parcel.serialize(KeyPairSet.PDA_GRANTEE.private)),
         )
         whenever(cargoStorage.list()).thenReturn(listOf(cargoSerialized::inputStream))
         whenever(storeParcel.store(any<ByteArray>(), any()))
@@ -122,7 +122,7 @@ class ProcessCargoTest : BaseDataTestCase() {
     fun `received invalid parcel but collection is stored`() = runBlockingTest {
         val parcel = ParcelFactory.build()
         val cargoSerialized = generateCargoFromMessages(
-            listOf(parcel.serialize(KeyPairSet.PDA_GRANTEE.private))
+            listOf(parcel.serialize(KeyPairSet.PDA_GRANTEE.private)),
         )
         whenever(cargoStorage.list()).thenReturn(listOf(cargoSerialized::inputStream))
         whenever(storeParcel.store(any<ByteArray>(), any()))
@@ -153,9 +153,9 @@ class ProcessCargoTest : BaseDataTestCase() {
             Recipient(CDACertPath.PRIVATE_GW.subjectId),
             cargoMessageSet.encrypt(
                 privateGatewaySessionKeyPair.sessionKey,
-                internetGatewaySessionKeyPair
+                internetGatewaySessionKeyPair,
             ),
-            CDACertPath.INTERNET_GW
+            CDACertPath.INTERNET_GW,
         )
         return cargoSerialized.serialize(KeyPairSet.INTERNET_GW.private)
     }

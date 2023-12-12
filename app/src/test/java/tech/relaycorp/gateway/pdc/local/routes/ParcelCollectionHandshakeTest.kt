@@ -23,8 +23,8 @@ import tech.relaycorp.relaynet.bindings.pdc.Signer
 import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.messages.control.HandshakeChallenge
 import tech.relaycorp.relaynet.messages.control.HandshakeResponse
-import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import java.nio.charset.Charset
 import javax.inject.Provider
 import kotlin.test.assertEquals
@@ -44,10 +44,9 @@ class ParcelCollectionHandshakeTest {
     @Test
     fun `Requests with Origin header should be refused`() {
         testPDCServerRoute(route) {
-
             handleWebSocketConversation(
                 ParcelCollectionRoute.URL_PATH,
-                { addHeader(ParcelCollectionRoute.HEADER_ORIGIN, "http://example.com") }
+                { addHeader(ParcelCollectionRoute.HEADER_ORIGIN, "http://example.com") },
             ) { incoming, _ ->
                 val closingFrameRaw = incoming.receive()
                 assertEquals(FrameType.CLOSE, closingFrameRaw.frameType)
@@ -55,11 +54,11 @@ class ParcelCollectionHandshakeTest {
                 val closingFrame = closingFrameRaw as Frame.Close
                 assertEquals(
                     CloseReason.Codes.VIOLATED_POLICY,
-                    closingFrame.readReason()!!.knownReason
+                    closingFrame.readReason()!!.knownReason,
                 )
                 assertEquals(
                     "Web browser requests are disabled for security reasons",
-                    closingFrame.readReason()!!.message
+                    closingFrame.readReason()!!.message,
                 )
             }
         }
@@ -100,11 +99,11 @@ class ParcelCollectionHandshakeTest {
                     val closingFrame = closingFrameRaw as Frame.Close
                     assertEquals(
                         CloseReason.Codes.CANNOT_ACCEPT,
-                        closingFrame.readReason()!!.knownReason
+                        closingFrame.readReason()!!.knownReason,
                     )
                     assertEquals(
                         "Invalid handshake response",
-                        closingFrame.readReason()!!.message
+                        closingFrame.readReason()!!.message,
                     )
                 }
             }
@@ -126,11 +125,11 @@ class ParcelCollectionHandshakeTest {
                     val closingFrame = closingFrameRaw as Frame.Close
                     assertEquals(
                         CloseReason.Codes.CANNOT_ACCEPT,
-                        closingFrame.readReason()!!.knownReason
+                        closingFrame.readReason()!!.knownReason,
                     )
                     assertEquals(
                         "Handshake response did not include any nonce signatures",
-                        closingFrame.readReason()!!.message
+                        closingFrame.readReason()!!.message,
                     )
                 }
             }
@@ -144,7 +143,7 @@ class ParcelCollectionHandshakeTest {
 
                     val validSignature = endpointSigner.sign(
                         challenge.nonce,
-                        DetachedSignatureType.NONCE
+                        DetachedSignatureType.NONCE,
                     )
                     val invalidSignature = "not really a signature".toByteArray()
                     val response = HandshakeResponse(listOf(validSignature, invalidSignature))
@@ -156,12 +155,12 @@ class ParcelCollectionHandshakeTest {
                     val closingFrame = closingFrameRaw as Frame.Close
                     assertEquals(
                         CloseReason.Codes.CANNOT_ACCEPT,
-                        closingFrame.readReason()!!.knownReason
+                        closingFrame.readReason()!!.knownReason,
                     )
                     assertEquals(
                         "Handshake response included invalid nonce signatures or untrusted " +
                             "signers",
-                        closingFrame.readReason()!!.message
+                        closingFrame.readReason()!!.message,
                     )
                 }
             }
@@ -176,9 +175,9 @@ class ParcelCollectionHandshakeTest {
                         setup = {
                             addHeader(
                                 StreamingMode.HEADER_NAME,
-                                StreamingMode.CloseUponCompletion.headerValue
+                                StreamingMode.CloseUponCompletion.headerValue,
                             )
-                        }
+                        },
                     ) { incoming, outgoing ->
                         val challenge =
                             HandshakeChallenge.deserialize(incoming.receive().readBytes())
@@ -196,12 +195,12 @@ class ParcelCollectionHandshakeTest {
                         val closingFrame = closingFrameRaw as Frame.Close
                         assertEquals(
                             CloseReason.Codes.CANNOT_ACCEPT,
-                            closingFrame.readReason()!!.knownReason
+                            closingFrame.readReason()!!.knownReason,
                         )
                         assertEquals(
                             "Handshake response included invalid nonce signatures or untrusted " +
                                 "signers",
-                            closingFrame.readReason()!!.message
+                            closingFrame.readReason()!!.message,
                         )
                     }
                 }
@@ -221,16 +220,16 @@ class ParcelCollectionHandshakeTest {
                         setup = {
                             addHeader(
                                 StreamingMode.HEADER_NAME,
-                                StreamingMode.CloseUponCompletion.headerValue
+                                StreamingMode.CloseUponCompletion.headerValue,
                             )
-                        }
+                        },
                     ) { incoming, outgoing ->
                         val challenge =
                             HandshakeChallenge.deserialize(incoming.receive().readBytes())
 
                         val validSignature = endpointSigner.sign(
                             challenge.nonce,
-                            DetachedSignatureType.NONCE
+                            DetachedSignatureType.NONCE,
                         )
                         val response = HandshakeResponse(listOf(validSignature))
                         outgoing.send(Frame.Binary(true, response.serialize()))
@@ -241,7 +240,7 @@ class ParcelCollectionHandshakeTest {
                         val closingFrame = closingFrameRaw as Frame.Close
                         assertEquals(
                             CloseReason.Codes.NORMAL,
-                            closingFrame.readReason()!!.knownReason
+                            closingFrame.readReason()!!.knownReason,
                         )
                     }
                 }

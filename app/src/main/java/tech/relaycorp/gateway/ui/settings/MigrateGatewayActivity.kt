@@ -43,7 +43,7 @@ class MigrateGatewayActivity : BaseActivity() {
         binding.address.addTextChangedListener(
             onTextChanged = { text: CharSequence?, _, _, _ ->
                 viewModel.addressChanged(text?.toString()?.trim() ?: "")
-            }
+            },
         )
         binding.submit.setOnClickListener { showSubmitConfirm() }
 
@@ -77,7 +77,8 @@ class MigrateGatewayActivity : BaseActivity() {
                 ContextCompat.getDrawable(this, R.drawable.ic_check)
             MigrateGatewayViewModel.State.Error.SameAddress,
             MigrateGatewayViewModel.State.Error.FailedToResolve,
-            MigrateGatewayViewModel.State.Error.FailedToRegister ->
+            MigrateGatewayViewModel.State.Error.FailedToRegister,
+            ->
                 ContextCompat.getDrawable(this, R.drawable.ic_close)
             else -> null
         }
@@ -86,7 +87,7 @@ class MigrateGatewayActivity : BaseActivity() {
                 MigrateGatewayViewModel.State.AddressValid -> R.attr.colorSecondary
                 is MigrateGatewayViewModel.State.Error -> R.attr.colorError
                 else -> R.attr.colorOnBackground
-            }
+            },
         )
         binding.addressLayout.setEndIconTintList(ColorStateList.valueOf(infoColor))
 
@@ -110,12 +111,14 @@ class MigrateGatewayActivity : BaseActivity() {
         binding.submit.isVisible = when (state) {
             MigrateGatewayViewModel.State.Insert,
             MigrateGatewayViewModel.State.Error.SameAddress,
-            MigrateGatewayViewModel.State.Error.AddressInvalid ->
+            MigrateGatewayViewModel.State.Error.AddressInvalid,
+            ->
                 false
             MigrateGatewayViewModel.State.AddressValid,
             MigrateGatewayViewModel.State.Submitting,
             MigrateGatewayViewModel.State.Error.FailedToResolve,
-            MigrateGatewayViewModel.State.Error.FailedToRegister ->
+            MigrateGatewayViewModel.State.Error.FailedToRegister,
+            ->
                 true
         }
 

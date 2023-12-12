@@ -16,8 +16,8 @@ import tech.relaycorp.gateway.domain.endpoint.InvalidPNRAException
 import tech.relaycorp.gateway.pdc.local.utils.ContentType
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationRequest
-import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import kotlin.test.assertEquals
 import io.ktor.http.ContentType as KtorContentType
 
@@ -38,7 +38,7 @@ class EndpointRegistrationRouteTest {
                 assertEquals(plainTextUTF8ContentType, response.contentType())
                 assertEquals(
                     "Content type ${ContentType.REGISTRATION_REQUEST} is required",
-                    response.content
+                    response.content,
                 )
             }
         }
@@ -56,7 +56,7 @@ class EndpointRegistrationRouteTest {
                 assertEquals(plainTextUTF8ContentType, response.contentType())
                 assertEquals(
                     "Invalid registration request",
-                    response.content
+                    response.content,
                 )
             }
         }
@@ -70,7 +70,7 @@ class EndpointRegistrationRouteTest {
         testPDCServerRoute(route) {
             val crr = PrivateNodeRegistrationRequest(
                 KeyPairSet.PRIVATE_ENDPOINT.public,
-                "invalid authorization".toByteArray()
+                "invalid authorization".toByteArray(),
             )
             val call = handleRequest(HttpMethod.Post, "/v1/nodes") {
                 addHeader("Content-Type", ContentType.REGISTRATION_REQUEST.toString())
@@ -81,7 +81,7 @@ class EndpointRegistrationRouteTest {
                 assertEquals(plainTextUTF8ContentType, response.contentType())
                 assertEquals(
                     "Invalid authorization encapsulated in registration request",
-                    response.content
+                    response.content,
                 )
             }
         }
@@ -92,7 +92,7 @@ class EndpointRegistrationRouteTest {
         val privateNodeRegistration = PrivateNodeRegistration(
             PDACertPath.PRIVATE_ENDPOINT,
             PDACertPath.PRIVATE_GW,
-            ""
+            "",
         )
         val privateNodeRegistrationSerialized = privateNodeRegistration.serialize()
         whenever(endpointRegistration.register(any())).thenReturn(privateNodeRegistrationSerialized)
@@ -100,7 +100,7 @@ class EndpointRegistrationRouteTest {
         testPDCServerRoute(route) {
             val crr = PrivateNodeRegistrationRequest(
                 KeyPairSet.PRIVATE_ENDPOINT.public,
-                "invalid authorization".toByteArray()
+                "invalid authorization".toByteArray(),
             )
             val call = handleRequest(HttpMethod.Post, "/v1/nodes") {
                 addHeader("Content-Type", ContentType.REGISTRATION_REQUEST.toString())
@@ -111,7 +111,7 @@ class EndpointRegistrationRouteTest {
                 assertEquals(ContentType.REGISTRATION, response.contentType())
                 assertEquals(
                     privateNodeRegistrationSerialized.asList(),
-                    response.byteContent!!.asList()
+                    response.byteContent!!.asList(),
                 )
             }
         }

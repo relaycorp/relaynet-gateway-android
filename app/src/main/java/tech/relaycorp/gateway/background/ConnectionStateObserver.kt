@@ -26,7 +26,7 @@ open class ConnectionStateObserver
     private val wifiManager: WifiManager,
     private val pingRemoteServer: PingRemoteServer,
     private val checkInternetAccess: CheckInternetAccess,
-    private val checkInternetGatewayAccess: CheckInternetGatewayAccess
+    private val checkInternetGatewayAccess: CheckInternetGatewayAccess,
 ) {
 
     private val state = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
@@ -82,14 +82,13 @@ open class ConnectionStateObserver
             connectivityManager.getNetworkCapabilities(this)
                 ?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
 
-    private fun Int.toIpAddressString() =
-        String.format(
-            "%d.%d.%d.%d",
-            this and 0xff,
-            this shr 8 and 0xff,
-            this shr 16 and 0xff,
-            this shr 24 and 0xff
-        )
+    private fun Int.toIpAddressString() = String.format(
+        "%d.%d.%d.%d",
+        this and 0xff,
+        this shr 8 and 0xff,
+        this shr 16 and 0xff,
+        this shr 24 and 0xff,
+    )
 
     private fun String.toFullServerAddress() = "https://$this:${CogRPC.PORT}"
 

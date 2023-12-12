@@ -22,7 +22,7 @@ class CalculateCRCMessageCreationDateTest {
             keyPair.public,
             keyPair.private,
             nowInUtc().plusMinutes(1),
-            validityStartDate = nowInUtc().minusDays(1)
+            validityStartDate = nowInUtc().minusDays(1),
         )
         whenever(localConfig.getIdentityCertificate()).thenReturn(certificate)
 
@@ -30,7 +30,7 @@ class CalculateCRCMessageCreationDateTest {
 
         assertTrue(
             result.isBefore(nowInUtc().minusMinutes(89)) &&
-                result.isAfter(nowInUtc().minusMinutes(91))
+                result.isAfter(nowInUtc().minusMinutes(91)),
         )
     }
 
@@ -42,7 +42,7 @@ class CalculateCRCMessageCreationDateTest {
                 keyPair.public,
                 keyPair.private,
                 nowInUtc().plusMinutes(1),
-                validityStartDate = nowInUtc()
+                validityStartDate = nowInUtc(),
             )
             whenever(localConfig.getIdentityCertificate()).thenReturn(certificate)
 

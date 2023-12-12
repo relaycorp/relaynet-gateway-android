@@ -12,16 +12,15 @@ import javax.inject.Singleton
 @Singleton
 class DiskMessageOperations
 @Inject constructor(
-    private val context: Context
+    private val context: Context,
 ) {
 
     @Throws(DiskException::class)
-    suspend fun writeMessage(folder: String, prefix: String, message: ByteArray): String =
-        try {
-            writeMessageUnhandled(folder, prefix, message)
-        } catch (e: IOException) {
-            throw DiskException(e)
-        }
+    suspend fun writeMessage(folder: String, prefix: String, message: ByteArray): String = try {
+        writeMessageUnhandled(folder, prefix, message)
+    } catch (e: IOException) {
+        throw DiskException(e)
+    }
 
     suspend fun listMessages(folder: String): List<() -> InputStream> =
         withContext(Dispatchers.IO) {
@@ -60,12 +59,11 @@ class DiskMessageOperations
             file.name
         }
 
-    private suspend fun getOrCreateDir(folder: String) =
-        withContext(Dispatchers.IO) {
-            File(context.filesDir, folder).also {
-                if (!it.exists()) it.mkdir()
-            }
+    private suspend fun getOrCreateDir(folder: String) = withContext(Dispatchers.IO) {
+        File(context.filesDir, folder).also {
+            if (!it.exists()) it.mkdir()
         }
+    }
 
     private suspend fun createUniqueFile(folder: String, prefix: String) =
         withContext(Dispatchers.IO) {

@@ -9,6 +9,6 @@ object LocalEndpointFactory {
 
     fun build() = LocalEndpoint(
         address = PrivateMessageAddress(Random.nextInt().toString()),
-        applicationId = UUID.randomUUID().toString()
+        applicationId = UUID.randomUUID().toString(),
     )
 }

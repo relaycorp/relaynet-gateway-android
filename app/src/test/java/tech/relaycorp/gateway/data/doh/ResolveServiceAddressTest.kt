@@ -25,7 +25,7 @@ class ResolveServiceAddressTest {
         fun `Target host and port should be returned`() = runBlockingTest {
             whenever(mockDoHClient.lookUp("_awala-gsc._tcp.$internetGatewayAddress", "SRV"))
                 .thenReturn(
-                    Answer(listOf("0 1 $internetGatewayTargetPort $internetGatewayTargetHost."))
+                    Answer(listOf("0 1 $internetGatewayTargetPort $internetGatewayTargetHost.")),
                 )
             val address = subject.resolvePoWeb(internetGatewayAddress)
 
@@ -45,7 +45,7 @@ class ResolveServiceAddressTest {
 
             kotlin.test.assertEquals(
                 "Malformed SRV for $internetGatewayAddress ($malformedSRVData)",
-                exception.message
+                exception.message,
             )
             kotlin.test.assertNull(exception.cause)
         }

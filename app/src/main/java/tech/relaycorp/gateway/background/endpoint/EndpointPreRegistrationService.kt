@@ -36,7 +36,7 @@ class EndpointPreRegistrationService : Service() {
                 override fun handleMessage(msg: Message) {
                     onMessageReceived(msg)
                 }
-            }
+            },
         )
         return messenger.binder
     }
@@ -70,9 +70,9 @@ class EndpointPreRegistrationService : Service() {
             }
 
             else -> {
-                val authorizationSerialized = endpointRegistration.authorize(endpointApplicationId)
+                val authSerialized = endpointRegistration.authorize(endpointApplicationId)
                 Message.obtain(null, REGISTRATION_AUTHORIZATION).also {
-                    it.data = Bundle().apply { putByteArray("auth", authorizationSerialized) }
+                    it.data = Bundle().apply { putByteArray("auth", authSerialized) }
                 }
             }
         }

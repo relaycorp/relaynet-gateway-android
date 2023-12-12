@@ -3,8 +3,8 @@ package tech.relaycorp.gateway.common.di
 import dagger.Component
 import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.AppModule
-import tech.relaycorp.gateway.background.endpoint.GatewaySyncService
 import tech.relaycorp.gateway.background.endpoint.EndpointPreRegistrationService
+import tech.relaycorp.gateway.background.endpoint.GatewaySyncService
 import tech.relaycorp.gateway.data.DataModule
 import javax.inject.Singleton
 
@@ -12,8 +12,8 @@ import javax.inject.Singleton
 @Component(
     modules = [
         AppModule::class,
-        DataModule::class
-    ]
+        DataModule::class,
+    ],
 )
 interface AppComponent {
     fun activityComponent(): ActivityComponent
