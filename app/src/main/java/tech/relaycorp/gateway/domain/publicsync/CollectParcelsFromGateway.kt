@@ -79,10 +79,10 @@ class CollectParcelsFromGateway
         )
         when (storeResult) {
             is StoreParcel.Result.MalformedParcel ->
-                logger.info("Malformed parcel received")
+                logger.log(Level.WARNING, "Malformed parcel received", storeResult.cause)
 
             is StoreParcel.Result.InvalidParcel ->
-                logger.info("Invalid parcel received")
+                logger.log(Level.WARNING, "Invalid parcel received", storeResult.cause)
 
             is StoreParcel.Result.CollectedParcel ->
                 logger.info("Parcel already received")
