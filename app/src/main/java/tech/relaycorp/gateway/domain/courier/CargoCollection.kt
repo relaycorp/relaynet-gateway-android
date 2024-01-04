@@ -30,9 +30,15 @@ class CargoCollection
             clientBuilder.build(it, OkHTTPChannelBuilderProvider.Companion::makeBuilder)
         } ?: throw Disconnected()
 
+        val ccaInputStream = generateCCAInputStream() ?: run {
+            logger.warning("CCA missing because the internet gateway is not registered")
+            client.close()
+            return
+        }
+
         try {
             client
-                .collectCargo { generateCCAInputStream() }
+                .collectCargo { ccaInputStream }
                 .collect { cargoStorage.store(it) }
         } catch (e: CogRPCClient.CCARefusedException) {
             logger.log(Level.WARNING, "CCA refused")
@@ -46,7 +52,7 @@ class CargoCollection
     }
 
     private fun generateCCAInputStream() = runBlocking {
-        generateCCA.generateSerialized().inputStream()
+        generateCCA.generateSerialized()?.inputStream()
     }
 
     private suspend fun getCourierAddress() = connectionStateObserver

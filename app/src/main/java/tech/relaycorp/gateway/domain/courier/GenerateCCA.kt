@@ -21,10 +21,10 @@ class GenerateCCA
     private val gatewayManager: Provider<GatewayManager>,
 ) {
 
-    suspend fun generateSerialized(): ByteArray {
+    suspend fun generateSerialized(): ByteArray? {
         val identityPrivateKey = localConfig.getIdentityKey()
         val cdaIssuer = localConfig.getCargoDeliveryAuth()
-        val internetGatewayPublicKey = internetGatewayPreferences.getPublicKey()
+        val internetGatewayPublicKey = internetGatewayPreferences.getPublicKey() ?: return null
         val cda = issueDeliveryAuthorization(
             internetGatewayPublicKey,
             identityPrivateKey,
@@ -37,9 +37,10 @@ class GenerateCCA
             internetGatewayPublicKey.nodeId,
             cdaIssuer.subjectId,
         )
+        val internetGatewayId = internetGatewayPreferences.getId() ?: return null
         val cca = CargoCollectionAuthorization(
             recipient = Recipient(
-                internetGatewayPreferences.getId(),
+                internetGatewayId,
                 internetGatewayPreferences.getAddress(),
             ),
             payload = ccrCiphertext,

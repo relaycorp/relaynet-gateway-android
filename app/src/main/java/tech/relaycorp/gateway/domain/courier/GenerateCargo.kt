@@ -3,6 +3,7 @@ package tech.relaycorp.gateway.domain.courier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.data.database.ParcelCollectionDao
@@ -43,7 +44,7 @@ class GenerateCargo
         .asSequence()
         .batch()
         .asFlow()
-        .map { it.toCargoSerialized().inputStream() }
+        .mapNotNull { it.toCargoSerialized()?.inputStream() }
 
     private suspend fun getPCAsMessages() =
         parcelCollectionDao.getAll().map { it.toCargoMessageWithExpiry() }
@@ -79,7 +80,7 @@ class GenerateCargo
         null
     }
 
-    private suspend fun CargoMessageSetWithExpiry.toCargoSerialized(): ByteArray {
+    private suspend fun CargoMessageSetWithExpiry.toCargoSerialized(): ByteArray? {
         if (nowInUtc() > latestMessageExpiryDate) {
             logger.warning(
                 "The latest expiration date $latestMessageExpiryDate has expired already",
@@ -90,13 +91,18 @@ class GenerateCargo
         val identityCert = localConfig.getIdentityCertificate()
 
         val recipientAddress = internetGatewayPreferences.getAddress()
-        val recipientId = internetGatewayPreferences.getId()
+        val recipientId = internetGatewayPreferences.getId() ?: run {
+            logger.warning(
+                "Failed to generate cargo because the internet gateway is not registered",
+            )
+            return null
+        }
         val creationDate = calculateCreationDate.calculate()
 
         logger.info("Generating cargo for $recipientAddress")
         val cargoMessageSetCiphertext = gatewayManager.get().wrapMessagePayload(
             cargoMessageSet,
-            internetGatewayPreferences.getId(),
+            recipientId,
             identityCert.subjectId,
         )
         val cargo = Cargo(
