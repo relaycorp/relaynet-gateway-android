@@ -18,6 +18,8 @@
         <ignore path="**/grpc-core*.jar" />
         <!-- Ignore errors about jacoco importing javax.management because we don’t use those modules -->
         <ignore path="**/org.jacoco/**" />
+        <!-- Ignore errors about ktor-utils-jvm importing java.lang.management because we don't use it -->
+        <ignore path="**/ktor-utils-jvm/**" />
     </issue>
     <issue id="TrustAllX509TrustManager">
         <ignore path="org/bouncycastle/est/jcajce/*.class" />
