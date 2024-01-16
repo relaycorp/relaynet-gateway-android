@@ -2,8 +2,8 @@ package tech.relaycorp.gateway.background
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
-import io.ktor.client.features.ResponseException
-import io.ktor.client.features.UserAgent
+import io.ktor.client.plugins.ResponseException
+import io.ktor.client.plugins.UserAgent
 import io.ktor.client.request.head
 import io.ktor.network.selector.ActorSelectorManager
 import io.ktor.network.sockets.aSocket
@@ -42,7 +42,7 @@ class PingRemoteServer
 
     suspend fun pingURL(url: String) = try {
         withTimeout(TIMEOUT) {
-            ktorClient.head<Unit>(url)
+            ktorClient.head(url)
             true
         }
     } catch (e: IOException) {

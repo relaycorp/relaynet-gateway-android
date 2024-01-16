@@ -1,13 +1,13 @@
 package tech.relaycorp.gateway.pdc.local.routes
 
-import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.contentType
-import io.ktor.request.receive
-import io.ktor.response.respond
-import io.ktor.response.respondText
-import io.ktor.routing.Routing
-import io.ktor.routing.post
+import io.ktor.server.application.call
+import io.ktor.server.request.contentType
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.post
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.pdc.local.utils.ContentType
