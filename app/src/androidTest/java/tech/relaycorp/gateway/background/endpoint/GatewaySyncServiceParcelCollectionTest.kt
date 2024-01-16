@@ -7,7 +7,7 @@ import androidx.test.rule.ServiceTestRule
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -55,7 +55,7 @@ class GatewaySyncServiceParcelCollectionTest {
     }
 
     @Test
-    fun parcelCollection_receiveParcel() = runBlocking {
+    fun parcelCollection_receiveParcel() = runTest {
         val parcel = ParcelFactory.buildSerialized()
         val storeResult = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
         assertTrue(storeResult is StoreParcel.Result.Success)
@@ -79,7 +79,7 @@ class GatewaySyncServiceParcelCollectionTest {
     }
 
     @Test(expected = ServerConnectionException::class)
-    fun parcelCollection_invalidHandshake() = runBlocking {
+    fun parcelCollection_invalidHandshake() = runTest {
         val parcel = ParcelFactory.buildSerialized()
         val storeResult = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
         assertTrue(storeResult is StoreParcel.Result.Success)
