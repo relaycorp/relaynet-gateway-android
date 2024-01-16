@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.rule.ServiceTestRule
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -53,7 +53,7 @@ class GatewaySyncServiceParcelDeliveryTest {
     }
 
     @Test
-    fun parcelDelivery_validParcel() = runBlocking {
+    fun parcelDelivery_validParcel() = runTest {
         setGatewayCertificate(PDACertPath.PRIVATE_GW)
         val recipientId = "0deadbeef"
         val recipientInternetAddress = "example.org"
@@ -76,7 +76,7 @@ class GatewaySyncServiceParcelDeliveryTest {
     }
 
     @Test(expected = RejectedParcelException::class)
-    fun parcelDelivery_invalidParcel() = runBlocking {
+    fun parcelDelivery_invalidParcel() = runTest {
         val fiveMinutesAgo = ZonedDateTime.now().minusMinutes(5)
         val recipientId = "0deadbeef"
         val recipientInternetAddress = "example.org"
