@@ -102,8 +102,8 @@
         consequences.
         \n\nAt present, changing this gateway will most likely prevent your existing Awala apps
         from receiving data for a while.
-        \n\nGateways ending with “.relaycorp.cloud” are provided by Relaycorp, and we don’t spy on
-        or censor our users. If you switch to another provider, make sure they don’t either.
+        \n\nGateways ending with “.relaycorp.services” are provided by Relaycorp, and we don’t spy
+        on or censor our users. If you switch to another provider, make sure they don’t either.
     </string>
     <string name="settings_pgw_migrate">Migrate</string>
     <string name="settings_pgw_migrating">Migrating…</string>
