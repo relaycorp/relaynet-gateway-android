@@ -93,6 +93,6 @@ class InternetGatewayPreferences
 
     companion object {
         @VisibleForTesting
-        internal const val DEFAULT_ADDRESS = "frankfurt.relaycorp.cloud"
+        internal const val DEFAULT_ADDRESS = "belgium.relaycorp.services"
     }
 }
