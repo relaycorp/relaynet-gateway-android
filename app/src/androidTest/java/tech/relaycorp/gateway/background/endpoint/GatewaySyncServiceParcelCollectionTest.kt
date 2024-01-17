@@ -56,7 +56,7 @@ class GatewaySyncServiceParcelCollectionTest {
     }
 
     @Test
-    @Ignore("failing")
+    @Ignore("Failing on CI with RejectedExecutionException since ktor v2")
     fun parcelCollection_receiveParcel() = runTest {
         val parcel = ParcelFactory.buildSerialized()
         val storeResult = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
@@ -81,7 +81,7 @@ class GatewaySyncServiceParcelCollectionTest {
     }
 
     @Test(expected = ServerConnectionException::class)
-    @Ignore("failing")
+    @Ignore("Failing on CI with RejectedExecutionException since ktor v2")
     fun parcelCollection_invalidHandshake() = runTest {
         val parcel = ParcelFactory.buildSerialized()
         val storeResult = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)

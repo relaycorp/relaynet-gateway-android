@@ -57,7 +57,7 @@ class EndpointPreRegistrationServiceTest {
     }
 
     @Test
-    @Ignore("failing")
+    @Ignore("Failing on CI with RejectedExecutionException since ktor v2")
     fun requestPreRegistration() = runTest(coroutineContext) {
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
@@ -101,7 +101,7 @@ class EndpointPreRegistrationServiceTest {
     }
 
     @Test
-    @Ignore("failing")
+    @Ignore("Failing on CI with RejectedExecutionException since ktor v2")
     fun invalidRequestIsIgnored() {
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
@@ -116,7 +116,7 @@ class EndpointPreRegistrationServiceTest {
     }
 
     @Test
-    @Ignore("failing")
+    @Ignore("Failing on CI with RejectedExecutionException since ktor v2")
     fun errorReturnedWhenGatewayIsNotRegisteredYet() = runTest(coroutineContext) {
         internetGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
 

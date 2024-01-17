@@ -54,7 +54,7 @@ class GatewaySyncServiceParcelDeliveryTest {
     }
 
     @Test
-    @Ignore("failing")
+    @Ignore("Failing on CI with RejectedExecutionException since ktor v2")
     fun parcelDelivery_validParcel() = runTest {
         setGatewayCertificate(PDACertPath.PRIVATE_GW)
         val recipientId = "0deadbeef"
@@ -78,7 +78,7 @@ class GatewaySyncServiceParcelDeliveryTest {
     }
 
     @Test(expected = RejectedParcelException::class)
-    @Ignore("failing")
+    @Ignore("Failing on CI with RejectedExecutionException since ktor v2")
     fun parcelDelivery_invalidParcel() = runTest {
         val fiveMinutesAgo = ZonedDateTime.now().minusMinutes(5)
         val recipientId = "0deadbeef"
