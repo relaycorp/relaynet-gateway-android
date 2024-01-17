@@ -1,7 +1,6 @@
 package tech.relaycorp.gateway.data.disk
 
 import androidx.test.core.app.ApplicationProvider
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
