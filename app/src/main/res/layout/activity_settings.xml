@@ -120,7 +120,7 @@
                 android:paddingHorizontal="16dp"
                 app:drawableEndCompat="@drawable/ic_edit"
                 tools:ignore="SelectableText"
-                tools:text="frankfurt.relaynet.cloud" />
+                tools:text="belgium.relaycorp.services" />
 
             <TextView
                 android:layout_width="match_parent"

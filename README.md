@@ -16,7 +16,7 @@ This private gateway implements [Awala bindings](https://specs.awala.network/RS-
 
 The local communication with endpoints does not use TLS, but all other connections are external and therefore require TLS.
 
-By default, instances of this gateway are paired to [Relaycorp's Frankfurt gateway](https://github.com/relaycorp/cloud-gateway/tree/main/environments/frankfurt).
+By default, instances of this gateway are paired to [Relaycorp's Belgian gateway](https://github.com/relaycorp/cloud-gateway/tree/main/environments/belgium) (`belgium.relaycorp.services`).
 
 ## Security and privacy considerations
 
