@@ -1,14 +1,13 @@
 package tech.relaycorp.gateway.background.endpoint
 
-import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.rule.ServiceTestRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import tech.relaycorp.gateway.data.database.StoredParcelDao
@@ -45,16 +44,15 @@ class GatewaySyncServiceParcelDeliveryTest {
     @Before
     fun setUp() {
         AppTestProvider.component.inject(this)
-        serviceRule.bindService(
-            Intent(
-                getApplicationContext<Context>(),
-                GatewaySyncService::class.java,
-            ),
-        )
+        serviceRule.bindService(Intent(getApplicationContext(), GatewaySyncService::class.java))
+    }
+
+    @After
+    fun tearDown() {
+        Thread.sleep(3000) // Wait for netty to properly stop, to avoid a RejectedExecutionException
     }
 
     @Test
-    @Ignore("Failing on CI with RejectedExecutionException since ktor v2")
     fun parcelDelivery_validParcel() = runTest {
         setGatewayCertificate(PDACertPath.PRIVATE_GW)
         val recipientId = "0deadbeef"
@@ -78,7 +76,6 @@ class GatewaySyncServiceParcelDeliveryTest {
     }
 
     @Test(expected = RejectedParcelException::class)
-    @Ignore("Failing on CI with RejectedExecutionException since ktor v2")
     fun parcelDelivery_invalidParcel() = runTest {
         val fiveMinutesAgo = ZonedDateTime.now().minusMinutes(5)
         val recipientId = "0deadbeef"

@@ -14,7 +14,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import tech.relaycorp.gateway.App
@@ -57,7 +56,6 @@ class EndpointPreRegistrationServiceTest {
     }
 
     @Test
-    @Ignore("Failing on CI with RejectedExecutionException since ktor v2")
     fun requestPreRegistration() = runTest(coroutineContext) {
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
@@ -101,7 +99,6 @@ class EndpointPreRegistrationServiceTest {
     }
 
     @Test
-    @Ignore("Failing on CI with RejectedExecutionException since ktor v2")
     fun invalidRequestIsIgnored() {
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
@@ -116,7 +113,6 @@ class EndpointPreRegistrationServiceTest {
     }
 
     @Test
-    @Ignore("Failing on CI with RejectedExecutionException since ktor v2")
     fun errorReturnedWhenGatewayIsNotRegisteredYet() = runTest(coroutineContext) {
         internetGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
 

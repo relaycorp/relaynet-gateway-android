@@ -1,17 +1,17 @@
 package tech.relaycorp.gateway.background.endpoint
 
-import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.rule.ServiceTestRule
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import tech.relaycorp.gateway.data.model.RecipientLocation
@@ -44,20 +44,22 @@ class GatewaySyncServiceParcelCollectionTest {
     @Inject
     lateinit var storeParcel: StoreParcel
 
+    private val coroutineContext
+        get() = UnconfinedTestDispatcher()
+
     @Before
     fun setUp() {
         AppTestProvider.component.inject(this)
-        serviceRule.bindService(
-            Intent(
-                getApplicationContext<Context>(),
-                GatewaySyncService::class.java,
-            ),
-        )
+        serviceRule.bindService(Intent(getApplicationContext(), GatewaySyncService::class.java))
+    }
+
+    @After
+    fun tearDown() {
+        Thread.sleep(3000) // Wait for netty to properly stop, to avoid a RejectedExecutionException
     }
 
     @Test
-    @Ignore("Failing on CI with RejectedExecutionException since ktor v2")
-    fun parcelCollection_receiveParcel() = runTest {
+    fun parcelCollection_receiveParcel() = runTest(coroutineContext) {
         val parcel = ParcelFactory.buildSerialized()
         val storeResult = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
         assertTrue(storeResult is StoreParcel.Result.Success)
@@ -81,8 +83,7 @@ class GatewaySyncServiceParcelCollectionTest {
     }
 
     @Test(expected = ServerConnectionException::class)
-    @Ignore("Failing on CI with RejectedExecutionException since ktor v2")
-    fun parcelCollection_invalidHandshake() = runTest {
+    fun parcelCollection_invalidHandshake() = runTest(coroutineContext) {
         val parcel = ParcelFactory.buildSerialized()
         val storeResult = storeParcel.store(parcel, RecipientLocation.LocalEndpoint)
         assertTrue(storeResult is StoreParcel.Result.Success)
