@@ -66,6 +66,7 @@ object StrictModeSetup {
         "Typeface.loadSystemFonts",
         // Xiaomi startup font loading
         "TypefaceUtils.loadFontSettings",
+        "TypefaceUtils.initSystemFont",
     )
 
     @RequiresApi(Build.VERSION_CODES.P)

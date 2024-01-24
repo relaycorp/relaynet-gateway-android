@@ -16,7 +16,7 @@ This private gateway implements [Awala bindings](https://specs.awala.network/RS-
 
 The local communication with endpoints does not use TLS, but all other connections are external and therefore require TLS.
 
-By default, instances of this gateway are paired to [Relaycorp's Frankfurt gateway](https://github.com/relaycorp/cloud-gateway/tree/main/environments/frankfurt).
+By default, instances of this gateway are paired to [Relaycorp's Belgian gateway](https://github.com/relaycorp/cloud-gateway/tree/main/environments/belgium) (`belgium.relaycorp.services`).
 
 ## Security and privacy considerations
 
@@ -26,7 +26,7 @@ The items below summarize the security and privacy considerations specific to th
 
 In addition to communicating with its public gateway, this app communicates with the following:
 
-- `https://dns.google/dns-query` as the DNS-over-HTTPS (DoH) resolver, which [we plan to replace with Cloudflare's](https://github.com/relaycorp/relaynet-gateway-android/issues/249). DoH is only used to resolve SRV records for the public gateway (e.g., [`_awala-gsc._tcp.frankfurt.relaycorp.cloud`](https://mxtoolbox.com/SuperTool.aspx?action=srv%3a_awala-gsc._tcp.frankfurt.relaycorp.cloud&run=toolpage)), as we delegate the DNSSEC validation to the DoH resolver.
+- `https://dns.google/dns-query` as the DNS-over-HTTPS (DoH) resolver, which [we plan to replace with Cloudflare's](https://github.com/relaycorp/relaynet-gateway-android/issues/249). DoH is only used to resolve SRV records for the public gateway (e.g., [`_awala-gsc._tcp.belgium.relaycorp.services`](https://mxtoolbox.com/SuperTool.aspx?action=srv%3a_awala-gsc._tcp.belgium.relaycorp.services&run=toolpage)), as we delegate the DNSSEC validation to the DoH resolver.
 - `https://google.com`. When the public gateway can't be reached, this app will make periodic GET requests to Google to check if the device is connected to the Internet and thus provide the user with a more helpful message about the reason why things aren't working. We chose `google.com` because of its likelihood to be available and uncensored.
 - The host running the DHCP server on port `21473`, when the device is connected to a WiFi network but disconnected from the Internet. We do this to check whether the device is connected to the WiFi hotspot of a courier.
 - Other apps on the same device can potentially communicate with the local PoWeb server provided by this app on `127.0.0.1:13276`. Because this server uses the HTTP and WebSocket protocols, we block web browser requests by disabling CORS and refusing WebSocket connections with the `Origin` header (per the PoWeb specification).
