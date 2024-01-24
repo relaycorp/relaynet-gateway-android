@@ -152,8 +152,8 @@ dependencies {
     // Awala
     implementation 'tech.relaycorp:awala:1.67.10'
     implementation 'tech.relaycorp:awala-keystore-file:1.6.31'
-    implementation 'tech.relaycorp:cogrpc:1.1.31'
-    implementation 'tech.relaycorp:cogrpc-okhttp:1.1.22'
+    implementation 'tech.relaycorp:cogrpc:1.1.32'
+    implementation 'tech.relaycorp:cogrpc-okhttp:1.1.28'
     testImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
     androidTestImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
 
