@@ -10,7 +10,7 @@ buildscript {
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.8.2.1'
     }
     ext {
-        ktorVersion = '1.6.8'
+        ktorVersion = '2.3.7'
         junitVersion = '5.8.2'
         awalaTestingVersion = '1.5.10'
     }
@@ -152,8 +152,8 @@ dependencies {
     // Awala
     implementation 'tech.relaycorp:awala:1.67.10'
     implementation 'tech.relaycorp:awala-keystore-file:1.6.31'
-    implementation 'tech.relaycorp:cogrpc:1.1.31'
-    implementation 'tech.relaycorp:cogrpc-okhttp:1.1.22'
+    implementation 'tech.relaycorp:cogrpc:1.1.32'
+    implementation 'tech.relaycorp:cogrpc-okhttp:1.1.28'
     testImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
     androidTestImplementation "tech.relaycorp:awala-testing:$awalaTestingVersion"
 
@@ -162,14 +162,14 @@ dependencies {
     implementation 'org.conscrypt:conscrypt-android:2.5.2'
 
     // Local and Internet-based Parcel Delivery Connections (PDCs)
-    implementation 'tech.relaycorp:poweb:1.5.69'
+    implementation 'tech.relaycorp:poweb:1.5.80'
     implementation "io.ktor:ktor-server-core:$ktorVersion"
     implementation "io.ktor:ktor-server-netty:$ktorVersion"
+    implementation "io.ktor:ktor-server-websockets:$ktorVersion"
     implementation "io.ktor:ktor-utils:$ktorVersion"
-    implementation "io.ktor:ktor-websockets:$ktorVersion"
     implementation "io.ktor:ktor-client-websockets:$ktorVersion"
     implementation "io.ktor:ktor-client-cio:$ktorVersion"
-    implementation 'tech.relaycorp:doh:1.0.10'
+    implementation 'tech.relaycorp:doh:1.0.51'
     testImplementation "io.ktor:ktor-server-test-host:$ktorVersion"
     testImplementation "io.ktor:ktor-test-dispatcher:$ktorVersion"
 

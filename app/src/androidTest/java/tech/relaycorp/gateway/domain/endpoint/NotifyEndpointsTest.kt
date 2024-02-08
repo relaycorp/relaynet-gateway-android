@@ -10,7 +10,7 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -28,95 +28,85 @@ class NotifyEndpointsTest {
     }
 
     @Test
-    fun notifyAllPending_oncePerEndpoint() {
-        runBlocking {
-            val parcel1 = StoredParcelFactory.build()
-                .copy(recipientLocation = RecipientLocation.LocalEndpoint)
-            val parcel2 = StoredParcelFactory.build()
-                .copy(recipientLocation = RecipientLocation.LocalEndpoint)
+    fun notifyAllPending_oncePerEndpoint() = runTest {
+        val parcel1 = StoredParcelFactory.build()
+            .copy(recipientLocation = RecipientLocation.LocalEndpoint)
+        val parcel2 = StoredParcelFactory.build()
+            .copy(recipientLocation = RecipientLocation.LocalEndpoint)
 
-            val endpoint1 = LocalEndpointFactory.build().copy(address = parcel1.recipientAddress)
-            val endpoint2 = LocalEndpointFactory.build().copy(address = parcel2.recipientAddress)
+        val endpoint1 = LocalEndpointFactory.build().copy(address = parcel1.recipientAddress)
+        val endpoint2 = LocalEndpointFactory.build().copy(address = parcel2.recipientAddress)
 
-            whenever(getEndpointReceiver.get(any(), any())).thenReturn(".Receiver")
+        whenever(getEndpointReceiver.get(any(), any())).thenReturn(".Receiver")
 
-            notifyEndpoints.notify(
-                listOf(endpoint1, endpoint2),
-                NotificationType.IncomingParcel,
-            )
+        notifyEndpoints.notify(
+            listOf(endpoint1, endpoint2),
+            NotificationType.IncomingParcel,
+        )
 
-            verify(context, times(2)).sendBroadcast(
-                check {
-                    assertTrue(
-                        listOf(endpoint1.applicationId, endpoint2.applicationId)
-                            .contains(it.component?.packageName),
-                    )
-                    assertEquals(".Receiver", it.component?.className)
-                },
-            )
-            verifyNoMoreInteractions(context)
-        }
+        verify(context, times(2)).sendBroadcast(
+            check {
+                assertTrue(
+                    listOf(endpoint1.applicationId, endpoint2.applicationId)
+                        .contains(it.component?.packageName),
+                )
+                assertEquals(".Receiver", it.component?.className)
+            },
+        )
+        verifyNoMoreInteractions(context)
     }
 
     @Test
-    fun notifyAllPending_oncePerApplicationId() {
-        runBlocking {
-            val appId = "123"
-            val endpoint = LocalEndpointFactory.build()
-                .copy(applicationId = "123")
+    fun notifyAllPending_oncePerApplicationId() = runTest {
+        val appId = "123"
+        val endpoint = LocalEndpointFactory.build()
+            .copy(applicationId = "123")
 
-            whenever(getEndpointReceiver.get(any(), any())).thenReturn(".Receiver")
+        whenever(getEndpointReceiver.get(any(), any())).thenReturn(".Receiver")
 
-            notifyEndpoints.notify(
-                listOf(endpoint, endpoint),
-                NotificationType.IncomingParcel,
-            )
+        notifyEndpoints.notify(
+            listOf(endpoint, endpoint),
+            NotificationType.IncomingParcel,
+        )
 
-            verify(context, times(1)).sendBroadcast(
-                check {
-                    assertEquals(appId, it.component?.packageName)
-                    assertEquals(".Receiver", it.component?.className)
-                },
-            )
-            verifyNoMoreInteractions(context)
-        }
+        verify(context, times(1)).sendBroadcast(
+            check {
+                assertEquals(appId, it.component?.packageName)
+                assertEquals(".Receiver", it.component?.className)
+            },
+        )
+        verifyNoMoreInteractions(context)
     }
 
     @Test
-    fun notify_withKnownAddressAndReceiver() {
-        runBlocking {
-            val endpoint = LocalEndpointFactory.build()
-            val receiverName = "${endpoint.applicationId}.Receiver"
-            whenever(getEndpointReceiver.get(any(), any())).thenReturn(receiverName)
+    fun notify_withKnownAddressAndReceiver() = runTest {
+        val endpoint = LocalEndpointFactory.build()
+        val receiverName = "${endpoint.applicationId}.Receiver"
+        whenever(getEndpointReceiver.get(any(), any())).thenReturn(receiverName)
 
-            notifyEndpoints.notify(endpoint, NotificationType.IncomingParcel)
+        notifyEndpoints.notify(endpoint, NotificationType.IncomingParcel)
 
-            verify(context).sendBroadcast(
-                check {
-                    assertEquals(endpoint.applicationId, it.component?.packageName)
-                    assertEquals(receiverName, it.component?.className)
-                },
-            )
-        }
+        verify(context).sendBroadcast(
+            check {
+                assertEquals(endpoint.applicationId, it.component?.packageName)
+                assertEquals(receiverName, it.component?.className)
+            },
+        )
     }
 
     @Test
-    fun notify_withKnownAddressButWithoutReceiver() {
-        runBlocking {
-            whenever(getEndpointReceiver.get(any(), any())).thenReturn(null)
-            verifyNoMoreInteractions(context)
-        }
+    fun notify_withKnownAddressButWithoutReceiver() = runTest {
+        whenever(getEndpointReceiver.get(any(), any())).thenReturn(null)
+        verifyNoMoreInteractions(context)
     }
 
     @Test
-    fun notify_withUnknownAddress() {
-        runBlocking {
-            whenever(getEndpointReceiver.get(any(), any())).thenReturn(null)
-            notifyEndpoints.notify(
-                LocalEndpointFactory.build(),
-                NotificationType.IncomingParcel,
-            )
-            verify(context, never()).sendBroadcast(any(), any())
-        }
+    fun notify_withUnknownAddress() = runTest {
+        whenever(getEndpointReceiver.get(any(), any())).thenReturn(null)
+        notifyEndpoints.notify(
+            LocalEndpointFactory.build(),
+            NotificationType.IncomingParcel,
+        )
+        verify(context, never()).sendBroadcast(any(), any())
     }
 }

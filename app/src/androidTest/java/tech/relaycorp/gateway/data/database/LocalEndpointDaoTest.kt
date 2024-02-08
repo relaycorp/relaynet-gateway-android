@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import tech.relaycorp.gateway.test.factory.LocalEndpointFactory
@@ -17,31 +17,27 @@ class LocalEndpointDaoTest {
             .localEndpointDao()
 
     @Test
-    internal fun countApplicationIds() {
-        runBlocking {
-            val endpoint1 = LocalEndpointFactory.build()
-            val endpoint2 = LocalEndpointFactory.build()
-            val endpoint3 =
-                LocalEndpointFactory.build().copy(applicationId = endpoint2.applicationId)
+    internal fun countApplicationIds() = runTest {
+        val endpoint1 = LocalEndpointFactory.build()
+        val endpoint2 = LocalEndpointFactory.build()
+        val endpoint3 =
+            LocalEndpointFactory.build().copy(applicationId = endpoint2.applicationId)
 
-            listOf(endpoint1, endpoint2, endpoint3).forEach { dao.insert(it) }
+        listOf(endpoint1, endpoint2, endpoint3).forEach { dao.insert(it) }
 
-            val result = dao.countApplicationIds().first()
-            assertEquals(2, result)
-        }
+        val result = dao.countApplicationIds().first()
+        assertEquals(2, result)
     }
 
     @Test
-    internal fun listAll() {
-        runBlocking {
-            val endpoint1 = LocalEndpointFactory.build()
-            val endpoint2 = LocalEndpointFactory.build()
-            val endpoint3 = LocalEndpointFactory.build()
+    internal fun listAll() = runTest {
+        val endpoint1 = LocalEndpointFactory.build()
+        val endpoint2 = LocalEndpointFactory.build()
+        val endpoint3 = LocalEndpointFactory.build()
 
-            listOf(endpoint1, endpoint2, endpoint3).forEach { dao.insert(it) }
+        listOf(endpoint1, endpoint2, endpoint3).forEach { dao.insert(it) }
 
-            val result = dao.list()
-            assertEquals(3, result.size)
-        }
+        val result = dao.list()
+        assertEquals(3, result.size)
     }
 }

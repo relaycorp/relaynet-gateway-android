@@ -1,14 +1,14 @@
 package tech.relaycorp.gateway.pdc.local.routes
 
 import androidx.annotation.VisibleForTesting
-import io.ktor.http.cio.websocket.CloseReason
-import io.ktor.http.cio.websocket.Frame
-import io.ktor.http.cio.websocket.close
-import io.ktor.http.cio.websocket.readText
-import io.ktor.request.header
-import io.ktor.routing.Routing
-import io.ktor.websocket.DefaultWebSocketServerSession
-import io.ktor.websocket.webSocket
+import io.ktor.server.request.header
+import io.ktor.server.routing.Routing
+import io.ktor.server.websocket.DefaultWebSocketServerSession
+import io.ktor.server.websocket.webSocket
+import io.ktor.websocket.CloseReason
+import io.ktor.websocket.Frame
+import io.ktor.websocket.close
+import io.ktor.websocket.readText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.ClosedReceiveChannelException

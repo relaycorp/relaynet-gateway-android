@@ -3,7 +3,7 @@ package tech.relaycorp.gateway.data.database
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -17,17 +17,15 @@ class ParcelCollectionDaoTest {
             .parcelCollectionDao()
 
     @Test
-    internal fun exists() {
-        runBlocking {
-            val element = ParcelCollectionFactory.build()
-            assertFalse(
-                dao.exists(element.recipientAddress, element.senderAddress, element.messageId),
-            )
+    internal fun exists() = runTest {
+        val element = ParcelCollectionFactory.build()
+        assertFalse(
+            dao.exists(element.recipientAddress, element.senderAddress, element.messageId),
+        )
 
-            dao.insert(element)
-            assertTrue(
-                dao.exists(element.recipientAddress, element.senderAddress, element.messageId),
-            )
-        }
+        dao.insert(element)
+        assertTrue(
+            dao.exists(element.recipientAddress, element.senderAddress, element.messageId),
+        )
     }
 }

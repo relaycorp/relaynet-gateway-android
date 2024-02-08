@@ -8,7 +8,8 @@ import android.os.Message
 import android.os.Messenger
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.rule.ServiceTestRule
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -43,18 +44,19 @@ class EndpointPreRegistrationServiceTest {
     @Inject
     lateinit var internetGatewayPreferences: InternetGatewayPreferences
 
-    private val coroutineContext get() = app.backgroundScope.coroutineContext
+    private val coroutineContext
+        get() = app.backgroundScope.coroutineContext + UnconfinedTestDispatcher()
 
     @Before
     fun setUp() {
         AppTestProvider.component.inject(this)
-        runBlocking(coroutineContext) {
+        runTest(coroutineContext) {
             internetGatewayPreferences.setRegistrationState(RegistrationState.Done)
         }
     }
 
     @Test
-    fun requestPreRegistration() = runBlocking(coroutineContext) {
+    fun requestPreRegistration() = runTest(coroutineContext) {
         val serviceIntent = Intent(
             getApplicationContext<Context>(),
             EndpointPreRegistrationService::class.java,
@@ -111,7 +113,7 @@ class EndpointPreRegistrationServiceTest {
     }
 
     @Test
-    fun errorReturnedWhenGatewayIsNotRegisteredYet() = runBlocking(coroutineContext) {
+    fun errorReturnedWhenGatewayIsNotRegisteredYet() = runTest(coroutineContext) {
         internetGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
 
         val serviceIntent = Intent(

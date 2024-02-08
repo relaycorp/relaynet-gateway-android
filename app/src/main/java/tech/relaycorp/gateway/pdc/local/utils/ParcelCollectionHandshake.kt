@@ -1,10 +1,10 @@
 package tech.relaycorp.gateway.pdc.local.utils
 
-import io.ktor.http.cio.websocket.CloseReason
-import io.ktor.http.cio.websocket.Frame
-import io.ktor.http.cio.websocket.close
-import io.ktor.http.cio.websocket.readBytes
-import io.ktor.websocket.DefaultWebSocketServerSession
+import io.ktor.server.websocket.DefaultWebSocketServerSession
+import io.ktor.websocket.CloseReason
+import io.ktor.websocket.Frame
+import io.ktor.websocket.close
+import io.ktor.websocket.readBytes
 import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.relaynet.bindings.pdc.DetachedSignatureType
 import tech.relaycorp.relaynet.bindings.pdc.InvalidSignatureException

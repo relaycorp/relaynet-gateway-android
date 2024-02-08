@@ -1,11 +1,11 @@
 package tech.relaycorp.gateway.pdc.local
 
-import io.ktor.application.Application
-import io.ktor.application.install
-import io.ktor.routing.routing
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import io.ktor.websocket.WebSockets
+import io.ktor.server.routing.routing
+import io.ktor.server.websocket.WebSockets
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import tech.relaycorp.gateway.pdc.local.routes.EndpointRegistrationRoute
