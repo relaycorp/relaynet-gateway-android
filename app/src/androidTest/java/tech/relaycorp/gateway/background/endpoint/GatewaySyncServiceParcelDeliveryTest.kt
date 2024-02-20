@@ -10,6 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.database.StoredParcelDao
 import tech.relaycorp.gateway.data.disk.FileStore
 import tech.relaycorp.gateway.data.model.MessageAddress
@@ -41,6 +42,9 @@ class GatewaySyncServiceParcelDeliveryTest {
     @Inject
     lateinit var storedParcelDao: StoredParcelDao
 
+    private val coroutineContext
+        get() = (getApplicationContext() as App).backgroundContext
+
     @Before
     fun setUp() {
         AppTestProvider.component.inject(this)
@@ -49,11 +53,12 @@ class GatewaySyncServiceParcelDeliveryTest {
 
     @After
     fun tearDown() {
+        serviceRule.unbindService()
         Thread.sleep(3000) // Wait for netty to properly stop, to avoid a RejectedExecutionException
     }
 
     @Test
-    fun parcelDelivery_validParcel() = runTest {
+    fun parcelDelivery_validParcel() = runTest(coroutineContext) {
         setGatewayCertificate(PDACertPath.PRIVATE_GW)
         val recipientId = "0deadbeef"
         val recipientInternetAddress = "example.org"
@@ -76,7 +81,7 @@ class GatewaySyncServiceParcelDeliveryTest {
     }
 
     @Test(expected = RejectedParcelException::class)
-    fun parcelDelivery_invalidParcel() = runTest {
+    fun parcelDelivery_invalidParcel() = runTest(coroutineContext) {
         val fiveMinutesAgo = ZonedDateTime.now().minusMinutes(5)
         val recipientId = "0deadbeef"
         val recipientInternetAddress = "example.org"

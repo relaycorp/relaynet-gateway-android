@@ -5,9 +5,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import tech.relaycorp.gateway.background.ConnectionState
 import tech.relaycorp.gateway.background.ConnectionStateObserver
@@ -45,22 +47,26 @@ class PublicSync
         combine(
             foregroundAppMonitor.observe(),
             pdcServerStateManager.observe(),
-            connectionStateObserver.observe(),
             // Retry registration and sync every minute in case there's a failure
             interval(1.minutes),
-        ) { foregroundState, pdcState, connectionState, _ ->
-            if (
-                connectionState is ConnectionState.InternetWithGateway && (
+        ) { foregroundState, pdcState, _ -> Pair(foregroundState, pdcState) }
+            .flatMapLatest { (foregroundState, pdcState) ->
+                if (
                     foregroundState == ForegroundAppMonitor.State.Foreground ||
-                        pdcState == PDCServer.State.Started
-                    )
-            ) {
-                startSync()
-            } else {
-                stopSync()
+                    pdcState == PDCServer.State.Started
+                ) {
+                    connectionStateObserver.observe()
+                        .map { it is ConnectionState.InternetWithGateway }
+                } else {
+                    flowOf(false)
+                }
+            }.collect { syncShouldBeRunning ->
+                if (syncShouldBeRunning) {
+                    startSync()
+                } else {
+                    stopSync()
+                }
             }
-        }
-            .collect()
     }
 
     suspend fun syncOneOff() {

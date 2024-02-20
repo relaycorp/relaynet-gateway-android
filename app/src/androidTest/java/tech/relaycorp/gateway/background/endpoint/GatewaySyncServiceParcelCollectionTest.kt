@@ -6,7 +6,6 @@ import androidx.test.rule.ServiceTestRule
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -14,6 +13,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import tech.relaycorp.gateway.App
 import tech.relaycorp.gateway.data.model.RecipientLocation
 import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.pdc.local.PDCServer
@@ -45,7 +45,7 @@ class GatewaySyncServiceParcelCollectionTest {
     lateinit var storeParcel: StoreParcel
 
     private val coroutineContext
-        get() = UnconfinedTestDispatcher()
+        get() = (getApplicationContext() as App).backgroundContext
 
     @Before
     fun setUp() {
@@ -55,6 +55,7 @@ class GatewaySyncServiceParcelCollectionTest {
 
     @After
     fun tearDown() {
+        serviceRule.unbindService()
         Thread.sleep(3000) // Wait for netty to properly stop, to avoid a RejectedExecutionException
     }
 

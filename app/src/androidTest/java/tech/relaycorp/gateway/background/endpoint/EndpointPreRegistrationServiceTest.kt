@@ -8,7 +8,6 @@ import android.os.Message
 import android.os.Messenger
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.rule.ServiceTestRule
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -45,7 +44,7 @@ class EndpointPreRegistrationServiceTest {
     lateinit var internetGatewayPreferences: InternetGatewayPreferences
 
     private val coroutineContext
-        get() = app.backgroundScope.coroutineContext + UnconfinedTestDispatcher()
+        get() = (getApplicationContext() as App).backgroundContext
 
     @Before
     fun setUp() {
@@ -117,7 +116,7 @@ class EndpointPreRegistrationServiceTest {
         internetGatewayPreferences.setRegistrationState(RegistrationState.ToDo)
 
         val serviceIntent = Intent(
-            getApplicationContext<Context>(),
+            getApplicationContext(),
             EndpointPreRegistrationService::class.java,
         )
         val binder = serviceRule.bindService(serviceIntent)
