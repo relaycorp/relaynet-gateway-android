@@ -6,21 +6,22 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
 import io.ktor.server.websocket.WebSockets
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import tech.relaycorp.gateway.pdc.local.routes.EndpointRegistrationRoute
 import tech.relaycorp.gateway.pdc.local.routes.PDCServerRoute
 import tech.relaycorp.gateway.pdc.local.routes.ParcelCollectionRoute
 import tech.relaycorp.gateway.pdc.local.routes.ParcelDeliveryRoute
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.seconds
 
 class PDCServer
 @Inject constructor(
     private val stateManager: PDCServerStateManager,
     endpointRegistrationRoute: EndpointRegistrationRoute,
-    parcelCollectionRoute: ParcelCollectionRoute,
+    private val parcelCollectionRoute: ParcelCollectionRoute,
     parcelDeliveryRoute: ParcelDeliveryRoute,
+    private val backgroundContext: CoroutineContext,
 ) {
 
     private val server by lazy {
@@ -37,15 +38,16 @@ class PDCServer
     }
 
     suspend fun start() {
-        withContext(Dispatchers.IO) {
+        withContext(backgroundContext) {
             server.start(false)
         }
         stateManager.set(State.Started)
     }
 
     suspend fun stop() {
-        withContext(Dispatchers.IO) {
-            server.stop(0, CALL_DEADLINE.inWholeMilliseconds)
+        withContext(backgroundContext) {
+            parcelCollectionRoute.stop()
+            server.stop(1000, CALL_DEADLINE.inWholeMilliseconds)
         }
         stateManager.set(State.Stopped)
     }

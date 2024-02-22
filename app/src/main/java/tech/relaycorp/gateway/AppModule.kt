@@ -7,6 +7,7 @@ import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import dagger.Module
 import dagger.Provides
+import kotlin.coroutines.CoroutineContext
 
 @Module
 open class AppModule(
@@ -34,4 +35,7 @@ open class AppModule(
 
     @Provides
     fun wifiManager() = app.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+    @Provides
+    fun backgroundCoroutineContext(): CoroutineContext = app.backgroundContext
 }

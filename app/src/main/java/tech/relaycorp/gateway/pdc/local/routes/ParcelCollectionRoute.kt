@@ -56,6 +56,10 @@ class ParcelCollectionRoute
         }
     }
 
+    fun stop() {
+        asyncJob.cancel()
+    }
+
     private suspend fun DefaultWebSocketServerSession.handle() {
         if (call.request.header(HEADER_ORIGIN) != null) {
             // The client is most likely a (malicious) web page

@@ -44,8 +44,10 @@ open class App : Application() {
         }
     }
 
+    open val backgroundContext = Dispatchers.IO
+
     @VisibleForTesting
-    val backgroundScope = CoroutineScope(Dispatchers.IO)
+    val backgroundScope get() = CoroutineScope(backgroundContext)
 
     @Inject
     lateinit var foregroundAppMonitor: ForegroundAppMonitor
