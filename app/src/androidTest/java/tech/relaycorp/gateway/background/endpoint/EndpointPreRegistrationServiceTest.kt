@@ -22,8 +22,14 @@ import tech.relaycorp.gateway.domain.LocalConfig
 import tech.relaycorp.gateway.test.AppTestProvider
 import tech.relaycorp.gateway.test.KeystoreResetTestRule
 import tech.relaycorp.gateway.test.WaitAssertions.waitFor
+import tech.relaycorp.relaynet.issueGatewayCertificate
+import tech.relaycorp.relaynet.keystores.CertificateStore
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistrationAuthorization
+import tech.relaycorp.relaynet.testing.pki.KeyPairSet
+import tech.relaycorp.relaynet.testing.pki.PDACertPath
+import tech.relaycorp.relaynet.wrappers.nodeId
 import java.nio.charset.Charset
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 class EndpointPreRegistrationServiceTest {
@@ -41,6 +47,9 @@ class EndpointPreRegistrationServiceTest {
     lateinit var localConfig: LocalConfig
 
     @Inject
+    lateinit var certificateStore: CertificateStore
+
+    @Inject
     lateinit var internetGatewayPreferences: InternetGatewayPreferences
 
     private val coroutineContext
@@ -51,13 +60,19 @@ class EndpointPreRegistrationServiceTest {
         AppTestProvider.component.inject(this)
         runTest(coroutineContext) {
             internetGatewayPreferences.setRegistrationState(RegistrationState.Done)
+            certificateStore.delete(
+                localConfig.getIdentityKey().nodeId,
+                internetGatewayPreferences.getId(),
+            )
         }
     }
 
     @Test
     fun requestPreRegistration() = runTest(coroutineContext) {
+        setIdentityCertificate(ZonedDateTime.now().plusMinutes(1))
+
         val serviceIntent = Intent(
-            getApplicationContext<Context>(),
+            getApplicationContext(),
             EndpointPreRegistrationService::class.java,
         )
         val binder = serviceRule.bindService(serviceIntent)
@@ -100,7 +115,7 @@ class EndpointPreRegistrationServiceTest {
     @Test
     fun invalidRequestIsIgnored() {
         val serviceIntent = Intent(
-            getApplicationContext<Context>(),
+            getApplicationContext(),
             EndpointPreRegistrationService::class.java,
         )
         val binder = serviceRule.bindService(serviceIntent)
@@ -141,5 +156,52 @@ class EndpointPreRegistrationServiceTest {
             EndpointPreRegistrationService.GATEWAY_NOT_REGISTERED,
             resultMessage!!.what,
         )
+    }
+
+    @Test
+    fun errorReturnedWhenGatewaysCertificateIsExpired() = runTest(coroutineContext) {
+        val serviceIntent = Intent(
+            getApplicationContext(),
+            EndpointPreRegistrationService::class.java,
+        )
+        val binder = serviceRule.bindService(serviceIntent)
+
+        // Deleting all our certificates it's the same as having only expired certificates
+        certificateStore.delete(
+            localConfig.getIdentityKey().nodeId,
+            internetGatewayPreferences.getId(),
+        )
+
+        var resultMessage: Message? = null
+
+        val messenger = Messenger(binder)
+        val handler = object : Handler(Looper.getMainLooper()) {
+            override fun handleMessage(msg: Message) {
+                resultMessage = Message.obtain().also { it.copyFrom(msg) }
+            }
+        }
+        val requestMessage =
+            Message.obtain(handler, EndpointPreRegistrationService.PRE_REGISTRATION_REQUEST)
+        requestMessage.replyTo = Messenger(handler)
+        messenger.send(requestMessage)
+
+        waitFor {
+            assertNotNull("We should have got a reply", resultMessage)
+        }
+        assertEquals(
+            EndpointPreRegistrationService.GATEWAY_NOT_REGISTERED,
+            resultMessage!!.what,
+        )
+    }
+
+    private suspend fun setIdentityCertificate(validityEndDate: ZonedDateTime) {
+        val expiredCertificate = issueGatewayCertificate(
+            KeyPairSet.PRIVATE_GW.public,
+            KeyPairSet.INTERNET_GW.private,
+            validityEndDate = validityEndDate,
+            PDACertPath.INTERNET_GW,
+            validityStartDate = ZonedDateTime.now().minusMinutes(1),
+        )
+        localConfig.setIdentityCertificate(expiredCertificate)
     }
 }
