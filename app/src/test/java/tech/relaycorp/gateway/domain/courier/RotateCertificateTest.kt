@@ -47,7 +47,7 @@ class RotateCertificateTest {
 
         rotateCertificate(certificateRotation.serialize())
 
-        verify(localConfig).setIdentityCertificate(
+        verify(localConfig).addIdentityCertificate(
             check { assertArrayEquals(newIdCertificate.serialize(), it.serialize()) },
             any(),
         )

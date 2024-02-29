@@ -63,6 +63,14 @@ class LocalConfig
         leafCertificate: Certificate,
         certificateChain: List<Certificate> = emptyList(),
     ) {
+        certificateStore.get().delete(leafCertificate.subjectId, getInternetGatewayId())
+        addIdentityCertificate(leafCertificate, certificateChain)
+    }
+
+    suspend fun addIdentityCertificate(
+        leafCertificate: Certificate,
+        certificateChain: List<Certificate> = emptyList(),
+    ) {
         certificateStore.get()
             .save(
                 CertificationPath(leafCertificate, certificateChain),

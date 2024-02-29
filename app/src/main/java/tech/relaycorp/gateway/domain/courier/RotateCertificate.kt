@@ -28,7 +28,7 @@ class RotateCertificate @Inject constructor(
 
         if (currentIdCert.expiryDate >= newIdCert.expiryDate) return
 
-        localConfig.setIdentityCertificate(newIdCert)
+        localConfig.addIdentityCertificate(newIdCert)
         certRotation.certificationPath.certificateAuthorities.first().let { internetCert ->
             internetGatewayPreferences.setPublicKey(internetCert.subjectPublicKey)
         }
