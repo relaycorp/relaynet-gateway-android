@@ -5,9 +5,10 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -70,11 +71,11 @@ class GenerateCCATest : BaseDataTestCase() {
     }
 
     @Test
-    fun `generate in ByteArray`() = runBlockingTest {
+    fun `generate in ByteArray`() = runTest {
         val creationDate = nowInUtc()
         whenever(calculateCreationDate.calculate()).thenReturn(creationDate)
 
-        val ccaBytes = generateCCA.generateSerialized()
+        val ccaBytes = generateCCA.generateSerialized()!!
         val cca = CargoCollectionAuthorization.deserialize(ccaBytes)
 
         cca.validate(null)
@@ -88,5 +89,14 @@ class GenerateCCATest : BaseDataTestCase() {
             KeyPairSet.INTERNET_GW.public,
             ccr.cargoDeliveryAuthorization.subjectPublicKey,
         )
+    }
+
+    @Test
+    fun `returns null when gateway is not registered`() = runTest {
+        whenever(internetGatewayPreferences.getId()).thenReturn(null)
+        whenever(internetGatewayPreferences.getPublicKey()).thenReturn(null)
+        whenever(calculateCreationDate.calculate()).thenReturn(nowInUtc())
+
+        assertNull(generateCCA.generateSerialized())
     }
 }

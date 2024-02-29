@@ -2,6 +2,7 @@ package tech.relaycorp.gateway.domain
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import tech.relaycorp.gateway.common.Logging.logger
 import tech.relaycorp.gateway.common.nowInUtc
 import tech.relaycorp.gateway.common.toPublicKey
 import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
@@ -47,8 +48,10 @@ class LocalConfig
         getIdentityCertificationPath().leafCertificate
 
     private suspend fun getIdentityCertificationPath(): CertificationPath = getIdentityKey().let {
-        certificateStore.get()
-            .retrieveLatest(it.nodeId, getInternetGatewayId())
+        getInternetGatewayId()?.let { internetGatewayId ->
+            certificateStore.get()
+                .retrieveLatest(it.nodeId, internetGatewayId)
+        }
             ?: CertificationPath(generateIdentityCertificate(it), emptyList())
     }
 
@@ -56,18 +59,24 @@ class LocalConfig
         getAllValidIdentityCertificationPaths().map { it.leafCertificate }
 
     private suspend fun getAllValidIdentityCertificationPaths(): List<CertificationPath> =
-        certificateStore.get()
-            .retrieveAll(getIdentityKey().nodeId, getInternetGatewayId())
+        getInternetGatewayId()?.let { internetGatewayId ->
+            certificateStore.get()
+                .retrieveAll(getIdentityKey().nodeId, internetGatewayId)
+        }.orEmpty()
 
     suspend fun setIdentityCertificate(
         leafCertificate: Certificate,
         certificateChain: List<Certificate> = emptyList(),
     ) {
-        certificateStore.get()
-            .save(
-                CertificationPath(leafCertificate, certificateChain),
-                getInternetGatewayId(),
-            )
+        getInternetGatewayId()?.let { internetGatewayId ->
+            certificateStore.get()
+                .save(
+                    CertificationPath(leafCertificate, certificateChain),
+                    internetGatewayId,
+                )
+        } ?: logger.severe(
+            "Will not save identity certificate because the internet gateway is not registered yet",
+        )
     }
 
     private suspend fun generateIdentityCertificate(privateKey: PrivateKey): Certificate {

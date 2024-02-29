@@ -6,14 +6,11 @@ import com.fredporciuncula.flow.preferences.FlowSharedPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import tech.relaycorp.gateway.R
-import tech.relaycorp.gateway.data.disk.ReadRawFile
 import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
 import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
 import tech.relaycorp.relaynet.wrappers.deserializeRSAPublicKey
 import tech.relaycorp.relaynet.wrappers.nodeId
-import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.security.PublicKey
 import javax.inject.Inject
 import javax.inject.Provider
@@ -23,7 +20,6 @@ import javax.inject.Singleton
 class InternetGatewayPreferences
 @Inject constructor(
     private val preferences: Provider<FlowSharedPreferences>,
-    private val readRawFile: ReadRawFile,
     private val resolveServiceAddress: ResolveServiceAddress,
 ) {
     // Address
@@ -45,17 +41,14 @@ class InternetGatewayPreferences
         preferences.get().getString("public_gateway_public_key")
     }
 
-    suspend fun getPublicKey(): PublicKey = observePublicKey().first()
+    suspend fun getPublicKey(): PublicKey? = observePublicKey().first()
 
-    private fun observePublicKey(): Flow<PublicKey> = { publicKey }.toFlow()
+    private fun observePublicKey(): Flow<PublicKey?> = { publicKey }.toFlow()
         .map {
-            if (it.isEmpty()) {
-                readRawFile.read(R.raw.public_gateway_cert)
-                    .let(Certificate.Companion::deserialize)
-                    .subjectPublicKey
+            if (it.isNotEmpty()) {
+                Base64.decode(it, Base64.DEFAULT).deserializeRSAPublicKey()
             } else {
-                Base64.decode(it, Base64.DEFAULT)
-                    .deserializeRSAPublicKey()
+                null
             }
         }
 
@@ -70,8 +63,8 @@ class InternetGatewayPreferences
         preferences.get().getString("public_gateway_id")
     }
 
-    suspend fun getId(): String = id.get().ifEmpty {
-        getPublicKey().nodeId.also {
+    suspend fun getId(): String? = id.get().ifEmpty {
+        getPublicKey()?.nodeId?.also {
             setId(it)
         }
     }
@@ -87,7 +80,7 @@ class InternetGatewayPreferences
     }
 
     suspend fun getRegistrationState() = observeRegistrationState().first()
-    fun observeRegistrationState() = { registrationState }.toFlow()
+    private fun observeRegistrationState() = { registrationState }.toFlow()
     suspend fun setRegistrationState(value: RegistrationState) =
         registrationState.setAndCommit(value)
 

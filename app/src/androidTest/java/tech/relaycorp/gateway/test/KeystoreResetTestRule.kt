@@ -36,12 +36,13 @@ class KeystoreResetTestRule : TestRule {
             keystoresFile.deleteRecursively()
             runBlocking {
                 privateKeyStore.saveIdentityKey(KeyPairSet.PRIVATE_GW.private)
+                internetGatewayPreferences.setPublicKey(KeyPairSet.INTERNET_GW.public)
                 certificateStore.save(
                     CertificationPath(
                         PDACertPath.PRIVATE_GW,
                         emptyList(),
                     ),
-                    internetGatewayPreferences.getId(),
+                    internetGatewayPreferences.getId()!!,
                 )
             }
 
