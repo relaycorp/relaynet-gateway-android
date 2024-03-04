@@ -2,7 +2,7 @@ package tech.relaycorp.gateway.domain.courier
 
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertTrue
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.common.nowInUtc
@@ -16,7 +16,7 @@ class CalculateCRCMessageCreationDateTest {
     private val subject = CalculateCRCMessageCreationDate(localConfig)
 
     @Test
-    internal fun `creation date 90 minutes past if registration was before`() = runBlockingTest {
+    internal fun `creation date 90 minutes past if registration was before`() = runTest {
         val keyPair = generateRSAKeyPair()
         val certificate = issueGatewayCertificate(
             keyPair.public,
@@ -24,7 +24,7 @@ class CalculateCRCMessageCreationDateTest {
             nowInUtc().plusMinutes(1),
             validityStartDate = nowInUtc().minusDays(1),
         )
-        whenever(localConfig.getIdentityCertificate()).thenReturn(certificate)
+        whenever(localConfig.getCargoDeliveryAuth()).thenReturn(certificate)
 
         val result = subject.calculate()
 
@@ -35,18 +35,17 @@ class CalculateCRCMessageCreationDateTest {
     }
 
     @Test
-    internal fun `creation date equal to registration if sooner than 90 minutes`() =
-        runBlockingTest {
-            val keyPair = generateRSAKeyPair()
-            val certificate = issueGatewayCertificate(
-                keyPair.public,
-                keyPair.private,
-                nowInUtc().plusMinutes(1),
-                validityStartDate = nowInUtc(),
-            )
-            whenever(localConfig.getIdentityCertificate()).thenReturn(certificate)
+    internal fun `creation date equal to registration if sooner than 90 minutes`() = runTest {
+        val keyPair = generateRSAKeyPair()
+        val certificate = issueGatewayCertificate(
+            keyPair.public,
+            keyPair.private,
+            nowInUtc().plusMinutes(1),
+            validityStartDate = nowInUtc(),
+        )
+        whenever(localConfig.getCargoDeliveryAuth()).thenReturn(certificate)
 
-            val result = subject.calculate()
-            assertTrue(certificate.startDate.isEqual(result))
-        }
+        val result = subject.calculate()
+        assertTrue(certificate.startDate.isEqual(result))
+    }
 }

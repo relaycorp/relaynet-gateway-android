@@ -87,7 +87,7 @@ class GenerateCargo
         }
 
         val identityKey = localConfig.getIdentityKey()
-        val identityCert = localConfig.getIdentityCertificate()
+        val cda = localConfig.getCargoDeliveryAuth()
 
         val recipientAddress = internetGatewayPreferences.getAddress()
         val recipientId = internetGatewayPreferences.getId()
@@ -97,12 +97,12 @@ class GenerateCargo
         val cargoMessageSetCiphertext = gatewayManager.get().wrapMessagePayload(
             cargoMessageSet,
             internetGatewayPreferences.getId(),
-            identityCert.subjectId,
+            cda.subjectId,
         )
         val cargo = Cargo(
             recipient = Recipient(recipientId, recipientAddress),
             payload = cargoMessageSetCiphertext,
-            senderCertificate = identityCert,
+            senderCertificate = cda,
             creationDate = creationDate,
             ttl = Duration.between(creationDate, latestMessageExpiryDate).seconds.toInt(),
         )

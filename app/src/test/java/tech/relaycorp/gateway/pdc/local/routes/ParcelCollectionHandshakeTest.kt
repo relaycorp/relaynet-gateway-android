@@ -9,9 +9,9 @@ import io.ktor.websocket.Frame
 import io.ktor.websocket.FrameType
 import io.ktor.websocket.readBytes
 import io.ktor.websocket.readReason
-import io.netty.handler.codec.http.HttpHeaders.addHeader
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -38,8 +38,8 @@ class ParcelCollectionHandshakeTest {
         ParcelCollectionRoute(ParcelCollectionHandshake(localConfig), Provider { collectParcels })
 
     @BeforeEach
-    internal fun setUp() = runBlockingTest {
-        whenever(localConfig.getAllValidIdentityCertificates())
+    internal fun setUp() = runTest {
+        whenever(localConfig.getAllValidParcelDeliveryCertificates())
             .thenReturn(listOf(PDACertPath.PRIVATE_GW))
     }
 

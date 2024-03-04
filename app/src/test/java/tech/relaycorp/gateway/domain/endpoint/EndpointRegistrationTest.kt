@@ -3,7 +3,7 @@ package tech.relaycorp.gateway.domain.endpoint
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -41,8 +41,8 @@ class EndpointRegistrationTest : BaseDataTestCase() {
     private val dummyApplicationId = "tech.relaycorp.foo"
 
     @BeforeEach
-    internal fun setUp() = runBlockingTest {
-        registerPrivateGatewayIdentity()
+    internal fun setUp() = runTest {
+        registerPrivateGatewayParcelDeliveryCertificate()
         whenever(mockInternetGatewayPreferences.getId())
             .thenReturn(PDACertPath.INTERNET_GW.subjectId)
 
@@ -53,7 +53,7 @@ class EndpointRegistrationTest : BaseDataTestCase() {
     @Nested
     inner class Authorize {
         @Test
-        fun `Application Id for endpoint should be stored in server data`() = runBlockingTest {
+        fun `Application Id for endpoint should be stored in server data`() = runTest {
             val authorizationSerialized = endpointRegistration.authorize(dummyApplicationId)
 
             val authorization = PrivateNodeRegistrationAuthorization.deserialize(
@@ -68,7 +68,7 @@ class EndpointRegistrationTest : BaseDataTestCase() {
         }
 
         @Test
-        fun `Authorization should be valid for 15 seconds`() = runBlockingTest {
+        fun `Authorization should be valid for 15 seconds`() = runTest {
             val authorizationSerialized = endpointRegistration.authorize(dummyApplicationId)
 
             val authorization = PrivateNodeRegistrationAuthorization.deserialize(
@@ -100,7 +100,7 @@ class EndpointRegistrationTest : BaseDataTestCase() {
             )
 
             val exception = assertThrows<InvalidPNRAException> {
-                runBlockingTest { endpointRegistration.register(invalidCRR) }
+                runTest { endpointRegistration.register(invalidCRR) }
             }
 
             assertEquals("Registration request contains invalid authorization", exception.message)
@@ -108,7 +108,16 @@ class EndpointRegistrationTest : BaseDataTestCase() {
         }
 
         @Test
-        fun `Endpoint should be registered if CRR is valid`() = runBlockingTest {
+        fun `registration should not proceed if gateway not registered`() = runTest {
+            clearPrivateGatewayParcelDeliveryCertificate()
+
+            assertThrows<GatewayNotRegisteredException> {
+                endpointRegistration.register(crr)
+            }
+        }
+
+        @Test
+        fun `Endpoint should be registered if CRR is valid`() = runTest {
             endpointRegistration.register(crr)
 
             verify(mockLocalEndpointDao).insert(
@@ -120,7 +129,7 @@ class EndpointRegistrationTest : BaseDataTestCase() {
         }
 
         @Test
-        fun `Registration should encapsulate gateway certificate`() = runBlockingTest {
+        fun `Registration should encapsulate gateway certificate`() = runTest {
             val registrationSerialized = endpointRegistration.register(crr)
 
             val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
@@ -128,7 +137,7 @@ class EndpointRegistrationTest : BaseDataTestCase() {
         }
 
         @Test
-        fun `Registration should encapsulate InternetGatewayAddress`() = runBlockingTest {
+        fun `Registration should encapsulate InternetGatewayAddress`() = runTest {
             val registrationSerialized = endpointRegistration.register(crr)
 
             val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
@@ -141,7 +150,7 @@ class EndpointRegistrationTest : BaseDataTestCase() {
         @Nested
         inner class EndpointCertificate {
             @Test
-            fun `Issuer should be the gateway`() = runBlockingTest {
+            fun `Issuer should be the gateway`() = runTest {
                 val registrationSerialized = endpointRegistration.register(crr)
 
                 val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
@@ -155,7 +164,7 @@ class EndpointRegistrationTest : BaseDataTestCase() {
             }
 
             @Test
-            fun `Subject should be the endpoint`() = runBlockingTest {
+            fun `Subject should be the endpoint`() = runTest {
                 val registrationSerialized = endpointRegistration.register(crr)
 
                 val registration = PrivateNodeRegistration.deserialize(registrationSerialized)
@@ -166,7 +175,7 @@ class EndpointRegistrationTest : BaseDataTestCase() {
             }
 
             @Test
-            fun `Expiry date should be the same as identity certificate`() = runBlockingTest {
+            fun `Expiry date should be the same as identity certificate`() = runTest {
                 val registrationSerialized = endpointRegistration.register(crr)
 
                 val registration = PrivateNodeRegistration.deserialize(registrationSerialized)

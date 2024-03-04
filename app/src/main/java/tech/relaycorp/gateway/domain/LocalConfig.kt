@@ -29,6 +29,20 @@ class LocalConfig
 ) {
     private val mutex = Mutex()
 
+    // Bootstrap
+
+    suspend fun bootstrap() {
+        mutex.withLock {
+            try {
+                getIdentityKey()
+            } catch (_: RuntimeException) {
+                generateIdentityKeyPair()
+            }
+
+            getCargoDeliveryAuth() // Generates new CDA if non-existent
+        }
+    }
+
     // Private Gateway Key Pair
 
     suspend fun getIdentityKey(): PrivateKey =
@@ -41,33 +55,25 @@ class LocalConfig
         return keyPair
     }
 
-    // Private Gateway Certificate
+    // Parcel Delivery
 
-    suspend fun getIdentityCertificate(): Certificate =
-        getIdentityCertificationPath().leafCertificate
+    suspend fun getParcelDeliveryCertificate(): Certificate? =
+        getParcelDeliveryCertificationPath()?.leafCertificate
 
-    private suspend fun getIdentityCertificationPath(): CertificationPath = getIdentityKey().let {
-        certificateStore.get()
-            .retrieveLatest(it.nodeId, getInternetGatewayId())
-            ?: CertificationPath(generateIdentityCertificate(it), emptyList())
-    }
+    private suspend fun getParcelDeliveryCertificationPath(): CertificationPath? =
+        getIdentityKey().let {
+            certificateStore.get()
+                .retrieveLatest(it.nodeId, getInternetGatewayId())
+        }
 
-    suspend fun getAllValidIdentityCertificates(): List<Certificate> =
-        getAllValidIdentityCertificationPaths().map { it.leafCertificate }
+    suspend fun getAllValidParcelDeliveryCertificates(): List<Certificate> =
+        getAllValidParcelDeliveryCertificationPaths().map { it.leafCertificate }
 
-    private suspend fun getAllValidIdentityCertificationPaths(): List<CertificationPath> =
+    private suspend fun getAllValidParcelDeliveryCertificationPaths(): List<CertificationPath> =
         certificateStore.get()
             .retrieveAll(getIdentityKey().nodeId, getInternetGatewayId())
 
-    suspend fun setIdentityCertificate(
-        leafCertificate: Certificate,
-        certificateChain: List<Certificate> = emptyList(),
-    ) {
-        certificateStore.get().delete(leafCertificate.subjectId, getInternetGatewayId())
-        addIdentityCertificate(leafCertificate, certificateChain)
-    }
-
-    suspend fun addIdentityCertificate(
+    suspend fun setParcelDeliveryCertificate(
         leafCertificate: Certificate,
         certificateChain: List<Certificate> = emptyList(),
     ) {
@@ -78,30 +84,11 @@ class LocalConfig
             )
     }
 
-    private suspend fun generateIdentityCertificate(privateKey: PrivateKey): Certificate {
-        val certificate = selfIssueCargoDeliveryAuth(privateKey, privateKey.toPublicKey())
-        setIdentityCertificate(certificate)
-        return certificate
+    // Cargo Delivery
+
+    suspend fun getCargoDeliveryAuth() = getIdentityKey().nodeId.let { nodeId ->
+        certificateStore.get().retrieveLatest(nodeId, nodeId)
     }
-
-    suspend fun bootstrap() {
-        mutex.withLock {
-            try {
-                getIdentityKey()
-            } catch (_: RuntimeException) {
-                val keyPair = generateIdentityKeyPair()
-                generateIdentityCertificate(keyPair.private)
-            }
-
-            getCargoDeliveryAuth() // Generates new CDA if non-existent
-        }
-    }
-
-    suspend fun getCargoDeliveryAuth() = certificateStore.get()
-        .retrieveLatest(
-            getIdentityKey().nodeId,
-            getIdentityCertificate().subjectId,
-        )
         ?.leafCertificate
         .let { storedCertificate ->
             if (storedCertificate?.isExpiringSoon() == false) {
@@ -111,12 +98,20 @@ class LocalConfig
             }
         }
 
-    suspend fun getAllValidCargoDeliveryAuth() = certificateStore.get()
-        .retrieveAll(
-            getIdentityKey().nodeId,
-            getIdentityCertificate().subjectId,
-        )
-        .map { it.leafCertificate }
+    suspend fun getAllValidCargoDeliveryAuth() = getIdentityKey().nodeId.let { nodeId ->
+        certificateStore.get()
+            .retrieveAll(nodeId, nodeId)
+            .map { it.leafCertificate }
+    }
+
+    private suspend fun generateCargoDeliveryAuth(): Certificate {
+        val privateKey = getIdentityKey()
+        val publicKey = privateKey.toPublicKey()
+        val cda = selfIssueCargoDeliveryAuth(privateKey, publicKey)
+        certificateStore.get()
+            .save(CertificationPath(cda, emptyList()), publicKey.nodeId)
+        return cda
+    }
 
     private fun selfIssueCargoDeliveryAuth(
         privateKey: PrivateKey,
@@ -132,25 +127,20 @@ class LocalConfig
         )
     }
 
-    private suspend fun generateCargoDeliveryAuth(): Certificate {
-        val key = getIdentityKey()
-        val certificate = getIdentityCertificate()
-        val cda = selfIssueCargoDeliveryAuth(key, certificate.subjectPublicKey)
-        certificateStore.get()
-            .save(CertificationPath(cda, emptyList()), certificate.subjectId)
-        return cda
-    }
+    // Maintenance
 
     suspend fun deleteExpiredCertificates() {
         certificateStore.get().deleteExpired()
     }
 
+    private fun Certificate.isExpiringSoon() =
+        expiryDate < (nowInUtc().plusNanos(CERTIFICATE_EXPIRING_THRESHOLD.inWholeNanoseconds))
+
+    // Helpers
+
     suspend fun getInternetGatewayAddress() = internetGatewayPreferences.getAddress()
 
     private suspend fun getInternetGatewayId() = internetGatewayPreferences.getId()
-
-    private fun Certificate.isExpiringSoon() =
-        expiryDate < (nowInUtc().plusNanos(CERTIFICATE_EXPIRING_THRESHOLD.inWholeNanoseconds))
 
     companion object {
         private val CERTIFICATE_EXPIRING_THRESHOLD = 90.days

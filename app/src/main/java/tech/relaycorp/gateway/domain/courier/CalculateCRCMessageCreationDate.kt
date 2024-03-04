@@ -16,7 +16,7 @@ class CalculateCRCMessageCreationDate
         listOf(
             nowInUtc().minus(CLOCK_DRIFT_TOLERANCE.toJavaDuration()),
             // Never before the GW registration
-            localConfig.getIdentityCertificate().startDate,
+            localConfig.getCargoDeliveryAuth().startDate,
         ),
     )
 

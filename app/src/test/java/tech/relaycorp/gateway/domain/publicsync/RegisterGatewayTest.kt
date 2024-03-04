@@ -7,7 +7,7 @@ import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
@@ -56,14 +56,14 @@ class RegisterGatewayTest : BaseDataTestCase() {
     )
 
     @BeforeEach
-    internal fun setUp() = runBlockingTest {
-        registerPrivateGatewayIdentity()
+    internal fun setUp() = runTest {
+        registerPrivateGatewayParcelDeliveryCertificate()
         whenever(pgwPreferences.getId())
             .thenReturn(PDACertPath.INTERNET_GW.subjectId)
     }
 
     @Test
-    fun `failure to resolve PoWeb address should be ignored`() = runBlockingTest {
+    fun `failure to resolve PoWeb address should be ignored`() = runTest {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.ToDo)
         val failingPoWebClientBuilder = object : PoWebClientBuilder {
             override suspend fun build(address: ServiceAddress) =
@@ -84,9 +84,9 @@ class RegisterGatewayTest : BaseDataTestCase() {
     }
 
     @Test
-    internal fun `does not register if already registered and not expiring`() = runBlockingTest {
+    internal fun `does not register if already registered and not expiring`() = runTest {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.Done)
-        localConfig.setIdentityCertificate(
+        localConfig.setParcelDeliveryCertificate(
             issueGatewayCertificate(
                 KeyPairSet.PRIVATE_GW.public,
                 KeyPairSet.INTERNET_GW.private,
@@ -102,9 +102,9 @@ class RegisterGatewayTest : BaseDataTestCase() {
     }
 
     @Test
-    internal fun `registers if needs to renew certificate`() = runBlockingTest {
+    internal fun `registers if needs to renew certificate`() = runTest {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.Done)
-        localConfig.setIdentityCertificate(
+        localConfig.setParcelDeliveryCertificate(
             issueGatewayCertificate(
                 KeyPairSet.PRIVATE_GW.public,
                 KeyPairSet.INTERNET_GW.private,
@@ -126,7 +126,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
     }
 
     @Test
-    fun `successful registration stores new values`() = runBlockingTest {
+    fun `successful registration stores new values`() = runTest {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.ToDo)
         val pnrr = buildPNRR()
         whenever(poWebClient.preRegisterNode(any())).thenReturn(pnrr)
@@ -138,11 +138,11 @@ class RegisterGatewayTest : BaseDataTestCase() {
         verify(pgwPreferences).setPublicKey(eq(pnr.gatewayCertificate.subjectPublicKey))
         verify(pgwPreferences).setRegistrationState(eq(RegistrationState.Done))
         publicKeyStore.retrieve(pnr.gatewayCertificate.subjectId)
-        assertEquals(pnr.privateNodeCertificate, localConfig.getIdentityCertificate())
+        assertEquals(pnr.privateNodeCertificate, localConfig.getParcelDeliveryCertificate())
     }
 
     @Test
-    internal fun `unsuccessful registration does not store new values`() = runBlockingTest {
+    internal fun `unsuccessful registration does not store new values`() = runTest {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.ToDo)
         whenever(poWebClient.preRegisterNode(any())).thenReturn(buildPNRR())
         whenever(poWebClient.registerNode(any())).thenThrow(ClientBindingException("Error"))
@@ -155,7 +155,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
     }
 
     @Test
-    fun `Registration missing public gateway session key should fail`() = runBlockingTest {
+    fun `Registration missing public gateway session key should fail`() = runTest {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.ToDo)
         val pnrr = buildPNRR()
         whenever(poWebClient.preRegisterNode(any())).thenReturn(pnrr)
@@ -170,7 +170,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
     }
 
     @Test
-    fun `new certificate triggers notification`() = runBlockingTest {
+    fun `new certificate triggers notification`() = runTest {
         whenever(pgwPreferences.getAddress())
             .thenReturn(internetGatewaySessionKeyPair.sessionKey.publicKey.nodeId)
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.Done)
@@ -185,7 +185,7 @@ class RegisterGatewayTest : BaseDataTestCase() {
     }
 
     @Test
-    fun `first certificate triggers does not trigger notification`() = runBlockingTest {
+    fun `first certificate triggers does not trigger notification`() = runTest {
         whenever(pgwPreferences.getRegistrationState()).thenReturn(RegistrationState.ToDo)
         val pnrr = buildPNRR()
         whenever(poWebClient.preRegisterNode(any())).thenReturn(pnrr)

@@ -95,10 +95,14 @@ class DeliverParcelsToGateway
     @Throws(ServerException::class)
     private suspend fun deliverParcel(poWebClient: PoWebClient, parcel: StoredParcel) {
         val parcelStream = parcel.getInputStream() ?: return
+        val signer = getSigner() ?: run {
+            logger.warning("Gateway not registered")
+            return
+        }
 
         try {
             logger.info("Delivering parcel to Gateway ${parcel.messageId.value}")
-            poWebClient.deliverParcel(parcelStream.readBytesAndClose(), getSigner())
+            poWebClient.deliverParcel(parcelStream.readBytesAndClose(), signer)
         } catch (e: RejectedParcelException) {
             logger.log(Level.WARNING, "Could not deliver rejected parcel (will be deleted)", e)
         }
@@ -118,8 +122,10 @@ class DeliverParcelsToGateway
     private suspend fun getSigner() = if (this::signerInternal.isInitialized) {
         signerInternal
     } else {
-        Signer(localConfig.getIdentityCertificate(), localConfig.getIdentityKey()).also {
-            signerInternal = it
+        localConfig.getParcelDeliveryCertificate()?.let { certificate ->
+            Signer(certificate, localConfig.getIdentityKey()).also {
+                signerInternal = it
+            }
         }
     }
 }

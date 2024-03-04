@@ -8,6 +8,7 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.data.preference.InternetGatewayPreferences
@@ -33,7 +34,7 @@ class RotateCertificateTest {
     )
 
     @Test
-    fun `rotate successfully`() = runBlockingTest {
+    fun `rotate successfully`() = runTest {
         val newIdCertificate = issueGatewayCertificate(
             KeyPairSet.PRIVATE_GW.public,
             KeyPairSet.INTERNET_GW.private,
@@ -43,11 +44,11 @@ class RotateCertificateTest {
         val certificateRotation = CertificateRotation(
             CertificationPath(newIdCertificate, listOf(PDACertPath.INTERNET_GW)),
         )
-        whenever(localConfig.getIdentityCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
+        whenever(localConfig.getParcelDeliveryCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
 
         rotateCertificate(certificateRotation.serialize())
 
-        verify(localConfig).addIdentityCertificate(
+        verify(localConfig).setParcelDeliveryCertificate(
             check { assertArrayEquals(newIdCertificate.serialize(), it.serialize()) },
             any(),
         )
@@ -58,7 +59,7 @@ class RotateCertificateTest {
     fun `does not save invalid certificate rotation`() = runBlockingTest {
         rotateCertificate("invalid".toByteArray())
 
-        verify(localConfig, never()).setIdentityCertificate(any(), any())
+        verify(localConfig, never()).setParcelDeliveryCertificate(any(), any())
         verify(internetGatewayPreferences, never()).setPublicKey(any())
         verify(notifyEndpoints, never()).notifyAll()
     }
@@ -75,11 +76,11 @@ class RotateCertificateTest {
         val certificateRotation = CertificateRotation(
             CertificationPath(newIdCertificate, listOf(PDACertPath.INTERNET_GW)),
         )
-        whenever(localConfig.getIdentityCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
+        whenever(localConfig.getParcelDeliveryCertificate()).thenReturn(PDACertPath.PRIVATE_GW)
 
         rotateCertificate(certificateRotation.serialize())
 
-        verify(localConfig, never()).setIdentityCertificate(any(), any())
+        verify(localConfig, never()).setParcelDeliveryCertificate(any(), any())
         verify(internetGatewayPreferences, never()).setPublicKey(any())
         verify(notifyEndpoints, never()).notifyAll()
     }
@@ -96,7 +97,7 @@ class RotateCertificateTest {
         val certificateRotation = CertificateRotation(
             CertificationPath(PDACertPath.PRIVATE_GW, listOf(PDACertPath.INTERNET_GW)),
         )
-        whenever(localConfig.getIdentityCertificate()).thenReturn(oldCertificate)
+        whenever(localConfig.getParcelDeliveryCertificate()).thenReturn(oldCertificate)
 
         rotateCertificate(certificateRotation.serialize())
 

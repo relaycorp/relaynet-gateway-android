@@ -3,6 +3,7 @@ package tech.relaycorp.gateway.domain.publicsync
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import tech.relaycorp.gateway.common.Logging.logger
+import tech.relaycorp.gateway.common.toPublicKey
 import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
 import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
@@ -71,8 +72,9 @@ class RegisterGateway
     }
 
     private suspend fun currentCertificateIsAboutToExpire() =
-        localConfig.getIdentityCertificate().expiryDate <
-            ZonedDateTime.now().plus(ABOUT_TO_EXPIRE)
+        localConfig.getParcelDeliveryCertificate().let {
+            it == null || it.expiryDate < ZonedDateTime.now().plus(ABOUT_TO_EXPIRE)
+        }
 
     private suspend fun register(address: String): Result {
         return try {
@@ -81,10 +83,9 @@ class RegisterGateway
             val poWebAddress = resolveServiceAddress.resolvePoWeb(address)
             val poWeb = poWebClientBuilder.build(poWebAddress)
             val privateKey = localConfig.getIdentityKey()
-            val certificate = localConfig.getIdentityCertificate()
 
             poWeb.use {
-                val pnrr = poWeb.preRegisterNode(certificate.subjectPublicKey)
+                val pnrr = poWeb.preRegisterNode(privateKey.toPublicKey())
                 val pnr = poWeb.registerNode(pnrr.serialize(privateKey))
 
                 if (pnr.gatewaySessionKey == null) {
@@ -120,7 +121,7 @@ class RegisterGateway
         internetGatewayPreferences.setPublicKey(
             registration.gatewayCertificate.subjectPublicKey,
         )
-        localConfig.setIdentityCertificate(registration.privateNodeCertificate)
+        localConfig.setParcelDeliveryCertificate(registration.privateNodeCertificate)
         publicKeyStore.save(
             registration.gatewaySessionKey!!,
             registration.gatewayCertificate.subjectId,

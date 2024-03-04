@@ -55,7 +55,7 @@ class DeliverParcelsToGatewayTest : BaseDataTestCase() {
 
     @BeforeEach
     internal fun setUp() = testSuspend {
-        registerPrivateGatewayIdentity()
+        registerPrivateGatewayParcelDeliveryCertificate()
         whenever(diskMessageOperations.readMessage(any(), any()))
             .thenReturn { "".byteInputStream() }
         whenever(mockInternetGatewayPreferences.getId())
@@ -146,6 +146,19 @@ class DeliverParcelsToGatewayTest : BaseDataTestCase() {
 
         verify(poWebClient, never()).deliverParcel(any(), any())
         verify(deleteParcel).delete(eq(parcel))
+    }
+
+    @Test
+    internal fun `when gateway not registered, do not delivery parcel`() = testSuspend {
+        val parcel = StoredParcelFactory.build()
+        whenever(storedParcelDao.observeForRecipientLocation(any(), any()))
+            .thenReturn(flowOf(listOf(parcel)))
+        clearPrivateGatewayParcelDeliveryCertificate()
+
+        subject.deliver(false)
+
+        verify(poWebClient, never()).deliverParcel(any(), any())
+        verify(deleteParcel, never()).delete(eq(parcel))
     }
 
     @Test

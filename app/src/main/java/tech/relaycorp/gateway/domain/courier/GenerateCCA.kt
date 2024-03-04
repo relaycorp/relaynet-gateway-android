@@ -43,7 +43,7 @@ class GenerateCCA
                 internetGatewayPreferences.getAddress(),
             ),
             payload = ccrCiphertext,
-            senderCertificate = localConfig.getIdentityCertificate(),
+            senderCertificate = cdaIssuer,
             creationDate = calculateCreationDate.calculate(),
             ttl = TTL.inWholeSeconds.toInt(),
         )

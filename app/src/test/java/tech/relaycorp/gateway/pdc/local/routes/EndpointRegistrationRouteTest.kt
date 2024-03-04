@@ -12,6 +12,7 @@ import io.ktor.server.testing.setBody
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.domain.endpoint.EndpointRegistration
+import tech.relaycorp.gateway.domain.endpoint.GatewayNotRegisteredException
 import tech.relaycorp.gateway.domain.endpoint.InvalidPNRAException
 import tech.relaycorp.gateway.pdc.local.utils.ContentType
 import tech.relaycorp.relaynet.messages.control.PrivateNodeRegistration
@@ -81,6 +82,31 @@ class EndpointRegistrationRouteTest {
                 assertEquals(plainTextUTF8ContentType, response.contentType())
                 assertEquals(
                     "Invalid authorization encapsulated in registration request",
+                    response.content,
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `Valid CRR but with gateway not registered should be refused`() = runBlockingTest {
+        whenever(endpointRegistration.register(any()))
+            .thenThrow(GatewayNotRegisteredException())
+
+        testPDCServerRoute(route) {
+            val crr = PrivateNodeRegistrationRequest(
+                KeyPairSet.PRIVATE_ENDPOINT.public,
+                "invalid authorization".toByteArray(),
+            )
+            val call = handleRequest(HttpMethod.Post, "/v1/nodes") {
+                addHeader("Content-Type", ContentType.REGISTRATION_REQUEST.toString())
+                setBody(crr.serialize(KeyPairSet.PRIVATE_ENDPOINT.private))
+            }
+            with(call) {
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+                assertEquals(plainTextUTF8ContentType, response.contentType())
+                assertEquals(
+                    "Gateway not registered",
                     response.content,
                 )
             }

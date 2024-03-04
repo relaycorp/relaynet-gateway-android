@@ -4,7 +4,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,20 +32,20 @@ internal class StoreParcelTest {
     private val publicEndpointAddress = "example.org"
 
     @BeforeEach
-    fun setUp() = runBlockingTest {
-        whenever(mockLocalConfig.getAllValidIdentityCertificates())
+    fun setUp() = runTest {
+        whenever(mockLocalConfig.getAllValidParcelDeliveryCertificates())
             .thenReturn(listOf(PDACertPath.PRIVATE_GW))
         whenever(parcelCollectionDao.exists(any(), any(), any())).thenReturn(false)
     }
 
     @Test
-    internal fun `store malformed parcel`() = runBlockingTest {
+    internal fun `store malformed parcel`() = runTest {
         val result = storeParcel.store(ByteArray(0).inputStream(), RecipientLocation.LocalEndpoint)
         assertTrue(result is StoreParcel.Result.MalformedParcel)
     }
 
     @Test
-    internal fun `store invalid parcel bound for local endpoint`() = runBlockingTest {
+    internal fun `store invalid parcel bound for local endpoint`() = runTest {
         val parcel = Parcel(
             Recipient(PDACertPath.PRIVATE_ENDPOINT.subjectId),
             ByteArray(0),
@@ -58,7 +58,7 @@ internal class StoreParcelTest {
     }
 
     @Test
-    internal fun `store invalid parcel bound for external gateway`() = runBlockingTest {
+    internal fun `store invalid parcel bound for external gateway`() = runTest {
         val parcel = Parcel(
             Recipient("0deadbeef", publicEndpointAddress),
             ByteArray(0),
@@ -72,7 +72,7 @@ internal class StoreParcelTest {
     }
 
     @Test
-    internal fun `store parcel with public address for local endpoint`() = runBlockingTest {
+    internal fun `store parcel with public address for local endpoint`() = runTest {
         // The sender is authorized by one of the local endpoints but the recipient is a public
         // address
         val parcel = Parcel(
@@ -86,7 +86,7 @@ internal class StoreParcelTest {
     }
 
     @Test
-    fun `store parcel bound for local endpoint successfully`() = runBlockingTest {
+    fun `store parcel bound for local endpoint successfully`() = runTest {
         whenever(diskOperations.writeMessage(any(), any(), any())).thenReturn("")
         val parcel = Parcel(
             Recipient(PDACertPath.PRIVATE_ENDPOINT.subjectId),
@@ -103,7 +103,7 @@ internal class StoreParcelTest {
     }
 
     @Test
-    fun `store parcel bound for external gateway successfully`() = runBlockingTest {
+    fun `store parcel bound for external gateway successfully`() = runTest {
         whenever(diskOperations.writeMessage(any(), any(), any())).thenReturn("")
         val untrustedKeyPair = generateRSAKeyPair()
         val untrustedCertificate = issueEndpointCertificate(
@@ -125,7 +125,7 @@ internal class StoreParcelTest {
     }
 
     @Test
-    internal fun `store duplicated parcel`() = runBlockingTest {
+    internal fun `store duplicated parcel`() = runTest {
         whenever(parcelCollectionDao.exists(any(), any(), any())).thenReturn(true)
 
         val parcel = Parcel(

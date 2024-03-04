@@ -40,7 +40,13 @@ class CollectParcelsFromGateway
             )
             return
         }
-        val signer = Signer(localConfig.getIdentityCertificate(), localConfig.getIdentityKey())
+
+        val parcelDeliveryCert = localConfig.getParcelDeliveryCertificate() ?: run {
+            logger.warning("Gateway not registered")
+            return
+        }
+
+        val signer = Signer(parcelDeliveryCert, localConfig.getIdentityKey())
         val streamingMode =
             if (keepAlive) StreamingMode.KeepAlive else StreamingMode.CloseUponCompletion
 
