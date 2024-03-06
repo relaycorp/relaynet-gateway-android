@@ -1,7 +1,6 @@
 package tech.relaycorp.gateway.data.preference
 
 import android.util.Base64
-import androidx.annotation.VisibleForTesting
 import com.fredporciuncula.flow.preferences.FlowSharedPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -11,9 +10,9 @@ import tech.relaycorp.gateway.data.disk.ReadRawFile
 import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
 import tech.relaycorp.gateway.data.doh.ResolveServiceAddress
 import tech.relaycorp.gateway.data.model.RegistrationState
+import tech.relaycorp.relaynet.NodeConnectionParams
 import tech.relaycorp.relaynet.wrappers.deserializeRSAPublicKey
 import tech.relaycorp.relaynet.wrappers.nodeId
-import tech.relaycorp.relaynet.wrappers.x509.Certificate
 import java.security.PublicKey
 import javax.inject.Inject
 import javax.inject.Provider
@@ -29,11 +28,14 @@ class InternetGatewayPreferences
     // Address
 
     private val address by lazy {
-        preferences.get().getString("address", DEFAULT_ADDRESS)
+        preferences.get().getString("address")
     }
 
-    suspend fun getAddress(): String = address.get()
+    suspend fun getAddress(): String = observeAddress().first()
+
     fun observeAddress(): Flow<String> = { address }.toFlow()
+        .map { it.ifEmpty { getDefaultParams().internetAddress } }
+
     suspend fun setAddress(value: String) = address.setAndCommit(value)
 
     @Throws(InternetAddressResolutionException::class)
@@ -50,9 +52,7 @@ class InternetGatewayPreferences
     private fun observePublicKey(): Flow<PublicKey> = { publicKey }.toFlow()
         .map {
             if (it.isEmpty()) {
-                readRawFile.read(R.raw.public_gateway_cert)
-                    .let(Certificate.Companion::deserialize)
-                    .subjectPublicKey
+                getDefaultParams().identityKey
             } else {
                 Base64.decode(it, Base64.DEFAULT)
                     .deserializeRSAPublicKey()
@@ -91,8 +91,13 @@ class InternetGatewayPreferences
     suspend fun setRegistrationState(value: RegistrationState) =
         registrationState.setAndCommit(value)
 
-    companion object {
-        @VisibleForTesting
-        internal const val DEFAULT_ADDRESS = "belgium.relaycorp.services"
+    // Default Internet Gateway parameters
+
+    private var defaultParams: NodeConnectionParams? = null
+
+    private suspend fun getDefaultParams(): NodeConnectionParams = defaultParams ?: run {
+        readRawFile.read(R.raw.public_gateway_cert)
+            .let(NodeConnectionParams.Companion::deserialize)
+            .also { defaultParams = it }
     }
 }

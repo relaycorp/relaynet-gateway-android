@@ -101,7 +101,7 @@ class EndpointPreRegistrationServiceTest {
         // Check we got a valid authorization
         val resultData = resultMessage!!.data
         assertTrue(resultData.containsKey("auth"))
-        val gatewayCert = localConfig.getIdentityCertificate()
+        val gatewayCert = localConfig.getParcelDeliveryCertificate()!!
         val authorization = PrivateNodeRegistrationAuthorization.deserialize(
             resultData.getByteArray("auth")!!,
             gatewayCert.subjectPublicKey,
@@ -202,6 +202,6 @@ class EndpointPreRegistrationServiceTest {
             PDACertPath.INTERNET_GW,
             validityStartDate = ZonedDateTime.now().minusMinutes(1),
         )
-        localConfig.setIdentityCertificate(expiredCertificate)
+        localConfig.setParcelDeliveryCertificate(expiredCertificate)
     }
 }

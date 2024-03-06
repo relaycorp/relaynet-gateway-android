@@ -1,12 +1,10 @@
 package tech.relaycorp.gateway.domain
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -39,7 +37,7 @@ class LocalConfigTest : BaseDataTestCase() {
     @Nested
     inner class GetKeyPair {
         @Test
-        fun `Key pair should be returned if it exists`() = runBlockingTest {
+        fun `Key pair should be returned if it exists`() = runTest {
             localConfig.bootstrap()
 
             val retrievedKeyPair = localConfig.getIdentityKey()
@@ -49,7 +47,7 @@ class LocalConfigTest : BaseDataTestCase() {
         }
 
         @Test
-        fun `Exception should be thrown if key pair does not exist`() = runBlockingTest {
+        fun `Exception should be thrown if key pair does not exist`() = runTest {
             val exception = assertThrows<RuntimeException> {
                 localConfig.getIdentityKey()
             }
@@ -61,7 +59,7 @@ class LocalConfigTest : BaseDataTestCase() {
     @Nested
     inner class GetCargoDeliveryAuth {
         @Test
-        fun `Certificate should be returned if it exists`() = runBlockingTest {
+        fun `Certificate should be returned if it exists`() = runTest {
             localConfig.bootstrap()
 
             val certificate1 = localConfig.getCargoDeliveryAuth().serialize()
@@ -70,7 +68,7 @@ class LocalConfigTest : BaseDataTestCase() {
         }
 
         @Test
-        fun `New certificate is generated if none exists`() = runBlockingTest {
+        fun `New certificate is generated if none exists`() = runTest {
             localConfig.bootstrap()
             certificateStore.clear()
 
@@ -81,7 +79,7 @@ class LocalConfigTest : BaseDataTestCase() {
     @Nested
     inner class Bootstrap {
         @Test
-        fun `Key pair should be created if it doesn't already exist`() = runBlockingTest {
+        fun `Key pair should be created if it doesn't already exist`() = runTest {
             localConfig.bootstrap()
 
             val keyPair = localConfig.getIdentityKey()
@@ -91,7 +89,7 @@ class LocalConfigTest : BaseDataTestCase() {
         }
 
         @Test
-        fun `Key pair should not be created if it already exists`() = runBlockingTest {
+        fun `Key pair should not be created if it already exists`() = runTest {
             localConfig.bootstrap()
             val originalKeyPair = localConfig.getIdentityKey()
 
@@ -102,27 +100,14 @@ class LocalConfigTest : BaseDataTestCase() {
         }
 
         @Test
-        fun `Correct public gateway id used as issuer in set identity certificate `() =
-            runBlockingTest {
-                localConfig.bootstrap()
-
-                verify(certificateStore).setCertificate(
-                    any(),
-                    any(),
-                    any(),
-                    eq(PDACertPath.INTERNET_GW.subjectId),
-                )
-            }
-
-        @Test
-        fun `CDA issuer should be created if it doesn't already exist`() = runBlockingTest {
+        fun `CDA issuer should be created if it doesn't already exist`() = runTest {
             localConfig.bootstrap()
 
             localConfig.getCargoDeliveryAuth()
         }
 
         @Test
-        fun `CDA issuer should not be created if it already exists`() = runBlockingTest {
+        fun `CDA issuer should not be created if it already exists`() = runTest {
             localConfig.bootstrap()
             val originalCDAIssuer = localConfig.getCargoDeliveryAuth()
 
@@ -134,7 +119,7 @@ class LocalConfigTest : BaseDataTestCase() {
     }
 
     @Test
-    internal fun deleteExpiredCertificates() = runBlockingTest {
+    internal fun deleteExpiredCertificates() = runTest {
         localConfig.deleteExpiredCertificates()
 
         verify(certificateStore).deleteExpired()

@@ -23,7 +23,8 @@ class GenerateCCA
 
     suspend fun generateSerialized(): ByteArray {
         val identityPrivateKey = localConfig.getIdentityKey()
-        val cdaIssuer = localConfig.getCargoDeliveryAuth()
+        val cdaIssuer = localConfig.getParcelDeliveryCertificate()
+            ?: localConfig.getCargoDeliveryAuth()
         val internetGatewayPublicKey = internetGatewayPreferences.getPublicKey()
         val cda = issueDeliveryAuthorization(
             internetGatewayPublicKey,
@@ -43,7 +44,7 @@ class GenerateCCA
                 internetGatewayPreferences.getAddress(),
             ),
             payload = ccrCiphertext,
-            senderCertificate = localConfig.getIdentityCertificate(),
+            senderCertificate = cdaIssuer,
             creationDate = calculateCreationDate.calculate(),
             ttl = TTL.inWholeSeconds.toInt(),
         )

@@ -48,7 +48,7 @@ class GenerateCargoTest : BaseDataTestCase() {
 
     @BeforeEach
     internal fun setUp() = runBlockingTest {
-        registerPrivateGatewayIdentity()
+        registerPrivateGatewayParcelDeliveryCertificate()
         whenever(internetGatewayPreferences.getId())
             .thenReturn(PDACertPath.INTERNET_GW.subjectId)
         whenever(internetGatewayPreferences.getAddress())

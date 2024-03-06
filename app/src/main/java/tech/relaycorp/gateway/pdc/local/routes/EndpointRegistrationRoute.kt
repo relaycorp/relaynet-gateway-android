@@ -9,6 +9,7 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.post
 import tech.relaycorp.gateway.domain.endpoint.EndpointRegistration
+import tech.relaycorp.gateway.domain.endpoint.GatewayNotRegisteredException
 import tech.relaycorp.gateway.domain.endpoint.InvalidPNRAException
 import tech.relaycorp.gateway.pdc.local.utils.ContentType
 import tech.relaycorp.relaynet.messages.InvalidMessageException
@@ -45,6 +46,12 @@ class EndpointRegistrationRoute
             } catch (_: InvalidPNRAException) {
                 call.respondText(
                     "Invalid authorization encapsulated in registration request",
+                    status = HttpStatusCode.BadRequest,
+                )
+                return@post
+            } catch (_: GatewayNotRegisteredException) {
+                call.respondText(
+                    "Gateway not registered",
                     status = HttpStatusCode.BadRequest,
                 )
                 return@post

@@ -73,7 +73,7 @@ class EndpointPreRegistrationService : Service() {
                 Message.obtain(null, GATEWAY_NOT_REGISTERED)
             }
 
-            localConfig.getAllValidIdentityCertificates().isEmpty() -> {
+            localConfig.getAllValidParcelDeliveryCertificates().isEmpty() -> {
                 logger.log(Level.WARNING, "Gateway's certificate has expired")
                 Message.obtain(null, GATEWAY_NOT_REGISTERED)
             }

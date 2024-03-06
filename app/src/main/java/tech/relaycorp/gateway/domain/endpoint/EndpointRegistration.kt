@@ -34,10 +34,11 @@ class EndpointRegistration
     /**
      * Complete endpoint registration and return registration serialized.
      */
-    @Throws(InvalidPNRAException::class)
+    @Throws(InvalidPNRAException::class, GatewayNotRegisteredException::class)
     suspend fun register(request: PrivateNodeRegistrationRequest): ByteArray {
         val identityKey = localConfig.getIdentityKey()
-        val identityCert = localConfig.getIdentityCertificate()
+        val identityCert = localConfig.getParcelDeliveryCertificate()
+            ?: throw GatewayNotRegisteredException()
         val authorization = try {
             PrivateNodeRegistrationAuthorization.deserialize(
                 request.pnraSerialized,

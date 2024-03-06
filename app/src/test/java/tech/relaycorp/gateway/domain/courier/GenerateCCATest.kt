@@ -5,7 +5,7 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -40,6 +40,14 @@ class GenerateCCATest : BaseDataTestCase() {
         gatewayManagerProvider,
     )
 
+    private val keyPair = KeyPairSet.PRIVATE_GW
+    private val cda = issueGatewayCertificate(
+        subjectPublicKey = keyPair.public,
+        issuerPrivateKey = keyPair.private,
+        validityEndDate = nowInUtc().plusYears(1),
+        validityStartDate = nowInUtc().minusDays(1),
+    )
+
     companion object {
         private const val ADDRESS = "example.org"
     }
@@ -47,15 +55,8 @@ class GenerateCCATest : BaseDataTestCase() {
     @BeforeEach
     internal fun setUp() {
         runBlocking {
-            registerPrivateGatewayIdentity()
-
-            val keyPair = KeyPairSet.PRIVATE_GW
-            val cda = issueGatewayCertificate(
-                subjectPublicKey = keyPair.public,
-                issuerPrivateKey = keyPair.private,
-                validityEndDate = nowInUtc().plusMinutes(1),
-                validityStartDate = nowInUtc().minusDays(1),
-            )
+            whenever(privateKeyStore.retrieveAllIdentityKeys())
+                .thenReturn(listOf(keyPair.private))
             whenever(certificateStore.retrieveLatest(any(), eq(keyPair.public.nodeId)))
                 .thenReturn(CertificationPath(cda, emptyList()))
 
@@ -70,7 +71,7 @@ class GenerateCCATest : BaseDataTestCase() {
     }
 
     @Test
-    fun `generate in ByteArray`() = runBlockingTest {
+    fun `generate in ByteArray`() = runTest {
         val creationDate = nowInUtc()
         whenever(calculateCreationDate.calculate()).thenReturn(creationDate)
 
@@ -79,7 +80,7 @@ class GenerateCCATest : BaseDataTestCase() {
 
         cca.validate(null)
         assertEquals(ADDRESS, cca.recipient.internetAddress)
-        assertArrayEquals(PDACertPath.PRIVATE_GW.serialize(), cca.senderCertificate.serialize())
+        assertArrayEquals(cda.serialize(), cca.senderCertificate.serialize())
         assertTrue(Duration.between(creationDate, cca.creationDate).abs().seconds <= 1)
 
         // Check it was encrypted with the public gateway's session key

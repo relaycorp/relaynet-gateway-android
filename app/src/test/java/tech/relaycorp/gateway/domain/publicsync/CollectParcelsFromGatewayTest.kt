@@ -11,7 +11,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.ktor.test.dispatcher.testSuspend
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -57,7 +57,7 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
 
     @BeforeEach
     fun setUp() = testSuspend {
-        registerPrivateGatewayIdentity()
+        registerPrivateGatewayParcelDeliveryCertificate()
         whenever(storeParcel.store(any<ByteArray>(), any()))
             .thenReturn(StoreParcel.Result.Success(mock()))
         whenever(mockInternetGatewayPreferences.getId())
@@ -65,7 +65,7 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
     }
 
     @Test
-    fun `Failure to resolve PoWeb address should be ignored`() = runBlockingTest {
+    fun `Failure to resolve PoWeb address should be ignored`() = runTest {
         val failingPoWebClientProvider = object : PoWebClientProvider {
             override suspend fun get() = throw InternetAddressResolutionException("Whoops")
         }
@@ -75,6 +75,15 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
             notifyEndpoints,
             mockLocalConfig,
         )
+
+        subject.collect(false)
+
+        verify(poWebClient, never()).collectParcels(any(), any())
+    }
+
+    @Test
+    fun `With missing parcel delivery certificate should not collect parcels`() = runTest {
+        clearPrivateGatewayParcelDeliveryCertificate()
 
         subject.collect(false)
 

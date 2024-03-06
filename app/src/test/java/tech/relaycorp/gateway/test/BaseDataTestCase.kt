@@ -11,13 +11,14 @@ import tech.relaycorp.relaynet.pki.CertificationPath
 import tech.relaycorp.relaynet.testing.keystores.MockCertificateStore
 import tech.relaycorp.relaynet.testing.keystores.MockPrivateKeyStore
 import tech.relaycorp.relaynet.testing.keystores.MockSessionPublicKeyStore
+import tech.relaycorp.relaynet.testing.pki.CDACertPath
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import tech.relaycorp.relaynet.wrappers.nodeId
 import javax.inject.Provider
 
 abstract class BaseDataTestCase {
-    protected val privateKeyStore = MockPrivateKeyStore()
+    protected val privateKeyStore = spy(MockPrivateKeyStore())
     protected val certificateStore = spy(MockCertificateStore())
     protected val privateKeyStoreProvider = Provider<PrivateKeyStore> { privateKeyStore }
     protected val certificateStoreProvider = Provider<CertificateStore> { certificateStore }
@@ -35,9 +36,10 @@ abstract class BaseDataTestCase {
     fun clearKeystores() {
         privateKeyStore.clear()
         publicKeyStore.clear()
+        certificateStore.clear()
     }
 
-    protected suspend fun registerPrivateGatewayIdentity() {
+    protected suspend fun registerPrivateGatewayParcelDeliveryCertificate() {
         privateKeyStore.saveIdentityKey(KeyPairSet.PRIVATE_GW.private)
         certificateStore.save(
             CertificationPath(PDACertPath.PRIVATE_GW, emptyList()),
@@ -58,6 +60,21 @@ abstract class BaseDataTestCase {
         publicKeyStore.save(
             internetGatewaySessionKeyPair.sessionKey,
             KeyPairSet.INTERNET_GW.public.nodeId,
+        )
+    }
+
+    protected fun clearPrivateGatewayParcelDeliveryCertificate() {
+        certificateStore.delete(
+            PDACertPath.PRIVATE_GW.subjectPublicKey.nodeId,
+            PDACertPath.INTERNET_GW.subjectId,
+        )
+    }
+
+    protected suspend fun bootstrapCargoDeliveryAuth() {
+        privateKeyStore.saveIdentityKey(KeyPairSet.PRIVATE_GW.private)
+        certificateStore.save(
+            CertificationPath(CDACertPath.PRIVATE_GW, emptyList()),
+            CDACertPath.PRIVATE_GW.subjectId,
         )
     }
 }
