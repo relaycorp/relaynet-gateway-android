@@ -87,7 +87,7 @@ class GenerateCargo
         }
 
         val identityKey = localConfig.getIdentityKey()
-        val cda = localConfig.getCargoDeliveryAuth()
+        val cda = localConfig.getParcelDeliveryCertificate() ?: localConfig.getCargoDeliveryAuth()
 
         val recipientAddress = internetGatewayPreferences.getAddress()
         val recipientId = internetGatewayPreferences.getId()
