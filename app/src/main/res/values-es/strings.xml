@@ -45,7 +45,7 @@
     <string name="courier_instructions_3_bullet">3</string>
     <string name="courier_instructions_1">Activar tu Wi-Fi si está apagado.</string>
     <string name="courier_instructions_2">Conectarte a la red del mensajero.</string>
-    <string name="courier_instructions_3">Esperar hasta que su dispositivo esté listo.</string>
+    <string name="courier_instructions_3">Esperar que su dispositivo esté listo.</string>
     <string name="courier_configure_wifi">Abrir configuración de Wi-Fi</string>
     <string name="courier_connected">¡Ahora estás conectado!</string>
     <string name="courier_connected_text">Estamos listos para intercambiar datos con el mensajero.</string>
