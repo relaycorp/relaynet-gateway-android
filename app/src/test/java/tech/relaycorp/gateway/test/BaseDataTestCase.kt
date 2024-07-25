@@ -59,6 +59,7 @@ abstract class BaseDataTestCase {
     protected suspend fun registerInternetGatewaySessionKey() {
         publicKeyStore.save(
             internetGatewaySessionKeyPair.sessionKey,
+            KeyPairSet.PRIVATE_GW.public.nodeId,
             KeyPairSet.INTERNET_GW.public.nodeId,
         )
     }
