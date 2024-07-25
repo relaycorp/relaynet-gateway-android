@@ -22,6 +22,7 @@ import tech.relaycorp.relaynet.messages.payloads.CargoMessageSetWithExpiry
 import tech.relaycorp.relaynet.messages.payloads.CargoMessageWithExpiry
 import tech.relaycorp.relaynet.messages.payloads.batch
 import tech.relaycorp.relaynet.nodes.GatewayManager
+import tech.relaycorp.relaynet.ramf.RAMFMessage
 import java.io.InputStream
 import java.time.Duration
 import java.util.Collections.min
@@ -107,7 +108,7 @@ class GenerateCargo
             payload = cargoMessageSetCiphertext,
             senderCertificate = cda,
             creationDate = creationDate,
-            ttl = min(listOf(ttl, 180.days.inWholeSeconds.toInt())),
+            ttl = min(listOf(ttl, RAMFMessage.MAX_TTL_SECONDS)),
         )
         return cargo.serialize(identityKey)
     }

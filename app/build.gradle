@@ -150,7 +150,7 @@ dependencies {
     kapt 'com.google.dagger:dagger-compiler:2.48.1'
 
     // Awala
-    implementation 'tech.relaycorp:awala:1.67.10'
+    implementation 'tech.relaycorp:awala:1.69.0'
     implementation 'tech.relaycorp:awala-keystore-file:1.6.31'
     implementation 'tech.relaycorp:cogrpc:1.1.32'
     implementation 'tech.relaycorp:cogrpc-okhttp:1.1.28'
