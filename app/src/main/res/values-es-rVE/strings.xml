@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Común -->
+    <string name="app_name">Awala</string>
+    <string name="close">Cerrar</string>
+    <string name="stop">Detener</string>
+    <string name="continue_">Continuar</string>
+    <string name="next">Siguiente</string>
+    <string name="back">Atrás</string>
+    <string name="cancel">Cancelar</string>
+
+    <!-- Principal -->
+    <string name="main_status_internet">Estás conectado a Awala a través de Internet</string>
+    <string name="main_status_internet_text">
+        Así que no hay mucho que hacer aquí. Puedes cerrar esta aplicación y disfrutar de tus apps de Awala.
+        \n\nVuelve si te quedas sin conexión a Internet.
+    </string>
+    <string name="main_status_courier">Estás conectado a un mensajero</string>
+    <string name="main_status_courier_text">
+        ¡Así que estás listo para comenzar!
+        \n\nRecuerda: Tus datos están seguros mientras están en tránsito y si se pierden,
+        intentaremos entregarlos de nuevo.
+    </string>
+    <string name="main_status_disconnected">Estás desconectado de Awala</string>
+    <string name="main_status_disconnected_text">
+        Aún puedes enviar y recibir datos de Internet a través de los mensajeros de Awala:
+        Simplemente conéctate a un mensajero cercano y nosotros haremos el resto.
+        \n\nRecuerda: Es imposible que alguien vea o cambie tus datos en tránsito, ni que nadie
+        vea qué aplicaciones estás usando.
+        \n\nAdemás, cualquier dato perdido en tránsito será entregado nuevamente en la primera oportunidad.
+    </string>
+    <string name="main_courier_connection">Sincronizar con un mensajero</string>
+    <string name="main_status_internet_no_gateway">Estás conectado a Internet pero no a Awala</string>
+    <string name="main_status_internet_no_gateway_text">Esto puede ser un problema transitorio que se resolverá pronto o, si vives en un país donde el acceso a Internet está censurado, puede que Awala esté bloqueado. Si crees que puede ser lo segundo, intenta usar una VPN (recomendamos TunnelBear).</string>
+    <string name="no_gateway_vpn_action">Instalar TunnelBear</string>
+    <string name="no_gateway_help_action">Obtener ayuda en línea</string>
+    <!-- Conexión con el Mensajero -->
+    <string name="courier_instructions_title">
+        Si hay un mensajero cerca de ti, conéctate a su red Wi-Fi para sincronizar datos.
+    </string>
+    <string name="courier_instructions_list_title">Tendrás que:</string>
+    <string name="courier_instructions_1_bullet">1</string>
+    <string name="courier_instructions_2_bullet">2</string>
+    <string name="courier_instructions_3_bullet">3</string>
+    <string name="courier_instructions_1">Activar tu Wi-Fi si está apagado.</string>
+    <string name="courier_instructions_2">Conectarte a la red del mensajero.</string>
+    <string name="courier_instructions_3">Esperar hasta que su dispositivo esté listo.</string>
+    <string name="courier_configure_wifi">Abrir configuración de Wi-Fi</string>
+    <string name="courier_connected">¡Ahora estás conectado!</string>
+    <string name="courier_connected_text">Estamos listos para intercambiar datos con el mensajero.</string>
+    <string name="courier_sync_start">Iniciar sincronización</string>
+
+    <!-- Sincronización con el Mensajero -->
+    <string name="sync_courier_title">Sincronizando con un mensajero</string>
+    <string name="sync_courier_action">Sincronizar con el mensajero</string>
+    <string name="sync_delivering_cargo">Entregando datos…</string>
+    <string name="sync_waiting">Esperando que los datos entrantes estén disponibles…</string>
+    <string name="sync_collecting_cargo">Recolectando datos…</string>
+    <string name="sync_finished">¡Listo!</string>
+    <string name="sync_error">Ha ocurrido un error. Puedes intentarlo de nuevo.</string>
+    <string name="sync_stop_confirm_title">
+        ¿Estás seguro de que quieres interrumpir la sincronización?
+    </string>
+    <string name="sync_internet_stop_confirm_message">La sincronización aún no ha terminado.</string>
+
+    <!-- Introducción -->
+    <string name="onboarding_title_1">¡Bienvenido a Awala!</string>
+    <string name="onboarding_text_1">
+        Awala permite que las aplicaciones compatibles en tu dispositivo envíen y reciban datos de Internet
+        de forma segura, incluso cuando estás desconectado de Internet.
+    </string>
+    <string name="onboarding_title_2">Usar Awala es fácil</string>
+    <string name="onboarding_text_2">
+        Cuando estés conectado a Internet, tus aplicaciones lo usarán sin problemas.
+        \n\nCuando estés desconectado de Internet, los mensajeros de Awala transportarán los datos de tus aplicaciones
+        de forma segura hacia y desde Internet.
+    </string>
+    <string name="onboarding_title_3">Awala te mantiene seguro</string>
+    <string name="onboarding_text_3">
+        Las aplicaciones de Awala usan cifrado de extremo a extremo, por lo que es imposible que esta aplicación o los mensajeros vean
+        sus datos.
+        \n\nTambién es imposible que los mensajeros descubran qué aplicaciones estás usando. Y ni qué decir
+        que no te estamos rastreando a ti ni a tus aplicaciones.
+    </string>
+    <string name="onboarding_action">¡Comencemos!</string>
+
+    <!-- Configuración -->
+    <string name="settings">Configuración</string>
+    <string name="settings_about">Acerca de</string>
+    <string name="settings_version">Versión %1$s (%2$s)</string>
+    <string name="settings_learn_more">Aprende más sobre Awala</string>
+    <string name="settings_open_libraries">Ver bibliotecas de código abierto</string>
+    <string name="settings_licenses">Bibliotecas de Código Abierto</string>
+    <string name="settings_data">Datos Salientes</string>
+    <string name="settings_data_in_transit">En tránsito</string>
+    <string name="settings_data_queued">En cola</string>
+    <string name="settings_advanced">Configuración Avanzada</string>
+    <string name="settings_pgw">Puerta de Enlace a Internet</string>
+    <string name="settings_pgw_new">Nueva Puerta de Enlace a Internet</string>
+    <string name="settings_pgw_warning">
+        La migración a una nueva puerta de enlace solo debe ser realizada por usuarios avanzados que entiendan las
+        consecuencias.
+        \n\nEn la actualidad, cambiar esta puerta de enlace probablemente impedirá que tus aplicaciones Awala existentes
+        reciban datos por un tiempo.
+        \n\nLas puertas de enlace que terminan con ".relaycorp.services" son proporcionadas por Relaycorp, y no espiamos
+        ni censuramos a nuestros usuarios. Si cambias a otro proveedor, asegúrate de que ellos tampoco lo hagan.
+    </string>
+    <string name="settings_pgw_migrate">Migrar</string>
+    <string name="settings_pgw_migrating">Migrando…</string>
+    <string name="settings_pgw_insert">Ingresa la nueva dirección</string>
+    <string name="settings_pgw_valid">La dirección parece válida</string>
+    <string name="settings_pgw_migrate_confirm">
+        ¿Estás seguro de que quieres migrar a esta puerta de enlace a Internet?
+    </string>
+    <string name="settings_pgw_migration_successful">Migración de puerta de enlace a Internet exitosa</string>
+    <string name="settings_pgw_migration_same_address">
+        Es la misma dirección actual
+    </string>
+    <string name="settings_pgw_migration_failed_to_resolve">
+        No se pudo resolver la dirección de la puerta de enlace a Internet. Por favor, confirma que es correcta.
+    </string>
+    <string name="settings_pgw_migration_failed_to_register">
+        No se pudo registrar con la puerta de enlace a Internet. Por favor, intenta de nuevo más tarde.
+    </string>
+    <string name="relaynet_website">https://awala.red/</string>
+
+</resources>
