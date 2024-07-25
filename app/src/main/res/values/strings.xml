@@ -95,8 +95,8 @@
     <string name="settings_data_in_transit">In transit</string>
     <string name="settings_data_queued">Queued</string>
     <string name="settings_advanced">Advanced Settings</string>
-    <string name="settings_pgw">Public Gateway</string>
-    <string name="settings_pgw_new">New Public Gateway</string>
+    <string name="settings_pgw">Internet Gateway</string>
+    <string name="settings_pgw_new">New Internet Gateway</string>
     <string name="settings_pgw_warning">
         Migrating to a new gateway should only be done by advanced users who understand the
         consequences.
@@ -110,17 +110,17 @@
     <string name="settings_pgw_insert">Enter the new address</string>
     <string name="settings_pgw_valid">Address looks valid</string>
     <string name="settings_pgw_migrate_confirm">
-        Are you sure you want to migrate to this public gateway?
+        Are you sure you want to migrate to this Internet gateway?
     </string>
-    <string name="settings_pgw_migration_successful">Public gateway migration successful</string>
+    <string name="settings_pgw_migration_successful">Internet gateway migration successful</string>
     <string name="settings_pgw_migration_same_address">
         Same as current address
     </string>
     <string name="settings_pgw_migration_failed_to_resolve">
-        Could not resolve public gateway address. Please confirm it is correct.
+        Could not resolve Internet gateway address. Please confirm it is correct.
     </string>
     <string name="settings_pgw_migration_failed_to_register">
-        Could not register with public gateway. Please try again later.
+        Could not register with Internet gateway. Please try again later.
     </string>
 
 </resources>
