@@ -124,6 +124,7 @@ class RegisterGateway
         localConfig.setParcelDeliveryCertificate(registration.privateNodeCertificate)
         publicKeyStore.save(
             registration.gatewaySessionKey!!,
+            registration.privateNodeCertificate.subjectId,
             registration.gatewayCertificate.subjectId,
         )
         internetGatewayPreferences.setRegistrationState(RegistrationState.Done)
