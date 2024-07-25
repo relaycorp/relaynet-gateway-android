@@ -19,6 +19,7 @@ import tech.relaycorp.gateway.test.BaseDataTestCase
 import tech.relaycorp.gateway.test.factory.ParcelCollectionFactory
 import tech.relaycorp.gateway.test.factory.StoredParcelFactory
 import tech.relaycorp.relaynet.messages.Cargo
+import tech.relaycorp.relaynet.ramf.RAMFMessage
 import tech.relaycorp.relaynet.testing.pki.KeyPairSet
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
 import java.io.InputStream
@@ -98,5 +99,25 @@ class GenerateCargoTest : BaseDataTestCase() {
         val cargoMessages = cargo.unwrapPayload(internetGatewaySessionKeyPair.privateKey).payload
         assertEquals(2, cargoMessages.messages.size)
         assertTrue(Duration.between(creationDate, cargo.creationDate).abs().seconds <= 1)
+    }
+
+    @Test
+    fun `TTL should be capped at limit`() = runBlockingTest {
+        val nowUtc = nowInUtc()
+        val parcel = StoredParcelFactory.build().copy(
+            expirationTimeUtc = nowUtc.plusSeconds(RAMFMessage.MAX_TTL_SECONDS.toLong()),
+        )
+        whenever(storedParcelDao.listForRecipientLocation(any(), any())).thenReturn(listOf(parcel))
+        val parcelCollection = ParcelCollectionFactory.build()
+        whenever(parcelCollectionDao.getAll()).thenReturn(listOf(parcelCollection))
+        val creationDate = nowUtc.minusSeconds(1)
+        whenever(calculateCRCMessageCreationDate.calculate()).thenReturn(creationDate)
+
+        val cargoes = generateCargo.generate().toList()
+        assertEquals(1, cargoes.size)
+
+        val cargo = Cargo.deserialize(cargoes.first().readBytes())
+        val expectedTTL = RAMFMessage.MAX_TTL_SECONDS
+        assertEquals(expectedTTL, cargo.ttl)
     }
 }
