@@ -137,7 +137,10 @@ class RegisterGatewayTest : BaseDataTestCase() {
 
         verify(pgwPreferences).setPublicKey(eq(pnr.gatewayCertificate.subjectPublicKey))
         verify(pgwPreferences).setRegistrationState(eq(RegistrationState.Done))
-        publicKeyStore.retrieve(pnr.gatewayCertificate.subjectId)
+        publicKeyStore.retrieve(
+            pnr.privateNodeCertificate.subjectId,
+            pnr.gatewayCertificate.subjectId,
+        )
         assertEquals(pnr.privateNodeCertificate, localConfig.getParcelDeliveryCertificate())
     }
 
