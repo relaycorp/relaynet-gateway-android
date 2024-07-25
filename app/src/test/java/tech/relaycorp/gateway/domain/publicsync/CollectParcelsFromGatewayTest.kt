@@ -10,6 +10,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.ktor.test.dispatcher.testSuspend
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -154,19 +155,31 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
 
     @Test
     fun `poWebClient client binding issues are handled`() = testSuspend {
-        whenever(poWebClient.collectParcels(any(), any())).thenThrow(ClientBindingException(""))
+        whenever(poWebClient.collectParcels(any(), any())).thenReturn(
+            flow {
+                throw ClientBindingException("Message")
+            },
+        )
         subject.collect(false)
     }
 
     @Test
     fun `poWebClient signer issues are handled`() = testSuspend {
-        whenever(poWebClient.collectParcels(any(), any())).thenThrow(NonceSignerException(""))
+        whenever(poWebClient.collectParcels(any(), any())).thenReturn(
+            flow {
+                throw NonceSignerException("Message")
+            },
+        )
         subject.collect(false)
     }
 
     @Test
     fun `poWebClient with keepAlive false, server issues are handled`() = testSuspend {
-        whenever(poWebClient.collectParcels(any(), any())).thenThrow(ServerConnectionException(""))
+        whenever(poWebClient.collectParcels(any(), any())).thenReturn(
+            flow {
+                throw ServerConnectionException("Message")
+            },
+        )
         subject.collect(false)
     }
 }
