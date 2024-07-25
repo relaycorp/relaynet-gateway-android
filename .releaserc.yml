@@ -9,4 +9,5 @@ plugins:
   - - "@semantic-release/exec"
     - prepareCmd: 'echo "${nextRelease.notes}" | head -c 500 > app/src/main/play/release-notes/en-GB/beta.txt'
       publishCmd: "./.github/scripts/publish-to-play-store.sh ${nextRelease.version}"
-  - "@semantic-release/github"
+  - - "@semantic-release/github"
+    - successComment: false # We're always hitting the GitHub API rate limit
