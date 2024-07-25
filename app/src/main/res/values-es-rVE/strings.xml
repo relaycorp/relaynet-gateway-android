@@ -103,7 +103,7 @@
         consecuencias.
         \n\nEn la actualidad, cambiar esta puerta de enlace probablemente impedirá que tus aplicaciones Awala existentes
         reciban datos por un tiempo.
-        \n\nLas puertas de enlace que terminan con ".relaycorp.services" son proporcionadas por Relaycorp, y no espiamos
+        \n\nLas puertas de enlace que terminan con “.relaycorp.services” son proporcionadas por Relaycorp, y no espiamos
         ni censuramos a nuestros usuarios. Si cambias a otro proveedor, asegúrate de que ellos tampoco lo hagan.
     </string>
     <string name="settings_pgw_migrate">Migrar</string>
