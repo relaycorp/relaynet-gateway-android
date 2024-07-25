@@ -82,7 +82,7 @@ class SettingsActivity : BaseActivity() {
     }
 
     private fun openKnowMore() {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.relaynet_website))))
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.awala_website))))
     }
 
     private fun openLicenses() {

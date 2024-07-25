@@ -123,6 +123,6 @@
     <string name="settings_pgw_migration_failed_to_register">
         No se pudo registrar con la puerta de enlace a Internet. Por favor, intenta de nuevo más tarde.
     </string>
-    <string name="relaynet_website">https://awala.red/</string>
+    <string name="awala_website">https://awala.red/</string>
 
 </resources>
