@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import tech.relaycorp.gateway.data.doh.InternetAddressResolutionException
@@ -25,6 +26,7 @@ import tech.relaycorp.gateway.domain.StoreParcel
 import tech.relaycorp.gateway.domain.endpoint.IncomingParcelNotifier
 import tech.relaycorp.gateway.pdc.PoWebClientProvider
 import tech.relaycorp.gateway.test.BaseDataTestCase
+import tech.relaycorp.gateway.test.TestLogHandler
 import tech.relaycorp.poweb.PoWebClient
 import tech.relaycorp.relaynet.bindings.pdc.ClientBindingException
 import tech.relaycorp.relaynet.bindings.pdc.NonceSignerException
@@ -34,6 +36,8 @@ import tech.relaycorp.relaynet.bindings.pdc.StreamingMode
 import tech.relaycorp.relaynet.messages.Parcel
 import tech.relaycorp.relaynet.messages.Recipient
 import tech.relaycorp.relaynet.testing.pki.PDACertPath
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class CollectParcelsFromGatewayTest : BaseDataTestCase() {
 
@@ -55,6 +59,7 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
         notifyEndpoints,
         mockLocalConfig,
     )
+    private val testLogHandler = TestLogHandler()
 
     @BeforeEach
     fun setUp() = testSuspend {
@@ -63,6 +68,14 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
             .thenReturn(StoreParcel.Result.Success(mock()))
         whenever(mockInternetGatewayPreferences.getId())
             .thenReturn(PDACertPath.INTERNET_GW.subjectId)
+
+        Logger.getLogger(CollectParcelsFromGateway::class.java.name).addHandler(testLogHandler)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        testLogHandler.close()
+        Logger.getLogger(CollectParcelsFromGateway::class.java.name).removeHandler(testLogHandler)
     }
 
     @Test
@@ -160,7 +173,17 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
                 throw ClientBindingException("Message")
             },
         )
+
         subject.collect(false)
+
+        val logRecord = testLogHandler.filterLogs(
+            Level.SEVERE,
+            "Could not collect parcels due to client error",
+        )
+            .singleOrNull()
+        assert(logRecord != null)
+        assert(logRecord?.thrown is ClientBindingException)
+        verifyNoMoreInteractions(storeParcel, notifyEndpoints)
     }
 
     @Test
@@ -170,7 +193,17 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
                 throw NonceSignerException("Message")
             },
         )
+
         subject.collect(false)
+
+        val logRecord = testLogHandler.filterLogs(
+            Level.SEVERE,
+            "Could not collect parcels due to signing error",
+        )
+            .singleOrNull()
+        assert(logRecord != null)
+        assert(logRecord?.thrown is NonceSignerException)
+        verifyNoMoreInteractions(storeParcel, notifyEndpoints)
     }
 
     @Test
@@ -180,6 +213,16 @@ class CollectParcelsFromGatewayTest : BaseDataTestCase() {
                 throw ServerConnectionException("Message")
             },
         )
+
         subject.collect(false)
+
+        val logRecord = testLogHandler.filterLogs(
+            Level.WARNING,
+            "Could not collect parcels due to server error",
+        )
+            .singleOrNull()
+        assert(logRecord != null)
+        assert(logRecord?.thrown is ServerConnectionException)
+        verifyNoMoreInteractions(storeParcel, notifyEndpoints)
     }
 }
