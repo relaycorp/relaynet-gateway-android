@@ -99,4 +99,24 @@ class GenerateCargoTest : BaseDataTestCase() {
         assertEquals(2, cargoMessages.messages.size)
         assertTrue(Duration.between(creationDate, cargo.creationDate).abs().seconds <= 1)
     }
+
+    @Test
+    fun `TTL should be capped at 180 days`() = runBlockingTest {
+        val nowUtc = nowInUtc()
+        val parcel = StoredParcelFactory.build().copy(
+            expirationTimeUtc = nowUtc.plusDays(180),
+        )
+        whenever(storedParcelDao.listForRecipientLocation(any(), any())).thenReturn(listOf(parcel))
+        val parcelCollection = ParcelCollectionFactory.build()
+        whenever(parcelCollectionDao.getAll()).thenReturn(listOf(parcelCollection))
+        val creationDate = nowUtc.minusDays(180).minusSeconds(1).minusMinutes(90)
+        whenever(calculateCRCMessageCreationDate.calculate()).thenReturn(creationDate)
+
+        val cargoes = generateCargo.generate().toList()
+        assertEquals(1, cargoes.size)
+
+        val cargo = Cargo.deserialize(cargoes.first().readBytes())
+        val expectedTTL = Duration.ofDays(180).seconds
+        assertEquals(expectedTTL, cargo.ttl.toLong())
+    }
 }

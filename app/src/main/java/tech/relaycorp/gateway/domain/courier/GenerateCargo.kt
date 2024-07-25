@@ -24,9 +24,11 @@ import tech.relaycorp.relaynet.messages.payloads.batch
 import tech.relaycorp.relaynet.nodes.GatewayManager
 import java.io.InputStream
 import java.time.Duration
+import java.util.Collections.min
 import java.util.logging.Level
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlin.time.Duration.Companion.days
 
 class GenerateCargo
 @Inject constructor(
@@ -82,7 +84,7 @@ class GenerateCargo
     private suspend fun CargoMessageSetWithExpiry.toCargoSerialized(): ByteArray {
         if (nowInUtc() > latestMessageExpiryDate) {
             logger.warning(
-                "The latest expiration date $latestMessageExpiryDate has expired already",
+                "The message with the latest expiry ($latestMessageExpiryDate) expired already",
             )
         }
 
@@ -99,12 +101,13 @@ class GenerateCargo
             internetGatewayPreferences.getId(),
             cda.subjectId,
         )
+        val ttl = Duration.between(creationDate, latestMessageExpiryDate).seconds.toInt()
         val cargo = Cargo(
             recipient = Recipient(recipientId, recipientAddress),
             payload = cargoMessageSetCiphertext,
             senderCertificate = cda,
             creationDate = creationDate,
-            ttl = Duration.between(creationDate, latestMessageExpiryDate).seconds.toInt(),
+            ttl = min(listOf(ttl, 180.days.inWholeSeconds.toInt())),
         )
         return cargo.serialize(identityKey)
     }
